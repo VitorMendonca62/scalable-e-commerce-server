@@ -9,6 +9,8 @@ import {
   Patch,
   Post,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserMapper } from '../../mappers/user.mapper';
@@ -17,10 +19,11 @@ import { UpdateUserDTO } from './dto/update-user.dto';
 
 interface UserControllerResponse {
   message: string;
-  data: User | User[] | undefined;
+  data: User | User[] | undefined | null;
 }
 
 @Controller('user')
+@UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class UserController {
   constructor(private readonly userMapper: UserMapper) {}
 
@@ -86,9 +89,20 @@ export class UserController {
       throw new NotFoundException('Não foi possivel encontrar o usuário');
     }
 
+    const { email, name, phonenumber, username } = dto;
+
+    const newUser = this.userMapper.update({
+      email,
+      name,
+      phonenumber,
+      username,
+    });
+
+    // Chamar usecase aqui,
+
     return {
       message: 'Aqui está usuário pelo username',
-      data: undefined, // Chamar usecase aqui,
+      data: undefined,
     };
   }
 
