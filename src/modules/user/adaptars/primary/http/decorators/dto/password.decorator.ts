@@ -8,7 +8,7 @@ export function Password() {
     }),
     IsString({ message: 'A senha deve ser uma string válida' }),
     MinLength(8, {
-      message: 'A está está muito curta. O mínimo são 8 caracteres',
+      message: 'A senha está está muito curta. O mínimo são 8 caracteres',
     }),
   );
 }

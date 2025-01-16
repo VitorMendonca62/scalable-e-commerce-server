@@ -1,5 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
-import { IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
 export function Username() {
   return applyDecorators(
@@ -10,5 +10,6 @@ export function Username() {
     MinLength(3, {
       message: 'O username está muito curto. O mínimo são 3 caracteres',
     }),
+    Matches(/^\S+$/, { message: 'O username não pode conter com espaços.' }),
   );
 }
