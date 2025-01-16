@@ -14,8 +14,13 @@ import {
 } from '@nestjs/common';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserMapper } from '../../mappers/user.mapper';
-import { User } from 'src/modules/user/core/domain/user.entity';
+import { User } from '@user/core/domain/user.entity';
 import { UpdateUserDTO } from './dto/update-user.dto';
+import { CreateUserUseCase } from '@user/core/application/use-cases/create-user.usecase';
+import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.usecase';
+import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
+import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usecase';
+import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.usecase';
 
 interface UserControllerResponse {
   message: string;
@@ -25,7 +30,14 @@ interface UserControllerResponse {
 @Controller('user')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class UserController {
-  constructor(private readonly userMapper: UserMapper) {}
+  constructor(
+    private readonly userMapper: UserMapper,
+    private readonly createUserUseCase: CreateUserUseCase,
+    private readonly getUserUseCase: GetUserUseCase,
+    private readonly getUsesrUseCase: GetUsersUseCase,
+    private readonly updateUserUseCase: UpdateUserUseCase,
+    private readonly deleteUserUseCase: DeleteUserUseCase,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -40,7 +52,7 @@ export class UserController {
       username,
     });
 
-    // Chamar use case aqui
+    await this.createUserUseCase.execute(user);
 
     return {
       message: 'Usuário criado com sucesso',
@@ -53,7 +65,7 @@ export class UserController {
   async findAll(): Promise<UserControllerResponse> {
     return {
       message: 'Aqui está a listagem de todos os usuários',
-      data: undefined, // Chamar usecase aqui,
+      data: await this.getUsesrUseCase.findAll(),
     };
   }
 
@@ -66,14 +78,14 @@ export class UserController {
     if (id) {
       return {
         message: 'Aqui está usuário pelo ID',
-        data: undefined, // Chamar usecase aqui,
+        data: await this.getUserUseCase.findById(id),
       };
     }
 
     if (username) {
       return {
         message: 'Aqui está usuário pelo username',
-        data: undefined, // Chamar usecase aqui,
+        data: await this.getUserUseCase.findByUsername(username),
       };
     }
 
@@ -98,10 +110,10 @@ export class UserController {
       username,
     });
 
-    // Chamar usecase aqui,
+    await this.updateUserUseCase.execute(id, newUser);
 
     return {
-      message: 'Aqui está usuário pelo username',
+      message: 'O usuário foi atualizado com sucesso',
       data: undefined,
     };
   }
@@ -113,7 +125,7 @@ export class UserController {
       throw new NotFoundException('Não foi possivel encontrar o usuário');
     }
 
-    // Chamar usecase aqui
+    await this.deleteUserUseCase.execute(id);
 
     return {
       message: 'Aqui está usuário pelo username',
