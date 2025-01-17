@@ -8,9 +8,11 @@ import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.
 import { UserMapper } from '../../mappers/user.mapper';
 import { INestApplication } from '@nestjs/common';
 import {
-  mockCreateDTO,
+  mockCreatUserDTO,
+  mockUpdateUserDTO,
   mockUser,
   mockUserList,
+  mockUserUpdate,
 } from '@user/helpers/tests.helper';
 import * as request from 'supertest';
 
@@ -74,7 +76,7 @@ describe('UserController', () => {
     });
 
     it('should use case call with correct parameters', async () => {
-      const dto = mockCreateDTO();
+      const dto = mockCreatUserDTO();
       await controller.create(dto);
 
       expect(mapper.create).toHaveBeenCalledWith(dto);
@@ -82,7 +84,7 @@ describe('UserController', () => {
     });
 
     it('should create user and return sucess message', async () => {
-      const dto = mockCreateDTO();
+      const dto = mockCreatUserDTO();
 
       const response = await request(app.getHttpServer())
         .post('/user')
@@ -96,7 +98,7 @@ describe('UserController', () => {
     });
 
     it('should throw bad request error when no have fields', async () => {
-      const dto = mockCreateDTO({
+      const dto = mockCreatUserDTO({
         email: undefined,
         name: undefined,
         password: undefined,
@@ -123,7 +125,7 @@ describe('UserController', () => {
     });
 
     it('should throw bad request error when invalid phonenumber, username and email', async () => {
-      const dto = mockCreateDTO({
+      const dto = mockCreatUserDTO({
         email: 'testeexemplo.com',
         phonenumber: '+23',
         username: 'default username',
@@ -146,7 +148,7 @@ describe('UserController', () => {
     });
 
     it('should throw bad request error when invalid phonenumber', async () => {
-      const dto = mockCreateDTO({
+      const dto = mockCreatUserDTO({
         phonenumber: '+55 8199999999',
       });
 
@@ -235,6 +237,97 @@ describe('UserController', () => {
       expect(response).toEqual({
         message: 'Aqui está usuário pelo username',
         data: userWithUsername,
+      });
+    });
+  });
+
+  describe('update', () => {
+    const dto = mockUpdateUserDTO();
+
+    beforeEach(() => {
+      jest
+        .spyOn(mapper, 'update')
+        .mockImplementation((dto) => mockUserUpdate(dto));
+      jest
+        .spyOn(updateUserUseCase, 'execute')
+        .mockImplementation(() => undefined);
+    });
+
+    it('should use case call with correct parameters', async () => {
+      await controller.update('1', dto);
+
+      expect(mapper.update).toHaveBeenCalledWith(dto);
+      expect(updateUserUseCase.execute).toHaveBeenCalledWith(
+        '1',
+        mockUserUpdate(dto),
+      );
+    });
+
+    it('should update user and return sucess message', async () => {
+      const response = await request(app.getHttpServer())
+        .patch('/user/1')
+        .send(dto)
+        .expect(200);
+
+      expect(response.body).toEqual({
+        message: 'O usuário foi atualizado com sucesso',
+        data: undefined,
+      });
+    });
+
+    it('should throw bad request exception when no have fields', async () => {
+      jest
+        .spyOn(mapper, 'update')
+        .mockImplementation(() => mockUserUpdate({ username: undefined }));
+
+      await expect(controller.update('1', {})).rejects.toThrow(
+        'Adicione algum campo para o usuário ser atualizado',
+      );
+    });
+
+    it('should throw not found exception when no have ID', async () => {
+      await expect(controller.update(undefined, {})).rejects.toThrow(
+        'Não foi possivel encontrar o usuário',
+      );
+    });
+
+    it('should throw bad request error when invalid phonenumber, username and email', async () => {
+      const dto = mockUpdateUserDTO({
+        email: 'testeexemplo.com',
+        phonenumber: '+23',
+        username: 'default username',
+      });
+
+      const response = await request(app.getHttpServer())
+        .patch('/user/1')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: [
+          'O username não pode conter com espaços.',
+          'O email tem que ser válido',
+          'O telefone deve ser válido do Brasil',
+        ],
+        statusCode: 400,
+      });
+    });
+
+    it('should throw bad request error when invalid phonenumber', async () => {
+      const dto = mockUpdateUserDTO({
+        phonenumber: '+55 8199999999',
+      });
+
+      const response = await request(app.getHttpServer())
+        .patch('/user/1')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['O telefone deve ser válido do Brasil'],
+        statusCode: 400,
       });
     });
   });

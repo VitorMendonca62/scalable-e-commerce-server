@@ -11,16 +11,20 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
   const createdAt = new Date('2025-01-16T17:21:05.370Z');
   const updatedAt = new Date('2025-01-16T17:21:05.370Z');
 
-  return new User(mockCreateDTO(overrides), createdAt, updatedAt);
+  return new User(mockCreatUserDTO(overrides), createdAt, updatedAt);
 };
 
-export const mockUserUpdate = (overrides: UpdateUserDTO) => {
+export const mockUserUpdate = (overrides: UpdateUserDTO | object = {}) => {
   const updatedAt = new Date('2025-02-16T17:21:05.370Z');
 
-  return new UserUpdate({ username: 'changeuser', ...overrides }, updatedAt);
+  return new UserUpdate(mockUpdateUserDTO(overrides), updatedAt);
 };
 
-export const mockCreateDTO = (
+export const mockUpdateUserDTO = (overrides: UpdateUserDTO | object = {}) => {
+  return { username: 'changeuser', ...overrides };
+};
+
+export const mockCreatUserDTO = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
   return {
