@@ -164,10 +164,12 @@ describe('UserController', () => {
   });
 
   describe('findAll', () => {
+    const users = mockUserList();
+
     beforeEach(() => {
       jest
         .spyOn(getUsersUseCase, 'findAll')
-        .mockImplementation(async () => mockUserList());
+        .mockImplementation(async () => users);
     });
 
     it('should use case call with correct parameters', async () => {
@@ -181,7 +183,58 @@ describe('UserController', () => {
 
       expect(response).toEqual({
         message: 'Aqui está a listagem de todos os usuários',
-        data: mockUserList(),
+        data: users,
+      });
+    });
+  });
+
+  describe('findOne', () => {
+    const users = mockUserList();
+    const userWithId = users[0];
+    const userWithUsername = users[1];
+
+    beforeEach(() => {
+      jest
+        .spyOn(getUserUseCase, 'findById')
+        .mockImplementation(async () => userWithId);
+      jest
+        .spyOn(getUserUseCase, 'findByUsername')
+        .mockImplementation(async () => userWithUsername);
+    });
+
+    it('should use case call with correct parameters and ID', async () => {
+      await controller.findOne('1');
+
+      expect(getUserUseCase.findById).toHaveBeenCalledWith('1');
+    });
+
+    it('should use case call with correct parameters and username', async () => {
+      await controller.findOne(undefined, 'user01');
+
+      expect(getUserUseCase.findById).toHaveBeenCalledWith('user01');
+    });
+
+    it('should throw not found error without queries', async () => {
+      await expect(controller.findOne(undefined, undefined)).rejects.toThrow(
+        'Não foi possivel encontrar o usuário',
+      );
+    });
+
+    it('should return filtered user by id', async () => {
+      const response = await controller.findOne('1');
+
+      expect(response).toEqual({
+        message: 'Aqui está usuário pelo ID',
+        data: userWithId,
+      });
+    });
+
+    it('should return filtered user by username', async () => {
+      const response = await controller.findOne(undefined, 'user01');
+
+      expect(response).toEqual({
+        message: 'Aqui está usuário pelo username',
+        data: userWithUsername,
       });
     });
   });

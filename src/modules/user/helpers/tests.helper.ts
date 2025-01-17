@@ -3,7 +3,11 @@ import { UpdateUserDTO } from '../adaptars/primary/http/dto/update-user.dto';
 import { UserUpdate } from '../core/domain/user-update.entity';
 import { User } from '../core/domain/user.entity';
 
-export const mockUser = (overrides: Partial<CreateUserDTO> = {}) => {
+interface MockUser extends CreateUserDTO {
+  id?: string;
+}
+
+export const mockUser = (overrides: Partial<MockUser> = {}) => {
   const createdAt = new Date('2025-01-16T17:21:05.370Z');
   const updatedAt = new Date('2025-01-16T17:21:05.370Z');
 
@@ -31,8 +35,8 @@ export const mockCreateDTO = (
 
 export const mockUserList = () => {
   return [
-    mockUser({ username: 'user01' }),
-    mockUser({ username: 'user02' }),
-    mockUser({ username: 'user03' }),
+    mockUser({ username: 'user01', id: '1' }),
+    mockUser({ username: 'user02', id: '2' }),
+    mockUser({ username: 'user03', id: '3' }),
   ];
 };
