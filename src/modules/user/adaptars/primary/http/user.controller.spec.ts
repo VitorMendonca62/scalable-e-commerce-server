@@ -270,7 +270,7 @@ describe('UserController', () => {
         .expect(200);
 
       expect(response.body).toEqual({
-        message: 'O usuário foi atualizado com sucesso',
+        message: 'Usuário atualizado com sucesso',
         data: undefined,
       });
     });
@@ -329,6 +329,37 @@ describe('UserController', () => {
         message: ['O telefone deve ser válido do Brasil'],
         statusCode: 400,
       });
+    });
+  });
+
+  describe('delete', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(deleteUserUseCase, 'execute')
+        .mockImplementation(() => undefined);
+    });
+
+    it('should use case call with correct parameters', async () => {
+      await controller.delete('1');
+
+      expect(deleteUserUseCase.execute).toHaveBeenCalledWith('1');
+    });
+
+    it('should delete user and return sucess message', async () => {
+      const response = await request(app.getHttpServer())
+        .delete('/user/1')
+        .expect(200);
+
+      expect(response.body).toEqual({
+        message: 'Usuário deletado com sucesso',
+        data: undefined,
+      });
+    });
+
+    it('should throw not found exception when no have ID', async () => {
+      await expect(controller.delete(undefined)).rejects.toThrow(
+        'Não foi possivel encontrar o usuário',
+      );
     });
   });
 });

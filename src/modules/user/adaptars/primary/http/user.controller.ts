@@ -106,7 +106,7 @@ export class UserController {
     await this.updateUserUseCase.execute(id, newUser);
 
     return {
-      message: 'O usuário foi atualizado com sucesso',
+      message: 'Usuário atualizado com sucesso',
       data: undefined,
     };
   }
@@ -121,7 +121,7 @@ export class UserController {
     await this.deleteUserUseCase.execute(id);
 
     return {
-      message: 'Aqui está usuário pelo username',
+      message: 'Usuário deletado com sucesso',
       data: undefined,
     };
   }
