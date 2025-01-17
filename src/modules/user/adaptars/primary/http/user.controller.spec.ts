@@ -211,7 +211,7 @@ describe('UserController', () => {
     it('should use case call with correct parameters and username', async () => {
       await controller.findOne(undefined, 'user01');
 
-      expect(getUserUseCase.findById).toHaveBeenCalledWith('user01');
+      expect(getUserUseCase.findByUsername).toHaveBeenCalledWith('user01');
     });
 
     it('should throw not found error without queries', async () => {
