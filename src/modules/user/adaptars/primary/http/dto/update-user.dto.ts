@@ -4,15 +4,15 @@ import { PhoneNumber } from '../decorators/dto/phonenumber.decorator';
 import { Username } from '../decorators/dto/username.decorator';
 
 export abstract class UpdateUserDTO {
-  @Username()
-  username: string;
+  @Username(true)
+  username?: string;
 
-  @Name()
-  name: string;
+  @Name(true)
+  name?: string;
 
-  @Email()
-  email: string;
+  @Email(true)
+  email?: string;
 
-  @PhoneNumber()
-  phonenumber: string;
+  @PhoneNumber(true)
+  phonenumber?: string;
 }

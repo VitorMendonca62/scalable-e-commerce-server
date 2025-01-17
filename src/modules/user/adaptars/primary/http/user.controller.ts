@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -42,15 +43,7 @@ export class UserController {
   @Post()
   @HttpCode(201)
   async create(@Body() dto: CreateUserDTO): Promise<UserControllerResponse> {
-    const { email, name, password, phonenumber, username } = dto;
-
-    const user = this.userMapper.create({
-      email,
-      name,
-      password,
-      phonenumber,
-      username,
-    });
+    const user = this.userMapper.create(dto);
 
     await this.createUserUseCase.execute(user);
 
@@ -93,22 +86,22 @@ export class UserController {
   }
 
   @Patch(':id')
+  @HttpCode(200)
   async update(
     @Param('id') id: string,
-    dto: UpdateUserDTO,
+    @Body() dto: UpdateUserDTO,
   ): Promise<UserControllerResponse> {
     if (!id) {
       throw new NotFoundException('Não foi possivel encontrar o usuário');
     }
 
-    const { email, name, phonenumber, username } = dto;
+    const newUser = this.userMapper.update(dto);
 
-    const newUser = this.userMapper.update({
-      email,
-      name,
-      phonenumber,
-      username,
-    });
+    if (Object.keys(newUser).length === 1) {
+      throw new BadRequestException(
+        'Adicione algum campo para o usuário ser atualizado',
+      );
+    }
 
     await this.updateUserUseCase.execute(id, newUser);
 
@@ -119,7 +112,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(200)
   async delete(@Param('id') id: string): Promise<UserControllerResponse> {
     if (!id) {
       throw new NotFoundException('Não foi possivel encontrar o usuário');

@@ -5,18 +5,18 @@ import { PhoneNumber } from '../decorators/dto/phonenumber.decorator';
 import { Username } from '../decorators/dto/username.decorator';
 
 export abstract class CreateUserDTO {
-  @Username()
+  @Username(false)
   username: string;
 
-  @Name()
+  @Name(false)
   name: string;
 
-  @Email()
+  @Email(false)
   email: string;
 
   @Password()
   password: string;
 
-  @PhoneNumber()
+  @PhoneNumber(false)
   phonenumber: string;
 }
