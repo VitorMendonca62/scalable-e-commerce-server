@@ -7,7 +7,11 @@ import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usec
 import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.usecase';
 import { UserMapper } from '../../mappers/user.mapper';
 import { INestApplication } from '@nestjs/common';
-import { mockCreateDTO, mockUser } from '@user/helpers/tests.helper';
+import {
+  mockCreateDTO,
+  mockUser,
+  mockUserList,
+} from '@user/helpers/tests.helper';
 import * as request from 'supertest';
 
 describe('UserController', () => {
@@ -61,7 +65,7 @@ describe('UserController', () => {
     expect(app).toBeDefined();
   });
 
-  describe('POST /', () => {
+  describe('create', () => {
     beforeEach(() => {
       jest.spyOn(mapper, 'create').mockImplementation((dto) => mockUser(dto));
       jest
@@ -155,6 +159,29 @@ describe('UserController', () => {
         error: 'Bad Request',
         message: ['O telefone deve ser válido do Brasil'],
         statusCode: 400,
+      });
+    });
+  });
+
+  describe('findAll', () => {
+    beforeEach(() => {
+      jest
+        .spyOn(getUsersUseCase, 'findAll')
+        .mockImplementation(async () => mockUserList());
+    });
+
+    it('should use case call with correct parameters', async () => {
+      await controller.findAll();
+
+      expect(getUsersUseCase.findAll).toHaveBeenCalled();
+    });
+
+    it('should return all tasks', async () => {
+      const response = await controller.findAll();
+
+      expect(response).toEqual({
+        message: 'Aqui está a listagem de todos os usuários',
+        data: mockUserList(),
       });
     });
   });
