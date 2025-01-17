@@ -13,10 +13,10 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateUserDTO } from './dto/create-user.dto';
-import { UserMapper } from '../../mappers/user.mapper';
+import { CreateUserDTO } from '../dto/create-user.dto';
+import { UserMapper } from '../../../mappers/user.mapper';
 import { User } from '@user/core/domain/user.entity';
-import { UpdateUserDTO } from './dto/update-user.dto';
+import { UpdateUserDTO } from '../dto/update-user.dto';
 import { CreateUserUseCase } from '@user/core/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.usecase';
 import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
@@ -43,7 +43,7 @@ export class UserController {
   @Post()
   @HttpCode(201)
   async create(@Body() dto: CreateUserDTO): Promise<UserControllerResponse> {
-    const user = this.userMapper.create(dto);
+    const user = this.userMapper.createDTOForEntity(dto);
 
     await this.createUserUseCase.execute(user);
 
@@ -95,7 +95,7 @@ export class UserController {
       throw new NotFoundException('Não foi possivel encontrar o usuário');
     }
 
-    const newUser = this.userMapper.update(dto);
+    const newUser = this.userMapper.updateDTOForEntity(dto);
 
     if (Object.keys(newUser).length === 1) {
       throw new BadRequestException(
