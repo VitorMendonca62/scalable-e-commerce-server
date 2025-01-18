@@ -5,7 +5,7 @@ import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.
 import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
 import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usecase';
 import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.usecase';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../../mappers/user.mapper';
 import { INestApplication } from '@nestjs/common';
 import {
   mockCreatUserDTO,
@@ -69,7 +69,7 @@ describe('UserController', () => {
 
   describe('create', () => {
     beforeEach(() => {
-      jest.spyOn(mapper, 'create').mockImplementation((dto) => mockUser(dto));
+      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation((dto) => mockUser(dto));
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockImplementation(() => undefined);
@@ -79,7 +79,7 @@ describe('UserController', () => {
       const dto = mockCreatUserDTO();
       await controller.create(dto);
 
-      expect(mapper.create).toHaveBeenCalledWith(dto);
+      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(mockUser());
     });
 
@@ -246,7 +246,7 @@ describe('UserController', () => {
 
     beforeEach(() => {
       jest
-        .spyOn(mapper, 'update')
+        .spyOn(mapper, 'updateDTOForEntity')
         .mockImplementation((dto) => mockUserUpdate(dto));
       jest
         .spyOn(updateUserUseCase, 'execute')
@@ -256,7 +256,7 @@ describe('UserController', () => {
     it('should use case call with correct parameters', async () => {
       await controller.update('1', dto);
 
-      expect(mapper.update).toHaveBeenCalledWith(dto);
+      expect(mapper.updateDTOForEntity).toHaveBeenCalledWith(dto);
       expect(updateUserUseCase.execute).toHaveBeenCalledWith(
         '1',
         mockUserUpdate(dto),
@@ -277,7 +277,7 @@ describe('UserController', () => {
 
     it('should throw bad request exception when no have fields', async () => {
       jest
-        .spyOn(mapper, 'update')
+        .spyOn(mapper, 'updateDTOForEntity')
         .mockImplementation(() => mockUserUpdate({ username: undefined }));
 
       await expect(controller.update('1', {})).rejects.toThrow(

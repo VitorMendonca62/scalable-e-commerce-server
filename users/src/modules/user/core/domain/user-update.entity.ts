@@ -14,15 +14,4 @@ export class UserUpdate {
     if (data.phonenumber) this.phonenumber = data.phonenumber;
     this.updatedAt = updatedAt;
   }
-
-  toJson() {
-    const newUserJson: UpdateUserDTO = Object();
-
-    if (this.name) newUserJson.name = this.name;
-    if (this.username) newUserJson.username = this.username;
-    if (this.email) newUserJson.email = this.email;
-    if (this.phonenumber) newUserJson.phonenumber = this.phonenumber;
-
-    return newUserJson;
-  }
 }

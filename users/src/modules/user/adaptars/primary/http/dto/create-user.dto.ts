@@ -14,7 +14,7 @@ export abstract class CreateUserDTO {
   @Email(false)
   email: string;
 
-  @Password()
+  @Password(true)
   password: string;
 
   @PhoneNumber(false)
