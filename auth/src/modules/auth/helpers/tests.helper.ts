@@ -1,5 +1,5 @@
 import { CreateUserDTO } from '../adaptars/primary/http/dto/create-user.dto';
-import { User } from '../core/domain/user.entity';
+import { User } from '../core/domain/entities/user.entity';
 
 interface MockUser extends CreateUserDTO {
   id?: string;

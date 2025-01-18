@@ -1,5 +1,5 @@
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
-import { User } from '@modules/auth/core/domain/user.entity';
+import { User } from '@modules/auth/core/domain/entities/user.entity';
 
 export class InMemoryUserRepository implements UserRepository {
   create(user: User): Promise<User> {

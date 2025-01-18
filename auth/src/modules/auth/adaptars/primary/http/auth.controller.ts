@@ -10,6 +10,7 @@ import {
 import { CreateUserDTO } from './dto/create-user.dto';
 import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';
 import { LoginUserDTO } from './dto/login-user.dto';
+import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -17,6 +18,7 @@ export class AuthController {
   constructor(
     private readonly userMapper: UserMapper,
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly createSessionUseCase: CreateSessionUseCase,
   ) {}
 
   @Post('/register')
@@ -35,9 +37,9 @@ export class AuthController {
   @Post('/login')
   @HttpCode(201)
   async login(@Body() dto: LoginUserDTO) {
-    // const user = this.userMapper.loginDTOForEntity(dto);
+    const user = this.userMapper.loginDTOForEntity(dto);
 
-    // await this.createUserUseCase.execute(user);
+    await this.createSessionUseCase.execute(user);
 
     return {
       message: 'Usuário criado com sucesso',

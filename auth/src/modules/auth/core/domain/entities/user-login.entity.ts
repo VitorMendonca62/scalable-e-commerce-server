@@ -5,9 +5,9 @@ export class UserLogin {
   password: string;
   accessedAt: Date;
 
-  constructor(data: LoginUserDTO, accessedAt: Date) {
+  constructor(data: LoginUserDTO) {
     this.email = data.email;
     this.password = data.password;
-    this.accessedAt = accessedAt;
+    this.accessedAt = new Date();
   }
 }

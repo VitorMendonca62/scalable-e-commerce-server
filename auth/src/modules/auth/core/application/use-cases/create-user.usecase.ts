@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { User } from '../../domain/user.entity';
+import { User } from '../../domain/entities/user.entity';
 import { CreateUserPort } from '../ports/primary/user.port';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
 
@@ -27,6 +27,7 @@ export class CreateUserUseCase implements CreateUserPort {
         'Esse email já está sendo utilizado. Tente outro',
       );
     }
+
     await this.userRepository.create(user);
   }
 }
