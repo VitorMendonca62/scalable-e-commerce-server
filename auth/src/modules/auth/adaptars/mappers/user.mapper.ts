@@ -14,6 +14,8 @@ export class UserMapper {
   }
 
   loginDTOForEntity(dto: LoginUserDTO) {
-    return new UserLogin(dto);
+    const accessedAt = new Date();
+
+    return new UserLogin(dto, accessedAt);
   }
 }

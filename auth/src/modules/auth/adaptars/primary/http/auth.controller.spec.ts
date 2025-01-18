@@ -5,6 +5,8 @@ import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
 import { AuthController } from './auth.controller';
 import { mockUser, mockCreatUserDTO } from '@auth/helpers/tests.helper';
 import * as request from 'supertest';
+import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
+import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -18,7 +20,14 @@ describe('AuthController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AuthController],
-      providers: [UserMapper, CreateUserUseCase],
+      providers: [
+        UserMapper,
+        CreateUserUseCase,
+        {
+          provide: UserRepository,
+          useClass: InMemoryUserRepository,
+        },
+      ],
     }).compile();
 
     controller = module.get<AuthController>(AuthController);
@@ -29,7 +38,6 @@ describe('AuthController', () => {
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
-
     await app.init();
   });
 

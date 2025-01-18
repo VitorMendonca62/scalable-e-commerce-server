@@ -7,9 +7,9 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-// import { LoginUserDTO } from './dto/login-user.dto';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';
+import { LoginUserDTO } from './dto/login-user.dto';
 
 @Controller('auth')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -32,10 +32,17 @@ export class AuthController {
     };
   }
 
-  @Post()
+  @Post('/login')
   @HttpCode(201)
-  async login(/* @Body() dto: LoginUserDTO */) {
-    return 'Hello world';
+  async login(@Body() dto: LoginUserDTO) {
+    // const user = this.userMapper.loginDTOForEntity(dto);
+
+    // await this.createUserUseCase.execute(user);
+
+    return {
+      message: 'Usuário criado com sucesso',
+      data: undefined,
+    };
   }
 
   @Post()
