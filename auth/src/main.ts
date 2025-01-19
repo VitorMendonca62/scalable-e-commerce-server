@@ -14,8 +14,6 @@ async function bootstrap() {
   await app.listen(PORT, () =>
     console.warn(`Server running in ${HOST}:${PORT}`),
   );
-
-  await app.listen(PORT ?? 3000);
 }
 
 bootstrap();

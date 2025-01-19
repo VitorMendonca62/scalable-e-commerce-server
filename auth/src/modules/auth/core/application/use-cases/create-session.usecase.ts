@@ -1,4 +1,4 @@
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { UserLogin } from '../../domain/entities/user-login.entity';
 import {
   CreateSessionOutbondPort,
@@ -7,6 +7,7 @@ import {
 import { UserRepository } from '../ports/secondary/user-repository.interface';
 import { JwtTokenService } from '../services/jwt-token.service';
 
+@Injectable()
 export class CreateSessionUseCase implements CreateSessionPort {
   constructor(
     private readonly userRepository: UserRepository,
@@ -16,9 +17,11 @@ export class CreateSessionUseCase implements CreateSessionPort {
   async execute(inputUser: UserLogin): Promise<CreateSessionOutbondPort> {
     const user = await this.userRepository.findByEmail(inputUser.email);
 
-    const passwordIsCorrect = user.validatePassword(inputUser.password);
+    if (!user) {
+      throw new NotFoundException('Email ou senha estão incorretos.');
+    }
 
-    if (!user || passwordIsCorrect) {
+    if (!user.validatePassword(inputUser.password)) {
       throw new NotFoundException('Email ou senha estão incorretos.');
     }
 
@@ -26,26 +29,24 @@ export class CreateSessionUseCase implements CreateSessionPort {
       sub: user._id,
       email: user.email,
       roles: user.roles,
-      type: 'access',
+      type: 'access' as const,
     };
 
     const refreshTokenPlayload = {
-      id: user._id,
-      type: 'refresh',
+      sub: user._id,
+      type: 'refresh' as const,
     };
 
-    const accessToken = this.jwtTokenService.generateToken(
-      accessTokenPlayload,
-      '1h',
-    );
-    const refreshToken = this.jwtTokenService.generateToken(
-      refreshTokenPlayload,
-      '7D',
-    );
+    const accessToken =
+      this.jwtTokenService.generateAccessToken(accessTokenPlayload);
+
+    const refreshToken =
+      this.jwtTokenService.generateRefreshToken(refreshTokenPlayload);
 
     return {
       accessToken,
       refreshToken,
+      type: 'Bearer',
     };
   }
 }

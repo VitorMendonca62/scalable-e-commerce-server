@@ -1,7 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { TokenServicePort } from '../ports/primary/session.port';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
+import { Permissions } from '../../domain/types/permissions';
+
+interface IGenererateAccessToken {
+  sub: string;
+  email: string;
+  roles: Permissions[];
+  type: 'access';
+}
+interface IGenererateRefreshToken {
+  sub: string;
+  type: 'refresh';
+}
 
 @Injectable()
 export class JwtTokenService implements TokenServicePort {
@@ -11,8 +23,12 @@ export class JwtTokenService implements TokenServicePort {
     this.JWT_SECRET = this.configService.get<string>('JWT_SECRET');
   }
 
-  generateToken(playload: Record<string, any>, expiresIn: string): string {
-    return jwt.sign(playload, this.JWT_SECRET, { expiresIn });
+  generateRefreshToken(playload: IGenererateRefreshToken): string {
+    return jwt.sign(playload, this.JWT_SECRET, { expiresIn: '7D' });
+  }
+
+  generateAccessToken(playload: IGenererateAccessToken): string {
+    return jwt.sign(playload, this.JWT_SECRET, { expiresIn: '1h' });
   }
 
   verifyToken(token: string): Record<string, any> {
@@ -21,7 +37,7 @@ export class JwtTokenService implements TokenServicePort {
 
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
-      throw new Error('Token inválido');
+      throw new BadRequestException('Token inválido');
     }
   }
 }

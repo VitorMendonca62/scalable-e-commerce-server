@@ -3,6 +3,7 @@ import { UserLogin } from '@modules/auth/core/domain/entities/user-login.entity'
 export interface CreateSessionOutbondPort {
   accessToken: string;
   refreshToken: string;
+  type: 'Bearer';
 }
 
 export abstract class CreateSessionPort {
@@ -10,7 +11,7 @@ export abstract class CreateSessionPort {
 }
 
 export abstract class TokenServicePort {
-  abstract generateToken(
+  abstract generateRefreshToken(
     playload: Record<string, any>,
     expiresIn: string,
   ): string;

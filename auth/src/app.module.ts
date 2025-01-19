@@ -1,10 +1,10 @@
-import { UserMapper } from '@modules/auth/adaptars/mappers/user.mapper';
-import { AuthController } from '@modules/auth/adaptars/primary/http/auth.controller';
-import { CreateUserUseCase } from '@modules/auth/core/application/use-cases/create-user.usecase';
+import { AuthModule } from '@modules/auth/auth.module';
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  controllers: [AuthController],
-  providers: [UserMapper, CreateUserUseCase],
+  imports: [AuthModule, ConfigModule.forRoot({ isGlobal: true })],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

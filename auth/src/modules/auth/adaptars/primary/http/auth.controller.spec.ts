@@ -3,7 +3,7 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
 import { AuthController } from './auth.controller';
-import { mockUser, mockCreatUserDTO } from '@auth/helpers/tests.helper';
+import { mockUser, mockCreateUserDTO } from '@auth/helpers/tests.helper';
 import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
@@ -59,7 +59,7 @@ describe('AuthController', () => {
     });
 
     it('should use case call with correct parameters', async () => {
-      const dto = mockCreatUserDTO();
+      const dto = mockCreateUserDTO();
       await controller.create(dto);
 
       expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
@@ -67,7 +67,7 @@ describe('AuthController', () => {
     });
 
     it('should create user and return sucess message', async () => {
-      const dto = mockCreatUserDTO();
+      const dto = mockCreateUserDTO();
 
       const response = await request(app.getHttpServer())
         .post('/auth/register')
@@ -81,7 +81,7 @@ describe('AuthController', () => {
     });
 
     it('should throw bad request error when no have fields', async () => {
-      const dto = mockCreatUserDTO({
+      const dto = mockCreateUserDTO({
         email: undefined,
         name: undefined,
         password: undefined,
@@ -108,7 +108,7 @@ describe('AuthController', () => {
     });
 
     it('should throw bad request error when invalid phonenumber, username and email', async () => {
-      const dto = mockCreatUserDTO({
+      const dto = mockCreateUserDTO({
         email: 'testeexemplo.com',
         phonenumber: '+23',
         username: 'default username',
@@ -131,7 +131,7 @@ describe('AuthController', () => {
     });
 
     it('should throw bad request error when invalid phonenumber', async () => {
-      const dto = mockCreatUserDTO({
+      const dto = mockCreateUserDTO({
         phonenumber: '+55 8199999999',
       });
 

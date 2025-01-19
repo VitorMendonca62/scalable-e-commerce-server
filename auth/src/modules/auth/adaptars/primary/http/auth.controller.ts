@@ -39,11 +39,9 @@ export class AuthController {
   async login(@Body() dto: LoginUserDTO) {
     const user = this.userMapper.loginDTOForEntity(dto);
 
-    await this.createSessionUseCase.execute(user);
-
     return {
       message: 'Usuário criado com sucesso',
-      data: undefined,
+      data: await this.createSessionUseCase.execute(user),
     };
   }
 
