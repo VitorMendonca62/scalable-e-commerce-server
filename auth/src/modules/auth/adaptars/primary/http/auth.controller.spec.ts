@@ -7,6 +7,9 @@ import { mockUser, mockCreateUserDTO } from '@auth/helpers/tests.helper';
 import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
+import { ConfigModule } from '@nestjs/config';
+import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
+import { JwtTokenService } from '@modules/auth/core/application/services/jwt-token.service';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -19,10 +22,13 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ isGlobal: true })],
       controllers: [AuthController],
       providers: [
         UserMapper,
         CreateUserUseCase,
+        CreateSessionUseCase,
+        JwtTokenService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
@@ -49,10 +55,10 @@ describe('AuthController', () => {
   });
 
   describe('create', () => {
+    const user = mockUser();
+
     beforeEach(() => {
-      jest
-        .spyOn(mapper, 'createDTOForEntity')
-        .mockImplementation((dto) => mockUser(dto));
+      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation(() => user);
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockImplementation(() => undefined);
@@ -63,7 +69,7 @@ describe('AuthController', () => {
       await controller.create(dto);
 
       expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(mockUser());
+      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 
     it('should create user and return sucess message', async () => {

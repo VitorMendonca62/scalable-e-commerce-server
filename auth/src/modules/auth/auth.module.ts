@@ -13,7 +13,6 @@ import { UserMapper } from './adaptars/mappers/user.mapper';
     CreateUserUseCase,
     CreateSessionUseCase,
     UserMapper,
-
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,

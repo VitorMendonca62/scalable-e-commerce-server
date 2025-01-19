@@ -3,6 +3,7 @@ import { UserRepository } from '../ports/secondary/user-repository.interface';
 import { CreateUserUseCase } from './create-user.usecase';
 import { mockUser } from '@modules/auth/helpers/tests.helper';
 import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { ConfigModule } from '@nestjs/config';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -10,6 +11,7 @@ describe('CreateUserUseCase', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [ConfigModule.forRoot({ isGlobal: true })],
       providers: [
         CreateUserUseCase,
         {
