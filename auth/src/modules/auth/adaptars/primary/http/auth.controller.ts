@@ -15,8 +15,10 @@ import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.
 import { LoginUserDTO } from './dto/login-user.dto';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('auth')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class AuthController {
   constructor(

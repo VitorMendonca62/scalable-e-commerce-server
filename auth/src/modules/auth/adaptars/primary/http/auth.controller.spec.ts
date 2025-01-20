@@ -158,7 +158,7 @@ describe('AuthController', () => {
 
     it('should throw bad request error when invalid phonenumber', async () => {
       const dto = mockCreateUserDTO({
-        phonenumber: '+55 8199999999',
+        phonenumber: '+558199999999',
       });
 
       const response = await request(app.getHttpServer())
