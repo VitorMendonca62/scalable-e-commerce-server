@@ -1,8 +1,6 @@
 name: Run Unit Tests 
 
-on:
-  push:
-    branchs: ['master']
+on: [push]
 
 jobs:
   run-auth-unit-tests:
