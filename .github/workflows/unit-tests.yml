@@ -17,10 +17,11 @@ jobs:
           node-version: 20
           cache: "npm"
 
+      - name: Enter in diretory
+        run: cd auth
+        
       - name: Install dependencies
-        working-directory: auth
         run: npm install
 
       - name: Run tests
-        working-directory: auth
         run: npm run test
