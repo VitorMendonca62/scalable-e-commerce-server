@@ -10,6 +10,10 @@ export abstract class CreateSessionPort {
   abstract execute(inputUser: UserLogin): Promise<CreateSessionOutbondPort>;
 }
 
+export abstract class GetAccessTokenPort {
+  abstract execute(refreshToken: string): Promise<string>;
+}
+
 export abstract class TokenServicePort {
   abstract generateRefreshToken(
     playload: Record<string, any>,

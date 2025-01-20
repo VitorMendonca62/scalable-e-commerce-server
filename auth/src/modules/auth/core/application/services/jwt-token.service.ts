@@ -34,10 +34,9 @@ export class JwtTokenService implements TokenServicePort {
   verifyToken(token: string): Record<string, any> {
     try {
       return jwt.verify(token, this.JWT_SECRET) as Record<string, any>;
-
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
-      throw new BadRequestException('Token inválido');
+      throw new BadRequestException('Token inválido ou expirado');
     }
   }
 }
