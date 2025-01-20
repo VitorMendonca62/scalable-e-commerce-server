@@ -19,6 +19,8 @@ describe('AuthController', () => {
   let mapper: UserMapper;
 
   let createUserUseCase: CreateUserUseCase;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  let createSessionUseCase: CreateSessionUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -41,6 +43,8 @@ describe('AuthController', () => {
     mapper = module.get<UserMapper>(UserMapper);
 
     createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
+    createSessionUseCase =
+      module.get<CreateSessionUseCase>(CreateSessionUseCase);
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
@@ -116,8 +120,8 @@ describe('AuthController', () => {
     it('should throw bad request error when invalid phonenumber, username and email', async () => {
       const dto = mockCreateUserDTO({
         email: 'testeexemplo.com',
-        phonenumber: '+23',
         username: 'default username',
+        phonenumber: '+23',
       });
 
       const response = await request(app.getHttpServer())
@@ -153,4 +157,75 @@ describe('AuthController', () => {
       });
     });
   });
+
+  // describe('login', () => {
+  //   const user = mockLoginUser();
+  //   const dto = mockLoginUserDTO();
+
+  //   const returnUseCase = {
+  //     accessToken: 'Bearer TOKEN',
+  //     refreshToken: 'Bearer TOKEN',
+  //     type: 'Bearer' as const,
+  //   };
+  //   beforeEach(() => {
+  //     jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
+  //     jest
+  //       .spyOn(createSessionUseCase, 'execute')
+  //       .mockImplementation(async () => returnUseCase);
+  //   });
+
+  //   it('should use case call with correct parameters', async () => {
+  //     await controller.login(dto);
+
+  //     expect(mapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
+  //     expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
+  //   });
+
+  //   it('should create user and return sucess message', async () => {
+  //     const response = await request(app.getHttpServer())
+  //       .post('/auth/login')
+  //       .send(dto)
+  //       .expect(201);
+
+  //     expect(response.body).toEqual({
+  //       message: 'Usuário realizou login com sucesso',
+  //       data: returnUseCase,
+  //     });
+  //   });
+
+  //   it('should throw bad request error when no have fields', async () => {
+  //     const dto = mockLoginUserDTO({
+  //       email: undefined,
+  //       password: undefined,
+  //     });
+
+  //     const response = await request(app.getHttpServer())
+  //       .post('/auth/login')
+  //       .send(dto)
+  //       .expect(400);
+
+  //     expect(response.body).toEqual({
+  //       error: 'Bad Request',
+  //       message: ['O email é obrigatório', 'A senha é obrigatória'],
+  //       statusCode: 400,
+  //     });
+  //   });
+
+  //   it('should throw bad request error when email', async () => {
+  //     const dto = mockCreateUserDTO({
+  //       email: 'testeexemplo.com',
+  //     });
+
+  //     const response = await request(app.getHttpServer())
+  //       .post('/auth/login')
+  //       .send(dto)
+  //       .expect(400);
+
+  //     expect(response.body).toEqual({
+  //       error: 'Bad Request',
+  //       message: ['O email tem que ser válido'],
+  //       statusCode: 400,
+  //     });
+  //   });
+  // });
 });
