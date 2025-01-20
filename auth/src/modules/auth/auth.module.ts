@@ -14,12 +14,12 @@ import { GetAccessTokenUseCase } from './core/application/use-cases/get-access-t
     CreateUserUseCase,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
+    JwtTokenService,
     UserMapper,
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,
     },
-    JwtTokenService,
   ],
 })
 export class AuthModule {}

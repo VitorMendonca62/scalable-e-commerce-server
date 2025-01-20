@@ -38,7 +38,7 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser({ id: 'USERID' });
+    const user = mockUser({ _id: 'USERID' });
     const userLogin = mockLoginUser();
 
     beforeEach(() => {
@@ -62,17 +62,9 @@ describe('CreateSessionUseCase', () => {
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(userLogin.email);
       expect(user.validatePassword).toHaveBeenCalledWith(userLogin.password);
-      expect(tokenService.generateAccessToken).toHaveBeenCalledWith({
-        sub: user._id,
-        email: user.email,
-        roles: user.roles,
-        type: 'access',
-      });
+      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
 
-      expect(tokenService.generateRefreshToken).toHaveBeenCalledWith({
-        sub: user._id,
-        type: 'refresh',
-      });
+      expect(tokenService.generateRefreshToken).toHaveBeenCalledWith('USERID');
       expect(response).toEqual({
         accessToken: 'Bearer TOKEN',
         refreshToken: 'Bearer TOKEN',
@@ -80,7 +72,7 @@ describe('CreateSessionUseCase', () => {
       });
     });
 
-    it('should throw not found exception when user does not exists', async () => {
+    it('should throw bad request exception when user does not exists', async () => {
       jest
         .spyOn(userRepository, 'findByEmail')
         .mockImplementation(async () => undefined);
@@ -90,7 +82,7 @@ describe('CreateSessionUseCase', () => {
       );
     });
 
-    it('should throw not found exception when password is incorrect', async () => {
+    it('should throw bad request exception when password is incorrect', async () => {
       jest.spyOn(user, 'validatePassword').mockImplementation(() => false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(

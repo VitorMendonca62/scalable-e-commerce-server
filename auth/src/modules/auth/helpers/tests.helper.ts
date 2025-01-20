@@ -4,11 +4,17 @@ import { UserLogin } from '../core/domain/entities/user-login.entity';
 import { User } from '../core/domain/entities/user.entity';
 
 interface MockUser extends CreateUserDTO {
-  id?: string;
+  _id?: string;
 }
 
 export const mockUser = (overrides: Partial<MockUser> = {}) => {
-  return new User(mockCreateUserDTO(overrides));
+  const user = new User(mockCreateUserDTO(overrides));
+
+  if (overrides._id) {
+    user._id = overrides._id;
+  }
+
+  return user;
 };
 
 export const mockLoginUser = (overrides: Partial<MockUser> = {}) => {
@@ -40,8 +46,8 @@ export const mockCreateUserDTO = (
 
 export const mockUserList = () => {
   return [
-    mockUser({ username: 'user01', id: '1' }),
-    mockUser({ username: 'user02', id: '2' }),
-    mockUser({ username: 'user03', id: '3' }),
+    mockUser({ username: 'user01', _id: '1' }),
+    mockUser({ username: 'user02', _id: '2' }),
+    mockUser({ username: 'user03', _id: '3' }),
   ];
 };
