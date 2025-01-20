@@ -18,11 +18,10 @@ jobs:
           node-version: 18
           cache: "npm"
 
-      - name: Enter in ms-auth
-        run: cd auth
-
       - name: Install dependencies
+        working-directory: auth
         run: npm install
 
       - name: Run tests
+        working-directory: auth
         run: npm run tests  
