@@ -1,5 +1,5 @@
-import { CreateUserDTO } from '../adaptars/primary/http/dto/create-user.dto';
-import { LoginUserDTO } from '../adaptars/primary/http/dto/login-user.dto';
+import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
+import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
 import { UserLogin } from '../core/domain/entities/user-login.entity';
 import { User } from '../core/domain/entities/user.entity';
 

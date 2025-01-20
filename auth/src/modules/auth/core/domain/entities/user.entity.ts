@@ -1,4 +1,4 @@
-import { CreateUserDTO } from '../../../adaptars/primary/http/dto/create-user.dto';
+import { CreateUserDTO } from '../../../adaptars/primary/http/dtos/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { Permissions } from '../types/permissions';
 

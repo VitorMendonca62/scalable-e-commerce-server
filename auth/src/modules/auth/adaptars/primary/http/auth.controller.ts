@@ -10,12 +10,15 @@ import {
   ForbiddenException,
   Get,
 } from '@nestjs/common';
-import { CreateUserDTO } from './dto/create-user.dto';
+import { CreateUserDTO } from './dtos/create-user.dto';
 import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';
-import { LoginUserDTO } from './dto/login-user.dto';
+import { LoginUserDTO } from './dtos/login-user.dto';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
 import { ApiTags } from '@nestjs/swagger';
+import { ApiCreateUser } from './decorators/docs/api-create-user.decorator';
+import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
+import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -30,6 +33,7 @@ export class AuthController {
 
   @Post('/register')
   @HttpCode(201)
+  @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO) {
     const user = this.userMapper.createDTOForEntity(dto);
 
@@ -43,6 +47,7 @@ export class AuthController {
 
   @Post('/login')
   @HttpCode(201)
+  @ApiLoginUser()
   async login(@Body() dto: LoginUserDTO) {
     const user = this.userMapper.loginDTOForEntity(dto);
 
@@ -54,6 +59,7 @@ export class AuthController {
 
   @Get()
   @HttpCode(200)
+  @ApiGetAccessToken()
   async getAccessToken(@Headers('authorization') refreshToken: string) {
     if (!refreshToken) {
       throw new ForbiddenException('Você não tem permissão');

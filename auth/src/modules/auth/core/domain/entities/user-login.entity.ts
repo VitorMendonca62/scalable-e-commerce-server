@@ -1,4 +1,4 @@
-import { LoginUserDTO } from '@auth/adaptars/primary/http/dto/login-user.dto';
+import { LoginUserDTO } from '@modules/auth/adaptars/primary/http/dtos/login-user.dto';
 
 export class UserLogin {
   email: string;
