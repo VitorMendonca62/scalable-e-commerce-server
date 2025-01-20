@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { UserController } from './adaptars/primary/http/user.controller';
+import { UserController } from './adaptars/primary/http/controllers/user.controller';
 import { UserMapper } from './adaptars/mappers/user.mapper';
 import { CreateUserUseCase } from './core/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from './core/application/use-cases/delete-user.usecase';
