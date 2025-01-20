@@ -24,4 +24,4 @@ jobs:
 
       - name: Run tests
         working-directory: auth
-        run: npm run tests  
+        run: npm run test
