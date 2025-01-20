@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   run-auth-unit-tests:
+    name: Run Unit Tests
     runs-on: ubuntu:latest
 
     steps:
