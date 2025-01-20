@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UserLogin } from '../../domain/entities/user-login.entity';
 import {
   CreateSessionOutbondPort,
@@ -18,30 +18,16 @@ export class CreateSessionUseCase implements CreateSessionPort {
     const user = await this.userRepository.findByEmail(inputUser.email);
 
     if (!user) {
-      throw new NotFoundException('Email ou senha estão incorretos.');
+      throw new BadRequestException('Email ou senha estão incorretos.');
     }
 
     if (!user.validatePassword(inputUser.password)) {
-      throw new NotFoundException('Email ou senha estão incorretos.');
+      throw new BadRequestException('Email ou senha estão incorretos.');
     }
 
-    const accessTokenPlayload = {
-      sub: user._id,
-      email: user.email,
-      roles: user.roles,
-      type: 'access' as const,
-    };
+    const accessToken = this.jwtTokenService.generateAccessToken(user);
 
-    const refreshTokenPlayload = {
-      sub: user._id,
-      type: 'refresh' as const,
-    };
-
-    const accessToken =
-      this.jwtTokenService.generateAccessToken(accessTokenPlayload);
-
-    const refreshToken =
-      this.jwtTokenService.generateRefreshToken(refreshTokenPlayload);
+    const refreshToken = this.jwtTokenService.generateRefreshToken(user._id);
 
     return {
       accessToken: `Bearer ${accessToken}`,

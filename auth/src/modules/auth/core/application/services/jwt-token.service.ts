@@ -2,18 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { TokenServicePort } from '../ports/primary/session.port';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
-import { Permissions } from '../../domain/types/permissions';
-
-interface IGenererateAccessToken {
-  sub: string;
-  email: string;
-  roles: Permissions[];
-  type: 'access';
-}
-interface IGenererateRefreshToken {
-  sub: string;
-  type: 'refresh';
-}
+import { User } from '../../domain/entities/user.entity';
 
 @Injectable()
 export class JwtTokenService implements TokenServicePort {
@@ -23,11 +12,21 @@ export class JwtTokenService implements TokenServicePort {
     this.JWT_SECRET = this.configService.get<string>('JWT_SECRET');
   }
 
-  generateRefreshToken(playload: IGenererateRefreshToken): string {
+  generateRefreshToken(id: string): string {
+    const playload = {
+      sub: id,
+      type: 'refresh' as const,
+    };
     return jwt.sign(playload, this.JWT_SECRET, { expiresIn: '7D' });
   }
 
-  generateAccessToken(playload: IGenererateAccessToken): string {
+  generateAccessToken(user: User): string {
+    const playload = {
+      sub: user._id,
+      email: user.email,
+      roles: user.roles,
+      type: 'access' as const,
+    };
     return jwt.sign(playload, this.JWT_SECRET, { expiresIn: '1h' });
   }
 
