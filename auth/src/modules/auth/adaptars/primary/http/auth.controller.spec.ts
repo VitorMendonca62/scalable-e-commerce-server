@@ -20,6 +20,7 @@ import { ConfigModule } from '@nestjs/config';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 import { JwtTokenService } from '@modules/auth/core/application/services/jwt-token.service';
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
+import { MessagingModule } from '@modules/messaging/messaging.module';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -34,7 +35,7 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
+      imports: [MessagingModule],
       controllers: [AuthController],
       providers: [
         UserMapper,
