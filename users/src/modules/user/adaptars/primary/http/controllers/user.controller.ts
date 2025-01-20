@@ -8,16 +8,13 @@ import {
   NotFoundException,
   Param,
   Patch,
-  Post,
   Query,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { CreateUserDTO } from '../dto/create-user.dto';
 import { UserMapper } from '../../../mappers/user.mapper';
 import { User } from '@user/core/domain/user.entity';
 import { UpdateUserDTO } from '../dto/update-user.dto';
-import { CreateUserUseCase } from '@user/core/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.usecase';
 import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
 import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usecase';
@@ -33,25 +30,11 @@ interface UserControllerResponse {
 export class UserController {
   constructor(
     private readonly userMapper: UserMapper,
-    private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
     private readonly getUsesrUseCase: GetUsersUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
-
-  @Post()
-  @HttpCode(201)
-  async create(@Body() dto: CreateUserDTO): Promise<UserControllerResponse> {
-    const user = this.userMapper.createDTOForEntity(dto);
-
-    await this.createUserUseCase.execute(user);
-
-    return {
-      message: 'Usuário criado com sucesso',
-      data: undefined,
-    };
-  }
 
   @Get()
   @HttpCode(200)
@@ -62,7 +45,7 @@ export class UserController {
     };
   }
 
-  @Get('/search')
+  @Get('/find')
   @HttpCode(200)
   async findOne(
     @Query('id') id?: string,
