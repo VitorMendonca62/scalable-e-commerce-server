@@ -3,7 +3,12 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
 import { AuthController } from './auth.controller';
-import { mockUser, mockCreateUserDTO } from '@auth/helpers/tests.helper';
+import {
+  mockUser,
+  mockCreateUserDTO,
+  mockLoginUser,
+  mockLoginUserDTO,
+} from '@auth/helpers/tests.helper';
 import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
@@ -158,74 +163,74 @@ describe('AuthController', () => {
     });
   });
 
-  // describe('login', () => {
-  //   const user = mockLoginUser();
-  //   const dto = mockLoginUserDTO();
+  describe('login', () => {
+    const user = mockLoginUser();
+    const dto = mockLoginUserDTO();
 
-  //   const returnUseCase = {
-  //     accessToken: 'Bearer TOKEN',
-  //     refreshToken: 'Bearer TOKEN',
-  //     type: 'Bearer' as const,
-  //   };
-  //   beforeEach(() => {
-  //     jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
-  //     jest
-  //       .spyOn(createSessionUseCase, 'execute')
-  //       .mockImplementation(async () => returnUseCase);
-  //   });
+    const returnUseCase = {
+      accessToken: 'Bearer TOKEN',
+      refreshToken: 'Bearer TOKEN',
+      type: 'Bearer' as const,
+    };
+    beforeEach(() => {
+      jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
+      jest
+        .spyOn(createSessionUseCase, 'execute')
+        .mockImplementation(async () => returnUseCase);
+    });
 
-  //   it('should use case call with correct parameters', async () => {
-  //     await controller.login(dto);
+    it('should use case call with correct parameters', async () => {
+      await controller.login(dto);
 
-  //     expect(mapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
-  //     expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
-  //   });
+      expect(mapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
+    });
 
-  //   it('should create user and return sucess message', async () => {
-  //     const response = await request(app.getHttpServer())
-  //       .post('/auth/login')
-  //       .send(dto)
-  //       .expect(201);
+    it('should create user and return sucess message', async () => {
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(dto)
+        .expect(201);
 
-  //     expect(response.body).toEqual({
-  //       message: 'Usuário realizou login com sucesso',
-  //       data: returnUseCase,
-  //     });
-  //   });
+      expect(response.body).toEqual({
+        message: 'Usuário realizou login com sucesso',
+        data: returnUseCase,
+      });
+    });
 
-  //   it('should throw bad request error when no have fields', async () => {
-  //     const dto = mockLoginUserDTO({
-  //       email: undefined,
-  //       password: undefined,
-  //     });
+    it('should throw bad request error when no have fields', async () => {
+      const dto = mockLoginUserDTO({
+        email: undefined,
+        password: undefined,
+      });
 
-  //     const response = await request(app.getHttpServer())
-  //       .post('/auth/login')
-  //       .send(dto)
-  //       .expect(400);
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(dto)
+        .expect(400);
 
-  //     expect(response.body).toEqual({
-  //       error: 'Bad Request',
-  //       message: ['O email é obrigatório', 'A senha é obrigatória'],
-  //       statusCode: 400,
-  //     });
-  //   });
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['O email é obrigatório', 'A senha é obrigatória'],
+        statusCode: 400,
+      });
+    });
 
-  //   it('should throw bad request error when email', async () => {
-  //     const dto = mockCreateUserDTO({
-  //       email: 'testeexemplo.com',
-  //     });
+    it('should throw bad request error when email', async () => {
+      const dto = mockCreateUserDTO({
+        email: 'testeexemplo.com',
+      });
 
-  //     const response = await request(app.getHttpServer())
-  //       .post('/auth/login')
-  //       .send(dto)
-  //       .expect(400);
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(dto)
+        .expect(400);
 
-  //     expect(response.body).toEqual({
-  //       error: 'Bad Request',
-  //       message: ['O email tem que ser válido'],
-  //       statusCode: 400,
-  //     });
-  //   });
-  // });
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: ['O email tem que ser válido'],
+        statusCode: 400,
+      });
+    });
+  });
 });

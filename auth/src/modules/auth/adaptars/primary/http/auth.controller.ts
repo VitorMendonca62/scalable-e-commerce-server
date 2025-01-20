@@ -40,7 +40,7 @@ export class AuthController {
     const user = this.userMapper.loginDTOForEntity(dto);
 
     return {
-      message: 'Usuário criado com sucesso',
+      message: 'Usuário realizou login com sucesso',
       data: await this.createSessionUseCase.execute(user),
     };
   }

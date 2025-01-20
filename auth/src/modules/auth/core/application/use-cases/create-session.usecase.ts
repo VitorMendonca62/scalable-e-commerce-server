@@ -44,8 +44,8 @@ export class CreateSessionUseCase implements CreateSessionPort {
       this.jwtTokenService.generateRefreshToken(refreshTokenPlayload);
 
     return {
-      accessToken,
-      refreshToken,
+      accessToken: `Bearer ${accessToken}`,
+      refreshToken: `Bearer ${refreshToken}`,
       type: 'Bearer',
     };
   }

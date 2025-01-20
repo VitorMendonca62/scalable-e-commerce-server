@@ -47,11 +47,11 @@ describe('CreateSessionUseCase', () => {
 
       jest
         .spyOn(tokenService, 'generateRefreshToken')
-        .mockImplementation(() => 'Bearer TOKEN');
+        .mockImplementation(() => 'TOKEN');
 
       jest
         .spyOn(tokenService, 'generateAccessToken')
-        .mockImplementation(() => 'Bearer TOKEN');
+        .mockImplementation(() => 'TOKEN');
 
       jest.spyOn(user, 'validatePassword').mockImplementation(() => true);
     });
