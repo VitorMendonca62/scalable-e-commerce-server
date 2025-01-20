@@ -5,6 +5,7 @@ import { UserRepository } from '../ports/secondary/user-repository.interface';
 import { JwtTokenService } from '../services/jwt-token.service';
 import { CreateSessionUseCase } from './create-session.usecase';
 import { ConfigModule } from '@nestjs/config';
+import { BadRequestException } from '@nestjs/common';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -85,7 +86,7 @@ describe('CreateSessionUseCase', () => {
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
-        'Email ou senha estão incorretos.',
+        new BadRequestException('Email ou senha estão incorretos.'),
       );
     });
 
@@ -93,7 +94,7 @@ describe('CreateSessionUseCase', () => {
       jest.spyOn(user, 'validatePassword').mockImplementation(() => false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
-        'Email ou senha estão incorretos.',
+        new BadRequestException('Email ou senha estão incorretos.'),
       );
     });
   });

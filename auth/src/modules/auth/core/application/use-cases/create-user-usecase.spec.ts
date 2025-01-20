@@ -4,6 +4,7 @@ import { CreateUserUseCase } from './create-user.usecase';
 import { mockUser } from '@modules/auth/helpers/tests.helper';
 import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { ConfigModule } from '@nestjs/config';
+import { BadRequestException } from '@nestjs/common';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -59,7 +60,9 @@ describe('CreateUserUseCase', () => {
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        'Esse email já está sendo utilizado. Tente outro',
+        new BadRequestException(
+          'Esse email já está sendo utilizado. Tente outro',
+        ),
       );
     });
 
@@ -69,7 +72,9 @@ describe('CreateUserUseCase', () => {
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        'Esse username já está sendo utilizado. Tente outro',
+        new BadRequestException(
+          'Esse username já está sendo utilizado. Tente outro',
+        ),
       );
     });
   });

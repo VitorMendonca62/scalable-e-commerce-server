@@ -1,5 +1,9 @@
 import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  ForbiddenException,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
 import { AuthController } from './auth.controller';
@@ -15,6 +19,7 @@ import { InMemoryUserRepository } from '../../secondary/database/repositories/in
 import { ConfigModule } from '@nestjs/config';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 import { JwtTokenService } from '@modules/auth/core/application/services/jwt-token.service';
+import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -24,8 +29,8 @@ describe('AuthController', () => {
   let mapper: UserMapper;
 
   let createUserUseCase: CreateUserUseCase;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   let createSessionUseCase: CreateSessionUseCase;
+  let getAccessTokenUseCase: GetAccessTokenUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -35,6 +40,7 @@ describe('AuthController', () => {
         UserMapper,
         CreateUserUseCase,
         CreateSessionUseCase,
+        GetAccessTokenUseCase,
         JwtTokenService,
         {
           provide: UserRepository,
@@ -50,6 +56,9 @@ describe('AuthController', () => {
     createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
     createSessionUseCase =
       module.get<CreateSessionUseCase>(CreateSessionUseCase);
+    getAccessTokenUseCase = module.get<GetAccessTokenUseCase>(
+      GetAccessTokenUseCase,
+    );
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
@@ -60,6 +69,8 @@ describe('AuthController', () => {
     expect(controller).toBeDefined();
     expect(mapper).toBeDefined();
     expect(createUserUseCase).toBeDefined();
+    expect(createSessionUseCase).toBeDefined();
+    expect(getAccessTokenUseCase).toBeDefined();
     expect(app).toBeDefined();
   });
 
@@ -231,6 +242,42 @@ describe('AuthController', () => {
         message: ['O email tem que ser válido'],
         statusCode: 400,
       });
+    });
+  });
+
+  describe('getAccessToken', () => {
+    const refreshToken = 'Bearer REFRESHTOKEN';
+    const accessToken = 'Bearer accessTOKEN';
+
+    it('should use case call with correct parameters', async () => {
+      jest
+        .spyOn(getAccessTokenUseCase, 'execute')
+        .mockImplementation(async () => accessToken);
+
+      await controller.getAccessToken(refreshToken);
+
+      expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
+        'REFRESHTOKEN',
+      );
+    });
+
+    it('should return token and sucess message', async () => {
+      jest
+        .spyOn(getAccessTokenUseCase, 'execute')
+        .mockImplementation(async () => accessToken);
+
+      const response = await controller.getAccessToken(refreshToken);
+
+      expect(response).toEqual({
+        messase: 'Aqui está seu token de acesso',
+        data: accessToken,
+      });
+    });
+
+    it('should throw forbidden exeception when no have token', async () => {
+      await expect(controller.getAccessToken(undefined)).rejects.toThrow(
+        new ForbiddenException('Você não tem permissão'),
+      );
     });
   });
 });
