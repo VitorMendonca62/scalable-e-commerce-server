@@ -7,8 +7,10 @@ import { JwtTokenService } from './core/application/services/jwt-token.service';
 import { CreateSessionUseCase } from './core/application/use-cases/create-session.usecase';
 import { UserMapper } from './adaptars/mappers/user.mapper';
 import { GetAccessTokenUseCase } from './core/application/use-cases/get-access-token';
+import { MessagingModule } from '@modules/messaging/messaging.module';
 
 @Module({
+  imports: [MessagingModule],
   controllers: [AuthController],
   providers: [
     CreateUserUseCase,

@@ -19,6 +19,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiCreateUser } from './decorators/docs/api-create-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
+import { MessagingService } from '@modules/messaging/messaging.service';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -29,6 +30,7 @@ export class AuthController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
+    private readonly messagingService: MessagingService,
   ) {}
 
   @Post('/register')
@@ -38,6 +40,8 @@ export class AuthController {
     const user = this.userMapper.createDTOForEntity(dto);
 
     await this.createUserUseCase.execute(user);
+
+    await this.messagingService.publish('user-created', user, 'auth');
 
     return {
       message: 'Usuário criado com sucesso',

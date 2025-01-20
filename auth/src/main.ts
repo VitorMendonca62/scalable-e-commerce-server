@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { addRedisClient } from './config/messaging/redis.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -19,12 +20,14 @@ async function bootstrap() {
 
   const configService = app.get<ConfigService>(ConfigService);
 
-  const PORT = configService.get<number>('PORT');
+  const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<number>('HOST');
 
   await app.listen(PORT, () =>
     console.warn(`Server running in ${HOST}:${PORT}`),
   );
+
+  await addRedisClient(configService);
 }
 
 bootstrap();
