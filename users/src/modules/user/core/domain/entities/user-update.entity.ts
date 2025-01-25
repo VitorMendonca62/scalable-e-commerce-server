@@ -1,4 +1,4 @@
-import { UpdateUserDTO } from '../../adaptars/primary/http/dto/update-user.dto';
+import { UpdateUserDTO } from '../../../adaptars/primary/http/dto/update-user.dto';
 
 export class UserUpdate {
   name?: string;
@@ -7,11 +7,11 @@ export class UserUpdate {
   phonenumber?: string;
   updatedAt: Date;
 
-  constructor(data: UpdateUserDTO, updatedAt: Date) {
+  constructor(data: UpdateUserDTO, updatedAt?: Date) {
     if (data.name) this.name = data.name;
     if (data.username) this.username = data.username;
     if (data.email) this.email = data.email;
     if (data.phonenumber) this.phonenumber = data.phonenumber;
-    this.updatedAt = updatedAt;
+    if (updatedAt) this.updatedAt = updatedAt ? updatedAt : new Date();
   }
 }

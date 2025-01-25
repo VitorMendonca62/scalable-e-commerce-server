@@ -16,7 +16,6 @@ import {
 import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
-import { ConfigModule } from '@nestjs/config';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
 import { JwtTokenService } from '@modules/auth/core/application/services/jwt-token.service';
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';

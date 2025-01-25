@@ -1,7 +1,7 @@
-import { Email } from '../decorators/dto/email.decorator';
-import { Name } from '../decorators/dto/name.decorator';
-import { PhoneNumber } from '../decorators/dto/phonenumber.decorator';
-import { Username } from '../decorators/dto/username.decorator';
+import { Email } from '@user/adaptars/primary/common/decorators/dto/email.decorator';
+import { Name } from '@user/adaptars/primary/common/decorators/dto/name.decorator';
+import { PhoneNumber } from '@user/adaptars/primary/common/decorators/dto/phonenumber.decorator';
+import { Username } from '@user/adaptars/primary/common/decorators/dto/username.decorator';
 
 export abstract class UpdateUserDTO {
   @Username(true)

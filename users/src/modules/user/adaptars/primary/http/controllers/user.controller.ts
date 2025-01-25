@@ -1,24 +1,24 @@
-import {
-  BadRequestException,
-  Body,
-  Controller,
-  Delete,
-  Get,
-  HttpCode,
-  NotFoundException,
-  Param,
-  Patch,
-  Query,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
 import { UserMapper } from '../../../mappers/user.mapper';
-import { User } from '@user/core/domain/user.entity';
+import { User } from '@modules/user/core/domain/entities/user.entity';
 import { UpdateUserDTO } from '../dto/update-user.dto';
 import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.usecase';
 import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
 import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usecase';
 import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.usecase';
+import {
+  Controller,
+  UsePipes,
+  ValidationPipe,
+  Get,
+  HttpCode,
+  Query,
+  NotFoundException,
+  Patch,
+  Param,
+  Body,
+  BadRequestException,
+  Delete,
+} from '@nestjs/common';
 
 interface UserControllerResponse {
   message: string;

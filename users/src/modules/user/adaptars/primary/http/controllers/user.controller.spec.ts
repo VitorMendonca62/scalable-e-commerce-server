@@ -8,13 +8,13 @@ import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.
 import { UserMapper } from '../../../mappers/user.mapper';
 import { INestApplication } from '@nestjs/common';
 import {
-  mockCreatUserDTO,
   mockUpdateUserDTO,
-  mockUser,
   mockUserList,
   mockUserUpdate,
 } from '@user/helpers/tests.helper';
 import * as request from 'supertest';
+import { InMemoryUserRepository } from '@modules/user/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { UserRepository } from '@modules/user/core/application/ports/secondary/user-repository.interface';
 
 describe('UserController', () => {
   let app: INestApplication;
@@ -23,7 +23,6 @@ describe('UserController', () => {
 
   let mapper: UserMapper;
 
-  let createUserUseCase: CreateUserUseCase;
   let getUserUseCase: GetUserUseCase;
   let getUsersUseCase: GetUsersUseCase;
   let updateUserUseCase: UpdateUserUseCase;
@@ -39,6 +38,10 @@ describe('UserController', () => {
         GetUsersUseCase,
         UpdateUserUseCase,
         DeleteUserUseCase,
+        {
+          provide: UserRepository,
+          useClass: InMemoryUserRepository,
+        },
       ],
     }).compile();
 
@@ -46,7 +49,6 @@ describe('UserController', () => {
 
     mapper = module.get<UserMapper>(UserMapper);
 
-    createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
     getUserUseCase = module.get<GetUserUseCase>(GetUserUseCase);
     getUsersUseCase = module.get<GetUsersUseCase>(GetUsersUseCase);
     updateUserUseCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
@@ -59,110 +61,11 @@ describe('UserController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(mapper).toBeDefined();
-    expect(createUserUseCase).toBeDefined();
     expect(getUserUseCase).toBeDefined();
     expect(getUsersUseCase).toBeDefined();
     expect(updateUserUseCase).toBeDefined();
     expect(deleteUserUseCase).toBeDefined();
     expect(app).toBeDefined();
-  });
-
-  describe('create', () => {
-    beforeEach(() => {
-      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation((dto) => mockUser(dto));
-      jest
-        .spyOn(createUserUseCase, 'execute')
-        .mockImplementation(() => undefined);
-    });
-
-    it('should use case call with correct parameters', async () => {
-      const dto = mockCreatUserDTO();
-      await controller.create(dto);
-
-      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(mockUser());
-    });
-
-    it('should create user and return sucess message', async () => {
-      const dto = mockCreatUserDTO();
-
-      const response = await request(app.getHttpServer())
-        .post('/user')
-        .send(dto)
-        .expect(201);
-
-      expect(response.body).toEqual({
-        message: 'Usuário criado com sucesso',
-        data: undefined,
-      });
-    });
-
-    it('should throw bad request error when no have fields', async () => {
-      const dto = mockCreatUserDTO({
-        email: undefined,
-        name: undefined,
-        password: undefined,
-        phonenumber: undefined,
-        username: undefined,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/user')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [
-          'O username é obrigatório',
-          'O nome completo é obrigatório',
-          'O email é obrigatório',
-          'A senha é obrigatória',
-          'O telefone é obrigatório',
-        ],
-        statusCode: 400,
-      });
-    });
-
-    it('should throw bad request error when invalid phonenumber, username and email', async () => {
-      const dto = mockCreatUserDTO({
-        email: 'testeexemplo.com',
-        phonenumber: '+23',
-        username: 'default username',
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/user')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [
-          'O username não pode conter com espaços.',
-          'O email tem que ser válido',
-          'O telefone deve ser válido do Brasil',
-        ],
-        statusCode: 400,
-      });
-    });
-
-    it('should throw bad request error when invalid phonenumber', async () => {
-      const dto = mockCreatUserDTO({
-        phonenumber: '+55 8199999999',
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/user')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: ['O telefone deve ser válido do Brasil'],
-        statusCode: 400,
-      });
-    });
   });
 
   describe('findAll', () => {

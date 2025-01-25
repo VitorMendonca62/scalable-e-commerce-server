@@ -1,6 +1,5 @@
-import { UserLogin } from '../../domain/user-login.entity';
-import { UserUpdate } from '../../domain/user-update.entity';
-import { User } from '../../domain/user.entity';
+import { UserUpdate } from '../../../domain/entities/user-update.entity';
+import { User } from '../../../domain/entities/user.entity';
 
 export abstract class CreateUserPort {
   abstract execute(user: User): Promise<void>;
@@ -21,14 +20,4 @@ export abstract class UpdateUserPort {
 
 export abstract class DeleteUserPort {
   abstract execute(id: string): Promise<void>;
-}
-
-export abstract class TokenUserOutbondPort {
-  accessToken: string;
-  refreshToken: string;
-}
-
-export abstract class TokenUserPort {
-  abstract login(user: UserLogin): Promise<TokenUserOutbondPort>;
-  abstract getAccessToken(refreshToken: string): Promise<string>;
 }
