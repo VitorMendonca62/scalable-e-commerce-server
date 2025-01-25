@@ -1,7 +1,8 @@
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { DeleteUserPort } from '../ports/primary/user.port';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
 
+@Injectable()
 export class DeleteUserUseCase implements DeleteUserPort {
   constructor(private readonly userRepository: UserRepository) {}
 

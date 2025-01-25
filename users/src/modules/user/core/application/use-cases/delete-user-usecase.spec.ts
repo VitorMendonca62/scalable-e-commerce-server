@@ -22,8 +22,8 @@ describe('DeleteUserUseCase', () => {
       ],
     }).compile();
 
-    useCase = module.get<DeleteUserUseCase>(DeleteUserUseCase);
     userRepository = module.get<UserRepository>(UserRepository);
+    useCase = module.get<DeleteUserUseCase>(DeleteUserUseCase);
   });
 
   it('should be defined', () => {
