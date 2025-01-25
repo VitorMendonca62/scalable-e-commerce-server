@@ -43,7 +43,7 @@ describe('DeleteUserUseCase', () => {
       jest.spyOn(userRepository, 'delete').mockImplementation(() => undefined);
     });
 
-    it('should use case call with correct parameters and create user', async () => {
+    it('should use case call with correct parameters and delete user', async () => {
       const response = await useCase.execute(id);
 
       expect(userRepository.findById).toHaveBeenCalledWith(id);

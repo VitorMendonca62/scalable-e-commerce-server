@@ -31,4 +31,8 @@ export class InMemoryUserRepository implements UserRepository {
 
     delete this.users[index];
   }
+
+  async getAll(): Promise<User[]> {
+    return this.users;
+  }
 }

@@ -11,7 +11,7 @@ export abstract class GetUserPort {
 }
 
 export abstract class GetUsersPort {
-  abstract findAll(): Promise<User[]>;
+  abstract getAll(): Promise<User[]>;
 }
 
 export abstract class UpdateUserPort {

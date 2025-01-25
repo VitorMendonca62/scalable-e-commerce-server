@@ -1,11 +1,28 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
 import { GetUserPort } from '../ports/primary/user.port';
-
+import { UserRepository } from '../ports/secondary/user-repository.interface';
+@Injectable()
 export class GetUserUseCase implements GetUserPort {
-  findById(id: string): Promise<User> {
-    throw new Error('Method not implemented.');
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async findById(id: string): Promise<User> {
+    const user = await this.userRepository.findById(id);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
   }
-  findByUsername(username: string): Promise<User> {
-    throw new Error('Method not implemented.');
+
+  async findByUsername(username: string): Promise<User> {
+    const user = await this.userRepository.findByUsername(username);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return user;
   }
 }

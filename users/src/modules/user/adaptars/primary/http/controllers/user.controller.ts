@@ -41,7 +41,7 @@ export class UserController {
   async findAll(): Promise<UserControllerResponse> {
     return {
       message: 'Aqui está a listagem de todos os usuários',
-      data: await this.getUsesrUseCase.findAll(),
+      data: await this.getUsesrUseCase.getAll(),
     };
   }
 

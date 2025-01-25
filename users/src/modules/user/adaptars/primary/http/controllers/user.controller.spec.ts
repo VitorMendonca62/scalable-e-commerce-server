@@ -73,14 +73,14 @@ describe('UserController', () => {
 
     beforeEach(() => {
       jest
-        .spyOn(getUsersUseCase, 'findAll')
+        .spyOn(getUsersUseCase, 'getAll')
         .mockImplementation(async () => users);
     });
 
     it('should use case call with correct parameters', async () => {
       await controller.findAll();
 
-      expect(getUsersUseCase.findAll).toHaveBeenCalled();
+      expect(getUsersUseCase.getAll).toHaveBeenCalled();
     });
 
     it('should return all tasks', async () => {
