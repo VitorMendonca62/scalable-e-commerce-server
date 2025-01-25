@@ -6,7 +6,7 @@ import { v4 } from 'uuid';
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
   users: User[] = [];
-  async create(user: User): Promise<undefined> {
+  async create(user: User): Promise<void> {
     user._id = v4();
     this.users.push(user);
 
@@ -19,7 +19,16 @@ export class InMemoryUserRepository implements UserRepository {
   async findByUsername(username: string): Promise<User | undefined> {
     return this.users.find((user) => user.username == username);
   }
+
   async findById(id: string): Promise<User | undefined> {
     return this.users.find((user) => user._id == id);
+  }
+
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex((user) => user._id === id);
+
+    this.users.splice(index, 1);
+
+    delete this.users[index];
   }
 }
