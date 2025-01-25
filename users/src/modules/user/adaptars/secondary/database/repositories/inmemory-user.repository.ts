@@ -2,6 +2,7 @@ import { UserRepository } from '@user/core/application/ports/secondary/user-repo
 import { User } from '@user/core/domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
+import { UserUpdate } from '@modules/user/core/domain/entities/user-update.entity';
 
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
@@ -9,13 +10,12 @@ export class InMemoryUserRepository implements UserRepository {
   async create(user: User): Promise<void> {
     user._id = v4();
     this.users.push(user);
-
-    // eslint-disable-next-line no-console
-    console.table(this.users);
   }
+
   async findByEmail(email: string): Promise<User | undefined> {
     return this.users.find((user) => user.email == email);
   }
+
   async findByUsername(username: string): Promise<User | undefined> {
     return this.users.find((user) => user.username == username);
   }
@@ -34,5 +34,13 @@ export class InMemoryUserRepository implements UserRepository {
 
   async getAll(): Promise<User[]> {
     return this.users;
+  }
+
+  async update(id: string, newUser: UserUpdate): Promise<User> {
+    const oldUser: User = this.users.find((task) => task._id == id);
+    const oldUserIndex = this.users.indexOf(oldUser);
+
+    this.users[oldUserIndex] = { ...this.users[oldUserIndex], ...newUser };
+    return this.users[oldUserIndex];
   }
 }
