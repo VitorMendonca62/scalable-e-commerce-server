@@ -4,14 +4,14 @@ import { MessagePattern } from '@nestjs/microservices';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserMapper } from '../../mappers/user.mapper';
 
-@Controller()
+@Controller('user-external')
 export default class UserExternalController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly userMapper: UserMapper,
   ) {}
 
-  @MessagePattern({ cmd: 'user-created' })
+  @MessagePattern('auth-user-created')
   async create(@Body() dto: CreateUserDTO) {
     const user = this.userMapper.createDTOForEntity(dto);
 

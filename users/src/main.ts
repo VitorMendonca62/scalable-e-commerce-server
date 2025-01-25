@@ -27,7 +27,7 @@ async function bootstrap() {
     console.warn(`Server running in ${HOST}:${PORT}`),
   );
 
-  await addRedisClient(configService);
+  await addRedisClient(app, configService);
 }
 
 bootstrap();

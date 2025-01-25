@@ -61,7 +61,7 @@ export class AuthController {
     };
   }
 
-  @Get()
+  @Get('/token')
   @HttpCode(200)
   @ApiGetAccessToken()
   async getAccessToken(@Headers('authorization') refreshToken: string) {
