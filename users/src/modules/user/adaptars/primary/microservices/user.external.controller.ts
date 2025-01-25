@@ -16,10 +16,5 @@ export default class UserExternalController {
     const user = this.userMapper.createDTOForEntity(dto);
 
     await this.createUserUseCase.execute(user);
-
-    return {
-      message: 'Usuário criado com sucesso em outro microservice',
-      data: undefined,
-    };
   }
 }

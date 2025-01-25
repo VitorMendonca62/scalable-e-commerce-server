@@ -12,11 +12,8 @@ export class InMemoryUserRepository implements UserRepository {
       name: '',
       username: '',
       email: '',
-      password: '',
       phonenumber: '',
       roles: [],
-      createdAt: undefined,
-      updatedAt: undefined,
     },
   ];
   async create(user: User): Promise<void> {

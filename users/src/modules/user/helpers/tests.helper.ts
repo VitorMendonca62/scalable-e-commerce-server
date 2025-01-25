@@ -12,10 +12,7 @@ export const mockCreatUserDTO = (
     username: 'defaultuser',
     email: 'exemple@exemple.com',
     name: 'Default user',
-    password: '12345678',
     phonenumber: '+5581999999999',
-    createdAt: new Date('2025-02-16T17:21:05.370Z'),
-    updatedAt: new Date('2025-02-16T17:21:05.370Z'),
     roles: [Permissions.READ_BOOKS, Permissions.ENTER],
     ...overrides,
   };
