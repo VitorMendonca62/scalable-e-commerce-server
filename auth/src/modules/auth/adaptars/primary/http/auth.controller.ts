@@ -41,7 +41,13 @@ export class AuthController {
 
     await this.createUserUseCase.execute(user);
 
-    await this.messagingService.publish('user-created', user, 'auth');
+    const { email, name, roles, username, _id, phonenumber } = user;
+
+    await this.messagingService.publish(
+      'user-created',
+      { email, name, roles, username, _id, phonenumber },
+      'auth',
+    );
 
     return {
       message: 'Usuário criado com sucesso',
