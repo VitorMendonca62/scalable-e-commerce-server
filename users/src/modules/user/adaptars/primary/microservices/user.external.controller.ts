@@ -3,6 +3,7 @@ import { Body, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { UserMapper } from '../../mappers/user.mapper';
+import { ApiCreateUser } from '../common/decorators/docs/api-create-user.decorator';
 
 @Controller('user-external')
 export default class UserExternalController {
@@ -11,6 +12,7 @@ export default class UserExternalController {
     private readonly userMapper: UserMapper,
   ) {}
 
+  @ApiCreateUser()
   @MessagePattern('auth-user-created')
   async create(@Body() dto: CreateUserDTO) {
     const user = this.userMapper.createDTOForEntity(dto);

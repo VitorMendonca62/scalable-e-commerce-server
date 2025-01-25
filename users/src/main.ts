@@ -12,7 +12,6 @@ async function bootstrap() {
     .setTitle('Auth System')
     .setDescription('The auth system for a e-commerce library')
     .setVersion('1.0')
-    .addTag('auth')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);
@@ -27,7 +26,9 @@ async function bootstrap() {
     console.warn(`Server running in ${HOST}:${PORT}`),
   );
 
-  await addRedisClient(app, configService);
+  if (configService.get<string>('ENVIRONMENT') == 'production') {
+    await addRedisClient(app, configService);
+  }
 }
 
 bootstrap();

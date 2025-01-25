@@ -3,17 +3,18 @@ import { User } from '@user/core/domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { UserUpdate } from '@modules/user/core/domain/entities/user-update.entity';
+import { Permissions } from '@modules/user/core/domain/types/permissions';
 
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
   users: User[] = [
     {
-      _id: v4(),
-      name: '',
-      username: '',
-      email: '',
-      phonenumber: '',
-      roles: [],
+      _id: 'edd2023d-bf54-4185-b50f-9b4c08db82d4',
+      name: 'Vitor Hugo',
+      username: 'vitormendonca62',
+      email: 'vitorqueiroz325@gmail.com',
+      phonenumber: '+5581999999999',
+      roles: [Permissions.ENTER, Permissions.READ_BOOKS],
     },
   ];
   async create(user: User): Promise<void> {

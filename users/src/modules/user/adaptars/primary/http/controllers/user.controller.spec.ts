@@ -78,13 +78,13 @@ describe('UserController', () => {
     });
 
     it('should use case call with correct parameters', async () => {
-      await controller.findAll();
+      await controller.getAll();
 
       expect(getUsersUseCase.getAll).toHaveBeenCalled();
     });
 
     it('should return all tasks', async () => {
-      const response = await controller.findAll();
+      const response = await controller.getAll();
 
       expect(response).toEqual({
         message: 'Aqui está a listagem de todos os usuários',

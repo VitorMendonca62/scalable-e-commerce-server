@@ -19,6 +19,10 @@ import {
   BadRequestException,
   Delete,
 } from '@nestjs/common';
+import { ApiGetAllUsers } from '../../common/decorators/docs/api-get-all-users.decorator';
+import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
+import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
+import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.decorator';
 
 interface UserControllerResponse {
   message: string;
@@ -38,7 +42,8 @@ export class UserController {
 
   @Get()
   @HttpCode(200)
-  async findAll(): Promise<UserControllerResponse> {
+  @ApiGetAllUsers()
+  async getAll(): Promise<UserControllerResponse> {
     return {
       message: 'Aqui está a listagem de todos os usuários',
       data: await this.getUsesrUseCase.getAll(),
@@ -47,6 +52,7 @@ export class UserController {
 
   @Get('/find')
   @HttpCode(200)
+  @ApiFindOneUser()
   async findOne(
     @Query('id') id?: string,
     @Query('username') username?: string,
@@ -70,6 +76,7 @@ export class UserController {
 
   @Patch(':id')
   @HttpCode(200)
+  @ApiUpdateUser()
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateUserDTO,
@@ -96,6 +103,7 @@ export class UserController {
 
   @Delete(':id')
   @HttpCode(200)
+  @ApiDeleteUser()
   async delete(@Param('id') id: string): Promise<UserControllerResponse> {
     if (!id) {
       throw new NotFoundException('Não foi possivel encontrar o usuário');
