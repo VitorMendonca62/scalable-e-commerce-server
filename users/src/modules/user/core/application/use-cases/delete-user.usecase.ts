@@ -1,7 +1,17 @@
-import { DeleteUserPort } from '../ports/user.port';
+import { NotFoundException } from '@nestjs/common';
+import { DeleteUserPort } from '../ports/primary/user.port';
+import { UserRepository } from '../ports/secondary/user-repository.interface';
 
 export class DeleteUserUseCase implements DeleteUserPort {
-  execute(id: string): Promise<void> {
-    throw new Error('Method not implemented.');
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async execute(id: string): Promise<void> {
+    const user = await this.userRepository.findById(id);
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    await this.userRepository.delete(id);
   }
 }
