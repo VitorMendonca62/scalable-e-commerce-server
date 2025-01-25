@@ -19,13 +19,8 @@ export class InMemoryUserRepository implements UserRepository {
       updatedAt: undefined,
     },
   ];
-  constructor() {
-    console.warn('InMemoryUserRepository instanciado!');
-  }
-
   async create(user: User): Promise<void> {
     user._id = v4();
-    console.warn(this.users[0]._id, 'create');
     this.users.push(user);
   }
 
@@ -50,8 +45,6 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async getAll(): Promise<User[]> {
-    console.warn(this.users[0]._id, 'get');
-
     return this.users;
   }
 
