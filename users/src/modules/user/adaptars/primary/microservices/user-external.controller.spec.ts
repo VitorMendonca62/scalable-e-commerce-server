@@ -9,8 +9,10 @@ import {
 import { UserRepository } from '@modules/user/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
 
-import { MessagingModule } from '@modules/messaging/messaging.module';
 import UserExternalController from './user.external.controller';
+import { MessagingService } from '../../secondary/messaging/messaging.service';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 describe('UserExternalController', () => {
   let controller: UserExternalController;
@@ -21,11 +23,37 @@ describe('UserExternalController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MessagingModule],
+      imports: [
+        ClientsModule.registerAsync([
+          {
+            name: 'MESSAGING_CLIENT',
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => {
+              const redisHost = configService.get<string>('MESSAGING_HOST');
+              const redisUser = configService.get<string>('MESSAGING_USER');
+              const redisPW = configService.get<string>('MESSAGING_PW');
+              const redisPort = configService.get<number>('MESSAGING_PORT');
+
+              return {
+                transport: Transport.REDIS,
+                options: {
+                  host: redisHost,
+                  port: redisPort,
+                  username: redisUser,
+                  password: redisPW,
+                },
+              };
+            },
+          },
+        ]),
+      ],
       controllers: [UserExternalController],
       providers: [
+        ConfigService,
         UserMapper,
         CreateUserUseCase,
+        MessagingService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
