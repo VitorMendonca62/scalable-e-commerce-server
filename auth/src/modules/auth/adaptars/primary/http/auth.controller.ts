@@ -1,4 +1,3 @@
-import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import {
   Body,
   Controller,
@@ -19,7 +18,8 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiCreateUser } from './decorators/docs/api-create-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
-import { MessagingService } from '@modules/messaging/messaging.service';
+import { MessagingService } from '../../secondary/messaging/messaging.service';
+import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 
 @Controller('auth')
 @ApiTags('auth')

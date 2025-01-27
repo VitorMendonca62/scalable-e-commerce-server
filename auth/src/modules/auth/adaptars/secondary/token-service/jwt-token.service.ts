@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { TokenServicePort } from '../ports/primary/session.port';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
-import { User } from '../../domain/entities/user.entity';
+import { TokenService } from '@modules/auth/core/application/ports/primary/session.port';
+import { User } from '@modules/auth/core/domain/entities/user.entity';
 
 @Injectable()
-export class JwtTokenService implements TokenServicePort {
+export class JwtTokenService implements TokenService {
   private JWT_SECRET: string;
 
   constructor(private readonly configService: ConfigService) {

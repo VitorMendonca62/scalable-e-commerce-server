@@ -15,7 +15,7 @@ export abstract class GetAccessTokenPort {
   abstract execute(refreshToken: string): Promise<string>;
 }
 
-export abstract class TokenServicePort {
+export abstract class TokenService {
   abstract generateRefreshToken(id: string): string;
   abstract generateAccessToken(user: User): string;
   abstract verifyToken(token: string): Record<string, any>;

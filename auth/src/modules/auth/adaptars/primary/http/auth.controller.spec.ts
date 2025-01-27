@@ -5,7 +5,6 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
-import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import { AuthController } from './auth.controller';
 import {
   mockUser,
@@ -17,9 +16,13 @@ import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
 import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/create-session.usecase';
-import { JwtTokenService } from '@modules/auth/core/application/services/jwt-token.service';
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
-import { MessagingModule } from '@modules/messaging/messaging.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { MessagingService } from '../../secondary/messaging/messaging.service';
+import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
+import { TokenService } from '@modules/auth/core/application/ports/primary/session.port';
+import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -34,17 +37,46 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [MessagingModule],
+      imports: [
+        ClientsModule.registerAsync([
+          {
+            name: 'MESSAGING_CLIENT',
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => {
+              const redisHost = configService.get<string>('MESSAGING_HOST');
+              const redisUser = configService.get<string>('MESSAGING_USER');
+              const redisPW = configService.get<string>('MESSAGING_PW');
+              const redisPort = configService.get<number>('MESSAGING_PORT');
+
+              return {
+                transport: Transport.REDIS,
+                options: {
+                  host: redisHost,
+                  port: redisPort,
+                  username: redisUser,
+                  password: redisPW,
+                },
+              };
+            },
+          },
+        ]),
+      ],
       controllers: [AuthController],
       providers: [
+        ConfigService,
         UserMapper,
         CreateUserUseCase,
         CreateSessionUseCase,
         GetAccessTokenUseCase,
-        JwtTokenService,
+        MessagingService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
+        },
+        {
+          provide: TokenService,
+          useClass: JwtTokenService,
         },
       ],
     }).compile();

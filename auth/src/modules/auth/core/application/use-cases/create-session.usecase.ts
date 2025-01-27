@@ -3,15 +3,15 @@ import { UserLogin } from '../../domain/entities/user-login.entity';
 import {
   CreateSessionOutbondPort,
   CreateSessionPort,
+  TokenService,
 } from '../ports/primary/session.port';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
-import { JwtTokenService } from '../services/jwt-token.service';
 
 @Injectable()
 export class CreateSessionUseCase implements CreateSessionPort {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly jwtTokenService: JwtTokenService,
+    private readonly TokenService: TokenService,
   ) {}
 
   async execute(inputUser: UserLogin): Promise<CreateSessionOutbondPort> {
@@ -25,9 +25,9 @@ export class CreateSessionUseCase implements CreateSessionPort {
       throw new BadRequestException('Email ou senha estão incorretos.');
     }
 
-    const accessToken = this.jwtTokenService.generateAccessToken(user);
+    const accessToken = this.TokenService.generateAccessToken(user);
 
-    const refreshToken = this.jwtTokenService.generateRefreshToken(user._id);
+    const refreshToken = this.TokenService.generateRefreshToken(user._id);
 
     return {
       accessToken: `Bearer ${accessToken}`,

@@ -2,33 +2,37 @@ import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/databas
 import { mockLoginUser, mockUser } from '@modules/auth/helpers/tests.helper';
 import { TestingModule, Test } from '@nestjs/testing';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
-import { JwtTokenService } from '../services/jwt-token.service';
 import { CreateSessionUseCase } from './create-session.usecase';
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
+import { TokenService } from '../ports/primary/session.port';
+import { JwtTokenService } from '@modules/auth/adaptars/secondary/token-service/jwt-token.service';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
 
   let userRepository: UserRepository;
-  let tokenService: JwtTokenService;
+  let tokenService: TokenService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ isGlobal: true })],
       providers: [
         CreateSessionUseCase,
-        JwtTokenService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
+        },
+        {
+          provide: TokenService,
+          useClass: JwtTokenService,
         },
       ],
     }).compile();
 
     useCase = module.get<CreateSessionUseCase>(CreateSessionUseCase);
     userRepository = module.get<UserRepository>(UserRepository);
-    tokenService = module.get<JwtTokenService>(JwtTokenService);
+    tokenService = module.get<TokenService>(TokenService);
   });
 
   it('should be defined', () => {

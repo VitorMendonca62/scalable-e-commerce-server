@@ -5,30 +5,34 @@ import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/databas
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
 import { GetAccessTokenUseCase } from './get-access-token';
-import { JwtTokenService } from '../services/jwt-token.service';
+import { JwtTokenService } from '@modules/auth/adaptars/secondary/token-service/jwt-token.service';
+import { TokenService } from '../ports/primary/session.port';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;
 
   let userRepository: UserRepository;
-  let tokenService: JwtTokenService;
+  let tokenService: TokenService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [ConfigModule.forRoot({ isGlobal: true })],
       providers: [
         GetAccessTokenUseCase,
-        JwtTokenService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
+        },
+        {
+          provide: TokenService,
+          useClass: JwtTokenService,
         },
       ],
     }).compile();
 
     useCase = module.get<GetAccessTokenUseCase>(GetAccessTokenUseCase);
     userRepository = module.get<UserRepository>(UserRepository);
-    tokenService = module.get<JwtTokenService>(JwtTokenService);
+    tokenService = module.get<TokenService>(TokenService);
   });
 
   it('should be defined', () => {

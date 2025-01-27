@@ -9,7 +9,6 @@ export class InMemoryUserRepository implements UserRepository {
   async create(user: User): Promise<undefined> {
     user._id = v4();
     this.users.push(user);
-
   }
   async findByEmail(email: string): Promise<User | undefined> {
     return this.users.find((user) => user.email == email);
@@ -18,7 +17,7 @@ export class InMemoryUserRepository implements UserRepository {
   async findByUsername(username: string): Promise<User | undefined> {
     return this.users.find((user) => user.username == username);
   }
-  
+
   async findById(id: string): Promise<User | undefined> {
     return this.users.find((user) => user._id == id);
   }
