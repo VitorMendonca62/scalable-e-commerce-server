@@ -15,8 +15,6 @@ import {
 import * as request from 'supertest';
 import { InMemoryUserRepository } from '@modules/user/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { UserRepository } from '@modules/user/core/application/ports/secondary/user-repository.interface';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
 
 describe('UserController', () => {
   let app: INestApplication;
@@ -32,31 +30,6 @@ describe('UserController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ClientsModule.registerAsync([
-          {
-            name: 'MESSAGING_CLIENT',
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: async (configService: ConfigService) => {
-              const redisHost = configService.get<string>('MESSAGING_HOST');
-              const redisUser = configService.get<string>('MESSAGING_USER');
-              const redisPW = configService.get<string>('MESSAGING_PW');
-              const redisPort = configService.get<number>('MESSAGING_PORT');
-
-              return {
-                transport: Transport.REDIS,
-                options: {
-                  host: redisHost,
-                  port: redisPort,
-                  username: redisUser,
-                  password: redisPW,
-                },
-              };
-            },
-          },
-        ]),
-      ],
       controllers: [UserController],
       providers: [
         UserMapper,
