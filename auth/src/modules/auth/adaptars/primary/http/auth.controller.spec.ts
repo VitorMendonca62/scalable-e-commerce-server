@@ -35,6 +35,8 @@ describe('AuthController', () => {
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
 
+  let messaging: MessagingService;
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
@@ -92,6 +94,8 @@ describe('AuthController', () => {
       GetAccessTokenUseCase,
     );
 
+    messaging = module.get<MessagingService>(MessagingService);
+
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
     await app.init();
@@ -103,6 +107,7 @@ describe('AuthController', () => {
     expect(createUserUseCase).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
+    expect(messaging).toBeDefined();
     expect(app).toBeDefined();
   });
 
@@ -114,6 +119,7 @@ describe('AuthController', () => {
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockImplementation(() => undefined);
+      jest.spyOn(messaging, 'publish').mockImplementation(() => undefined);
     });
 
     it('should use case call with correct parameters', async () => {
@@ -122,6 +128,14 @@ describe('AuthController', () => {
 
       expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
+
+      const { email, name, roles, username, _id, phonenumber } = user;
+
+      expect(messaging.publish).toHaveBeenCalledWith(
+        'user-created',
+        { email, name, roles, username, _id, phonenumber },
+        'auth',
+      );
     });
 
     it('should create user and return sucess message', async () => {
