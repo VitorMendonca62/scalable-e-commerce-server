@@ -2,7 +2,7 @@ import { CreateUserUseCase } from '@modules/user/core/application/use-cases/crea
 import { Body, Controller } from '@nestjs/common';
 import { MessagePattern } from '@nestjs/microservices';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { UserMapper } from '../../mappers/user.mapper';
+import { UserMapper } from '../../../core/application/mappers/user.mapper';
 import { ApiCreateUser } from '../common/decorators/docs/api-create-user.decorator';
 
 @Controller('user-external')

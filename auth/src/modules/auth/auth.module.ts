@@ -5,7 +5,7 @@ import { UserRepository } from './core/application/ports/secondary/user-reposito
 import { InMemoryUserRepository } from './adaptars/secondary/database/repositories/inmemory-user.repository';
 import { JwtTokenService } from './core/application/services/jwt-token.service';
 import { CreateSessionUseCase } from './core/application/use-cases/create-session.usecase';
-import { UserMapper } from './adaptars/mappers/user.mapper';
+import { UserMapper } from './core/application/mappers/user.mapper';
 import { GetAccessTokenUseCase } from './core/application/use-cases/get-access-token';
 import { MessagingModule } from '@modules/messaging/messaging.module';
 

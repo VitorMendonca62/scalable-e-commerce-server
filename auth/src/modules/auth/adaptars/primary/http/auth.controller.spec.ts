@@ -5,7 +5,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
-import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
+import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import { AuthController } from './auth.controller';
 import {
   mockUser,

@@ -1,4 +1,4 @@
-import { UserMapper } from '@auth/adaptars/mappers/user.mapper';
+import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import {
   Body,
   Controller,

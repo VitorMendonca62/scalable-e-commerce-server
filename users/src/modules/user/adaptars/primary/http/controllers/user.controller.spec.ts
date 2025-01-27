@@ -5,7 +5,7 @@ import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.
 import { GetUserUseCase } from '@user/core/application/use-cases/get-user.usecase';
 import { GetUsersUseCase } from '@user/core/application/use-cases/get-users.usecase';
 import { UpdateUserUseCase } from '@user/core/application/use-cases/update-user.usecase';
-import { UserMapper } from '../../../mappers/user.mapper';
+import { UserMapper } from '../../../../core/application/mappers/user.mapper';
 import { INestApplication } from '@nestjs/common';
 import {
   mockUpdateUserDTO,

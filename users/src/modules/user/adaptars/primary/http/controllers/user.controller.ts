@@ -1,4 +1,4 @@
-import { UserMapper } from '../../../mappers/user.mapper';
+import { UserMapper } from '../../../../core/application/mappers/user.mapper';
 import { User } from '@modules/user/core/domain/entities/user.entity';
 import { UpdateUserDTO } from '../dto/update-user.dto';
 import { DeleteUserUseCase } from '@user/core/application/use-cases/delete-user.usecase';

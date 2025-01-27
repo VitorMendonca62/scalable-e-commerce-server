@@ -1,7 +1,7 @@
 import { CreateUserUseCase } from '@user/core/application/use-cases/create-user.usecase';
 
 import { TestingModule, Test } from '@nestjs/testing';
-import { UserMapper } from '@user/adaptars/mappers/user.mapper';
+import { UserMapper } from '@modules/user/core/application/mappers/user.mapper';
 import {
   mockCreatUserDTO as mockCreateUserDTO,
   mockUser,
