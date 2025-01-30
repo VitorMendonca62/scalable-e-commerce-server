@@ -21,7 +21,7 @@ export class User {
     this.phonenumber = data.phonenumber;
     this.createdAt = new Date();
     this.updatedAt = new Date();
-    this.roles = [Permissions.READ_BOOKS, Permissions.ENTER];
+    this.roles = [Permissions.READ_ITEMS, Permissions.ENTER];
   }
 
   hashPassword(password: string) {
