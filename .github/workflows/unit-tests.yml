@@ -48,3 +48,26 @@ jobs:
       - name: Run tests
         working-directory: users
         run: npm run test
+
+  run-items-unit-tests:
+    name: Run Items Unit Tests
+    runs-on: ubuntu-22.04
+
+    steps:       
+      - name: Checkout Project
+        uses: actions/checkout@v2
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with: 
+          node-version: 20
+          cache: "npm"
+          cache-dependency-path: auth/package-lock.json  
+        
+      - name: Install dependencies
+        run: npm install
+        working-directory: items
+
+      - name: Run tests
+        working-directory: items
+        run: npm run test
