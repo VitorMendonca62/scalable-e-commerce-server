@@ -12,7 +12,7 @@ async function bootstrap() {
     .setTitle('Auth System')
     .setDescription('The book system for a e-commerce library')
     .setVersion('1.0')
-    .addTag('books')
+    .addTag('items')
     .build();
 
   const documentFactory = () => SwaggerModule.createDocument(app, config);

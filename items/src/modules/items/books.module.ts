@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { BooksController } from './adaptars/primary/http/books.controller';
+import { ItemsController } from './adaptars/primary/http/items.controller';
 
 @Module({
   imports: [
@@ -29,6 +29,6 @@ import { BooksController } from './adaptars/primary/http/books.controller';
       },
     ]),
   ],
-  controllers: [BooksController],
+  controllers: [ItemsController],
 })
-export class BooksModule {}
+export class ItemsModule {}

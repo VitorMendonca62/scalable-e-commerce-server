@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@modules/*": ["src/modules/*"],
-      "@books/*": ["src/modules/books/*"]
+      "@items/*": ["src/modules/items/*"]
     }
   }
 }
