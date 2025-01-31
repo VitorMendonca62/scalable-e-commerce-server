@@ -5,8 +5,12 @@ import { MessagingService } from '../../secondary/messaging/messaging.service';
 import { ItemController } from './item.controller';
 import { ItemMapper } from '@modules/items/core/application/mappers/item.mapper';
 import { CreateItemUseCase } from '@modules/items/core/application/use-cases/create-item.usecase';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
+import {
+  mockItem,
+  mockCreateItemDTO,
+} from '@modules/items/helpers/tests.helper';
 
 describe('ItemController', () => {
   let app: INestApplication;
@@ -96,6 +100,7 @@ describe('ItemController', () => {
       const { title, amount, photos, category, available } = dto;
       const { rating, raters } = item;
       expect(messagingService.publish).toHaveBeenCalledWith({
+        _id: itemId,
         title,
         amount,
         photos,

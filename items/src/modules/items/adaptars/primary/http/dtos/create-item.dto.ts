@@ -1,8 +1,9 @@
 export abstract class CreateItemDTO {
-  attributes: { [key: string]: string | number }[];
+  attributes: Record<string, string>;
   title: string;
   description: string;
-  technicalDetails: { [key: string]: string | number }[];
+  price: number;
+  technicalDetails: Record<string, string>;
   amount: number;
   photos: string[];
   category: string;
