@@ -1,26 +1,33 @@
 import { INestApplication, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import {
+  ClientProviderOptions,
+  MicroserviceOptions,
+  Transport,
+} from '@nestjs/microservices';
+
+export const messagingClientConfig = async (
+  configService: ConfigService,
+): Promise<ClientProviderOptions> =>
+  ({
+    transport: Transport.REDIS,
+    options: {
+      host: configService.get<string>('MESSAGING_HOST'),
+      port: configService.get<number>('MESSAGING_PORT'),
+      username: configService.get<string>('MESSAGING_USER'),
+      password: configService.get<string>('MESSAGING_PW'),
+    },
+  }) as ClientProviderOptions;
 
 export const addRedisClient = async (
   app: INestApplication,
-  config: ConfigService,
+  configService: ConfigService,
 ) => {
   const logger = new Logger('RedisClient');
-  const redisHost = config.get<string>('MESSAGING_HOST');
-  const redisUser = config.get<string>('MESSAGING_USER');
-  const redisPW = config.get<string>('MESSAGING_PW');
-  const redisPort = config.get<number>('MESSAGING_PORT');
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.REDIS,
-    options: {
-      host: redisHost,
-      port: redisPort,
-      username: redisUser,
-      password: redisPW,
-    },
-  });
+  app.connectMicroservice<MicroserviceOptions>(
+    await messagingClientConfig(configService),
+  );
 
   await app
     .startAllMicroservices()

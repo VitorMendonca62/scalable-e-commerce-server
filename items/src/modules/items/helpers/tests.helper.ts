@@ -50,8 +50,8 @@ export const mockCreateItemDTO = (
 
 export const mockItemsList = () => {
   return [
-    mockItem({ title: 'item01', _id: '1' }),
-    mockItem({ title: 'item02', _id: '2' }),
-    mockItem({ title: 'item03', _id: '3' }),
+    mockItem({ title: 'item 01', _id: '1' }),
+    mockItem({ title: 'item 02', _id: '2' }),
+    mockItem({ title: 'item 03', _id: '3' }),
   ];
 };

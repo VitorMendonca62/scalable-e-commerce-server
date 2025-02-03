@@ -1,16 +1,26 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ClientsModule } from '@nestjs/microservices';
 import { TestingModule, Test } from '@nestjs/testing';
 import { MessagingService } from '../../secondary/messaging/messaging.service';
 import { ItemController } from './item.controller';
 import { ItemMapper } from '@modules/items/core/application/mappers/item.mapper';
 import { CreateItemUseCase } from '@modules/items/core/application/use-cases/create-item.usecase';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  INestApplication,
+  NotFoundException,
+  ValidationPipe,
+} from '@nestjs/common';
 import * as request from 'supertest';
 import {
   mockItem,
   mockCreateItemDTO,
+  mockItemsList,
 } from '@modules/items/helpers/tests.helper';
+import { GetItemUseCase } from '@modules/items/core/application/use-cases/get-item.usecase';
+import { GetItemsUseCase } from '@modules/items/core/application/use-cases/get-items.usecase';
+import { messagingClientConfig } from 'src/config/messaging/redis.config';
+import { Item } from '@modules/items/core/domain/entities/item.entity';
+import { FilterItemUseCase } from '@modules/items/core/application/use-cases/filter-item.usecase';
 
 describe('ItemController', () => {
   let app: INestApplication;
@@ -22,6 +32,9 @@ describe('ItemController', () => {
   let messagingService: MessagingService;
 
   let createItemUseCase: CreateItemUseCase;
+  let getItemUseCase: GetItemUseCase;
+  let getItemsUseCase: GetItemsUseCase;
+  let filterItemsUseCase: FilterItemUseCase;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -31,22 +44,7 @@ describe('ItemController', () => {
             name: 'MESSAGING_CLIENT',
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: async (configService: ConfigService) => {
-              const redisHost = configService.get<string>('MESSAGING_HOST');
-              const redisUser = configService.get<string>('MESSAGING_USER');
-              const redisPW = configService.get<string>('MESSAGING_PW');
-              const redisPort = configService.get<number>('MESSAGING_PORT');
-
-              return {
-                transport: Transport.REDIS,
-                options: {
-                  host: redisHost,
-                  port: redisPort,
-                  username: redisUser,
-                  password: redisPW,
-                },
-              };
-            },
+            useFactory: messagingClientConfig,
           },
         ]),
       ],
@@ -56,6 +54,9 @@ describe('ItemController', () => {
         MessagingService,
         ItemMapper,
         CreateItemUseCase,
+        GetItemUseCase,
+        GetItemsUseCase,
+        FilterItemUseCase,
       ],
     }).compile();
 
@@ -66,6 +67,9 @@ describe('ItemController', () => {
     messagingService = module.get<MessagingService>(MessagingService);
 
     createItemUseCase = module.get<CreateItemUseCase>(CreateItemUseCase);
+    getItemUseCase = module.get<GetItemUseCase>(GetItemUseCase);
+    getItemsUseCase = module.get<GetItemsUseCase>(GetItemsUseCase);
+    filterItemsUseCase = module.get<FilterItemUseCase>(FilterItemUseCase);
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
@@ -73,9 +77,13 @@ describe('ItemController', () => {
   });
 
   it('should be defined', () => {
+    expect(app).toBeDefined();
     expect(controller).toBeDefined();
     expect(mapper).toBeDefined();
     expect(messagingService).toBeDefined();
+    expect(createItemUseCase).toBeDefined();
+    expect(getItemUseCase).toBeDefined();
+    expect(getItemsUseCase).toBeDefined();
   });
 
   describe('create', () => {
@@ -90,7 +98,9 @@ describe('ItemController', () => {
       jest
         .spyOn(mapper, 'createItemDTOForEntity')
         .mockImplementation(() => item);
-      jest.spyOn(createItemUseCase, 'execute').mockImplementation(() => item);
+      jest
+        .spyOn(createItemUseCase, 'execute')
+        .mockImplementation(async () => undefined);
     });
 
     it('should call mapper, messaging service and usecase with correct parameters', async () => {
@@ -169,6 +179,129 @@ describe('ItemController', () => {
           'As fotos não estão na codificação Base64',
         ],
         statusCode: 400,
+      });
+    });
+  });
+
+  describe('getOne', () => {
+    const id = 'ITEMID';
+    const item = mockItem({ _id: id });
+
+    beforeEach(() => {
+      jest
+        .spyOn(getItemUseCase, 'findById')
+        .mockImplementation(async () => item);
+    });
+
+    it('should call usecase with correct parameters and return a item', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/item/${id}`)
+        .expect(200);
+      const body = await response.body;
+
+      expect(getItemUseCase.findById).toHaveBeenCalledWith(id);
+      expect(body).toEqual({
+        message: 'Aqui está o livro filtrado por ID',
+        data: item,
+      });
+      expect(body.data).toBeInstanceOf(Item);
+    });
+  });
+
+  describe('getAll', () => {
+    const items = mockItemsList();
+
+    beforeEach(() => {
+      jest
+        .spyOn(getItemsUseCase, 'getAll')
+        .mockImplementation(async () => items);
+    });
+
+    it('should call usecase with correct parameters and return all items', async () => {
+      const response = await request(app.getHttpServer())
+        .get(`/item/items`)
+        .expect(200);
+
+      const body = await response.body;
+
+      expect(getItemsUseCase.getAll).toHaveBeenCalled();
+      expect(body).toEqual({
+        message: 'Aqui está a listagem de todos os livros',
+        data: items,
+      });
+      expect(body.data[0]).toBeInstanceOf(Item);
+    });
+  });
+
+  describe('filter', () => {
+    const items = mockItemsList();
+    const title = 'item';
+    const category = 'books';
+    const available = true;
+
+    beforeEach(() => {
+      jest
+        .spyOn(filterItemsUseCase, 'findByTitle')
+        .mockImplementation(async () => items);
+    });
+
+    it('should throw not found exception when no have fields', async () => {
+      await expect(controller.filter({})).rejects.toThrow(
+        new NotFoundException('Não foi possivel encontrar os itens'),
+      );
+    });
+
+    describe('multiFields', async () => {
+      const response = await controller.filter({ title, category, available });
+
+      expect(filterItemsUseCase.multiFilters).toHaveBeenCalledWith();
+      expect(response).toEqual({
+        message:
+          'Aqui está a listagem de todos os livros filtrados por multiplo filtros',
+        data: items,
+      });
+      expect(response.data[0]).toBeInstanceOf(Item);
+    });
+
+    describe('filterByTitle', () => {
+      it('should call usecase with correct parameters and return all filtered items by title', async () => {
+        const response = await controller.filter({ title });
+
+        expect(filterItemsUseCase.findByTitle).toHaveBeenCalledWith();
+        expect(response).toEqual({
+          message:
+            'Aqui está a listagem de todos os livros filtrados pelo titulo',
+          data: items,
+        });
+        expect(response.data[0]).toBeInstanceOf(Item);
+      });
+    });
+
+    describe('filterByCategory', () => {
+      it('should call usecase with correct parameters and return all filtered items by category', async () => {
+        const response = await controller.filter({ category });
+
+        expect(filterItemsUseCase.findByCategory).toHaveBeenCalledWith();
+        expect(response).toEqual({
+          message:
+            'Aqui está a listagem de todos os livros filtrados pela categoria',
+          data: items,
+        });
+        expect(response.data[0]).toBeInstanceOf(Item);
+      });
+    });
+
+    describe('filterByAvailable', () => {
+      it('should call usecase with correct parameters and return all filtered items by available', async () => {
+        const response = await controller.filter({ available });
+
+        expect(filterItemsUseCase.findByAvailable).toHaveBeenCalledWith();
+        expect(response).toEqual({
+          message:
+            'Aqui está a listagem de todos os livros filtrados por disponível',
+          data: items,
+        });
+        expect(response.data[0]).toBeInstanceOf(Item);
       });
     });
   });
