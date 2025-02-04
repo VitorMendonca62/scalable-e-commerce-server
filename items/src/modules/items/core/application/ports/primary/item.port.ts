@@ -1,4 +1,9 @@
 import { Item } from '@modules/items/core/domain/entities/item.entity';
+import {
+  ItemKeys,
+  ItemValues,
+  Signals,
+} from '@modules/items/core/domain/types/item.types';
 
 export abstract class CreateItemPort {
   abstract execute(item: Item): Promise<void>;
@@ -13,8 +18,9 @@ export abstract class GetItemsPort {
 }
 
 export abstract class FilterItemsPort {
-  abstract findByCategory(category: string): Promise<Item[]>;
-  abstract findByTitle(title: string): Promise<Item[]>;
-  abstract findByAvailable(available: boolean): Promise<Item[]>;
-  abstract multiFilters(filters: Record<string, any>): Promise<Item[]>;
+  abstract execute(
+    keys: ItemKeys[],
+    value: ItemValues[],
+    signal: Signals[],
+  ): Promise<void>;
 }

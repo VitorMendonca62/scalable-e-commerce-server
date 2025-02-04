@@ -1,11 +1,11 @@
-import {
-  ItemKeys,
-  ItemRepository,
-  ItemValues,
-  Signals,
-} from '@modules/items/core/application/ports/secondary/item-repository.interface';
+import { ItemRepository } from '@modules/items/core/application/ports/secondary/item-repository.interface';
 import { ItemUpdate } from '@modules/items/core/domain/entities/item-update.entity';
 import { Item } from '@modules/items/core/domain/entities/item.entity';
+import {
+  ItemKeys,
+  ItemValues,
+  Signals,
+} from '@modules/items/core/domain/types/item.types';
 import { mockItem } from '@modules/items/helpers/tests.helper';
 import { Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
@@ -33,7 +33,7 @@ export class InMemoryItemRepository implements ItemRepository {
     value: ItemValues,
     signal: Signals,
     items: Item[] | undefined,
-  ): Promise<Item[] | undefined> {
+  ): Promise<Item[]> {
     const array = items ? items : this.items;
 
     return array.filter((item) => eval(`${value}${signal}${item[key]}`));
