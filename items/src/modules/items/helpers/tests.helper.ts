@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 
 interface MockItem extends CreateItemDTO {
   _id?: string;
+  rating: number;
 }
 
 export const mockItem = (overrides: Partial<MockItem> = {}) => {
@@ -13,7 +14,12 @@ export const mockItem = (overrides: Partial<MockItem> = {}) => {
     item._id = overrides._id;
   }
 
-  item.rating = faker.number.float({ min: 0, max: 5, fractionDigits: 2 });
+  if (overrides.rating) {
+    item.rating = overrides.rating;
+  } else {
+    item.rating = faker.number.float({ min: 0, max: 5, fractionDigits: 2 });
+  }
+
   item.raters = faker.number.int({ min: 0, max: 500 });
 
   return item;
@@ -50,7 +56,13 @@ export const mockCreateItemDTO = (
 
 export const mockItemsList = () => {
   return [
-    mockItem({ title: 'item 01', _id: '1' }),
+    mockItem({
+      title: 'item 01',
+      _id: '1',
+      category: 'garden',
+      price: 23,
+      rating: 4,
+    }),
     mockItem({ title: 'item 02', _id: '2' }),
     mockItem({ title: 'item 03', _id: '3' }),
   ];
