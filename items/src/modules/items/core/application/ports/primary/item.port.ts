@@ -20,7 +20,7 @@ export abstract class GetItemsPort {
 export abstract class FilterItemsPort {
   abstract execute(
     keys: ItemKeys[],
-    value: ItemValues[],
-    signal: Signals[],
-  ): Promise<void>;
+    values: ItemValues[],
+    signals: Signals[],
+  ): Promise<Item[]>;
 }
