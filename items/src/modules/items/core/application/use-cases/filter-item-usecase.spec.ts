@@ -71,18 +71,21 @@ describe('FilterItemUseCase', () => {
         keys[0],
         values[0],
         signals[0],
+        undefined,
       );
       expect(itemRepository.filter).toHaveBeenNthCalledWith(
         2,
         keys[1],
         values[1],
         signals[1],
+        filteredItems,
       );
       expect(itemRepository.filter).toHaveBeenNthCalledWith(
         3,
         keys[2],
         values[2],
         signals[2],
+        filteredItems,
       );
     });
 

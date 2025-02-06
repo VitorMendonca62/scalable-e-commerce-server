@@ -1,9 +1,10 @@
-import { NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Item } from '../../domain/entities/item.entity';
 import { ItemKeys, ItemValues, Signals } from '../../domain/types/item.types';
 import { FilterItemsPort } from '../ports/primary/item.port';
 import { ItemRepository } from '../ports/secondary/item-repository.interface';
 
+@Injectable()
 export class FilterItemUseCase implements FilterItemsPort {
   constructor(private readonly itemRepository: ItemRepository) {}
 
@@ -23,7 +24,7 @@ export class FilterItemUseCase implements FilterItemsPort {
       );
     }
 
-    if (items == undefined) {
+    if (items.length == 0) {
       throw new NotFoundException(
         'Não foi possivel encontrar itens com esses filtros',
       );
