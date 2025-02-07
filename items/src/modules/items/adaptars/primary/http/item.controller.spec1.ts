@@ -119,7 +119,7 @@ describe('ItemController', () => {
         rating,
         raters,
       });
-      expect(createItemUseCase.execute).toHaveBeenNthCalledWith(item);
+      expect(createItemUseCase.execute).toHaveBeenCalledWith(item);
     });
 
     it('should create item and return sucess message', async () => {
@@ -252,15 +252,26 @@ describe('ItemController', () => {
     });
 
     describe('multiFields', async () => {
-      const response = await controller.filter({ title, category, available });
+      it('should call usecase with correct parameters and return all filtered items by title', async () => {
+        const response = await controller.filter({
+          title,
+          category,
+          available,
+          teste: 'teste',
+        });
 
-      expect(filterItemsUseCase.multiFilters).toHaveBeenCalledWith();
-      expect(response).toEqual({
-        message:
-          'Aqui está a listagem de todos os livros filtrados por multiplo filtros',
-        data: items,
+        expect(filterItemsUseCase.multiFilters).toHaveBeenCalledWith({
+          title,
+          category,
+          available,
+        });
+        expect(response).toEqual({
+          message:
+            'Aqui está a listagem de todos os livros filtrados por multiplos filtros',
+          data: items,
+        });
+        expect(response.data[0]).toBeInstanceOf(Item);
       });
-      expect(response.data[0]).toBeInstanceOf(Item);
     });
 
     describe('filterByTitle', () => {

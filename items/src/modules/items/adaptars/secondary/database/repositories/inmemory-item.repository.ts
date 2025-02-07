@@ -36,7 +36,11 @@ export class InMemoryItemRepository implements ItemRepository {
   ): Promise<Item[]> {
     const array = items ? items : this.items;
 
-    return array.filter((item) => eval(`${value}${signal}${item[key]}`));
+    return array.filter((item) => {
+      if (key != 'title') return eval(`${value}${signal}${item[key]}`);
+
+      return item.title.includes(value as string);
+    });
   }
 
   async update(id: string, newItem: ItemUpdate): Promise<Item> {
