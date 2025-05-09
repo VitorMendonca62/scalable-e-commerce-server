@@ -1,10 +1,10 @@
-import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
 } from 'class-validator';
+import { applyDecorators } from '@nestjs/common';
 
 export function PhoneNumber(isOptional: boolean) {
   const IsRequired = isOptional

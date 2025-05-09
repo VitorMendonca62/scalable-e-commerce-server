@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
 import { CreateUserPort } from '../ports/primary/user.port';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
+import EmailVO from '../../domain/types/values-objects/email.vo';
 
 @Injectable()
 export class CreateUserUseCase implements CreateUserPort {
@@ -9,7 +10,7 @@ export class CreateUserUseCase implements CreateUserPort {
 
   async execute(user: User): Promise<void> {
     const userExistsWithUsername = await this.userRepository.findByUsername(
-      user.username,
+      user.username.getValue(),
     );
 
     if (userExistsWithUsername) {
@@ -23,9 +24,7 @@ export class CreateUserUseCase implements CreateUserPort {
     );
 
     if (userExistsWithEmail) {
-      throw new BadRequestException(
-        'Esse email já está sendo utilizado. Tente outro',
-      );
+      throw new BadRequestException(EmailVO.ERROR_ALREADY_EXISTS);
     }
 
     await this.userRepository.create(user);

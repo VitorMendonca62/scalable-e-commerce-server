@@ -4,13 +4,13 @@ import {
   INestApplication,
   ValidationPipe,
 } from '@nestjs/common';
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import {
-  mockUser,
   mockCreateUserDTO,
   mockLoginUser,
   mockLoginUserDTO,
+  mockUser,
 } from '@auth/helpers/tests.helper';
 import * as request from 'supertest';
 import { UserRepository } from '@modules/auth/core/application/ports/secondary/user-repository.interface';
@@ -23,6 +23,7 @@ import { MessagingService } from '../../secondary/messaging/messaging.service';
 import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import { TokenService } from '@modules/auth/core/application/ports/primary/session.port';
 import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
+import EmailVO from '@modules/auth/core/domain/types/values-objects/email.vo';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -171,7 +172,7 @@ describe('AuthController', () => {
         message: [
           'O username é obrigatório',
           'O nome completo é obrigatório',
-          'O email é obrigatório',
+          EmailVO.ERROR_REQUIRED,
           'A senha é obrigatória',
           'O telefone é obrigatório',
         ],
@@ -195,7 +196,7 @@ describe('AuthController', () => {
         error: 'Bad Request',
         message: [
           'O username não pode conter com espaços.',
-          'O email tem que ser válido',
+          EmailVO.ERROR_INVALID,
           'O telefone deve ser válido do Brasil',
         ],
         statusCode: 400,
@@ -268,7 +269,7 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: ['O email é obrigatório', 'A senha é obrigatória'],
+        message: [EmailVO.ERROR_REQUIRED, 'A senha é obrigatória'],
         statusCode: 400,
       });
     });
@@ -285,7 +286,7 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: ['O email tem que ser válido'],
+        message: [EmailVO.ERROR_INVALID],
         statusCode: 400,
       });
     });

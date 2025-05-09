@@ -21,7 +21,7 @@ export class CreateSessionUseCase implements CreateSessionPort {
       throw new BadRequestException('Email ou senha estão incorretos.');
     }
 
-    if (!user.validatePassword(inputUser.password)) {
+    if (!user.password.comparePassword(inputUser.password.getValue())) {
       throw new BadRequestException('Email ou senha estão incorretos.');
     }
 

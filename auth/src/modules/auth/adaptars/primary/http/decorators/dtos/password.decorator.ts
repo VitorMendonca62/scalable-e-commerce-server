@@ -6,10 +6,10 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Password(canStrongPassword: boolean) {
+export function Password(isStrongPassword: boolean) {
   const decorators = [];
 
-  if (canStrongPassword) {
+  if (isStrongPassword) {
     decorators.push(
       IsStrongPassword(
         {

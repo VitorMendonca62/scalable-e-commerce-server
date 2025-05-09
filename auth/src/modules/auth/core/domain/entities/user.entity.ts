@@ -1,34 +1,32 @@
 import { CreateUserDTO } from '../../../adaptars/primary/http/dtos/create-user.dto';
-import * as bcrypt from 'bcrypt';
 import { Permissions } from '../types/permissions';
+
+// Values Objects
+import EmailVO from '../types/values-objects/email.vo';
+import PasswordVO from '../types/values-objects/password.vo';
+import PhoneNumberVO from '../types/values-objects/phonenumber.vo';
+import NameVO from '../types/values-objects/name.vo';
+import UsernameVO from '../types/values-objects/username.vo';
 
 export class User {
   _id?: string;
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  phonenumber: string;
+  name: NameVO;
+  username: UsernameVO;
+  email: EmailVO;
+  password: PasswordVO;
+  phonenumber: PhoneNumberVO;
   roles: Permissions[];
   createdAt: Date;
   updatedAt: Date;
 
   constructor(data: CreateUserDTO) {
-    this.name = data.name;
-    this.username = data.username;
-    this.email = data.email;
-    this.password = this.hashPassword(data.password);
-    this.phonenumber = data.phonenumber;
+    this.name = new NameVO(data.name, false);
+    this.username = new UsernameVO(data.username, false);
+    this.email = new EmailVO(data.email);
+    this.password = new PasswordVO(data.password, true);
+    this.phonenumber = new PhoneNumberVO(data.phonenumber, false);
     this.createdAt = new Date();
     this.updatedAt = new Date();
     this.roles = [Permissions.READ_ITEMS, Permissions.ENTER];
-  }
-
-  hashPassword(password: string) {
-    return bcrypt.hashSync(password, 10);
-  }
-
-  validatePassword(inputPassword: string) {
-    return bcrypt.compareSync(inputPassword, this.password);
   }
 }

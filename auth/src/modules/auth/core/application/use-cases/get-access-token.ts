@@ -8,11 +8,11 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 export class GetAccessTokenUseCase implements GetAccessTokenPort {
   constructor(
     private readonly userRepository: UserRepository,
-    private readonly TokenService: TokenService,
+    private readonly tokenService: TokenService,
   ) {}
 
   async execute(refreshToken: string): Promise<string> {
-    const { sub: id } = this.TokenService.verifyToken(refreshToken);
+    const { sub: id } = this.tokenService.verifyToken(refreshToken);
 
     const user = await this.userRepository.findById(id);
 
@@ -20,6 +20,6 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
       throw new BadRequestException('Esse token está inválido');
     }
 
-    return this.TokenService.generateAccessToken(user);
+    return this.tokenService.generateAccessToken(user);
   }
 }

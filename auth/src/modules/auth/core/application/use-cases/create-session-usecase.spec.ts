@@ -1,12 +1,12 @@
-import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { mockLoginUser, mockUser } from '@modules/auth/helpers/tests.helper';
-import { TestingModule, Test } from '@nestjs/testing';
+import { InMemoryUserRepository } from '@auth/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { mockLoginUser, mockUser } from '@auth/helpers/tests.helper';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
 import { CreateSessionUseCase } from './create-session.usecase';
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
 import { TokenService } from '../ports/primary/session.port';
-import { JwtTokenService } from '@modules/auth/adaptars/secondary/token-service/jwt-token.service';
+import { JwtTokenService } from '@auth/adaptars/secondary/token-service/jwt-token.service';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -58,14 +58,18 @@ describe('CreateSessionUseCase', () => {
         .spyOn(tokenService, 'generateAccessToken')
         .mockImplementation(() => 'TOKEN');
 
-      jest.spyOn(user, 'validatePassword').mockImplementation(() => true);
+      jest
+        .spyOn(user.password, 'comparePassword')
+        .mockImplementation(() => true);
     });
 
     it('should use case call with correct parameters and create user session', async () => {
       const response = await useCase.execute(userLogin);
 
       expect(userRepository.findByEmail).toHaveBeenCalledWith(userLogin.email);
-      expect(user.validatePassword).toHaveBeenCalledWith(userLogin.password);
+      expect(user.password.comparePassword).toHaveBeenCalledWith(
+        userLogin.password.getValue(),
+      );
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
 
       expect(tokenService.generateRefreshToken).toHaveBeenCalledWith('USERID');
@@ -87,7 +91,9 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw bad request exception when password is incorrect', async () => {
-      jest.spyOn(user, 'validatePassword').mockImplementation(() => false);
+      jest
+        .spyOn(user.password, 'comparePassword')
+        .mockImplementation(() => false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
         new BadRequestException('Email ou senha estão incorretos.'),

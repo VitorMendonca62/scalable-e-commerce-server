@@ -1,13 +1,13 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
+  Get,
+  Headers,
   HttpCode,
   Post,
   UsePipes,
   ValidationPipe,
-  Headers,
-  ForbiddenException,
-  Get,
 } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';

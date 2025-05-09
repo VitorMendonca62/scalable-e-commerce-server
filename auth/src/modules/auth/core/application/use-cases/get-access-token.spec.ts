@@ -1,4 +1,4 @@
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepository } from '../ports/secondary/user-repository.interface';
 import { mockUser } from '@modules/auth/helpers/tests.helper';
 import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/database/repositories/inmemory-user.repository';

@@ -1,5 +1,5 @@
-import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { applyDecorators } from '@nestjs/common';
 
 export function Name(isOptional: boolean) {
   const IsRequired = isOptional
