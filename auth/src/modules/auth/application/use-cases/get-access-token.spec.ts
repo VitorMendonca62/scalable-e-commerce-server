@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserRepository } from '../ports/secondary/user-repository.port';
-import { mockUser } from '@modules/auth/helpers/tests.helper';
-import { InMemoryUserRepository } from '@modules/auth/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { ConfigModule } from '@nestjs/config';
 import { BadRequestException } from '@nestjs/common';
 import { GetAccessTokenUseCase } from './get-access-token';
-import { JwtTokenService } from '@modules/auth/adaptars/secondary/token-service/jwt-token.service';
-import { TokenService } from '../ports/primary/session.port';
+import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
+import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
+import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
+import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;

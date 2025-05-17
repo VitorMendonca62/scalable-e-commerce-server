@@ -9,6 +9,7 @@ export default class UsernameVO {
   static readonly EXEMPLE = 'vitormendonca62';
   static readonly WRONG_EXEMPLE = 'us er';
   static readonly MIN_LENGTH = 3;
+  static readonly MIN_LENGTH_EXEMPLE = 'ab';
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O username é obrigatório';

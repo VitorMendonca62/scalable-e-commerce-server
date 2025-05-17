@@ -67,11 +67,11 @@ export class AuthController {
   @HttpCode(201)
   @ApiLoginUser()
   async login(@Body() dto: LoginUserDTO) {
-    const user = this.userMapper.loginDTOForEntity(dto);
-
     return {
       message: 'Usuário realizou login com sucesso',
-      data: await this.createSessionUseCase.execute(user),
+      data: await this.createSessionUseCase.execute(
+        this.userMapper.loginDTOForEntity(dto),
+      ),
     };
   }
 

@@ -1,8 +1,11 @@
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import { mockUser, mockUserList } from '@modules/auth/helpers/tests.helper';
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
+import {
+  mockUser,
+  mockUserList,
+} from '@modules/auth/infrastructure/helpers/tests.helper';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;

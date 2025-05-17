@@ -7,8 +7,9 @@ export default class NameVO {
     'O nome completo do usuário. Serve como informação auxiliar para o sistema';
 
   static readonly EXEMPLE = 'Vitor Hugo Mendonça de Queiroz';
-  static readonly ERROR_EXEMPLE = 'Vi';
+  static readonly WRONG_EXEMPLE = 'Vi';
   static readonly MIN_LENGTH = 3;
+  static readonly MIN_LENGTH_EXEMPLE = 'ab';
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O nome completo é obrigatório';

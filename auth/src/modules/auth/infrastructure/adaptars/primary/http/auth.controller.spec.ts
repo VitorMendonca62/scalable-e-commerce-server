@@ -1,4 +1,3 @@
-import { CreateUserUseCase } from '@auth/core/application/use-cases/create-user.usecase';
 import {
   ForbiddenException,
   INestApplication,
@@ -6,41 +5,43 @@ import {
 } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
-import {
-  mockCreateUserDTO,
-  mockLoginUser,
-  mockLoginUserDTO,
-  mockUser,
-} from '@auth//helpers/tests.helper';
 import * as request from 'supertest';
-import { UserRepository } from '@modules/auth/application/ports/secondary/user-repository.port';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
 import { CreateSessionUseCase } from '@modules/auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/application/use-cases/get-access-token';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RedisService } from '../../secondary/message-broker/pub-sub/redis.service';
-import { UserMapper } from '@modules/auth/application/mappers/user.mapper';
-import { TokenService } from '@modules/auth/application/ports/primary/session.port';
 import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
-import { PubSubMessageBroker } from '@modules/auth/application/ports/secondary/pub-sub.port';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
 import NameVO from '@modules/auth/domain/values-objects/name.vo';
 import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
+import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
+import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
+import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
+import {
+  mockUser,
+  mockCreateUserDTO,
+  mockLoginUser,
+  mockLoginUserDTO,
+} from '@modules/auth/infrastructure/helpers/tests.helper';
+import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
+import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
+import { v4 } from 'uuid';
 
 describe('AuthController', () => {
   let app: INestApplication;
 
   let controller: AuthController;
 
-  let mapper: UserMapper;
-
   let createUserUseCase: CreateUserUseCase;
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
+
+  let mapper: UserMapper;
 
   let messageBroker: PubSubMessageBroker;
 
@@ -113,23 +114,23 @@ describe('AuthController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-    expect(mapper).toBeDefined();
     expect(createUserUseCase).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
+    expect(mapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
     expect(messageBroker).toBeDefined();
     expect(app).toBeDefined();
   });
 
   describe('create', () => {
-    const user = mockUser();
+    const user = mockUser({ _id: v4() });
     const dto = mockCreateUserDTO();
 
     beforeEach(() => {
-      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation(() => user);
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockImplementation(() => undefined);
+      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation(() => user);
       jest.spyOn(messageBroker, 'publish').mockImplementation(() => undefined);
     });
 
@@ -192,7 +193,7 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw bad request error when invalid phonenumber, username and email', async () => {
+    it('should throw bad request error when invalid all fields', async () => {
       const dto = mockCreateUserDTO({
         email: EmailVO.WRONG_EXEMPLE,
         username: UsernameVO.WRONG_EXEMPLE,
@@ -215,9 +216,9 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw bad request error when invalid phonenumber', async () => {
+    it('should throw bad request error when password is weak', async () => {
       const dto = mockCreateUserDTO({
-        phonenumber: PhoneNumberVO.WRONG_EXEMPLE,
+        password: PasswordVO.WEAK_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -227,7 +228,30 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: [PhoneNumberVO.ERROR_INVALID],
+        message: [PasswordVO.ERROR_WEAK_PASSWORD],
+        statusCode: 400,
+      });
+    });
+
+    it('should throw bad request error when username, name and password with min length error', async () => {
+      const dto = mockCreateUserDTO({
+        username: UsernameVO.MIN_LENGTH_EXEMPLE,
+        name: NameVO.MIN_LENGTH_EXEMPLE,
+        password: PasswordVO.MIN_LENGTH_EXEMPLE,
+      });
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: [
+          UsernameVO.ERROR_MIN_LENGTH,
+          NameVO.ERROR_MIN_LENGTH,
+          PasswordVO.ERROR_MIN_LENGTH,
+        ],
         statusCode: 400,
       });
     });
@@ -243,10 +267,10 @@ describe('AuthController', () => {
       type: 'Bearer' as const,
     };
     beforeEach(() => {
-      jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
       jest
         .spyOn(createSessionUseCase, 'execute')
         .mockImplementation(async () => returnUseCase);
+      jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
     });
 
     it('should use case call with correct parameters', async () => {
@@ -299,6 +323,23 @@ describe('AuthController', () => {
       expect(response.body).toEqual({
         error: 'Bad Request',
         message: [EmailVO.ERROR_INVALID],
+        statusCode: 400,
+      });
+    });
+
+    it('should throw bad request error when password with min length error', async () => {
+      const dto = mockCreateUserDTO({
+        password: PasswordVO.MIN_LENGTH_EXEMPLE,
+      });
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual({
+        error: 'Bad Request',
+        message: [PasswordVO.ERROR_MIN_LENGTH],
         statusCode: 400,
       });
     });

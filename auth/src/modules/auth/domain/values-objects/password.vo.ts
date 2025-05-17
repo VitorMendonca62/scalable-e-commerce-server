@@ -8,8 +8,10 @@ export default class PasswordVO {
     'A senha, que será criptografada assim que entra no sistema é utilizada para entrar no sistema. Ela deve conter um caracter especial, um número uma letra maiúscula e outra minúscula.';
 
   static readonly EXEMPLE = '$Vh1234567';
-  static readonly ERROR_EXEMPLE = 'weak123';
+  static readonly WRONG_EXEMPLE = 'weak123';
   static readonly MIN_LENGTH = 8;
+  static readonly MIN_LENGTH_EXEMPLE = 'abc';
+  static readonly WEAK_EXEMPLE = 'adwawdawdwad';
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'A senha é obrigatória';

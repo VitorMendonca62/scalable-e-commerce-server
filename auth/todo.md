@@ -2,6 +2,7 @@
 [x] Criar modulo para message broker
 [] MS-USER que cria usuarios, nao auth
 [] Testes em 100%
+[] Revisar testes
 [] Seguir Principios SOLID
 [] Id privado compartilhado entre servicos
 [X] Remover dependencia da entidade em DTO
