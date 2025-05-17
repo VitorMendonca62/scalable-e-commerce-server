@@ -25,6 +25,7 @@ import { TokenService } from '@modules/auth/core/application/ports/primary/sessi
 import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
 import EmailVO from '@modules/auth/core/domain/types/values-objects/email.vo';
 import { PubSubMessageBroker } from '@modules/auth/core/domain/types/message-broker/pub-sub';
+import { defaultRoles } from '@modules/auth/core/domain/types/permissions';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -129,18 +130,24 @@ describe('AuthController', () => {
 
     it('should use case call with correct parameters', async () => {
       const dto = mockCreateUserDTO();
+
       await controller.create(dto);
-
-      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
-
-      const { email, name, roles, username, _id, phonenumber } = user;
 
       expect(messageBroker.publish).toHaveBeenCalledWith(
         'user-created',
-        { email, name, roles, username, _id, phonenumber },
+        {
+          email: dto.email,
+          name: dto.name,
+          roles: defaultRoles,
+          username: dto.username,
+          _id: '1',
+          phonenumber: dto.phonenumber,
+        },
         'auth',
       );
+
+      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 
     it('should create user and return sucess message', async () => {

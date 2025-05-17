@@ -7,7 +7,13 @@
   },
 
   "collectCoverage": true,
-  "collectCoverageFrom": ["src/**/*.ts", "!src/main.ts", "!src/*.module.ts", "!src/**/*.decorator.ts"],
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/main.ts",
+    "!src/**/*.module.ts",
+    "!src/config/**/*.ts",
+    "!src/**/*.decorator.ts"
+  ],
   "testEnvironment": "node",
   "clearMocks": true,
   "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
