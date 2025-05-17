@@ -28,6 +28,8 @@ import { PubSubMessageBroker } from '@modules/auth/core/domain/types/message-bro
 import { defaultRoles } from '@modules/auth/core/domain/types/permissions';
 import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.vo';
 import PhoneNumberVO from '@modules/auth/core/domain/types/values-objects/phonenumber.vo';
+import NameVO from '@modules/auth/core/domain/types/values-objects/name.vo';
+import PasswordVO from '@modules/auth/core/domain/types/values-objects/password.vo';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -180,11 +182,11 @@ describe('AuthController', () => {
       expect(response.body).toEqual({
         error: 'Bad Request',
         message: [
-          'O username é obrigatório',
-          'O nome completo é obrigatório',
+          UsernameVO.ERROR_REQUIRED,
+          NameVO.ERROR_REQUIRED,
           EmailVO.ERROR_REQUIRED,
-          'A senha é obrigatória',
-          'O telefone é obrigatório',
+          PasswordVO.ERROR_REQUIRED,
+          PhoneNumberVO.ERROR_REQUIRED,
         ],
         statusCode: 400,
       });
@@ -286,7 +288,7 @@ describe('AuthController', () => {
 
     it('should throw bad request error when email', async () => {
       const dto = mockCreateUserDTO({
-        email: 'testeexemplo.com',
+        email: EmailVO.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
