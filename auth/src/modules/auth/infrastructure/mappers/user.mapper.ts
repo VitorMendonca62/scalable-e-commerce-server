@@ -21,8 +21,8 @@ export class UserMapper {
       phonenumber: new PhoneNumberVO(dto.phonenumber, false),
       roles: defaultRoles,
       username: new UsernameVO(dto.username, false),
-      createdAt: new Date('2025-02-16T17:21:05.370Z'),
-      updatedAt: new Date('2025-02-16T17:21:05.370Z'),
+      createdAt: new Date(),
+      updatedAt: new Date(),
       _id: v4(),
     });
   }
@@ -31,7 +31,7 @@ export class UserMapper {
     return new UserLogin({
       email: new EmailVO(dto.email),
       password: new PasswordVO(dto.password, true),
-      accessedAt: new Date('2025-02-16T17:21:05.370Z'),
+      accessedAt: new Date(),
     });
   }
 }
