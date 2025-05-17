@@ -49,7 +49,9 @@ describe('CreateUserUseCase', () => {
     it('should use case call with correct parameters and create user', async () => {
       const response = await useCase.execute(user);
 
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(user.email);
+      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+        user.email.getValue(),
+      );
       expect(userRepository.findByUsername).toHaveBeenCalledWith(
         user.username.getValue(),
       );

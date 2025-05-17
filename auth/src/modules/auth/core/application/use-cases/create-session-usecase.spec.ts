@@ -66,7 +66,9 @@ describe('CreateSessionUseCase', () => {
     it('should use case call with correct parameters and create user session', async () => {
       const response = await useCase.execute(userLogin);
 
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(userLogin.email);
+      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+        userLogin.email.getValue(),
+      );
       expect(user.password.comparePassword).toHaveBeenCalledWith(
         userLogin.password.getValue(),
       );

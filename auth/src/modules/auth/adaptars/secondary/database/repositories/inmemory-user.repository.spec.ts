@@ -10,25 +10,39 @@ import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
-  let users: User[];
+  let users: User[] = [];
 
   beforeEach(() => {
     repository = new InMemoryUserRepository();
+  });
+
+  it('should be defined', () => {
+    expect(repository).toBeDefined();
+    expect(repository.users).toBeDefined();
+    expect(repository.users).toHaveLength(0);
   });
 
   describe('create', () => {
     beforeEach(() => {
       users = mockUserList();
       repository.users = users;
-      jest.spyOn(repository.users, 'push');
+    });
+
+    it('should overwrite existing _id with a new uuid', async () => {
+      const user = mockUser();
+      user._id = 'custom-id';
+
+      await repository.create(user);
+
+      expect(user._id).not.toBe('custom-id');
     });
 
     it('should create user', async () => {
       const user = new User(mockCreateUserDTO());
 
-      await repository.create(user);
+      const response = await repository.create(user);
 
-      expect(repository.users.push).toHaveBeenCalledWith(user);
+      expect(response).toBeUndefined();
       expect(repository.users).toContain(user);
     });
 
@@ -46,7 +60,6 @@ describe('InMemoryUserRepository', () => {
       for (const user of usersToCreate) {
         expect(repository.users).toContain(user);
       }
-      expect(repository.users.push).toHaveBeenCalledTimes(usersToCreate.length);
     });
   });
 
@@ -57,7 +70,7 @@ describe('InMemoryUserRepository', () => {
     beforeEach(() => {
       users = mockUserList();
       repository.users = users;
-      jest.spyOn(repository.users, 'find').mockImplementation(() => user);
+
       repository.users.push(user);
     });
 
@@ -65,20 +78,15 @@ describe('InMemoryUserRepository', () => {
       const response = await repository.findByEmail(validEmail);
 
       expect(response).toBe(user);
-      expect(repository.users.find).toHaveBeenCalled();
     });
 
     it('should return undefined when not found user with email', async () => {
-      jest.spyOn(repository.users, 'find').mockImplementation(() => undefined);
-
       const response = await repository.findByEmail('emailnotfound@email.com');
 
       expect(response).toBeUndefined();
     });
 
     it('should be case sensitive if getValue is case sensitive', async () => {
-      jest.spyOn(repository.users, 'find').mockImplementation(() => undefined);
-
       const response = await repository.findByEmail(validEmail.toUpperCase());
 
       expect(response).toBeUndefined();
@@ -92,7 +100,6 @@ describe('InMemoryUserRepository', () => {
     beforeEach(() => {
       users = mockUserList();
       repository.users = users;
-      jest.spyOn(repository.users, 'find').mockImplementation(() => user);
       repository.users.push(user);
     });
 
@@ -100,23 +107,41 @@ describe('InMemoryUserRepository', () => {
       const response = await repository.findByUsername(validUsername);
 
       expect(response).toBe(user);
-      expect(repository.users.find).toHaveBeenCalled();
     });
 
     it('should return undefined when not found user with username', async () => {
-      jest.spyOn(repository.users, 'find').mockImplementation(() => undefined);
-
-      const response = await repository.findByUsername('emailnotfound');
+      const response = await repository.findByUsername('usernamenotfound');
 
       expect(response).toBeUndefined();
     });
 
     it('should be case sensitive if getValue is case sensitive', async () => {
-      jest.spyOn(repository.users, 'find').mockImplementation(() => undefined);
-
       const response = await repository.findByUsername(
         validUsername.toUpperCase(),
       );
+
+      expect(response).toBeUndefined();
+    });
+  });
+
+  describe('findById', () => {
+    const validId = 'validid';
+    const user = mockUser({ _id: validId });
+
+    beforeEach(() => {
+      users = mockUserList();
+      repository.users = users;
+      repository.users.push(user);
+    });
+
+    it('should return user with id passed', async () => {
+      const response = await repository.findById(validId);
+
+      expect(response).toBe(user);
+    });
+
+    it('should return undefined when not found user with username', async () => {
+      const response = await repository.findById('211221');
 
       expect(response).toBeUndefined();
     });

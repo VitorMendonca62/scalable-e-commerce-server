@@ -20,7 +20,7 @@ export class CreateUserUseCase implements CreateUserPort {
     }
 
     const userExistsWithEmail = await this.userRepository.findByEmail(
-      user.email,
+      user.email.getValue(),
     );
 
     if (userExistsWithEmail) {
