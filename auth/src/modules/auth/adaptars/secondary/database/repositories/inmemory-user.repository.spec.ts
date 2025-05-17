@@ -1,10 +1,6 @@
 import { User } from '@modules/auth/core/domain/entities/user.entity';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import {
-  mockCreateUserDTO,
-  mockUser,
-  mockUserList,
-} from '@modules/auth/helpers/tests.helper';
+import { mockUser, mockUserList } from '@modules/auth/helpers/tests.helper';
 import EmailVO from '@modules/auth/core/domain/types/values-objects/email.vo';
 import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.vo';
 
@@ -23,13 +19,13 @@ describe('InMemoryUserRepository', () => {
   });
 
   describe('create', () => {
+    const user = mockUser();
     beforeEach(() => {
       users = mockUserList();
       repository.users = users;
     });
 
     it('should overwrite existing _id with a new uuid', async () => {
-      const user = mockUser();
       user._id = 'custom-id';
 
       await repository.create(user);
@@ -38,8 +34,6 @@ describe('InMemoryUserRepository', () => {
     });
 
     it('should create user', async () => {
-      const user = new User(mockCreateUserDTO());
-
       const response = await repository.create(user);
 
       expect(response).toBeUndefined();
