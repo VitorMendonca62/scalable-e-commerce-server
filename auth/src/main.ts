@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { addRedisClient } from './config/message-broker/redis.config';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,7 +25,7 @@ async function bootstrap() {
   const HOST = configService.get<string>('HOST');
 
   await app.listen(PORT, () =>
-    console.warn(`Server running in ${HOST}:${PORT}`),
+    new Logger('Server').debug(`Server running in ${HOST}:${PORT}`),
   );
 
   if (configService.get('ENVIRONMENT') == 'production') {

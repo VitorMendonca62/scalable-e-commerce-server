@@ -15,7 +15,6 @@ export default class UserExternalController {
   @ApiCreateUser()
   @MessagePattern('auth-user-created')
   async create(@Body() dto: CreateUserDTO) {
-    console.log(dto);
     const user = this.userMapper.createDTOForEntity(dto);
 
     await this.createUserUseCase.execute(user);
