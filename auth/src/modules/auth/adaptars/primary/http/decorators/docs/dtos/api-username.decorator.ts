@@ -1,14 +1,14 @@
+import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.vo';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export function ApiUsername(required: boolean) {
   return applyDecorators(
     ApiProperty({
-      description:
-        'O apelido serve como identificador único de usuário e é utilizado para o usuário ser identificado no sistema',
-      example: 'vitormendonca62',
+      description: UsernameVO.DESCRIPTION,
+      example: UsernameVO.EXEMPLE,
       required: required,
-      minLength: 3,
+      minLength: UsernameVO.MIN_LENGTH,
     }),
   );
 }

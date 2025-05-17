@@ -2,11 +2,22 @@ import { isNotEmpty, isPhoneNumber, isString } from 'class-validator';
 
 export default class PhoneNumberVO {
   private readonly value: string;
-  private readonly mask: string = '+55 (xx) xxxxx-xxxx';
+
+  static readonly DESCRIPTION =
+    'O número de telefone serve como informação auxiliar para o sistema. Deve ser um número válido no Brasil!.';
+
+  static readonly EXEMPLE = '+5581999999999';
+  static readonly ERROR_EXEMPLE = '12345';
+  static readonly MASK = '+55 (xx) xxxxx-xxxx';
+
+  // ERRORS
+  static readonly ERROR_REQUIRED = 'O telefone é obrigatório';
+  static readonly ERROR_INVALID = 'O telefone deve ser válido do Brasil';
+  static readonly ERROR_STRING = 'O telefone deve ser uma string';
 
   constructor(value: string, isOptionalClient: boolean) {
     if (!PhoneNumberVO.isValid(value, isOptionalClient)) {
-      throw new Error('Número de telefone inválido');
+      throw new Error(PhoneNumberVO.ERROR_INVALID);
     }
     this.value = value;
   }

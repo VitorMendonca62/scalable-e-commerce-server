@@ -1,18 +1,19 @@
 import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
+import NameVO from '@modules/auth/core/domain/types/values-objects/name.vo';
 
 export function Name(isOptional: boolean) {
   const IsRequired = isOptional
     ? IsOptional()
     : IsNotEmpty({
-        message: 'O nome completo é obrigatório',
+        message: NameVO.ERROR_REQUIRED,
       });
 
   return applyDecorators(
     IsRequired,
-    IsString({ message: 'O nome completo deve ser uma string válida' }),
-    MinLength(3, {
-      message: 'O nome completo está muito curto. O mínimo são 3 caracteres',
+    IsString({ message: NameVO.ERROR_INVALID }),
+    MinLength(NameVO.MIN_LENGTH, {
+      message: NameVO.ERROR_MIN_LENGTH,
     }),
   );
 }

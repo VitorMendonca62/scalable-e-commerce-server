@@ -5,6 +5,7 @@ import {
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
+import PasswordVO from '@modules/auth/core/domain/types/values-objects/password.vo';
 
 export function Password(isStrongPassword: boolean) {
   const decorators = [];
@@ -14,13 +15,13 @@ export function Password(isStrongPassword: boolean) {
       IsStrongPassword(
         {
           minLowercase: 1,
-          minLength: 8,
+          minLength: PasswordVO.MIN_LENGTH,
           minSymbols: 1,
           minUppercase: 1,
           minNumbers: 1,
         },
         {
-          message: 'A senha está muito fraca',
+          message: PasswordVO.ERROR_WEAK_PASSWORD,
         },
       ),
     );
@@ -28,11 +29,11 @@ export function Password(isStrongPassword: boolean) {
 
   return applyDecorators(
     IsNotEmpty({
-      message: 'A senha é obrigatória',
+      message: PasswordVO.ERROR_REQUIRED,
     }),
-    IsString({ message: 'A senha deve ser uma string válida' }),
-    MinLength(8, {
-      message: 'A senha está está muito curta. O mínimo são 8 caracteres',
+    IsString({ message: PasswordVO.ERROR_INVALID }),
+    MinLength(PasswordVO.MIN_LENGTH, {
+      message: PasswordVO.ERROR_MIN_LENGTH,
     }),
     ...decorators,
   );

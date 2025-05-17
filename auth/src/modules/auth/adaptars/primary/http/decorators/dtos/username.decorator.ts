@@ -6,20 +6,21 @@ import {
   MinLength,
 } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
+import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.vo';
 
 export function Username(isOptional: boolean | undefined) {
   const IsRequiredOrNo = isOptional
     ? IsOptional()
     : IsNotEmpty({
-        message: 'O username é obrigatório',
+        message: UsernameVO.ERROR_REQUIRED,
       });
 
   return applyDecorators(
     IsRequiredOrNo,
-    IsString({ message: 'O username deve ser uma string válida' }),
-    MinLength(3, {
-      message: 'O username está muito curto. O mínimo são 3 caracteres',
+    IsString({ message: UsernameVO.ERROR_INVALID }),
+    MinLength(UsernameVO.MIN_LENGTH, {
+      message: UsernameVO.ERROR_MIN_LENGTH,
     }),
-    Matches(/^\S+$/, { message: 'O username não pode conter com espaços.' }),
+    Matches(/^\S+$/, { message: UsernameVO.ERROR_NO_SPACES }),
   );
 }
