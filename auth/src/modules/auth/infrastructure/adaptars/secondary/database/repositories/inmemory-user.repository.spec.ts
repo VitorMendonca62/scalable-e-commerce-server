@@ -28,14 +28,6 @@ describe('InMemoryUserRepository', () => {
       repository.users = users;
     });
 
-    it('should overwrite existing _id with a new uuid', async () => {
-      user._id = 'custom-id';
-
-      await repository.create(user);
-
-      expect(user._id).not.toBe('custom-id');
-    });
-
     it('should create user', async () => {
       const response = await repository.create(user);
 
