@@ -380,7 +380,7 @@ describe('AuthController', () => {
       );
     });
 
-    it('should throw forbidden exeception when token is invalid', async () => {
+    it('should throw forbidden exeception when token is no have Bearer', async () => {
       await expect(controller.getAccessToken('undefined')).rejects.toThrow(
         new ForbiddenException('Você não tem permissão'),
       );
