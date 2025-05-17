@@ -1,18 +1,17 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthController } from './adaptars/primary/http/auth.controller';
-import { InMemoryUserRepository } from './adaptars/secondary/database/repositories/inmemory-user.repository';
-import { UserRepository } from './core/application/ports/secondary/user-repository.interface';
-import { CreateSessionUseCase } from './core/application/use-cases/create-session.usecase';
-import { CreateUserUseCase } from './core/application/use-cases/create-user.usecase';
-import { GetAccessTokenUseCase } from './core/application/use-cases/get-access-token';
-import { TokenService } from './core/application/ports/primary/session.port';
-import { JwtTokenService } from './adaptars/secondary/token-service/jwt-token.service';
-import { UserMapper } from './core/application/mappers/user.mapper';
-import { PubSubMessageBroker } from './core/domain/types/message-broker/pub-sub';
-import { RedisService } from './adaptars/secondary/message-broker/pub-sub/redis.service';
-
+import { CreateSessionUseCase } from './application/use-cases/create-session.usecase';
+import { CreateUserUseCase } from './application/use-cases/create-user.usecase';
+import { GetAccessTokenUseCase } from './application/use-cases/get-access-token';
+import { TokenService } from './domain/ports/primary/session.port';
+import { PubSubMessageBroker } from './domain/ports/secondary/pub-sub.port';
+import { UserRepository } from './domain/ports/secondary/user-repository.port';
+import { AuthController } from './infrastructure/adaptars/primary/http/auth.controller';
+import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { RedisService } from './infrastructure/adaptars/secondary/message-broker/pub-sub/redis.service';
+import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
+import { UserMapper } from './infrastructure/mappers/user.mapper';
 @Module({
   imports: [
     ClientsModule.registerAsync([

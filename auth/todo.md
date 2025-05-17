@@ -4,7 +4,7 @@
 [] Testes em 100%
 [] Seguir Principios SOLID
 [] Id privado compartilhado entre servicos
-[] Remover dependencia da entidade em DTO
+[X] Remover dependencia da entidade em DTO
 [] ADicionar objeto de erros em domain
 [] Ver isso:   it('should fail if password is too weak', async () => {
     const dto = plainToInstance(CreateUserDto, {
