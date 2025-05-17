@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { UserModule } from './modules/user/user.module';
-import { MessagingModule } from '@modules/messaging/messaging.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [UserModule, MessagingModule],
+  imports: [UserModule, ConfigModule.forRoot({ isGlobal: true })],
 })
 export class AppModule {}

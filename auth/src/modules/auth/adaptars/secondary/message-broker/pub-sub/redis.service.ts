@@ -13,9 +13,9 @@ export class RedisService implements PubSubMessageBroker {
   ) {}
 
   async publish(channel: string, value: object, service = '') {
-    console.log(this.getChannel(channel, service), value);
+    // console.log(this.getChannel(channel, service), value);
     if (this.configService.get<string>('ENVIRONMENT') == 'production') {
-      // this.client.emit(this.getChannel(channel, service), value);
+      this.client.emit(this.getChannel(channel, service), value);
     }
   }
 
