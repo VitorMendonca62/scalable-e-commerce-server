@@ -12,3 +12,5 @@ export enum Permissions {
   DELETE_USER = 'delete_user',
   DELETE_MODS = 'delete_mods',
 }
+
+export const defaultRoles = [Permissions.ENTER, Permissions.READ_ITEMS];

@@ -19,11 +19,12 @@ import { CreateSessionUseCase } from '@modules/auth/core/application/use-cases/c
 import { GetAccessTokenUseCase } from '@modules/auth/core/application/use-cases/get-access-token';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { MessagingService } from '../../secondary/messaging/messaging.service';
+import { RedisService } from '../../secondary/message-broker/pub-sub/redis.service';
 import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
 import { TokenService } from '@modules/auth/core/application/ports/primary/session.port';
 import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
 import EmailVO from '@modules/auth/core/domain/types/values-objects/email.vo';
+import { PubSubMessageBroker } from '@modules/auth/core/domain/types/message-broker/pub-sub';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -36,7 +37,7 @@ describe('AuthController', () => {
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
 
-  let messaging: MessagingService;
+  let messageBroker: PubSubMessageBroker;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -72,7 +73,6 @@ describe('AuthController', () => {
         CreateUserUseCase,
         CreateSessionUseCase,
         GetAccessTokenUseCase,
-        MessagingService,
         {
           provide: UserRepository,
           useClass: InMemoryUserRepository,
@@ -80,6 +80,10 @@ describe('AuthController', () => {
         {
           provide: TokenService,
           useClass: JwtTokenService,
+        },
+        {
+          provide: PubSubMessageBroker,
+          useClass: RedisService,
         },
       ],
     }).compile();
@@ -95,7 +99,7 @@ describe('AuthController', () => {
       GetAccessTokenUseCase,
     );
 
-    messaging = module.get<MessagingService>(MessagingService);
+    messageBroker = module.get<PubSubMessageBroker>(PubSubMessageBroker);
 
     app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
@@ -108,7 +112,7 @@ describe('AuthController', () => {
     expect(createUserUseCase).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
-    expect(messaging).toBeDefined();
+    expect(messageBroker).toBeDefined();
     expect(app).toBeDefined();
   });
 
@@ -120,7 +124,7 @@ describe('AuthController', () => {
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockImplementation(() => undefined);
-      jest.spyOn(messaging, 'publish').mockImplementation(() => undefined);
+      jest.spyOn(messageBroker, 'publish').mockImplementation(() => undefined);
     });
 
     it('should use case call with correct parameters', async () => {
@@ -132,7 +136,7 @@ describe('AuthController', () => {
 
       const { email, name, roles, username, _id, phonenumber } = user;
 
-      expect(messaging.publish).toHaveBeenCalledWith(
+      expect(messageBroker.publish).toHaveBeenCalledWith(
         'user-created',
         { email, name, roles, username, _id, phonenumber },
         'auth',

@@ -4,13 +4,13 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 export const addRedisClient = async (
   app: INestApplication,
-  config: ConfigService,
+  configService: ConfigService,
 ) => {
   const logger = new Logger('RedisClient');
-  const redisHost = config.get<string>('MESSAGING_HOST');
-  const redisUser = config.get<string>('MESSAGING_USER');
-  const redisPW = config.get<string>('MESSAGING_PW');
-  const redisPort = config.get<number>('MESSAGING_PORT');
+  const redisHost = configService.get<string>('MESSAGING_HOST');
+  const redisUser = configService.get<string>('MESSAGING_USER');
+  const redisPW = configService.get<string>('MESSAGING_PW');
+  const redisPort = configService.get<number>('MESSAGING_PORT');
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.REDIS,

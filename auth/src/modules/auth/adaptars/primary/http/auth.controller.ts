@@ -18,8 +18,9 @@ import { ApiTags } from '@nestjs/swagger';
 import { ApiCreateUser } from './decorators/docs/api-create-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
-import { MessagingService } from '../../secondary/messaging/messaging.service';
 import { UserMapper } from '@modules/auth/core/application/mappers/user.mapper';
+import { PubSubMessageBroker } from '@modules/auth/core/domain/types/message-broker/pub-sub';
+import { defaultRoles } from '@modules/auth/core/domain/types/permissions';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -30,23 +31,29 @@ export class AuthController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
-    private readonly messagingService: MessagingService,
+    private readonly messageBrokerService: PubSubMessageBroker,
   ) {}
 
   @Post('/register')
   @HttpCode(201)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO) {
-    const user = this.userMapper.createDTOForEntity(dto);
-
-    await this.createUserUseCase.execute(user);
-
-    const { email, name, roles, username, _id, phonenumber } = user;
-
-    await this.messagingService.publish(
+    this.messageBrokerService.publish(
       'user-created',
-      { email, name, roles, username, _id, phonenumber },
+      {
+        // Muda
+        _id: '1',
+        roles: defaultRoles,
+        email: dto.email,
+        name: dto.name,
+        username: dto.username,
+        phonenumber: dto.phonenumber,
+      },
       'auth',
+    );
+
+    await this.createUserUseCase.execute(
+      this.userMapper.createDTOForEntity(dto),
     );
 
     return {

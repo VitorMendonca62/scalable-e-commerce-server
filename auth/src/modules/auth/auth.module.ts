@@ -10,6 +10,8 @@ import { GetAccessTokenUseCase } from './core/application/use-cases/get-access-t
 import { TokenService } from './core/application/ports/primary/session.port';
 import { JwtTokenService } from './adaptars/secondary/token-service/jwt-token.service';
 import { UserMapper } from './core/application/mappers/user.mapper';
+import { PubSubMessageBroker } from './core/domain/types/message-broker/pub-sub';
+import { RedisService } from './adaptars/secondary/message-broker/pub-sub/redis.service';
 
 @Module({
   imports: [
@@ -46,6 +48,10 @@ import { UserMapper } from './core/application/mappers/user.mapper';
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,
+    },
+    {
+      provide: PubSubMessageBroker,
+      useClass: RedisService,
     },
     {
       provide: TokenService,
