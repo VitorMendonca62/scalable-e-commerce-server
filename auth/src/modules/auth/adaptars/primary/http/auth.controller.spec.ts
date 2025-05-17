@@ -26,6 +26,8 @@ import { JwtTokenService } from '../../secondary/token-service/jwt-token.service
 import EmailVO from '@modules/auth/core/domain/types/values-objects/email.vo';
 import { PubSubMessageBroker } from '@modules/auth/core/domain/types/message-broker/pub-sub';
 import { defaultRoles } from '@modules/auth/core/domain/types/permissions';
+import UsernameVO from '@modules/auth/core/domain/types/values-objects/username.vo';
+import PhoneNumberVO from '@modules/auth/core/domain/types/values-objects/phonenumber.vo';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -119,6 +121,7 @@ describe('AuthController', () => {
 
   describe('create', () => {
     const user = mockUser();
+    const dto = mockCreateUserDTO();
 
     beforeEach(() => {
       jest.spyOn(mapper, 'createDTOForEntity').mockImplementation(() => user);
@@ -129,9 +132,10 @@ describe('AuthController', () => {
     });
 
     it('should use case call with correct parameters', async () => {
-      const dto = mockCreateUserDTO();
-
       await controller.create(dto);
+
+      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
 
       expect(messageBroker.publish).toHaveBeenCalledWith(
         'user-created',
@@ -145,14 +149,9 @@ describe('AuthController', () => {
         },
         'auth',
       );
-
-      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 
     it('should create user and return sucess message', async () => {
-      const dto = mockCreateUserDTO();
-
       const response = await request(app.getHttpServer())
         .post('/auth/register')
         .send(dto)
@@ -193,9 +192,9 @@ describe('AuthController', () => {
 
     it('should throw bad request error when invalid phonenumber, username and email', async () => {
       const dto = mockCreateUserDTO({
-        email: 'testeexemplo.com',
-        username: 'default username',
-        phonenumber: '+23',
+        email: EmailVO.WRONG_EXEMPLE,
+        username: UsernameVO.WRONG_EXEMPLE,
+        phonenumber: PhoneNumberVO.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -206,9 +205,9 @@ describe('AuthController', () => {
       expect(response.body).toEqual({
         error: 'Bad Request',
         message: [
-          'O username não pode conter com espaços.',
+          UsernameVO.ERROR_NO_SPACES,
           EmailVO.ERROR_INVALID,
-          'O telefone deve ser válido do Brasil',
+          PhoneNumberVO.ERROR_INVALID,
         ],
         statusCode: 400,
       });
@@ -216,7 +215,7 @@ describe('AuthController', () => {
 
     it('should throw bad request error when invalid phonenumber', async () => {
       const dto = mockCreateUserDTO({
-        phonenumber: '+558199999999',
+        phonenumber: PhoneNumberVO.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -226,7 +225,7 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual({
         error: 'Bad Request',
-        message: ['O telefone deve ser válido do Brasil'],
+        message: [PhoneNumberVO.ERROR_INVALID],
         statusCode: 400,
       });
     });
@@ -334,6 +333,12 @@ describe('AuthController', () => {
 
     it('should throw forbidden exeception when no have token', async () => {
       await expect(controller.getAccessToken(undefined)).rejects.toThrow(
+        new ForbiddenException('Você não tem permissão'),
+      );
+    });
+
+    it('should throw forbidden exeception when token is invalid', async () => {
+      await expect(controller.getAccessToken('undefined')).rejects.toThrow(
         new ForbiddenException('Você não tem permissão'),
       );
     });

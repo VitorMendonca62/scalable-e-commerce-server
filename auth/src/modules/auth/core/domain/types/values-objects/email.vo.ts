@@ -7,7 +7,7 @@ export default class EmailVO {
     'O email serve como identificador único de usuário e utiliza-se para entrar no sistema';
 
   static readonly EXEMPLE = 'vitorqueiroz325@gmamil.com';
-  static readonly ERROR_EXEMPLE = 'invalid.email';
+  static readonly WRONG_EXEMPLE = 'invalid.email';
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O email é obrigatório';

@@ -38,10 +38,13 @@ export class AuthController {
   @HttpCode(201)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO) {
+    await this.createUserUseCase.execute(
+      this.userMapper.createDTOForEntity(dto),
+    );
+
     this.messageBrokerService.publish(
       'user-created',
       {
-        // Muda
         _id: '1',
         roles: defaultRoles,
         email: dto.email,
@@ -50,10 +53,6 @@ export class AuthController {
         phonenumber: dto.phonenumber,
       },
       'auth',
-    );
-
-    await this.createUserUseCase.execute(
-      this.userMapper.createDTOForEntity(dto),
     );
 
     return {

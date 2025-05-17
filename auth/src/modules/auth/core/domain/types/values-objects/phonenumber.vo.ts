@@ -7,7 +7,7 @@ export default class PhoneNumberVO {
     'O número de telefone serve como informação auxiliar para o sistema. Deve ser um número válido no Brasil!.';
 
   static readonly EXEMPLE = '+5581999999999';
-  static readonly ERROR_EXEMPLE = '12345';
+  static readonly WRONG_EXEMPLE = '12345';
   static readonly MASK = '+55 (xx) xxxxx-xxxx';
 
   // ERRORS

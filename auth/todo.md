@@ -1,5 +1,6 @@
 [X] Analisar tipos ( Criar tipos para email, senha e etc)
 [x] Criar modulo para message broker
+[] MS-USER que cria usuarios, nao auth
 [] Testes em 100%
 [] Seguir Principios SOLID
 [] Id privado compartilhado entre servicos

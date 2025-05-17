@@ -7,7 +7,7 @@ export default class UsernameVO {
     'O apelido serve como identificador único de usuário e é utilizado para o usuário ser identificado no sistema';
 
   static readonly EXEMPLE = 'vitormendonca62';
-  static readonly ERROR_EXEMPLE = 'us er';
+  static readonly WRONG_EXEMPLE = 'us er';
   static readonly MIN_LENGTH = 3;
 
   // ERRORS
