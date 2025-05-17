@@ -35,7 +35,7 @@ export const mockCreateUserDTO = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
   return {
-    username: 'defaultuser',
+    username: 'vitormendonca62',
     email: 'exemple@exemple.com',
     name: 'Default user',
     password: '@Vh1234567',
@@ -46,8 +46,8 @@ export const mockCreateUserDTO = (
 
 export const mockUserList = () => {
   return [
-    mockUser({ username: 'user01', _id: '1' }),
-    mockUser({ username: 'user02', _id: '2' }),
-    mockUser({ username: 'user03', _id: '3' }),
+    mockUser({ username: 'user01', _id: '1', email: 'exemple1@exemple.com' }),
+    mockUser({ username: 'user02', _id: '2', email: 'exemple2@exemple.com' }),
+    mockUser({ username: 'user03', _id: '3', email: 'exemple3@exemple.com' }),
   ];
 };
