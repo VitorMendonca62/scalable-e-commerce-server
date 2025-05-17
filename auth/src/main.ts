@@ -28,9 +28,7 @@ async function bootstrap() {
     new Logger('Server').debug(`Server running in ${HOST}:${PORT}`),
   );
 
-  if (configService.get('ENVIRONMENT') == 'production') {
-    await addRedisClient(app, configService);
-  }
+  await addRedisClient(app, configService);
 }
 
 bootstrap();

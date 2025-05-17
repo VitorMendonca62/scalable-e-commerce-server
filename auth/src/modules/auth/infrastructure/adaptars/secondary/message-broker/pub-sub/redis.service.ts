@@ -12,13 +12,11 @@ export class RedisService implements PubSubMessageBroker {
     private configService: ConfigService,
   ) {}
 
-  async publish(channel: string, value: object, service = '') {
-    if (this.configService.get<string>('ENVIRONMENT') == 'production') {
-      this.client.emit(this.getChannel(channel, service), value);
-    }
+  async publish(channel: string, value: object, service: string | undefined) {
+    this.client.emit(this.getChannel(channel, service), value);
   }
 
-  getChannel(channel: string, service: string): string {
+  getChannel(channel: string, service: string | null): string {
     return (service ?? this.configService.get('API_TAG')) + '-' + channel;
   }
 }
