@@ -1,8 +1,4 @@
-import {
-  ForbiddenException,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import * as request from 'supertest';
@@ -16,7 +12,6 @@ import { JwtTokenService } from '../../secondary/token-service/jwt-token.service
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
 import NameVO from '@modules/auth/domain/values-objects/name.vo';
 import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
@@ -31,6 +26,14 @@ import {
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { v4 } from 'uuid';
+import {
+  HttpCreatedResponse,
+  HttpOKResponse,
+} from '@modules/auth/domain/types/httpResponse';
+import {
+  HttpFieldInvalid,
+  TokenInvalid,
+} from '@modules/auth/domain/types/errors/errors';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -108,7 +111,30 @@ describe('AuthController', () => {
     messageBroker = module.get<PubSubMessageBroker>(PubSubMessageBroker);
 
     app = module.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ stopAtFirstError: true }));
+
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        stopAtFirstError: true,
+        transform: false,
+        exceptionFactory: (errors) => {
+          if (errors.length == 0) {
+            return new HttpFieldInvalid('Erro desconhecido');
+          }
+
+          const firstError = errors[0];
+          const firstConstraintMessage = firstError.constraints
+            ? Object.values(firstError.constraints)[0]
+            : 'Erro desconhecido';
+
+          return new HttpFieldInvalid(
+            firstConstraintMessage,
+            firstError.property,
+          );
+        },
+      }),
+    );
     await app.init();
   });
 
@@ -160,10 +186,9 @@ describe('AuthController', () => {
         .send(dto)
         .expect(201);
 
-      expect(response.body).toEqual({
-        message: 'Usuário criado com sucesso',
-        data: undefined,
-      });
+      expect(response.body).toEqual(
+        new HttpCreatedResponse('Usuário criado com sucesso'),
+      );
     });
 
     it('should throw bad request error when no have fields', async () => {
@@ -180,24 +205,14 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [
-          UsernameVO.ERROR_REQUIRED,
-          NameVO.ERROR_REQUIRED,
-          EmailVO.ERROR_REQUIRED,
-          PasswordVO.ERROR_REQUIRED,
-          PhoneNumberVO.ERROR_REQUIRED,
-        ],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(UsernameVO.ERROR_REQUIRED, 'username').toJson(),
+      );
     });
 
-    it('should throw bad request error when invalid all fields', async () => {
+    it('should throw bad request error when invalid email', async () => {
       const dto = mockCreateUserDTO({
         email: EmailVO.WRONG_EXEMPLE,
-        username: UsernameVO.WRONG_EXEMPLE,
-        phonenumber: PhoneNumberVO.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -205,15 +220,9 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [
-          UsernameVO.ERROR_NO_SPACES,
-          EmailVO.ERROR_INVALID,
-          PhoneNumberVO.ERROR_INVALID,
-        ],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').toJson(),
+      );
     });
 
     it('should throw bad request error when password is weak', async () => {
@@ -226,11 +235,12 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [PasswordVO.ERROR_WEAK_PASSWORD],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(
+          PasswordVO.ERROR_WEAK_PASSWORD,
+          'password',
+        ).toJson(),
+      );
     });
 
     it('should throw bad request error when username, name and password with min length error', async () => {
@@ -245,15 +255,9 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [
-          UsernameVO.ERROR_MIN_LENGTH,
-          NameVO.ERROR_MIN_LENGTH,
-          PasswordVO.ERROR_MIN_LENGTH,
-        ],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(UsernameVO.ERROR_MIN_LENGTH, 'username').toJson(),
+      );
     });
   });
 
@@ -286,10 +290,12 @@ describe('AuthController', () => {
         .send(dto)
         .expect(201);
 
-      expect(response.body).toEqual({
-        message: 'Usuário realizou login com sucesso',
-        data: returnUseCase,
-      });
+      expect(response.body).toEqual(
+        new HttpCreatedResponse(
+          'Usuário realizou login com sucesso',
+          returnUseCase,
+        ),
+      );
     });
 
     it('should throw bad request error when no have fields', async () => {
@@ -303,16 +309,14 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [EmailVO.ERROR_REQUIRED, 'A senha é obrigatória'],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(EmailVO.ERROR_REQUIRED, 'email').toJson(),
+      );
     });
 
-    it('should throw bad request error when email', async () => {
-      const dto = mockCreateUserDTO({
-        email: EmailVO.WRONG_EXEMPLE,
+    it('should throw bad request error when invalid email', async () => {
+      const dto = mockLoginUserDTO({
+        email: UsernameVO.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -320,15 +324,13 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [EmailVO.ERROR_INVALID],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').toJson(),
+      );
     });
 
     it('should throw bad request error when password with min length error', async () => {
-      const dto = mockCreateUserDTO({
+      const dto = mockLoginUserDTO({
         password: PasswordVO.MIN_LENGTH_EXEMPLE,
       });
 
@@ -337,11 +339,9 @@ describe('AuthController', () => {
         .send(dto)
         .expect(400);
 
-      expect(response.body).toEqual({
-        error: 'Bad Request',
-        message: [PasswordVO.ERROR_MIN_LENGTH],
-        statusCode: 400,
-      });
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(PasswordVO.ERROR_MIN_LENGTH, 'password').toJson(),
+      );
     });
   });
 
@@ -368,21 +368,20 @@ describe('AuthController', () => {
 
       const response = await controller.getAccessToken(refreshToken);
 
-      expect(response).toEqual({
-        messase: 'Aqui está seu token de acesso',
-        data: accessToken,
-      });
+      expect(response).toEqual(
+        new HttpOKResponse('Aqui está seu token de acesso', accessToken),
+      );
     });
 
     it('should throw forbidden exeception when no have token', async () => {
       await expect(controller.getAccessToken(undefined)).rejects.toThrow(
-        new ForbiddenException('Você não tem permissão'),
+        new TokenInvalid('Você não tem permissão'),
       );
     });
 
     it('should throw forbidden exeception when token is no have Bearer', async () => {
       await expect(controller.getAccessToken('undefined')).rejects.toThrow(
-        new ForbiddenException('Você não tem permissão'),
+        new TokenInvalid('Você não tem permissão'),
       );
     });
   });

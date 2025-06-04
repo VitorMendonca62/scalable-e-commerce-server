@@ -6,10 +6,10 @@ import {
   mockUser,
   mockLoginUser,
 } from '@modules/auth/infrastructure/helpers/tests.helper';
-import { BadRequestException } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateSessionUseCase } from './create-session.usecase';
+import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -91,7 +91,7 @@ describe('CreateSessionUseCase', () => {
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
-        new BadRequestException('Email ou senha estão incorretos.'),
+        new WrongCredentials(),
       );
     });
 
@@ -101,7 +101,7 @@ describe('CreateSessionUseCase', () => {
         .mockImplementation(() => false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
-        new BadRequestException('Email ou senha estão incorretos.'),
+        new WrongCredentials(),
       );
     });
   });

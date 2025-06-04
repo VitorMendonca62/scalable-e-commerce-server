@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { User } from '@modules/auth/domain/entities/user.entity';
+import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
 
 @Injectable()
 export class JwtTokenService implements TokenService {
@@ -35,7 +36,7 @@ export class JwtTokenService implements TokenService {
       return jwt.verify(token, this.JWT_SECRET) as Record<string, any>;
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {
-      throw new BadRequestException('Token inválido ou expirado');
+      throw new WrongCredentials('Token inválido ou expirado');
     }
   }
 }

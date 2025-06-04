@@ -1,14 +1,4 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  Headers,
-  HttpCode,
-  Post,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpCode, Post } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -23,10 +13,14 @@ import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
+import {
+  HttpCreatedResponse,
+  HttpOKResponse,
+} from '@modules/auth/domain/types/httpResponse';
+import { TokenInvalid } from '@modules/auth/domain/types/errors/errors';
 
 @Controller('auth')
 @ApiTags('auth')
-@UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class AuthController {
   constructor(
     private readonly userMapper: UserMapper,
@@ -57,22 +51,19 @@ export class AuthController {
       'auth',
     );
 
-    return {
-      message: 'Usuário criado com sucesso',
-      data: undefined,
-    };
+    return new HttpCreatedResponse('Usuário criado com sucesso');
   }
 
   @Post('/login')
   @HttpCode(201)
   @ApiLoginUser()
   async login(@Body() dto: LoginUserDTO) {
-    return {
-      message: 'Usuário realizou login com sucesso',
-      data: await this.createSessionUseCase.execute(
+    return new HttpCreatedResponse(
+      'Usuário realizou login com sucesso',
+      await this.createSessionUseCase.execute(
         this.userMapper.loginDTOForEntity(dto),
       ),
-    };
+    );
   }
 
   @Get('/token')
@@ -80,17 +71,17 @@ export class AuthController {
   @ApiGetAccessToken()
   async getAccessToken(@Headers('authorization') refreshToken: string) {
     if (!refreshToken) {
-      throw new ForbiddenException('Você não tem permissão');
+      throw new TokenInvalid();
     }
     if (refreshToken.split(' ')[0] != 'Bearer') {
-      throw new ForbiddenException('Você não tem permissão');
+      throw new TokenInvalid();
     }
 
     refreshToken = refreshToken.split(' ')[1];
 
-    return {
-      messase: 'Aqui está seu token de acesso',
-      data: await this.getAccessTokenUseCase.execute(refreshToken),
-    };
+    return new HttpOKResponse(
+      'Aqui está seu token de acesso',
+      await this.getAccessTokenUseCase.execute(refreshToken),
+    );
   }
 }

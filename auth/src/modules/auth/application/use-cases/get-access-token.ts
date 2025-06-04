@@ -3,7 +3,8 @@ import {
   TokenService,
 } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class GetAccessTokenUseCase implements GetAccessTokenPort {
@@ -18,7 +19,7 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
     const user = await this.userRepository.findById(id);
 
     if (!user) {
-      throw new BadRequestException('Esse token está inválido');
+      throw new WrongCredentials('Token está inválido');
     }
 
     return this.tokenService.generateAccessToken(user);

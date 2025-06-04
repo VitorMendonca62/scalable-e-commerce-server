@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
-import { BadRequestException } from '@nestjs/common';
 import { GetAccessTokenUseCase } from './get-access-token';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;
@@ -75,7 +75,7 @@ describe('GetAccessTokenUseCase', () => {
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(refreshToken)).rejects.toThrow(
-        new BadRequestException('Esse token está inválido'),
+        new WrongCredentials('Token está inválido'),
       );
     });
   });

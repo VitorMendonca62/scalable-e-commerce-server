@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserLogin } from '../../domain/entities/user-login.entity';
 import {
   CreateSessionPort,
@@ -6,6 +6,7 @@ import {
   TokenService,
 } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
+import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
 
 @Injectable()
 export class CreateSessionUseCase implements CreateSessionPort {
@@ -20,11 +21,11 @@ export class CreateSessionUseCase implements CreateSessionPort {
     );
 
     if (!user) {
-      throw new BadRequestException('Email ou senha estão incorretos.');
+      throw new WrongCredentials();
     }
 
     if (!user.password.comparePassword(inputUser.password.getValue())) {
-      throw new BadRequestException('Email ou senha estão incorretos.');
+      throw new WrongCredentials();
     }
 
     const accessToken = this.tokenService.generateAccessToken(user);

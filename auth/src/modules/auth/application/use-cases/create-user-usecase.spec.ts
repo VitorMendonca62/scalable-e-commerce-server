@@ -2,10 +2,10 @@ import { UserRepository } from '@modules/auth/domain/ports/secondary/user-reposi
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
-import { BadRequestException } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
+import { FieldlAlreadyExists } from '@modules/auth/domain/types/errors/errors';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -65,17 +65,17 @@ describe('CreateUserUseCase', () => {
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new BadRequestException(EmailVO.ERROR_ALREADY_EXISTS),
+        new FieldlAlreadyExists(EmailVO.ERROR_ALREADY_EXISTS),
       );
     });
 
-    it('should throw bad request exception when already exists user with newUser username', async () => {
+    it('should throw bad request exception when already exists user with User username', async () => {
       jest
         .spyOn(userRepository, 'findByUsername')
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new BadRequestException(
+        new FieldlAlreadyExists(
           'Esse username já está sendo utilizado. Tente outro',
         ),
       );
