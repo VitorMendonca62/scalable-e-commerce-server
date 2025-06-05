@@ -1,4 +1,5 @@
 import { isEmail } from 'class-validator';
+import { FieldInvalid } from '../types/errors/errors';
 
 export default class EmailVO {
   private readonly value: string;
@@ -17,7 +18,7 @@ export default class EmailVO {
 
   constructor(value: string) {
     if (!EmailVO.isValid(value)) {
-      throw new Error('E-mail inválido');
+      throw new FieldInvalid(EmailVO.ERROR_INVALID, 'email');
     }
     this.value = value;
   }

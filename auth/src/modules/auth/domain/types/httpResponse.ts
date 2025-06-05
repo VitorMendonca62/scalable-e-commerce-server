@@ -1,8 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 
 export abstract class HttpResponse {
-  status: number;
-  name: string;
+  statusCode: number;
   message: string;
   data: any;
 
@@ -12,8 +11,7 @@ export abstract class HttpResponse {
     message: string,
     data: any = undefined,
   ) {
-    this.status = status;
-    this.name = name;
+    this.statusCode = status;
     this.message = message;
     this.data = data;
   }

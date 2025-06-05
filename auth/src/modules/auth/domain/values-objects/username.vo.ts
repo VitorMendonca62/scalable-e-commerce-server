@@ -1,4 +1,5 @@
 import { isNotEmpty, isString } from 'class-validator';
+import { FieldInvalid } from '../types/errors/errors';
 
 export default class UsernameVO {
   private readonly value: string;
@@ -22,7 +23,7 @@ export default class UsernameVO {
 
   constructor(value: string, isOptionalClient: boolean) {
     if (!UsernameVO.isValid(value, isOptionalClient)) {
-      throw new Error(UsernameVO.ERROR_INVALID);
+      throw new FieldInvalid(UsernameVO.ERROR_INVALID, 'username');
     }
     this.value = value;
   }

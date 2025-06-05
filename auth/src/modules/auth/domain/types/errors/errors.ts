@@ -2,25 +2,29 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import EmailVO from '../../values-objects/email.vo';
 
 export class HttpFieldInvalid extends HttpException {
-  field?: string;
-  constructor(message: string = 'Há um campo inválido.', field?: string) {
-    super(`${field}: ${message}`, HttpStatus.BAD_REQUEST);
-    this.name = 'Campo inválido';
+  data: string;
+
+  constructor(message: string = 'Há um campo inválido.', field: string) {
+    super(message, HttpStatus.BAD_REQUEST);
+    this.data = field;
   }
 
-  toJson() {
+  getResponse() {
     return {
-      message: this.message,
       statusCode: HttpStatus.BAD_REQUEST,
+      data: this.data,
+      message: this.message,
     };
   }
 }
 
 export class FieldInvalid extends Error {
   statusCode: number;
-  constructor(message: string = 'Há um campo inválido.') {
+  data: string;
+
+  constructor(message: string = 'Há um campo inválido.', field: string) {
     super(message);
-    this.name = 'Campo inválido';
+    this.data = field;
     this.statusCode = HttpStatus.BAD_REQUEST;
   }
 }

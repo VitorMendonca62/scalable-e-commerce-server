@@ -120,7 +120,7 @@ describe('AuthController', () => {
         transform: false,
         exceptionFactory: (errors) => {
           if (errors.length == 0) {
-            return new HttpFieldInvalid('Erro desconhecido');
+            return new HttpFieldInvalid('Erro desconhecido', 'Erro');
           }
 
           const firstError = errors[0];
@@ -206,7 +206,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(UsernameVO.ERROR_REQUIRED, 'username').toJson(),
+        new HttpFieldInvalid(UsernameVO.ERROR_REQUIRED, 'username').getResponse(),
       );
     });
 
@@ -221,7 +221,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').toJson(),
+        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').getResponse(),
       );
     });
 
@@ -239,7 +239,7 @@ describe('AuthController', () => {
         new HttpFieldInvalid(
           PasswordVO.ERROR_WEAK_PASSWORD,
           'password',
-        ).toJson(),
+        ).getResponse(),
       );
     });
 
@@ -256,7 +256,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(UsernameVO.ERROR_MIN_LENGTH, 'username').toJson(),
+        new HttpFieldInvalid(UsernameVO.ERROR_MIN_LENGTH, 'username').getResponse(),
       );
     });
   });
@@ -310,7 +310,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_REQUIRED, 'email').toJson(),
+        new HttpFieldInvalid(EmailVO.ERROR_REQUIRED, 'email').getResponse(),
       );
     });
 
@@ -325,7 +325,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').toJson(),
+        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').getResponse(),
       );
     });
 
@@ -340,7 +340,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(PasswordVO.ERROR_MIN_LENGTH, 'password').toJson(),
+        new HttpFieldInvalid(PasswordVO.ERROR_MIN_LENGTH, 'password').getResponse(),
       );
     });
   });

@@ -1,4 +1,5 @@
 import { isNotEmpty, isPhoneNumber, isString } from 'class-validator';
+import { FieldInvalid } from '../types/errors/errors';
 
 export default class PhoneNumberVO {
   private readonly value: string;
@@ -17,7 +18,7 @@ export default class PhoneNumberVO {
 
   constructor(value: string, isOptionalClient: boolean) {
     if (!PhoneNumberVO.isValid(value, isOptionalClient)) {
-      throw new Error(PhoneNumberVO.ERROR_INVALID);
+      throw new FieldInvalid(PhoneNumberVO.ERROR_INVALID, 'phonenumber');
     }
     this.value = value;
   }

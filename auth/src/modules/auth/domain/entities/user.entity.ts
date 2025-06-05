@@ -7,16 +7,40 @@ import PhoneNumberVO from '../values-objects/phonenumber.vo';
 import NameVO from '../values-objects/name.vo';
 import UsernameVO from '../values-objects/username.vo';
 import { v4 } from 'uuid';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
+@Schema({ timestamps: true })
 export class User {
+  @Prop({ required: true, type: String })
   _id?: string;
+
+  @Prop({ required: true, type: String })
   name: NameVO;
+
+  @Prop({ required: true, type: String })
   username: UsernameVO;
+
+  @Prop({ required: true, type: String })
   email: EmailVO;
+
+  @Prop({ required: true, type: String })
   password: PasswordVO;
+
+  @Prop({ required: true, type: String })
   phonenumber: PhoneNumberVO;
+
+  @Prop({
+    required: true,
+    type: [String],
+    enum: Permissions,
+    default: () => defaultRoles,
+  })
   roles: Permissions[];
+
+  @Prop({ required: true, type: Date, default: Date.now })
   createdAt: Date;
+
+  @Prop({ required: true, type: Date, default: Date.now })
   updatedAt: Date;
 
   constructor(props: {
@@ -41,3 +65,7 @@ export class User {
     this.updatedAt = props.updatedAt ?? new Date();
   }
 }
+
+export type UserDocument = User & Document;
+
+export const UserSchema = SchemaFactory.createForClass(User);

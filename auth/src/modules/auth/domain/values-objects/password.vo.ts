@@ -1,5 +1,6 @@
 import { isNotEmpty, isString, isStrongPassword } from 'class-validator';
 import * as bcrypt from 'bcryptjs';
+import { FieldInvalid } from '../types/errors/errors';
 
 export default class PasswordVO {
   private readonly value: string;
@@ -22,7 +23,7 @@ export default class PasswordVO {
 
   constructor(value: string, isStrongPassword: boolean) {
     if (!PasswordVO.isValid(value, isStrongPassword)) {
-      throw new Error(PasswordVO.ERROR_INVALID);
+      throw new FieldInvalid(PasswordVO.ERROR_INVALID, 'password');
     }
     this.value = this.hashPassword(value);
   }
@@ -48,7 +49,7 @@ export default class PasswordVO {
           minNumbers: 1,
         })
       : true;
-
+    
     return (
       isNotEmpty(value) &&
       isString(value) &&
