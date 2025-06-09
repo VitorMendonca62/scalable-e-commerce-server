@@ -9,9 +9,11 @@ import UsernameVO from '../values-objects/username.vo';
 import { v4 } from 'uuid';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-@Schema({ timestamps: true })
+export type UserDocument = User & Document;
+
+@Schema({ timestamps: true, collection: 'users' })
 export class User {
-  @Prop({ required: true, type: String })
+  @Prop({ type: String, default: v4() })
   _id?: string;
 
   @Prop({ required: true, type: String })
@@ -65,7 +67,5 @@ export class User {
     this.updatedAt = props.updatedAt ?? new Date();
   }
 }
-
-export type UserDocument = User & Document;
 
 export const UserSchema = SchemaFactory.createForClass(User);

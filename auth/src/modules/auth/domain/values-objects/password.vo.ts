@@ -32,6 +32,7 @@ export default class PasswordVO {
     return this.value;
   }
 
+  // TODO Criar uma classe só para isso
   private hashPassword(password: string): string {
     return bcrypt.hashSync(password, 10);
   }
@@ -49,7 +50,7 @@ export default class PasswordVO {
           minNumbers: 1,
         })
       : true;
-    
+
     return (
       isNotEmpty(value) &&
       isString(value) &&

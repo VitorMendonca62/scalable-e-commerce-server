@@ -8,12 +8,18 @@ import { TokenService } from './domain/ports/primary/session.port';
 import { PubSubMessageBroker } from './domain/ports/secondary/pub-sub.port';
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { AuthController } from './infrastructure/adaptars/primary/http/auth.controller';
-import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { RedisService } from './infrastructure/adaptars/secondary/message-broker/pub-sub/redis.service';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { UserMapper } from './infrastructure/mappers/user.mapper';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { MongooseModule } from '@nestjs/mongoose';
+import { UserSchema } from './domain/entities/user.entity';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
     ClientsModule.registerAsync([
       {
         name: 'MESSAGING_CLIENT',
@@ -46,7 +52,7 @@ import { UserMapper } from './infrastructure/mappers/user.mapper';
     UserMapper,
     {
       provide: UserRepository,
-      useClass: InMemoryUserRepository,
+      useClass: MongooseUserRepository,
     },
     {
       provide: PubSubMessageBroker,
