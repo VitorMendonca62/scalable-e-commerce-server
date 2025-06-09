@@ -8,11 +8,12 @@ import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
+import { EnvironmentVariables } from 'src/config/environment/env.validation';
 
 describe('RedisService', () => {
   let service: PubSubMessageBroker;
   let clientProxyMock: jest.Mocked<ClientProxy>;
-  let configService: ConfigService;
+  let configService: ConfigService<EnvironmentVariables>;
 
   beforeEach(async () => {
     clientProxyMock = {
@@ -35,7 +36,8 @@ describe('RedisService', () => {
     }).compile();
 
     service = module.get<PubSubMessageBroker>(PubSubMessageBroker);
-    configService = module.get<ConfigService>(ConfigService);
+    configService =
+      module.get<ConfigService<EnvironmentVariables>>(ConfigService);
   });
 
   it('should be defined', () => {

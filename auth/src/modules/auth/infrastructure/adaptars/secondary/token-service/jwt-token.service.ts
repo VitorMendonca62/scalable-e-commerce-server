@@ -9,7 +9,9 @@ import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
 export class JwtTokenService implements TokenService {
   private JWT_SECRET: string;
 
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService<EnvironmentVariables>,
+  ) {
     this.JWT_SECRET = this.configService.get<string>('JWT_SECRET');
   }
 

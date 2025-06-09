@@ -17,6 +17,7 @@ import { UserSchema } from './domain/entities/user.entity';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
+import { EnvironmentVariables } from 'src/config/environment/env.validation';
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
@@ -25,7 +26,9 @@ import { MongooseUserRepository } from './infrastructure/adaptars/secondary/data
         name: 'MESSAGING_CLIENT',
         imports: [ConfigModule],
         inject: [ConfigService],
-        useFactory: async (configService: ConfigService) => {
+        useFactory: async (
+          configService: ConfigService<EnvironmentVariables>,
+        ) => {
           const redisHost = configService.get<string>('MESSAGING_HOST');
           const redisUser = configService.get<string>('MESSAGING_USER');
           const redisPW = configService.get<string>('MESSAGING_PW');

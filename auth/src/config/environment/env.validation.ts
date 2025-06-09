@@ -11,13 +11,13 @@ import {
   validateSync,
 } from 'class-validator';
 
-enum NodeEnv {
+export enum NodeEnv {
   Development = 'development',
   Production = 'production',
   Test = 'test',
 }
 
-class EnvironmentVariables {
+export class EnvironmentVariables {
   @IsEnum(NodeEnv)
   NODE_ENV: NodeEnv;
 

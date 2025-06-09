@@ -1,10 +1,11 @@
 import { INestApplication, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { EnvironmentVariables } from '../environment/env.validation';
 
 export const addRedisClient = async (
   app: INestApplication,
-  configService: ConfigService,
+  configService: ConfigService<EnvironmentVariables>,
 ) => {
   const logger = new Logger('RedisClient');
   const redisHost = configService.get<string>('MESSAGING_HOST');

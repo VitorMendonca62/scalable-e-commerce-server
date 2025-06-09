@@ -6,6 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { addRedisClient } from './config/message-broker/redis.config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { HttpFieldInvalid } from '@modules/auth/domain/types/errors/errors';
+import { EnvironmentVariables } from './config/environment/env.validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,7 +21,8 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const configService = app.get<ConfigService>(ConfigService);
+  const configService =
+    app.get<ConfigService<EnvironmentVariables>>(ConfigService);
 
   app.useGlobalPipes(
     new ValidationPipe({
