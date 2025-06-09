@@ -12,7 +12,9 @@ export function validate(config: Record<string, unknown>) {
   });
 
   if (errors.length > 0) {
-    throw new Error(errors.toString());
+    throw new Error(
+      errors[0].constraints[Object.keys(errors[0].constraints)[0]],
+    );
   }
 
   return validatedConfig;
