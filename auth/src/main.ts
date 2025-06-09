@@ -22,29 +22,29 @@ async function bootstrap() {
 
   const configService = app.get<ConfigService>(ConfigService);
 
-  // app.useGlobalPipes(
-  //   new ValidationPipe({
-  //     whitelist: true,
-  //     forbidNonWhitelisted: true,
-  //     stopAtFirstError: true,
-  //     transform: false,
-  //     exceptionFactory: (errors) => {
-  //       if (errors.length == 0) {
-  //         return new HttpFieldInvalid('Erro desconhecido', 'Erro');
-  //       }
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      stopAtFirstError: true,
+      transform: false,
+      exceptionFactory: (errors) => {
+        if (errors.length == 0) {
+          return new HttpFieldInvalid('Erro desconhecido', 'Erro');
+        }
 
-  //       const firstError = errors[0];
-  //       const firstConstraintMessage = firstError.constraints
-  //         ? Object.values(firstError.constraints)[0]
-  //         : 'Erro desconhecido';
+        const firstError = errors[0];
+        const firstConstraintMessage = firstError.constraints
+          ? Object.values(firstError.constraints)[0]
+          : 'Erro desconhecido';
 
-  //       return new HttpFieldInvalid(
-  //         firstConstraintMessage,
-  //         firstError.property,
-  //       );
-  //     },
-  //   }),
-  // );
+        return new HttpFieldInvalid(
+          firstConstraintMessage,
+          firstError.property,
+        );
+      },
+    }),
+  );
 
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');

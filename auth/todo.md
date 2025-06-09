@@ -27,3 +27,4 @@
 
 [] Criar classes para os VOS, uma pra const, validacao e oturos
 [] Criar Controllers de catch
+[] Implementar Guards no controller
