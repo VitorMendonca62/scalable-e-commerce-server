@@ -1,6 +1,5 @@
 // Reference: https://github.com/ericlbarreto/post-ai/blob/main/apps/server/src/config/env.validation.ts
 
-import { plainToInstance } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
@@ -8,7 +7,6 @@ import {
   IsString,
   Max,
   Min,
-  validateSync,
 } from 'class-validator';
 
 export enum NodeEnv {
@@ -58,20 +56,4 @@ export class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   MONGO_DB_URL: string;
-}
-
-export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
-    enableImplicitConversion: true,
-  });
-
-  const errors = validateSync(validatedConfig, {
-    skipMissingProperties: false,
-  });
-
-  if (errors.length > 0) {
-    throw new Error(errors.toString());
-  }
-
-  return validatedConfig;
 }
