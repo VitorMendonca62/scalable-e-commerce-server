@@ -20,13 +20,13 @@ export class MongooseUserRepository extends UserRepository {
   }
 
   async findByEmail(email: string): Promise<User | undefined> {
-    return await this.userModel.find({ email }).exec()[0];
+    return await this.userModel.findOne({ email }).exec();
   }
   async findByUsername(username: string): Promise<User | undefined> {
-    return await this.userModel.find({ username }).exec()[0];
+    return await this.userModel.findOne({ username }).exec();
   }
 
   async findById(id: string): Promise<User | undefined> {
-    return await this.userModel.find({ id }).exec()[0];
+    return await this.userModel.findOne({ id }).exec();
   }
 }

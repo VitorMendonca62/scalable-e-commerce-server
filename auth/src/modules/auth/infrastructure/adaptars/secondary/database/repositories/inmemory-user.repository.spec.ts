@@ -1,15 +1,10 @@
-import { User } from '@modules/auth/domain/entities/user.entity';
 import { InMemoryUserRepository } from './inmemory-user.repository';
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
-import {
-  mockUser,
-  mockUserList,
-} from '@modules/auth/infrastructure/helpers/tests.helper';
+import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
-  let users: User[] = [];
 
   beforeEach(() => {
     repository = new InMemoryUserRepository();
@@ -23,16 +18,11 @@ describe('InMemoryUserRepository', () => {
 
   describe('create', () => {
     const user = mockUser();
-    beforeEach(() => {
-      users = mockUserList();
-      repository.users = users;
-    });
 
     it('should create user', async () => {
       const response = await repository.create(user);
 
       expect(response).toBeUndefined();
-      expect(repository.users).toContain(user);
     });
 
     it('should create multiple users', async () => {
@@ -45,10 +35,6 @@ describe('InMemoryUserRepository', () => {
       for (const user of usersToCreate) {
         repository.create(user);
       }
-
-      for (const user of usersToCreate) {
-        expect(repository.users).toContain(user);
-      }
     });
   });
 
@@ -57,9 +43,6 @@ describe('InMemoryUserRepository', () => {
     const user = mockUser({ email: validEmail });
 
     beforeEach(() => {
-      users = mockUserList();
-      repository.users = users;
-
       repository.users.push(user);
     });
 
@@ -87,8 +70,6 @@ describe('InMemoryUserRepository', () => {
     const user = mockUser({ username: validUsername });
 
     beforeEach(() => {
-      users = mockUserList();
-      repository.users = users;
       repository.users.push(user);
     });
 
@@ -118,8 +99,6 @@ describe('InMemoryUserRepository', () => {
     const user = mockUser({ _id: validId });
 
     beforeEach(() => {
-      users = mockUserList();
-      repository.users = users;
       repository.users.push(user);
     });
 

@@ -9,6 +9,7 @@ import NameVO from '@modules/auth/domain/values-objects/name.vo';
 import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
+import { UserJSON } from '@modules/auth/domain/entities/user-json.entity';
 
 interface MockUser extends CreateUserDTO {
   _id?: string;
@@ -69,8 +70,24 @@ export const mockCreateUserDTO = (
 
 export const mockUserList = () => {
   return [
-    mockUser({ username: 'user01', _id: '1', email: 'exemple1@exemple.com' }),
-    mockUser({ username: 'user02', _id: '2', email: 'exemple2@exemple.com' }),
-    mockUser({ username: 'user03', _id: '3', email: 'exemple3@exemple.com' }),
+    mockUser({ username: 'user01', _id: v4(), email: 'exemple1@exemple.com' }),
+    mockUser({ username: 'user02', _id: v4(), email: 'exemple2@exemple.com' }),
+    mockUser({ username: 'user03', _id: v4(), email: 'exemple3@exemple.com' }),
   ];
+};
+
+export const userLikeJSON = (
+  overrides: Partial<CreateUserDTO> = {},
+): UserJSON => {
+  return {
+    name: NameVO.EXEMPLE,
+    username: UsernameVO.EXEMPLE,
+    email: EmailVO.EXEMPLE,
+    password: PasswordVO.EXEMPLE,
+    phonenumber: PhoneNumberVO.EXEMPLE,
+    roles: defaultRoles,
+    createdAt: new Date('2025-02-16T17:21:05.370Z'),
+    updatedAt: new Date('2025-02-16T17:21:05.370Z'),
+    ...overrides,
+  };
 };

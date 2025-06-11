@@ -1,9 +1,10 @@
 import { AuthModule } from '@modules/auth/auth.module';
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { Logger, Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { getCurrentNodeENV } from './config/environment/utils';
-import { validate as validateENV } from './config/environment/env.validate';
+import { getCurrentNodeENV } from '@config/environment/utils';
+import { validateENV } from '@config/environment/env.validate';
+import { EnvironmentVariables } from '@config/environment/env.validation';
 
 @Module({
   imports: [
@@ -12,7 +13,21 @@ import { validate as validateENV } from './config/environment/env.validate';
       envFilePath: [getCurrentNodeENV()],
       validate: validateENV,
     }),
-    MongooseModule.forRoot(process.env.MONGO_DB_URL),
+    MongooseModule.forRootAsync({
+      useFactory: (configService: ConfigService<EnvironmentVariables>) => {
+        return {
+          uri: configService.get<string>('MONGO_DB_URL'),
+          onConnectionCreate(connection) {
+            new Logger('MongoDB').debug(
+              `MongoDB running in ${configService.get<string>('MONGO_DB_URL')}`,
+            );
+
+            return connection;
+          },
+        };
+      },
+      inject: [ConfigService],
+    }),
     AuthModule,
   ],
   controllers: [],
