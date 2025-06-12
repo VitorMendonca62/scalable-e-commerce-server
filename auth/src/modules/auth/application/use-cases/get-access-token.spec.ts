@@ -58,12 +58,12 @@ describe('GetAccessTokenUseCase', () => {
 
     it('should use case call with correct parameters and return token', async () => {
       jest
-        .spyOn(userRepository, 'findById')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => user);
 
       const response = await useCase.execute(refreshToken);
 
-      expect(userRepository.findById).toHaveBeenCalledWith(user._id);
+      expect(userRepository.findOne).toHaveBeenCalledWith(user._id);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
       expect(tokenService.verifyToken).toHaveBeenCalledWith(refreshToken);
       expect(response).toBe(accessToken);
@@ -71,7 +71,7 @@ describe('GetAccessTokenUseCase', () => {
 
     it('should throw bad request exception when user does not exist', async () => {
       jest
-        .spyOn(userRepository, 'findById')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(refreshToken)).rejects.toThrow(

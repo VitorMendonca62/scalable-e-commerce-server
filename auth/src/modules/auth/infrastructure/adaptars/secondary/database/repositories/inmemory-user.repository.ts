@@ -6,19 +6,26 @@ import { v4 } from 'uuid';
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
   users: User[] = [];
+
   async create(user: User): Promise<undefined> {
     user._id = v4();
     this.users.push(user);
   }
-  async findByEmail(email: string): Promise<User | undefined> {
-    return this.users.find((user) => user.email.getValue() == email);
-  }
 
-  async findByUsername(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username.getValue() == username);
-  }
+  async findOne(options: Record<string, string>): Promise<User | undefined> {
+    return this.users.find((user) => {
+      for (const key of Object.keys(options)) {
+        if (!['_id'].includes(key)) {
+          console.error(user, key, user[key]);
+          options[key].toLocaleLowerCase ();
+          console.log(options[key]);
+          user[key].toLowerCase();
+        }
 
-  async findById(id: string): Promise<User | undefined> {
-    return this.users.find((user) => user._id == id);
+        if (options[key] != user[key]) {
+          return false;
+        }
+      }
+    });
   }
 }

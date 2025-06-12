@@ -37,10 +37,10 @@ describe('CreateUserUseCase', () => {
 
     beforeEach(() => {
       jest
-        .spyOn(userRepository, 'findByUsername')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => undefined);
       jest
-        .spyOn(userRepository, 'findByEmail')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => undefined);
 
       jest.spyOn(userRepository, 'create').mockImplementation(() => undefined);
@@ -49,10 +49,10 @@ describe('CreateUserUseCase', () => {
     it('should use case call with correct parameters and create user', async () => {
       const response = await useCase.execute(user);
 
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+      expect(userRepository.findOne).toHaveBeenCalledWith(
         user.email.getValue(),
       );
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(
+      expect(userRepository.findOne).toHaveBeenCalledWith(
         user.username.getValue(),
       );
       expect(userRepository.create).toHaveBeenCalledWith(user);
@@ -61,7 +61,7 @@ describe('CreateUserUseCase', () => {
 
     it('should throw bad request exception when already exists user with newUser email', async () => {
       jest
-        .spyOn(userRepository, 'findByEmail')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
@@ -71,7 +71,7 @@ describe('CreateUserUseCase', () => {
 
     it('should throw bad request exception when already exists user with User username', async () => {
       jest
-        .spyOn(userRepository, 'findByUsername')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(

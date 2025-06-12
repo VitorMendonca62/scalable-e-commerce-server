@@ -2,12 +2,18 @@ import { InMemoryUserRepository } from './inmemory-user.repository';
 import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { Test, TestingModule } from '@nestjs/testing';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
 
-  beforeEach(() => {
-    repository = new InMemoryUserRepository();
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [],
+      providers: [InMemoryUserRepository],
+    }).compile();
+
+    repository = module.get<InMemoryUserRepository>(InMemoryUserRepository);
   });
 
   it('should be defined', () => {
@@ -38,78 +44,49 @@ describe('InMemoryUserRepository', () => {
     });
   });
 
-  describe('findByEmail', () => {
-    const validEmail = EmailVO.EXEMPLE;
-    const user = mockUser({ email: validEmail });
+  describe('findOne', () => {
+    const user = mockUser();
 
     beforeEach(() => {
+      repository.users = [];
       repository.users.push(user);
     });
 
-    it('should return user with email passed', async () => {
-      const response = await repository.findByEmail(validEmail);
+    it('should return user with one field', async () => {
+      const response = await repository.findOne({ email: EmailVO.EXEMPLE });
+
+      expect(response).toBe(user);
+    });
+
+    it('should return user with many fields', async () => {
+      const response = await repository.findOne({
+        email: EmailVO.EXEMPLE,
+        username: UsernameVO.EXEMPLE,
+      });
 
       expect(response).toBe(user);
     });
 
     it('should return undefined when not found user with email', async () => {
-      const response = await repository.findByEmail('emailnotfound@email.com');
+      const response = await repository.findOne({
+        username: 'usernotfound',
+      });
 
       expect(response).toBeUndefined();
     });
 
-    it('should be case sensitive if getValue is case sensitive', async () => {
-      const response = await repository.findByEmail(validEmail.toUpperCase());
-
-      expect(response).toBeUndefined();
-    });
-  });
-
-  describe('findByUsername', () => {
-    const validUsername = UsernameVO.EXEMPLE;
-    const user = mockUser({ username: validUsername });
-
-    beforeEach(() => {
-      repository.users.push(user);
-    });
-
-    it('should return user with username passed', async () => {
-      const response = await repository.findByUsername(validUsername);
+    it('should return the user even with case differences when case sensitivity is disabled', async () => {
+      const response = await repository.findOne({
+        email: EmailVO.EXEMPLE.toUpperCase(),
+      });
 
       expect(response).toBe(user);
     });
 
-    it('should return undefined when not found user with username', async () => {
-      const response = await repository.findByUsername('usernamenotfound');
-
-      expect(response).toBeUndefined();
-    });
-
-    it('should be case sensitive if getValue is case sensitive', async () => {
-      const response = await repository.findByUsername(
-        validUsername.toUpperCase(),
-      );
-
-      expect(response).toBeUndefined();
-    });
-  });
-
-  describe('findById', () => {
-    const validId = 'validid';
-    const user = mockUser({ _id: validId });
-
-    beforeEach(() => {
-      repository.users.push(user);
-    });
-
-    it('should return user with id passed', async () => {
-      const response = await repository.findById(validId);
-
-      expect(response).toBe(user);
-    });
-
-    it('should return undefined when not found user with username', async () => {
-      const response = await repository.findById('211221');
+    it('should be case-sensitive when searching by ID ', async () => {
+      const response = await repository.findOne({
+        _id: user._id.toUpperCase(),
+      });
 
       expect(response).toBeUndefined();
     });

@@ -19,14 +19,7 @@ export class MongooseUserRepository extends UserRepository {
     await userModel.save();
   }
 
-  async findByEmail(email: string): Promise<User | undefined> {
-    return await this.userModel.findOne({ email }).exec();
-  }
-  async findByUsername(username: string): Promise<User | undefined> {
-    return await this.userModel.findOne({ username }).exec();
-  }
-
-  async findById(id: string): Promise<User | undefined> {
-    return await this.userModel.findOne({ id }).exec();
+  async findOne(options: Record<string, string>): Promise<User | undefined> {
+    return await this.userModel.findOne(options).exec();
   }
 }

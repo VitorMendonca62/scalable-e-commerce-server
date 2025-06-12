@@ -105,11 +105,11 @@ describe('MongooseUserRepository', () => {
     });
   });
 
-  describe('findByEmail', () => {
+  describe('findOne', () => {
     const validEmail = EmailVO.EXEMPLE;
 
     it('should return user with email passed', async () => {
-      const response = await repository.findByEmail(validEmail);
+      const response = await repository.findOne({ email: validEmail });
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
@@ -120,7 +120,9 @@ describe('MongooseUserRepository', () => {
     it('should return undefined when not found user with email', async () => {
       mockedExecFindOne.mockImplementation(() => undefined);
 
-      const response = await repository.findByEmail('emailnotfound@email.com');
+      const response = await repository.findOne({
+        email: 'emailnotfound@email.com',
+      });
 
       expect(response).toBeUndefined();
     });
@@ -130,7 +132,7 @@ describe('MongooseUserRepository', () => {
     const validUsername = UsernameVO.EXEMPLE;
 
     it('should return user with username passed', async () => {
-      const response = await repository.findByUsername(validUsername);
+      const response = await repository.findOne({validUsername});
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();

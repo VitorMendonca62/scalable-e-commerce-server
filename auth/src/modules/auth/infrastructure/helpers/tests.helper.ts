@@ -49,8 +49,8 @@ export const mockLoginUserDTO = (
   overrides: Partial<LoginUserDTO> = {},
 ): LoginUserDTO => {
   return {
-    email: 'exemple@exemple.com',
-    password: '@Vh1234567',
+    email: EmailVO.EXEMPLE,
+    password: PasswordVO.EXEMPLE,
     ...overrides,
   };
 };
@@ -59,11 +59,11 @@ export const mockCreateUserDTO = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
   return {
-    username: 'defaultuser',
-    email: 'exemple@exemple.com',
-    name: 'Default user',
-    password: '@Vh1234567',
-    phonenumber: '+5581999999999',
+    username: UsernameVO.EXEMPLE,
+    email: EmailVO.EXEMPLE,
+    name: NameVO.EXEMPLE,
+    password: PasswordVO.EXEMPLE,
+    phonenumber: PhoneNumberVO.EXEMPLE,
     ...overrides,
   };
 };

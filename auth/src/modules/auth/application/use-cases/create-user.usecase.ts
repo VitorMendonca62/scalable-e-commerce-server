@@ -11,17 +11,17 @@ export class CreateUserUseCase implements CreateUserPort {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(user: User): Promise<void> {
-    const userExistsWithUsername = await this.userRepository.findByUsername(
-      user.username.getValue(),
-    );
+    const userExistsWithUsername = await this.userRepository.findOne({
+      username: user.username.getValue(),
+    });
 
     if (userExistsWithUsername) {
       throw new FieldlAlreadyExists(UsernameVO.ERROR_ALREADY_EXISTS);
     }
 
-    const userExistsWithEmail = await this.userRepository.findByEmail(
-      user.email.getValue(),
-    );
+    const userExistsWithEmail = await this.userRepository.findOne({
+      email: user.email.getValue(),
+    });
 
     if (userExistsWithEmail) {
       throw new FieldlAlreadyExists(EmailVO.ERROR_ALREADY_EXISTS);

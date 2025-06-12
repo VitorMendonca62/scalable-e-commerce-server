@@ -50,7 +50,7 @@ describe('CreateSessionUseCase', () => {
 
     beforeEach(() => {
       jest
-        .spyOn(userRepository, 'findByEmail')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => user);
 
       jest
@@ -69,7 +69,7 @@ describe('CreateSessionUseCase', () => {
     it('should use case call with correct parameters and create user session', async () => {
       const response = await useCase.execute(userLogin);
 
-      expect(userRepository.findByEmail).toHaveBeenCalledWith(
+      expect(userRepository.findOne).toHaveBeenCalledWith(
         userLogin.email.getValue(),
       );
       expect(user.password.comparePassword).toHaveBeenCalledWith(
@@ -87,7 +87,7 @@ describe('CreateSessionUseCase', () => {
 
     it('should throw bad request exception when user does not exists', async () => {
       jest
-        .spyOn(userRepository, 'findByEmail')
+        .spyOn(userRepository, 'findOne')
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(

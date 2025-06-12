@@ -16,9 +16,9 @@ export class CreateSessionUseCase implements CreateSessionPort {
   ) {}
 
   async execute(inputUser: UserLogin): Promise<CreateSessionOutbondPort> {
-    const user = await this.userRepository.findByEmail(
-      inputUser.email.getValue(),
-    );
+    const user = await this.userRepository.findOne({
+      email: inputUser.email.getValue(),
+    });
 
     if (!user) {
       throw new WrongCredentials();
