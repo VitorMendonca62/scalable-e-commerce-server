@@ -2,7 +2,7 @@ import { isNotEmpty, isPhoneNumber, isString } from 'class-validator';
 import { FieldInvalid } from '../types/errors/errors';
 
 export default class PhoneNumberVO {
-  private readonly value: string;
+  private value: string;
 
   static readonly DESCRIPTION =
     'O número de telefone serve como informação auxiliar para o sistema. Deve ser um número válido no Brasil!.';
@@ -33,6 +33,10 @@ export default class PhoneNumberVO {
       `+55 ($1) $2-$3`,
     );
     return formattedValue;
+  }
+
+  toLowerCase(): void {
+    this.value = this.value.toLowerCase();
   }
 
   static isValid(value: string, isOptionalClient: boolean): boolean {

@@ -16,15 +16,18 @@ export class InMemoryUserRepository implements UserRepository {
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {
         if (!['_id'].includes(key)) {
-          console.error(user, key, user[key]);
-          options[key].toLocaleLowerCase ();
-          console.log(options[key]);
+          options[key] = options[key].toLowerCase();
           user[key].toLowerCase();
         }
 
-        if (options[key] != user[key]) {
+        const value =
+          typeof user[key] == 'string' ? user[key] : user[key].getValue();
+
+        if (options[key] != value) {
           return false;
         }
+
+        return true;
       }
     });
   }

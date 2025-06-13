@@ -2,7 +2,7 @@ import { isEmail } from 'class-validator';
 import { FieldInvalid } from '../types/errors/errors';
 
 export default class EmailVO {
-  private readonly value: string;
+  private value: string;
 
   static readonly DESCRIPTION =
     'O email serve como identificador único de usuário e utiliza-se para entrar no sistema';
@@ -25,6 +25,10 @@ export default class EmailVO {
 
   getValue(): string {
     return this.value;
+  }
+
+  toLowerCase(): void {
+    this.value = this.value.toLowerCase();
   }
 
   static isValid(value: string): boolean {

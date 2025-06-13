@@ -29,3 +29,4 @@
 [] Criar Controllers de catch
 [] Implementar Guards no controller
 [] Remover o findEmail, findUsername e colocar o findOne
+[] Criar um adpter para senha

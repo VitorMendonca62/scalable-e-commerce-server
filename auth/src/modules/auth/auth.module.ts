@@ -16,6 +16,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './domain/entities/user.entity';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
 @Module({

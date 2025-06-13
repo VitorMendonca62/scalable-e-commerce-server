@@ -2,7 +2,7 @@ import { isNotEmpty, isString } from 'class-validator';
 import { FieldInvalid } from '../types/errors/errors';
 
 export default class NameVO {
-  private readonly value: string;
+  private value: string;
 
   static readonly DESCRIPTION =
     'O nome completo do usuário. Serve como informação auxiliar para o sistema';
@@ -27,6 +27,10 @@ export default class NameVO {
 
   getValue(): string {
     return this.value;
+  }
+
+  toLowerCase(): void {
+    this.value = this.value.toLowerCase();
   }
 
   static isValid(value: string, isOptionalClient: boolean): boolean {

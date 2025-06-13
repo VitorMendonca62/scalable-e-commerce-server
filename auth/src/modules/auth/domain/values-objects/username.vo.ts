@@ -2,7 +2,7 @@ import { isNotEmpty, isString } from 'class-validator';
 import { FieldInvalid } from '../types/errors/errors';
 
 export default class UsernameVO {
-  private readonly value: string;
+  private value: string;
 
   static readonly DESCRIPTION =
     'O apelido serve como identificador único de usuário e é utilizado para o usuário ser identificado no sistema';
@@ -30,6 +30,10 @@ export default class UsernameVO {
 
   getValue(): string {
     return this.value;
+  }
+
+  toLowerCase(): void {
+    this.value = this.value.toLowerCase();
   }
 
   static isValid(value: string, isOptionalClient: boolean): boolean {

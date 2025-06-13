@@ -3,7 +3,7 @@ import * as bcrypt from 'bcryptjs';
 import { FieldInvalid } from '../types/errors/errors';
 
 export default class PasswordVO {
-  private readonly value: string;
+  private value: string;
 
   static readonly DESCRIPTION =
     'A senha, que será criptografada assim que entra no sistema é utilizada para entrar no sistema. Ela deve conter um caracter especial, um número uma letra maiúscula e outra minúscula.';
@@ -39,6 +39,10 @@ export default class PasswordVO {
 
   public comparePassword(inputPassword: string) {
     return bcrypt.compareSync(inputPassword, this.value);
+  }
+
+  toLowerCase(): void {
+    this.value = this.value.toLowerCase();
   }
 
   static isValid(value: string, isStrongPasswordClient: boolean): boolean {

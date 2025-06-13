@@ -50,6 +50,12 @@ describe('InMemoryUserRepository', () => {
     beforeEach(() => {
       repository.users = [];
       repository.users.push(user);
+      repository.users.push(
+        mockUser({ email: 'teste@teste.com', username: 'teste13' }),
+      );
+      repository.users.push(
+        mockUser({ email: 'teste1@teste.com', username: 'teste134' }),
+      );
     });
 
     it('should return user with one field', async () => {
