@@ -63,7 +63,7 @@ describe('GetAccessTokenUseCase', () => {
 
       const response = await useCase.execute(refreshToken);
 
-      expect(userRepository.findOne).toHaveBeenCalledWith(user._id);
+      expect(userRepository.findOne).toHaveBeenCalledWith({ _id: user._id });
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
       expect(tokenService.verifyToken).toHaveBeenCalledWith(refreshToken);
       expect(response).toBe(accessToken);

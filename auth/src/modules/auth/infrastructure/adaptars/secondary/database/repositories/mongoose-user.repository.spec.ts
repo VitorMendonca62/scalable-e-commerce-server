@@ -132,7 +132,7 @@ describe('MongooseUserRepository', () => {
     const validUsername = UsernameVO.EXEMPLE;
 
     it('should return user with username passed', async () => {
-      const response = await repository.findOne({validUsername});
+      const response = await repository.findOne({ username: validUsername });
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
@@ -143,7 +143,9 @@ describe('MongooseUserRepository', () => {
     it('should return undefined when not found user with username', async () => {
       mockedExecFindOne.mockImplementation(() => undefined);
 
-      const response = await repository.findByUsername('usernamenotfound');
+      const response = await repository.findOne({
+        username: 'usernamenotfound',
+      });
 
       expect(response).toBeUndefined();
     });

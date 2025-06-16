@@ -1,11 +1,12 @@
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
 import { FieldlAlreadyExists } from '@modules/auth/domain/types/errors/errors';
+import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
+import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -49,12 +50,12 @@ describe('CreateUserUseCase', () => {
     it('should use case call with correct parameters and create user', async () => {
       const response = await useCase.execute(user);
 
-      expect(userRepository.findOne).toHaveBeenCalledWith(
-        user.email.getValue(),
-      );
-      expect(userRepository.findOne).toHaveBeenCalledWith(
-        user.username.getValue(),
-      );
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        email: user.email.getValue(),
+      });
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        username: user.username.getValue(),
+      });
       expect(userRepository.create).toHaveBeenCalledWith(user);
       expect(response).toBeUndefined();
     });
@@ -62,7 +63,8 @@ describe('CreateUserUseCase', () => {
     it('should throw bad request exception when already exists user with newUser email', async () => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => user);
+        .mockImplementationOnce(async () => undefined)
+        .mockImplementationOnce(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
         new FieldlAlreadyExists(EmailVO.ERROR_ALREADY_EXISTS),
@@ -72,12 +74,11 @@ describe('CreateUserUseCase', () => {
     it('should throw bad request exception when already exists user with User username', async () => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => user);
+        .mockImplementationOnce(async () => user)
+        .mockImplementationOnce(async () => undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(
-          'Esse username já está sendo utilizado. Tente outro',
-        ),
+        new FieldlAlreadyExists(UsernameVO.ERROR_ALREADY_EXISTS),
       );
     });
   });

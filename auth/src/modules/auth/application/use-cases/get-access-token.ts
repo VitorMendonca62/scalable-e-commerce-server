@@ -16,7 +16,7 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
   async execute(refreshToken: string): Promise<string> {
     const { sub: id } = this.tokenService.verifyToken(refreshToken);
 
-    const user = await this.userRepository.findOne({ id });
+    const user = await this.userRepository.findOne({ _id: id });
 
     if (!user) {
       throw new WrongCredentials('Token está inválido');
