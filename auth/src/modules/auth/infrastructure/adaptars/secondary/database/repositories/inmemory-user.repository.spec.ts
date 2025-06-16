@@ -89,7 +89,7 @@ describe('InMemoryUserRepository', () => {
       expect(response).toBe(user);
     });
 
-    it('should be case-sensitive when searching by ID ', async () => {
+    it('should be case-sensitive and return undefined when searching by ID ', async () => {
       const response = await repository.findOne({
         _id: user._id.toUpperCase(),
       });

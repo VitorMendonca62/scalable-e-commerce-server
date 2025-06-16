@@ -6,18 +6,22 @@ import { v4 } from 'uuid';
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
   users: User[] = [];
+  readonly keysCanToLowerCase = ['username', 'name', 'email'];
 
   async create(user: User): Promise<undefined> {
     user._id = v4();
+    user.email.toLowerCase();
+    user.name.toLowerCase();
+    user.username.toLowerCase();
+
     this.users.push(user);
   }
 
   async findOne(options: Record<string, string>): Promise<User | undefined> {
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {
-        if (!['_id'].includes(key)) {
+        if (this.keysCanToLowerCase.includes(key)) {
           options[key] = options[key].toLowerCase();
-          user[key].toLowerCase();
         }
 
         const value =
