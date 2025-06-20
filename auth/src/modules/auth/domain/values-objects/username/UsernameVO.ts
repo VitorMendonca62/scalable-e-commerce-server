@@ -1,4 +1,4 @@
-import { FieldInvalid } from '../../types/errors/errors';
+import { HttpFieldInvalid } from '../../types/errors/errors';
 import { UsernameConstants } from './UsernameConstants';
 import { UsernameValidator } from './UsernameValidator';
 
@@ -7,7 +7,7 @@ export default class UsernameVO {
 
   constructor(value: string, isOptionalClient: boolean) {
     if (!UsernameValidator.isValid(value, isOptionalClient)) {
-      throw new FieldInvalid(UsernameConstants.ERROR_INVALID, 'username');
+      throw new HttpFieldInvalid(UsernameConstants.ERROR_INVALID, 'username');
     }
     this.value = value;
   }

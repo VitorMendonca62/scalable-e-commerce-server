@@ -5,20 +5,20 @@ import {
   length,
 } from 'class-validator';
 import { PasswordConstants } from './PasswordConstants';
-import { FieldInvalid } from '../../types/errors/errors';
+import { HttpFieldInvalid } from '../../types/errors/errors';
 
 export class PasswordValidator {
   static isValid(value: string, isStrongPasswordClient: boolean) {
     if (!isNotEmpty(value)) {
-      throw new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
+      throw new HttpFieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
     }
 
     if (!isString(value)) {
-      throw new FieldInvalid(PasswordConstants.ERROR_INVALID, 'password');
+      throw new HttpFieldInvalid(PasswordConstants.ERROR_INVALID, 'password');
     }
 
     if (!length(value, PasswordConstants.MIN_LENGTH)) {
-      throw new FieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password');
+      throw new HttpFieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password');
     }
     if (isStrongPasswordClient) {
       if (
@@ -29,7 +29,7 @@ export class PasswordValidator {
           minNumbers: 1,
         })
       ) {
-        throw new FieldInvalid(
+        throw new HttpFieldInvalid(
           PasswordConstants.ERROR_WEAK_PASSWORD,
           'password',
         );

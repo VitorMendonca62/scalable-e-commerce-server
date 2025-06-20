@@ -67,7 +67,7 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS),
+        new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS, 'email'),
       );
     });
 
@@ -78,7 +78,10 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(UsernameConstants.ERROR_ALREADY_EXISTS),
+        new FieldlAlreadyExists(
+          UsernameConstants.ERROR_ALREADY_EXISTS,
+          'username',
+        ),
       );
     });
   });

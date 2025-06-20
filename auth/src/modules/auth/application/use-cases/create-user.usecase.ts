@@ -16,7 +16,10 @@ export class CreateUserUseCase implements CreateUserPort {
     });
 
     if (userExistsWithUsername) {
-      throw new FieldlAlreadyExists(UsernameConstants.ERROR_ALREADY_EXISTS);
+      throw new FieldlAlreadyExists(
+        UsernameConstants.ERROR_ALREADY_EXISTS,
+        'username',
+      );
     }
 
     const userExistsWithEmail = await this.userRepository.findOne({
@@ -24,7 +27,10 @@ export class CreateUserUseCase implements CreateUserPort {
     });
 
     if (userExistsWithEmail) {
-      throw new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS);
+      throw new FieldlAlreadyExists(
+        EmailConstants.ERROR_ALREADY_EXISTS,
+        'email',
+      );
     }
 
     await this.userRepository.create(user);
