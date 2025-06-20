@@ -25,7 +25,7 @@
     );
   }
 
-[] Criar classes para os VOS, uma pra const, validacao e oturos
+[X] Criar classes para os VOS, uma pra const, validacao e oturos
 [] Criar Controllers de catch
 [] Implementar Guards no controller
 [X] Remover o findEmail, findUsername e colocar o findOne

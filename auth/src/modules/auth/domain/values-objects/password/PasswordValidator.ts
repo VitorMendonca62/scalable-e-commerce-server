@@ -1,22 +1,39 @@
-import { isNotEmpty, isString, isStrongPassword } from 'class-validator';
+import {
+  isNotEmpty,
+  isString,
+  isStrongPassword,
+  length,
+} from 'class-validator';
 import { PasswordConstants } from './PasswordConstants';
+import { FieldInvalid } from '../../types/errors/errors';
 
 export class PasswordValidator {
-  static isValid(value: string, isStrongPasswordClient: boolean): boolean {
-    const isStrongPasswordValid = isStrongPasswordClient
-      ? isStrongPassword(value, {
+  static isValid(value: string, isStrongPasswordClient: boolean) {
+    if (!isNotEmpty(value)) {
+      throw new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
+    }
+
+    if (!isString(value)) {
+      throw new FieldInvalid(PasswordConstants.ERROR_INVALID, 'password');
+    }
+
+    if (!length(value, PasswordConstants.MIN_LENGTH)) {
+      throw new FieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password');
+    }
+    if (isStrongPasswordClient) {
+      if (
+        !isStrongPassword(value, {
           minLowercase: 1,
           minSymbols: 1,
           minUppercase: 1,
           minNumbers: 1,
         })
-      : true;
-
-    return (
-      isNotEmpty(value) &&
-      isString(value) &&
-      value.length >= PasswordConstants.MIN_LENGTH &&
-      isStrongPasswordValid
-    );
+      ) {
+        throw new FieldInvalid(
+          PasswordConstants.ERROR_WEAK_PASSWORD,
+          'password',
+        );
+      }
+    }
   }
 }

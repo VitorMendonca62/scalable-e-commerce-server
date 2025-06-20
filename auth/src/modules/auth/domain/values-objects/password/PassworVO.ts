@@ -1,15 +1,12 @@
 import * as bcrypt from 'bcryptjs';
-import { FieldInvalid } from '../../types/errors/errors';
-import { PasswordConstants } from './PasswordConstants';
 import { PasswordValidator } from './PasswordValidator';
 
 export default class PasswordVO {
   private value: string;
 
   constructor(value: string, isStrongPassword: boolean) {
-    if (!PasswordValidator.isValid(value, isStrongPassword)) {
-      throw new FieldInvalid(PasswordConstants.ERROR_INVALID, 'password');
-    }
+    PasswordValidator.isValid(value, isStrongPassword);
+
     this.value = this.hashPassword(value);
   }
 

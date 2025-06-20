@@ -1,11 +1,19 @@
-import { isNotEmpty, isString } from 'class-validator';
+import { isNotEmpty, isString, length } from 'class-validator';
 import { NameConstants } from './NameConstants';
+import { FieldInvalid } from '../../types/errors/errors';
 
 export class NameValidator {
-  static isValid(value: string, isOptionalClient: boolean): boolean {
-    const IsRequiredOrNo = isOptionalClient ? true : isNotEmpty(value);
-    const minLength = value.length >= NameConstants.MIN_LENGTH;
+  static isValid(value: string, isOptionalClient: boolean) {
+    if (!isOptionalClient && !isNotEmpty(value)) {
+      throw new FieldInvalid(NameConstants.ERROR_REQUIRED, 'name');
+    }
 
-    return isString(value) && IsRequiredOrNo && minLength;
+    if (!length(value, NameConstants.MIN_LENGTH)) {
+      throw new FieldInvalid(NameConstants.ERROR_MIN_LENGTH, 'name');
+    }
+
+    if (!isString(value)) {
+      throw new FieldInvalid(NameConstants.ERROR_INVALID, 'name');
+    }
   }
 }

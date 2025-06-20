@@ -1,14 +1,10 @@
 import { PhoneNumberValidator } from './PhoneNumberValidator';
-import { FieldInvalid } from '../../types/errors/errors';
-import { PhoneNumberConstants } from './PhoneNumberConstants';
 
 export default class PhoneNumberVO {
   private value: string;
 
   constructor(value: string, isOptionalClient: boolean) {
-    if (!PhoneNumberValidator.isValid(value, isOptionalClient)) {
-      throw new FieldInvalid(PhoneNumberConstants.ERROR_INVALID, 'phonenumber');
-    }
+    PhoneNumberValidator.isValid(value, isOptionalClient);
     this.value = value;
   }
 
