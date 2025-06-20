@@ -1,11 +1,11 @@
 import { defaultRoles, Permissions } from '../types/permissions';
 
 // Values Objects
-import EmailVO from '../values-objects/email.vo';
-import PasswordVO from '../values-objects/password.vo';
-import PhoneNumberVO from '../values-objects/phonenumber.vo';
-import NameVO from '../values-objects/name.vo';
-import UsernameVO from '../values-objects/username.vo';
+import EmailVO from '../values-objects/email/EmailVO';
+import PasswordVO from '../values-objects/password/PassworVO';
+import PhoneNumberVO from '../values-objects/phonumber/PhoneNumberVO';
+import NameVO from '../values-objects/name/NameVO';
+import UsernameVO from '../values-objects/username/UsernameVO';
 import { v4 } from 'uuid';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 

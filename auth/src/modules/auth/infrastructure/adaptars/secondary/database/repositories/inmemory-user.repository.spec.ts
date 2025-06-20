@@ -1,8 +1,8 @@
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
@@ -59,15 +59,17 @@ describe('InMemoryUserRepository', () => {
     });
 
     it('should return user with one field', async () => {
-      const response = await repository.findOne({ email: EmailVO.EXEMPLE });
+      const response = await repository.findOne({
+        email: EmailConstants.EXEMPLE,
+      });
 
       expect(response).toBe(user);
     });
 
     it('should return user with many fields', async () => {
       const response = await repository.findOne({
-        email: EmailVO.EXEMPLE,
-        username: UsernameVO.EXEMPLE,
+        email: EmailConstants.EXEMPLE,
+        username: UsernameConstants.EXEMPLE,
       });
 
       expect(response).toBe(user);
@@ -83,7 +85,7 @@ describe('InMemoryUserRepository', () => {
 
     it('should return the user even with case differences when case sensitivity is disabled', async () => {
       const response = await repository.findOne({
-        email: EmailVO.EXEMPLE.toUpperCase(),
+        email: EmailConstants.EXEMPLE.toUpperCase(),
       });
 
       expect(response).toBe(user);

@@ -1,12 +1,12 @@
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export function ApiEmail(required: boolean) {
   return applyDecorators(
     ApiProperty({
-      description: EmailVO.DESCRIPTION,
-      example: EmailVO.EXEMPLE,
+      description: EmailConstants.DESCRIPTION,
+      example: EmailConstants.EXEMPLE,
       required: required,
     }),
   );

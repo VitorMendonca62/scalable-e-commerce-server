@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../../domain/entities/user.entity';
-import EmailVO from '../../domain/values-objects/email.vo';
 import { CreateUserPort } from '@modules/auth/domain/ports/primary/user.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
 import { FieldlAlreadyExists } from '@modules/auth/domain/types/errors/errors';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 
 @Injectable()
 export class CreateUserUseCase implements CreateUserPort {
@@ -16,7 +16,7 @@ export class CreateUserUseCase implements CreateUserPort {
     });
 
     if (userExistsWithUsername) {
-      throw new FieldlAlreadyExists(UsernameVO.ERROR_ALREADY_EXISTS);
+      throw new FieldlAlreadyExists(UsernameConstants.ERROR_ALREADY_EXISTS);
     }
 
     const userExistsWithEmail = await this.userRepository.findOne({
@@ -24,7 +24,7 @@ export class CreateUserUseCase implements CreateUserPort {
     });
 
     if (userExistsWithEmail) {
-      throw new FieldlAlreadyExists(EmailVO.ERROR_ALREADY_EXISTS);
+      throw new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS);
     }
 
     await this.userRepository.create(user);

@@ -1,14 +1,14 @@
-import NameVO from '@modules/auth/domain/values-objects/name.vo';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
 export function ApiName(required: boolean) {
   return applyDecorators(
     ApiProperty({
-      description: NameVO.DESCRIPTION,
-      example: NameVO.EXEMPLE,
+      description: NameConstants.DESCRIPTION,
+      example: NameConstants.EXEMPLE,
       required: required,
-      minLength: NameVO.MIN_LENGTH,
+      minLength: NameConstants.MIN_LENGTH,
     }),
   );
 }

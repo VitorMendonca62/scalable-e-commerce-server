@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import EmailVO from '../../values-objects/email.vo';
 
 export class HttpFieldInvalid extends HttpException {
   data: string;
@@ -56,7 +55,10 @@ export class FieldlAlreadyExists extends Error {
   statusCode: number;
   data: any;
 
-  constructor(message: string = EmailVO.ERROR_ALREADY_EXISTS, data: any = {}) {
+  constructor(
+    message: string = 'Valor já existe de outro usuário',
+    data: any = {},
+  ) {
     super(message);
     this.name = 'Valor já existe de outro usuário';
     this.statusCode = HttpStatus.BAD_REQUEST;

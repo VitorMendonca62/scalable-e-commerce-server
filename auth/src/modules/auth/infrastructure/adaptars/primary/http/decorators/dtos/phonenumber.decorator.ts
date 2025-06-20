@@ -3,20 +3,22 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Length,
 } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
 
 export function PhoneNumber(isOptional: boolean) {
   const IsRequired = isOptional
     ? IsOptional()
     : IsNotEmpty({
-        message: PhoneNumberVO.ERROR_REQUIRED,
+        message: PhoneNumberConstants.ERROR_REQUIRED,
       });
 
   return applyDecorators(
     IsRequired,
-    IsPhoneNumber('BR', { message: PhoneNumberVO.ERROR_INVALID }),
-    IsString({ message: PhoneNumberVO.ERROR_STRING }),
+    IsString({ message: PhoneNumberConstants.ERROR_STRING }),
+    Length(PhoneNumberConstants.LENGTH, PhoneNumberConstants.LENGTH),
+    IsPhoneNumber('BR', { message: PhoneNumberConstants.ERROR_INVALID }),
   );
 }

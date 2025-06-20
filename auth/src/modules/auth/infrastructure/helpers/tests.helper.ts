@@ -4,12 +4,17 @@ import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
 import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
-import NameVO from '@modules/auth/domain/values-objects/name.vo';
-import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
+import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
+import PasswordVO from '@modules/auth/domain/values-objects/password/PassworVO';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
+import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
 import { UserJSON } from '@modules/auth/domain/entities/user-json.entity';
+import PhoneNumberVO from '@modules/auth/domain/values-objects/phonumber/PhoneNumberVO';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
+import NameVO from '@modules/auth/domain/values-objects/name/NameVO';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 interface MockUser extends CreateUserDTO {
   _id?: string;
@@ -49,8 +54,8 @@ export const mockLoginUserDTO = (
   overrides: Partial<LoginUserDTO> = {},
 ): LoginUserDTO => {
   return {
-    email: EmailVO.EXEMPLE,
-    password: PasswordVO.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    password: PasswordConstants.EXEMPLE,
     ...overrides,
   };
 };
@@ -59,11 +64,11 @@ export const mockCreateUserDTO = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
   return {
-    username: UsernameVO.EXEMPLE,
-    email: EmailVO.EXEMPLE,
-    name: NameVO.EXEMPLE,
-    password: PasswordVO.EXEMPLE,
-    phonenumber: PhoneNumberVO.EXEMPLE,
+    username: UsernameConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    name: NameConstants.EXEMPLE,
+    password: PasswordConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
     ...overrides,
   };
 };
@@ -80,11 +85,11 @@ export const userLikeJSON = (
   overrides: Partial<CreateUserDTO> = {},
 ): UserJSON => {
   return {
-    name: NameVO.EXEMPLE,
-    username: UsernameVO.EXEMPLE,
-    email: EmailVO.EXEMPLE,
-    password: PasswordVO.EXEMPLE,
-    phonenumber: PhoneNumberVO.EXEMPLE,
+    name: NameConstants.EXEMPLE,
+    username: UsernameConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    password: PasswordConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),

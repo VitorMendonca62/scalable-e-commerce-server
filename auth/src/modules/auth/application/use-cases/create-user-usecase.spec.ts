@@ -5,8 +5,8 @@ import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
 import { FieldlAlreadyExists } from '@modules/auth/domain/types/errors/errors';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -67,7 +67,7 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(EmailVO.ERROR_ALREADY_EXISTS),
+        new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS),
       );
     });
 
@@ -78,7 +78,7 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(UsernameVO.ERROR_ALREADY_EXISTS),
+        new FieldlAlreadyExists(UsernameConstants.ERROR_ALREADY_EXISTS),
       );
     });
   });

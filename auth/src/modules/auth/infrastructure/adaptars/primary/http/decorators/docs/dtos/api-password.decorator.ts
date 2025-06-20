@@ -1,14 +1,14 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
 
 export function ApiPassword(required: boolean) {
   return applyDecorators(
     ApiProperty({
-      description: PasswordVO.DESCRIPTION,
-      example: PasswordVO.EXEMPLE,
+      description: PasswordConstants.DESCRIPTION,
+      example: PasswordConstants.EXEMPLE,
       required: required,
-      minLength: PasswordVO.MIN_LENGTH,
+      minLength: PasswordConstants.MIN_LENGTH,
     }),
   );
 }

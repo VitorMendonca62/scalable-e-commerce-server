@@ -2,13 +2,13 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
-import NameVO from '@modules/auth/domain/values-objects/name.vo';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 describe('RedisService', () => {
   let service: PubSubMessageBroker;
@@ -50,16 +50,16 @@ describe('RedisService', () => {
       const value = {
         _id: '1',
         roles: defaultRoles,
-        email: EmailVO.EXEMPLE,
-        name: NameVO.EXEMPLE,
-        username: UsernameVO.EXEMPLE,
-        phonenumber: PhoneNumberVO.EXEMPLE,
+        email: EmailConstants.EXEMPLE,
+        name: NameConstants.EXEMPLE,
+        username: UsernameConstants.EXEMPLE,
+        phonenumber: PhoneNumberConstants.EXEMPLE,
       };
       const channel = 'user-created';
 
       const expectedChannel = 'auth-user-created';
 
-      await service.publish(channel, value, serviceName);
+      service.publish(channel, value, serviceName);
 
       expect(clientProxyMock.emit).toHaveBeenCalledWith(expectedChannel, value);
       expect(clientProxyMock.emit).toHaveBeenCalledTimes(1);

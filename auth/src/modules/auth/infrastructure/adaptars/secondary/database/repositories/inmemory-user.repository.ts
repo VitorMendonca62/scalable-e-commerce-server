@@ -10,9 +10,7 @@ export class InMemoryUserRepository implements UserRepository {
 
   async create(user: User): Promise<undefined> {
     user._id = v4();
-    user.email.toLowerCase();
-    user.name.toLowerCase();
-    user.username.toLowerCase();
+    this.keysCanToLowerCase.forEach((key) => user[key].toLowerCase());
 
     this.users.push(user);
   }

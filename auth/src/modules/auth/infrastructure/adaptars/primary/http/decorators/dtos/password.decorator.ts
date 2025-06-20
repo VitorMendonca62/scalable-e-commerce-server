@@ -1,4 +1,4 @@
-import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
@@ -15,13 +15,13 @@ export function Password(isStrongPassword: boolean) {
       IsStrongPassword(
         {
           minLowercase: 1,
-          minLength: PasswordVO.MIN_LENGTH,
+          minLength: PasswordConstants.MIN_LENGTH,
           minSymbols: 1,
           minUppercase: 1,
           minNumbers: 1,
         },
         {
-          message: PasswordVO.ERROR_WEAK_PASSWORD,
+          message: PasswordConstants.ERROR_WEAK_PASSWORD,
         },
       ),
     );
@@ -29,11 +29,11 @@ export function Password(isStrongPassword: boolean) {
 
   return applyDecorators(
     IsNotEmpty({
-      message: PasswordVO.ERROR_REQUIRED,
+      message: PasswordConstants.ERROR_REQUIRED,
     }),
-    IsString({ message: PasswordVO.ERROR_INVALID }),
-    MinLength(PasswordVO.MIN_LENGTH, {
-      message: PasswordVO.ERROR_MIN_LENGTH,
+    IsString({ message: PasswordConstants.ERROR_INVALID }),
+    MinLength(PasswordConstants.MIN_LENGTH, {
+      message: PasswordConstants.ERROR_MIN_LENGTH,
     }),
     ...decorators,
   );

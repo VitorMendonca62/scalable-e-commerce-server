@@ -9,11 +9,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { RedisService } from '../../secondary/message-broker/pub-sub/redis.service';
 import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
-import NameVO from '@modules/auth/domain/values-objects/name.vo';
-import PasswordVO from '@modules/auth/domain/values-objects/password.vo';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
@@ -35,6 +31,10 @@ import {
   TokenInvalid,
 } from '@modules/auth/domain/types/errors/errors';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -210,7 +210,7 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual(
         new HttpFieldInvalid(
-          UsernameVO.ERROR_REQUIRED,
+          UsernameConstants.ERROR_REQUIRED,
           'username',
         ).getResponse(),
       );
@@ -218,22 +218,7 @@ describe('AuthController', () => {
 
     it('should throw bad request error when invalid email', async () => {
       const dto = mockCreateUserDTO({
-        email: EmailVO.WRONG_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').getResponse(),
-      );
-    });
-
-    it('should throw bad request error when password is weak', async () => {
-      const dto = mockCreateUserDTO({
-        password: PasswordVO.WEAK_EXEMPLE,
+        email: EmailConstants.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -243,7 +228,25 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual(
         new HttpFieldInvalid(
-          PasswordVO.ERROR_WEAK_PASSWORD,
+          EmailConstants.ERROR_INVALID,
+          'email',
+        ).getResponse(),
+      );
+    });
+
+    it('should throw bad request error when password is weak', async () => {
+      const dto = mockCreateUserDTO({
+        password: PasswordConstants.WEAK_EXEMPLE,
+      });
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/register')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(
+          PasswordConstants.ERROR_WEAK_PASSWORD,
           'password',
         ).getResponse(),
       );
@@ -251,9 +254,9 @@ describe('AuthController', () => {
 
     it('should throw bad request error when username, name and password with min length error', async () => {
       const dto = mockCreateUserDTO({
-        username: UsernameVO.MIN_LENGTH_EXEMPLE,
-        name: NameVO.MIN_LENGTH_EXEMPLE,
-        password: PasswordVO.MIN_LENGTH_EXEMPLE,
+        username: UsernameConstants.MIN_LENGTH_EXEMPLE,
+        name: NameConstants.MIN_LENGTH_EXEMPLE,
+        password: PasswordConstants.MIN_LENGTH_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -263,7 +266,7 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual(
         new HttpFieldInvalid(
-          UsernameVO.ERROR_MIN_LENGTH,
+          UsernameConstants.ERROR_MIN_LENGTH,
           'username',
         ).getResponse(),
       );
@@ -319,28 +322,16 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_REQUIRED, 'email').getResponse(),
+        new HttpFieldInvalid(
+          EmailConstants.ERROR_REQUIRED,
+          'email',
+        ).getResponse(),
       );
     });
 
     it('should throw bad request error when invalid email', async () => {
       const dto = mockLoginUserDTO({
-        email: UsernameVO.WRONG_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new HttpFieldInvalid(EmailVO.ERROR_INVALID, 'email').getResponse(),
-      );
-    });
-
-    it('should throw bad request error when password with min length error', async () => {
-      const dto = mockLoginUserDTO({
-        password: PasswordVO.MIN_LENGTH_EXEMPLE,
+        email: UsernameConstants.WRONG_EXEMPLE,
       });
 
       const response = await request(app.getHttpServer())
@@ -350,7 +341,25 @@ describe('AuthController', () => {
 
       expect(response.body).toEqual(
         new HttpFieldInvalid(
-          PasswordVO.ERROR_MIN_LENGTH,
+          EmailConstants.ERROR_INVALID,
+          'email',
+        ).getResponse(),
+      );
+    });
+
+    it('should throw bad request error when password with min length error', async () => {
+      const dto = mockLoginUserDTO({
+        password: PasswordConstants.MIN_LENGTH_EXEMPLE,
+      });
+
+      const response = await request(app.getHttpServer())
+        .post('/auth/login')
+        .send(dto)
+        .expect(400);
+
+      expect(response.body).toEqual(
+        new HttpFieldInvalid(
+          PasswordConstants.ERROR_MIN_LENGTH,
           'password',
         ).getResponse(),
       );

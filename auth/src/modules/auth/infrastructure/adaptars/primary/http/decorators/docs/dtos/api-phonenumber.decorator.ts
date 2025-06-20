@@ -1,12 +1,12 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonenumber.vo';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
 
 export function ApiPhoneNumber(required: boolean) {
   return applyDecorators(
     ApiProperty({
-      description: PhoneNumberVO.DESCRIPTION,
-      example: PhoneNumberVO.EXEMPLE,
+      description: PhoneNumberConstants.DESCRIPTION,
+      example: PhoneNumberConstants.EXEMPLE,
       required: required,
     }),
   );

@@ -7,9 +7,9 @@ import {
   userLikeJSON,
 } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { getModelToken } from '@nestjs/mongoose';
-import EmailVO from '@modules/auth/domain/values-objects/email.vo';
 import { UserJSON } from '@modules/auth/domain/entities/user-json.entity';
-import UsernameVO from '@modules/auth/domain/values-objects/username.vo';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 interface UserModelType {
   prototype: {
@@ -106,7 +106,7 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findOne', () => {
-    const validEmail = EmailVO.EXEMPLE;
+    const validEmail = EmailConstants.EXEMPLE;
 
     it('should return user with email passed', async () => {
       const response = await repository.findOne({ email: validEmail });
@@ -129,7 +129,7 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findByUsername', () => {
-    const validUsername = UsernameVO.EXEMPLE;
+    const validUsername = UsernameConstants.EXEMPLE;
 
     it('should return user with username passed', async () => {
       const response = await repository.findOne({ username: validUsername });

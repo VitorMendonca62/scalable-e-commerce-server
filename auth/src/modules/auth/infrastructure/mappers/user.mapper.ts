@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { defaultRoles } from '../../domain/types/permissions';
-import EmailVO from '../../domain/values-objects/email.vo';
-import NameVO from '../../domain/values-objects/name.vo';
-import PasswordVO from '../../domain/values-objects/password.vo';
-import PhoneNumberVO from '../../domain/values-objects/phonenumber.vo';
-import UsernameVO from '../../domain/values-objects/username.vo';
+import EmailVO from '../../domain/values-objects/email/EmailVO';
+import NameVO from '../../domain/values-objects/name/NameVO';
+import PasswordVO from '../../domain/values-objects/password/PassworVO';
+import PhoneNumberVO from '../../domain/values-objects/phonumber/PhoneNumberVO';
+import UsernameVO from '../../domain/values-objects/username/UsernameVO';
 import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
