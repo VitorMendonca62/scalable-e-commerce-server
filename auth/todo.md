@@ -17,13 +17,7 @@
     expect(errors[0].constraints).toHaveProperty('isStrongPassword');
   });
 
-  [] Colocar um if para retornar string personalizadas: // Na validacao     return (
-      isNotEmpty(value) &&
-      isString(value) &&
-      value.length >= this.MIN_LENGTH &&
-      isStrongPasswordValid
-    );
-  }
+  [X] Colocar um if para retornar string personalizadas em validators
 
 [X] Criar classes para os VOS, uma pra const, validacao e oturos
 [] Criar Controllers de catch
