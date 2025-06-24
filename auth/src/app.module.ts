@@ -18,9 +18,14 @@ import { EnvironmentVariables } from '@config/environment/env.validation';
         return {
           uri: configService.get<string>('MONGO_DB_URL'),
           onConnectionCreate(connection) {
-            new Logger('MongoDB').debug(
-              `MongoDB running in ${configService.get<string>('MONGO_DB_URL')}`,
-            );
+            connection
+              .asPromise()
+              .then(() =>
+                new Logger('MongoDB').debug(
+                  `MongoDB running in ${configService.get<string>('MONGO_DB_URL')}`,
+                ),
+              )
+              .catch((error) => new Logger('MongoDB').error(error));
 
             return connection;
           },

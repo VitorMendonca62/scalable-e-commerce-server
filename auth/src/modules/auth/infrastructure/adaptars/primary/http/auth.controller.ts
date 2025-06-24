@@ -13,11 +13,12 @@ import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
+import { TokenInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
-} from '@modules/auth/domain/types/httpResponse';
-import { TokenInvalid } from '@modules/auth/domain/types/errors/errors';
+  HttpResponseOutbound,
+} from '@modules/auth/domain/ports/primary/http/sucess.port';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -33,7 +34,7 @@ export class AuthController {
   @Post('/register')
   @HttpCode(201)
   @ApiCreateUser()
-  async create(@Body() dto: CreateUserDTO) {
+  async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
     await this.createUserUseCase.execute(
       this.userMapper.createDTOForEntity(dto),
     );
@@ -57,7 +58,7 @@ export class AuthController {
   @Post('/login')
   @HttpCode(201)
   @ApiLoginUser()
-  async login(@Body() dto: LoginUserDTO) {
+  async login(@Body() dto: LoginUserDTO): Promise<HttpResponseOutbound> {
     return new HttpCreatedResponse(
       'Usuário realizou login com sucesso',
       await this.createSessionUseCase.execute(
@@ -69,7 +70,9 @@ export class AuthController {
   @Get('/token')
   @HttpCode(200)
   @ApiGetAccessToken()
-  async getAccessToken(@Headers('authorization') refreshToken: string) {
+  async getAccessToken(
+    @Headers('authorization') refreshToken: string,
+  ): Promise<HttpResponseOutbound> {
     if (!refreshToken) {
       throw new TokenInvalid();
     }

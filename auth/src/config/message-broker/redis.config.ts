@@ -25,6 +25,7 @@ export const addRedisClient = async (
 
   await app
     .startAllMicroservices()
-    .then(() => logger.debug('Redis client is listening'));
+    .then(() => logger.debug('Redis client is listening'))
+    .catch((error) => logger.error(error));
   return app;
 };

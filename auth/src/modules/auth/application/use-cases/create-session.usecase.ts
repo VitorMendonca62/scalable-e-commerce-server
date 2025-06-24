@@ -6,7 +6,7 @@ import {
   TokenService,
 } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
+import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 
 @Injectable()
 export class CreateSessionUseCase implements CreateSessionPort {

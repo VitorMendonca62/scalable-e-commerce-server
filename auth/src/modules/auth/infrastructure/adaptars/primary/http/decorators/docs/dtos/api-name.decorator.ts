@@ -9,6 +9,7 @@ export function ApiName(required: boolean) {
       example: NameConstants.EXEMPLE,
       required: required,
       minLength: NameConstants.MIN_LENGTH,
+      type: required ? 'string' : 'null',
     }),
   );
 }

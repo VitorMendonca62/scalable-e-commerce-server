@@ -9,7 +9,7 @@ import {
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateSessionUseCase } from './create-session.usecase';
-import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
+import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;

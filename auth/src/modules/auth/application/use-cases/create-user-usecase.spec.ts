@@ -4,7 +4,7 @@ import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
-import { FieldlAlreadyExists } from '@modules/auth/domain/types/errors/errors';
+import { FieldlAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 

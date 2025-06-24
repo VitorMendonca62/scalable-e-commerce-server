@@ -3,7 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { User } from '@modules/auth/domain/entities/user.entity';
-import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
+import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
 
 @Injectable()

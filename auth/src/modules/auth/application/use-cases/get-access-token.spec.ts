@@ -6,7 +6,7 @@ import { UserRepository } from '@modules/auth/domain/ports/secondary/user-reposi
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
-import { WrongCredentials } from '@modules/auth/domain/types/errors/errors';
+import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;

@@ -5,7 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { addRedisClient } from './config/message-broker/redis.config';
 import { Logger, ValidationPipe } from '@nestjs/common';
-import { HttpFieldInvalid } from '@modules/auth/domain/types/errors/errors';
+import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from './config/environment/env.validation';
 
 async function bootstrap() {
@@ -32,7 +32,7 @@ async function bootstrap() {
       transform: false,
       exceptionFactory: (errors) => {
         if (errors.length == 0) {
-          return new HttpFieldInvalid('Erro desconhecido', 'Erro');
+          return new FieldInvalid('Erro desconhecido', 'Erro');
         }
 
         const firstError = errors[0];
@@ -40,7 +40,7 @@ async function bootstrap() {
           ? Object.values(firstError.constraints)[0]
           : 'Erro desconhecido';
 
-        return new HttpFieldInvalid(
+        return new FieldInvalid(
           firstConstraintMessage,
           firstError.property,
         );

@@ -9,6 +9,7 @@ export function ApiPassword(required: boolean) {
       example: PasswordConstants.EXEMPLE,
       required: required,
       minLength: PasswordConstants.MIN_LENGTH,
+      type: required ? 'string' : 'null',
     }),
   );
 }

@@ -1,4 +1,5 @@
-import { applyDecorators } from '@nestjs/common';
+import { HttpCreatedResponse } from '@modules/auth/domain/ports/primary/http/sucess.port';
+import { applyDecorators /* HttpStatus */ } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -12,10 +13,32 @@ export function ApiCreateUser() {
     }),
     ApiCreatedResponse({
       description: 'Foi possivel criar usuário',
+      type: HttpCreatedResponse,
     }),
     ApiBadRequestResponse({
-      description:
-        'Algum campo está inválido ou o sistema encontrou outro usuário com o mesmo username ou email',
+      description: 'Erro de validação ou usuário já existente',
+      content: {
+        'application/json': {
+          examples: {
+            ValidationError: {
+              summary: 'Erro de validação',
+              value: {
+                statusCode: 400,
+                data: 'email',
+                message: 'O email deve ser válido',
+              },
+            },
+            UserAlreadyExists: {
+              summary: 'Usuário já existe',
+              value: {
+                statusCode: 400,
+                data: 'email',
+                message: 'Esse email já está sendo utilizado. Tente outro',
+              },
+            },
+          },
+        },
+      },
     }),
   );
 }

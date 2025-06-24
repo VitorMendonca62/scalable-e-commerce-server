@@ -23,18 +23,18 @@ import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { v4 } from 'uuid';
 import {
-  HttpCreatedResponse,
-  HttpOKResponse,
-} from '@modules/auth/domain/types/httpResponse';
-import {
-  HttpFieldInvalid,
+  FieldInvalid,
   TokenInvalid,
-} from '@modules/auth/domain/types/errors/errors';
+} from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
 import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import {
+  HttpCreatedResponse,
+  HttpOKResponse,
+} from '@modules/auth/domain/ports/primary/http/sucess.port';
 
 describe('AuthController', () => {
   let app: INestApplication;
@@ -123,7 +123,7 @@ describe('AuthController', () => {
         transform: false,
         exceptionFactory: (errors) => {
           if (errors.length == 0) {
-            return new HttpFieldInvalid('Erro desconhecido', 'Erro');
+            return new FieldInvalid('Erro desconhecido', 'Erro');
           }
 
           const firstError = errors[0];
@@ -131,10 +131,7 @@ describe('AuthController', () => {
             ? Object.values(firstError.constraints)[0]
             : 'Erro desconhecido';
 
-          return new HttpFieldInvalid(
-            firstConstraintMessage,
-            firstError.property,
-          );
+          return new FieldInvalid(firstConstraintMessage, firstError.property);
         },
       }),
     );
@@ -209,7 +206,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
+        new FieldInvalid(
           UsernameConstants.ERROR_REQUIRED,
           'username',
         ).getResponse(),
@@ -227,10 +224,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
-          EmailConstants.ERROR_INVALID,
-          'email',
-        ).getResponse(),
+        new FieldInvalid(EmailConstants.ERROR_INVALID, 'email').getResponse(),
       );
     });
 
@@ -245,7 +239,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
+        new FieldInvalid(
           PasswordConstants.ERROR_WEAK_PASSWORD,
           'password',
         ).getResponse(),
@@ -265,7 +259,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
+        new FieldInvalid(
           UsernameConstants.ERROR_MIN_LENGTH,
           'username',
         ).getResponse(),
@@ -322,10 +316,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
-          EmailConstants.ERROR_REQUIRED,
-          'email',
-        ).getResponse(),
+        new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email').getResponse(),
       );
     });
 
@@ -340,10 +331,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
-          EmailConstants.ERROR_INVALID,
-          'email',
-        ).getResponse(),
+        new FieldInvalid(EmailConstants.ERROR_INVALID, 'email').getResponse(),
       );
     });
 
@@ -358,7 +346,7 @@ describe('AuthController', () => {
         .expect(400);
 
       expect(response.body).toEqual(
-        new HttpFieldInvalid(
+        new FieldInvalid(
           PasswordConstants.ERROR_MIN_LENGTH,
           'password',
         ).getResponse(),

@@ -1,15 +1,15 @@
 import { isEmail, isNotEmpty } from 'class-validator';
 import { EmailConstants } from './EmailConstants';
-import { HttpFieldInvalid } from '../../types/errors/errors';
+import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class EmailValidator {
   static isValid(value: string) {
     if (!isNotEmpty(value)) {
-      throw new HttpFieldInvalid(EmailConstants.ERROR_REQUIRED, 'email');
+      throw new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email');
     }
 
     if (!isEmail(value)) {
-      throw new HttpFieldInvalid(EmailConstants.ERROR_INVALID, 'email');
+      throw new FieldInvalid(EmailConstants.ERROR_INVALID, 'email');
     }
   }
 }
