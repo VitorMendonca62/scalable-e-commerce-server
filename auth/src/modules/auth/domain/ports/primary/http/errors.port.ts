@@ -46,7 +46,7 @@ export class FieldInvalid extends HttpError {
 }
 
 export class WrongCredentials extends HttpError {
-  @ApiStatusCode(HttpStatus.BAD_REQUEST)
+  @ApiStatusCode(HttpStatus.FORBIDDEN)
   statusCode: number;
 
   @ApiMessage('Suas credenciais estão incorretas.')
@@ -59,8 +59,8 @@ export class WrongCredentials extends HttpError {
     message: string = 'Suas credenciais estão incorretas.',
     data: any = {},
   ) {
-    super(message, HttpStatus.BAD_REQUEST, data);
-    this.statusCode = HttpStatus.BAD_REQUEST;
+    super(message, HttpStatus.FORBIDDEN, data);
+    this.statusCode = HttpStatus.FORBIDDEN;
     this.message = message;
     this.data = data;
   }
@@ -72,7 +72,7 @@ export class FieldAlreadyExists extends HttpError {
 
   @ApiMessage('Valor já existe de outro usuário')
   message: string;
-
+  Pf;
   @ApiData('username')
   data: any;
 
