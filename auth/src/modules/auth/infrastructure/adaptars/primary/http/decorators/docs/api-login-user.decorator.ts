@@ -1,9 +1,10 @@
-import { HttpCreatedResponse } from '@modules/auth/domain/ports/primary/http/sucess.port';
-import { applyDecorators } from '@nestjs/common';
+import { HttpResponseOutbound } from '@modules/auth/domain/ports/primary/http/sucess.port';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOperation,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 export function ApiLoginUser() {
@@ -13,36 +14,33 @@ export function ApiLoginUser() {
     }),
     ApiCreatedResponse({
       description: 'Foi possivel realizar o login usuário',
-      type: HttpCreatedResponse,
-    }),
-    ApiBadRequestResponse({
-      description:
-        'Algum campo está inválido ou a senha ou email estão incorretos',
-    }),
-    ApiBadRequestResponse({
-      description: 'Erro de validação ou usuário já existente',
-      content: {
-        'application/json': {
-          examples: {
-            ValidationError: {
-              summary: 'Erro de validação',
-              value: {
-                statusCode: 400,
-                data: 'email',
-                message: 'O email deve ser válido',
-              },
-            },
-            UserAlreadyExists: {
-              summary: 'Usuário já existe',
-              value: {
-                statusCode: 400,
-                data: 'email',
-                message: 'Esse email já está sendo utilizado. Tente outro',
-              },
-            },
-          },
+      example: {
+        statusCode: 201,
+        message: 'Usuário realizou login com sucesso',
+        data: {
+          accessToken: `Bearer <accessToken>`,
+          refreshToken: `Bearer <refreshToken>`,
+          type: 'Bearer',
         },
       },
+      type: HttpResponseOutbound,
+    }),
+    ApiBadRequestResponse({
+      description: 'Algum campo está inválido',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: 'email',
+        message: 'O email deve ser válido',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiUnauthorizedResponse({
+      description: 'As credenciais estão incorretas',
+      example: {
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      },
+      type: HttpResponseOutbound,
     }),
   );
 }

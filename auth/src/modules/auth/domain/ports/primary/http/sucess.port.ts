@@ -20,30 +20,12 @@ export abstract class HttpResponseOutbound {
   }
 }
 export class HttpOKResponse extends HttpResponseOutbound {
-  @ApiStatusCode(HttpStatus.OK)
-  statusCode: number;
-
-  @ApiMessage('Tudo ocorreu como planejado')
-  message: string;
-
-  @ApiData('Dados retornados na resposta')
-  data: any;
-
   constructor(message: string = 'OK!', data: any = undefined) {
     super(HttpStatus.OK, message, data);
   }
 }
 
 export class HttpCreatedResponse extends HttpResponseOutbound {
-  @ApiStatusCode(HttpStatus.CREATED)
-  statusCode: number;
-
-  @ApiMessage('Item foi criado como planejado')
-  message: string;
-
-  @ApiData('Dados retornados na resposta')
-  data: any;
-
   constructor(message: string = 'Criado!', data: any = undefined) {
     super(HttpStatus.CREATED, message, data);
   }

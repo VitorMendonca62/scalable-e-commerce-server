@@ -13,7 +13,7 @@ import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
-import { TokenInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
@@ -74,10 +74,10 @@ export class AuthController {
     @Headers('authorization') refreshToken: string,
   ): Promise<HttpResponseOutbound> {
     if (!refreshToken) {
-      throw new TokenInvalid();
+      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
     }
     if (refreshToken.split(' ')[0] != 'Bearer') {
-      throw new TokenInvalid();
+      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
     }
 
     refreshToken = refreshToken.split(' ')[1];

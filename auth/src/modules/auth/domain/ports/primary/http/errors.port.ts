@@ -1,8 +1,5 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { HttpResponseOutbound } from './sucess.port';
-import { ApiData } from '@modules/auth/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-data.decorator';
-import { ApiMessage } from '@modules/auth/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-message.decorator';
-import { ApiStatusCode } from '@modules/auth/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-status-code.decorator';
 
 class HttpError extends HttpException {
   data: any;
@@ -28,15 +25,6 @@ class HttpError extends HttpException {
 }
 
 export class FieldInvalid extends HttpError {
-  @ApiStatusCode(HttpStatus.BAD_REQUEST)
-  statusCode: number;
-
-  @ApiMessage('Há um campo inválido.')
-  message: string;
-
-  @ApiData('email')
-  data: any;
-
   constructor(message: string = 'Há um campo inválido.', field: string) {
     super(message, HttpStatus.BAD_REQUEST, field);
     this.statusCode = HttpStatus.BAD_REQUEST;
@@ -46,60 +34,24 @@ export class FieldInvalid extends HttpError {
 }
 
 export class WrongCredentials extends HttpError {
-  @ApiStatusCode(HttpStatus.FORBIDDEN)
-  statusCode: number;
-
-  @ApiMessage('Suas credenciais estão incorretas.')
-  message: string;
-
-  @ApiData({})
-  data: any;
-
   constructor(
-    message: string = 'Suas credenciais estão incorretas.',
+    message: string = 'Suas credenciais estão incorretas. Tente novamente',
     data: any = {},
   ) {
-    super(message, HttpStatus.FORBIDDEN, data);
-    this.statusCode = HttpStatus.FORBIDDEN;
+    super(message, HttpStatus.UNAUTHORIZED, data);
+    this.statusCode = HttpStatus.UNAUTHORIZED;
     this.message = message;
     this.data = data;
   }
 }
 
 export class FieldAlreadyExists extends HttpError {
-  @ApiStatusCode(HttpStatus.BAD_REQUEST)
-  statusCode: number;
-
-  @ApiMessage('Valor já existe de outro usuário')
-  message: string;
-  Pf;
-  @ApiData('username')
-  data: any;
-
   constructor(
     message: string = 'Valor já existe de outro usuário',
     data: string,
   ) {
-    super(message, HttpStatus.BAD_REQUEST, data);
-    this.statusCode = HttpStatus.BAD_REQUEST;
-    this.message = message;
-    this.data = data;
-  }
-}
-
-export class TokenInvalid extends HttpError {
-  @ApiStatusCode(HttpStatus.FORBIDDEN)
-  statusCode: number;
-
-  @ApiMessage('Você não tem permissão')
-  message: string;
-
-  @ApiData({})
-  data: any;
-
-  constructor(message: string = 'Você não tem permissão', data: any = {}) {
-    super(message, HttpStatus.FORBIDDEN, data);
-    this.statusCode = HttpStatus.FORBIDDEN;
+    super(message, HttpStatus.CONFLICT, data);
+    this.statusCode = HttpStatus.CONFLICT;
     this.message = message;
     this.data = data;
   }

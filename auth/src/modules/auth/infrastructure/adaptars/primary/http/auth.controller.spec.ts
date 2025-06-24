@@ -22,10 +22,7 @@ import {
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { v4 } from 'uuid';
-import {
-  FieldInvalid,
-  TokenInvalid,
-} from '@modules/auth/domain/ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
@@ -382,15 +379,15 @@ describe('AuthController', () => {
       );
     });
 
-    it('should throw forbidden exeception when no have token', async () => {
+    it('should throw field invalid exeception when no have token', async () => {
       await expect(controller.getAccessToken(undefined)).rejects.toThrow(
-        new TokenInvalid('Você não tem permissão'),
+        new FieldInvalid('Você não tem permissão', 'refresh_token'),
       );
     });
 
-    it('should throw forbidden exeception when token is no have Bearer', async () => {
+    it('should throw field invalid exeception when token is no have Bearer', async () => {
       await expect(controller.getAccessToken('undefined')).rejects.toThrow(
-        new TokenInvalid('Você não tem permissão'),
+        new FieldInvalid('Você não tem permissão', 'refresh_token'),
       );
     });
   });

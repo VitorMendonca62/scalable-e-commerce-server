@@ -19,7 +19,7 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
     const user = await this.userRepository.findOne({ _id: id });
 
     if (!user) {
-      throw new WrongCredentials('Token está inválido');
+      throw new WrongCredentials('Token inválido ou expirado');
     }
 
     return this.tokenService.generateAccessToken(user);

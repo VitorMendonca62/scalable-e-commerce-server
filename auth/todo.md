@@ -24,3 +24,4 @@
 [] Implementar Guards no controller
 [X] Remover o findEmail, findUsername e colocar o findOne
 [] Criar um adpter para senha
+[] Criar um decorator para verificar se refreshToken está válido

@@ -75,7 +75,7 @@ describe('GetAccessTokenUseCase', () => {
         .mockImplementation(async () => undefined);
 
       await expect(useCase.execute(refreshToken)).rejects.toThrow(
-        new WrongCredentials('Token está inválido'),
+        new WrongCredentials('Token inválido ou expirado'),
       );
     });
   });
