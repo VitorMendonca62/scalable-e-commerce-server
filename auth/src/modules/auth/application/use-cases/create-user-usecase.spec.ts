@@ -4,7 +4,7 @@ import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
-import { FieldlAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { FieldAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
@@ -67,7 +67,7 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => user);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS, 'email'),
+        new FieldAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS, 'email'),
       );
     });
 
@@ -78,7 +78,7 @@ describe('CreateUserUseCase', () => {
         .mockImplementationOnce(async () => undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
-        new FieldlAlreadyExists(
+        new FieldAlreadyExists(
           UsernameConstants.ERROR_ALREADY_EXISTS,
           'username',
         ),

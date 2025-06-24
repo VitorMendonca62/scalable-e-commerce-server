@@ -66,7 +66,7 @@ export class WrongCredentials extends HttpError {
   }
 }
 
-export class FieldlAlreadyExists extends HttpError {
+export class FieldAlreadyExists extends HttpError {
   @ApiStatusCode(HttpStatus.BAD_REQUEST)
   statusCode: number;
 

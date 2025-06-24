@@ -1,3 +1,4 @@
+import { HttpOKResponse } from '@modules/auth/domain/ports/primary/http/sucess.port';
 import { applyDecorators } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -13,6 +14,7 @@ export function ApiGetAccessToken() {
     }),
     ApiOkResponse({
       description: 'Retorna o novo token de acesso',
+      type: HttpOKResponse,
     }),
     ApiBadRequestResponse({
       description: 'O token está expirado ou é inválido',
