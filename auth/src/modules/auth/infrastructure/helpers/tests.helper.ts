@@ -8,13 +8,13 @@ import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
 import PasswordVO from '@modules/auth/domain/values-objects/password/PassworVO';
 import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
 import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
-import { UserJSON } from '@modules/auth/domain/entities/user-json.entity';
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phonumber/PhoneNumberVO';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
 import NameVO from '@modules/auth/domain/values-objects/name/NameVO';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 
 interface MockUser extends CreateUserDTO {
   _id?: string;
@@ -81,10 +81,9 @@ export const mockUserList = () => {
   ];
 };
 
-export const userLikeJSON = (
-  overrides: Partial<CreateUserDTO> = {},
-): UserJSON => {
+export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
   return {
+    _id: '2',
     name: NameConstants.EXEMPLE,
     username: UsernameConstants.EXEMPLE,
     email: EmailConstants.EXEMPLE,

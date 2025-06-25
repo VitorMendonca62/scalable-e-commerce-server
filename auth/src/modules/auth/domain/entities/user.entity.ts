@@ -1,3 +1,6 @@
+import { v4 } from 'uuid';
+
+// Enums
 import { defaultRoles, Permissions } from '../types/permissions';
 
 // Values Objects
@@ -6,43 +9,16 @@ import PasswordVO from '../values-objects/password/PassworVO';
 import PhoneNumberVO from '../values-objects/phonumber/PhoneNumberVO';
 import NameVO from '../values-objects/name/NameVO';
 import UsernameVO from '../values-objects/username/UsernameVO';
-import { v4 } from 'uuid';
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type UserDocument = User & Document;
-
-@Schema({ timestamps: true, collection: 'users' })
 export class User {
-  @Prop({ type: String, default: v4() })
   _id?: string;
-
-  @Prop({ required: true, type: String })
   name: NameVO;
-
-  @Prop({ required: true, type: String })
   username: UsernameVO;
-
-  @Prop({ required: true, type: String })
   email: EmailVO;
-
-  @Prop({ required: true, type: String })
   password: PasswordVO;
-
-  @Prop({ required: true, type: String })
   phonenumber: PhoneNumberVO;
-
-  @Prop({
-    required: true,
-    type: [String],
-    enum: Permissions,
-    default: () => defaultRoles,
-  })
   roles: Permissions[];
-
-  @Prop({ required: true, type: Date, default: Date.now })
   createdAt: Date;
-
-  @Prop({ required: true, type: Date, default: Date.now })
   updatedAt: Date;
 
   constructor(props: {
@@ -67,5 +43,3 @@ export class User {
     this.updatedAt = props.updatedAt ?? new Date();
   }
 }
-
-export const UserSchema = SchemaFactory.createForClass(User);

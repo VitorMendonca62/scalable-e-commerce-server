@@ -1,6 +1,6 @@
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import { mockUser } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
@@ -23,7 +23,7 @@ describe('InMemoryUserRepository', () => {
   });
 
   describe('create', () => {
-    const user = mockUser();
+    const user = userLikeJSON();
 
     it('should create user', async () => {
       const response = await repository.create(user);
@@ -35,7 +35,7 @@ describe('InMemoryUserRepository', () => {
       const usersToCreate = [];
 
       for (let i = 0; i <= 10; i++) {
-        usersToCreate.push(mockUser());
+        usersToCreate.push(userLikeJSON());
       }
 
       for (const user of usersToCreate) {
@@ -45,16 +45,16 @@ describe('InMemoryUserRepository', () => {
   });
 
   describe('findOne', () => {
-    const user = mockUser();
+    const user = userLikeJSON();
 
     beforeEach(() => {
       repository.users = [];
       repository.users.push(user);
       repository.users.push(
-        mockUser({ email: 'teste@teste.com', username: 'teste13' }),
+        userLikeJSON({ email: 'teste@teste.com', username: 'teste13' }),
       );
       repository.users.push(
-        mockUser({ email: 'teste1@teste.com', username: 'teste134' }),
+        userLikeJSON({ email: 'teste1@teste.com', username: 'teste134' }),
       );
     });
 

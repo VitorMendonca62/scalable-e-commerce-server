@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
-import { User } from '@modules/auth/domain/entities/user.entity';
 import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
+import { UserEntity } from '../database/entities/user.entity';
 
 @Injectable()
 export class JwtTokenService implements TokenService {
@@ -24,7 +24,7 @@ export class JwtTokenService implements TokenService {
     return jwt.sign(playload, this.JWT_SECRET, { expiresIn: '7D' });
   }
 
-  generateAccessToken(user: User): string {
+  generateAccessToken(user: UserEntity): string {
     const playload = {
       sub: user._id,
       email: user.email,

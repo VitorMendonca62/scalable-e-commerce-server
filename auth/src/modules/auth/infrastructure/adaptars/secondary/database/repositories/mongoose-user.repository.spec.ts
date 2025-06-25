@@ -1,15 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseUserRepository } from './mongoose-user.repository';
-import { User } from '@modules/auth/domain/entities/user.entity';
-import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
-import {
-  mockUser,
-  userLikeJSON,
-} from '@modules/auth/infrastructure/helpers/tests.helper';
+import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { getModelToken } from '@nestjs/mongoose';
-import { UserJSON } from '@modules/auth/domain/entities/user-json.entity';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { UserEntity } from '../entities/user.entity';
 
 interface UserModelType {
   prototype: {
@@ -17,7 +12,7 @@ interface UserModelType {
   };
   findOne: jest.Mock<
     {
-      exec: jest.Mock<Promise<UserJSON | undefined>>;
+      exec: jest.Mock<Promise<UserEntity | undefined>>;
     },
     [Record<string, any>]
   >;
@@ -29,7 +24,6 @@ type MockUserModel = UserModelType & {
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
-  let userMapper: UserMapper;
 
   let userModel: jest.Mock<UserModelType> & MockUserModel;
 
@@ -54,37 +48,28 @@ describe('MongooseUserRepository', () => {
       imports: [],
       providers: [
         {
-          provide: getModelToken(User.name),
+          provide: getModelToken(UserEntity.name),
           useValue: userModel,
         },
-        UserMapper,
         MongooseUserRepository,
       ],
     }).compile();
 
     repository = module.get<MongooseUserRepository>(MongooseUserRepository);
-    userMapper = module.get<UserMapper>(UserMapper);
   });
 
   it('should be defined', () => {
     expect(repository).toBeDefined();
-    expect(userMapper).toBeDefined();
   });
 
   describe('create', () => {
-    const user = mockUser();
-    beforeEach(() => {
-      jest
-        .spyOn(userMapper, 'userToJSON')
-        .mockImplementation(() => userLikeJSON());
-    });
+    const user = userLikeJSON();
 
     it('should create user', async () => {
       const response = await repository.create(user);
 
       expect(response).toBeUndefined();
-      expect(userMapper.userToJSON).toHaveBeenCalledWith(user);
-      expect(userModel).toHaveBeenCalledWith(userMapper.userToJSON(user));
+      expect(userModel).toHaveBeenCalledWith(user);
 
       expect(mockedSavePrototype).toHaveBeenCalled();
     });
@@ -93,13 +78,12 @@ describe('MongooseUserRepository', () => {
       const usersToCreate = [];
 
       for (let i = 0; i <= 10; i++) {
-        usersToCreate.push(mockUser());
+        usersToCreate.push(userLikeJSON());
       }
 
       for (const user of usersToCreate) {
         repository.create(user);
-        expect(userModel).toHaveBeenCalledWith(userMapper.userToJSON(user));
-
+        expect(userModel).toHaveBeenCalledWith(user);
         expect(mockedSavePrototype).toHaveBeenCalled();
       }
     });

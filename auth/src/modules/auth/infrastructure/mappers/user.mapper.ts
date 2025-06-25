@@ -10,6 +10,7 @@ import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
 import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
+import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 
 @Injectable()
 export class UserMapper {
@@ -27,8 +28,9 @@ export class UserMapper {
     });
   }
 
-  userToJSON(user: User) {
+  userToJSON(user: User): UserEntity {
     return {
+      _id: user._id,
       name: user.name.getValue(),
       username: user.username.getValue(),
       email: user.email.getValue(),
@@ -38,6 +40,20 @@ export class UserMapper {
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
+  }
+
+  jsonToUser(json: UserEntity): User {
+    return new User({
+      email: new EmailVO(json.email),
+      name: new NameVO(json.name, false),
+      password: new PasswordVO(json.password, true),
+      phonenumber: new PhoneNumberVO(json.phonenumber, false),
+      roles: json.roles,
+      username: new UsernameVO(json.username, false),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      _id: json._id,
+    });
   }
 
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {

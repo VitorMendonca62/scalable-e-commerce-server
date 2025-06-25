@@ -1,6 +1,8 @@
-import { User } from '@auth/domain/entities/user.entity';
+import { UserEntity } from '@modules/auth/infrastructure/adaptars/secondary/database/entities/user.entity';
 
 export abstract class UserRepository {
-  abstract create(user: User): Promise<undefined>;
-  abstract findOne(options: Record<string, string>): Promise<User | undefined>;
+  abstract create(user: UserEntity): Promise<undefined>;
+  abstract findOne(
+    options: Record<string, string>,
+  ): Promise<UserEntity | undefined>;
 }

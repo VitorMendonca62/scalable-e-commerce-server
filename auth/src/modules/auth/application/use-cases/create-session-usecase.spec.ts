@@ -1,3 +1,5 @@
+// TODO: Adicionar chamadas ao userMapper
+
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
@@ -5,17 +7,20 @@ import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary
 import {
   mockUser,
   mockLoginUser,
+  userLikeJSON,
 } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateSessionUseCase } from './create-session.usecase';
 import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
 
   let userRepository: UserRepository;
   let tokenService: TokenService;
+  let userMapper: UserMapper;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -30,35 +35,41 @@ describe('CreateSessionUseCase', () => {
           provide: TokenService,
           useClass: JwtTokenService,
         },
+        UserMapper,
       ],
     }).compile();
 
     useCase = module.get<CreateSessionUseCase>(CreateSessionUseCase);
     userRepository = module.get<UserRepository>(UserRepository);
     tokenService = module.get<TokenService>(TokenService);
+    userMapper = module.get<UserMapper>(UserMapper);
   });
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
     expect(tokenService).toBeDefined();
+    expect(userMapper).toBeDefined();
   });
 
   describe('execute', () => {
     const user = mockUser({ _id: 'USERID' });
+    const userEntity = userLikeJSON({ _id: 'USERID' });
     const userLogin = mockLoginUser();
 
     beforeEach(() => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => user);
+        .mockImplementation(async () => userEntity);
 
-      jest
-        .spyOn(tokenService, 'generateRefreshToken')
-        .mockImplementation(() => 'TOKEN');
+      jest.spyOn(userMapper, 'jsonToUser').mockImplementation(() => user);
 
       jest
         .spyOn(tokenService, 'generateAccessToken')
+        .mockImplementation(() => 'TOKEN');
+
+      jest
+        .spyOn(tokenService, 'generateRefreshToken')
         .mockImplementation(() => 'TOKEN');
 
       jest
@@ -75,7 +86,7 @@ describe('CreateSessionUseCase', () => {
       expect(user.password.comparePassword).toHaveBeenCalledWith(
         userLogin.password.getValue(),
       );
-      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
+      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(userEntity);
 
       expect(tokenService.generateRefreshToken).toHaveBeenCalledWith('USERID');
       expect(response).toEqual({

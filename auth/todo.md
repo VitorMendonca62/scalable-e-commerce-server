@@ -7,7 +7,7 @@
 [] Id privado compartilhado entre servicos
 [X] Remover dependencia da entidade em DTO
 [X] ADicionar objeto de erros em domain
-[] Ver isso:   it('should fail if password is too weak', async () => {
+[X] Ver isso:   it('should fail if password is too weak', async () => {
     const dto = plainToInstance(CreateUserDto, {
       password: 'abc', // fraca
     });
@@ -24,4 +24,4 @@
 [] Implementar Guards no controller
 [X] Remover o findEmail, findUsername e colocar o findOne
 [] Criar um adpter para senha
-[] Criar um decorator para verificar se refreshToken está válido
+[] Criar um pipe para verificar se refreshToken está válido

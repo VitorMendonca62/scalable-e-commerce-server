@@ -6,15 +6,6 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
 
-  "collectCoverage": true,
-  "collectCoverageFrom": [
-    "src/**/*.ts",
-    "!src/main.ts",
-    "!src/**/*.module.ts",
-    "!src/config/**/*.ts",
-    "!src/**/*.decorator.ts",
-    "!src/**/*.port.ts"
-  ],
   "testEnvironment": "node",
   "clearMocks": true,
   "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],

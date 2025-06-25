@@ -5,14 +5,18 @@ import { UserRepository } from '@modules/auth/domain/ports/secondary/user-reposi
 import { FieldAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 
 @Injectable()
 export class CreateUserUseCase implements CreateUserPort {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly userMapper: UserMapper,
+  ) {}
 
   async execute(user: User): Promise<void> {
     const userExistsWithUsername = await this.userRepository.findOne({
-      username: user.username.getValue(),
+      username: `${user.username}`,
     });
 
     if (userExistsWithUsername) {
@@ -23,7 +27,7 @@ export class CreateUserUseCase implements CreateUserPort {
     }
 
     const userExistsWithEmail = await this.userRepository.findOne({
-      email: user.email.getValue(),
+      email: `${user.email}`,
     });
 
     if (userExistsWithEmail) {
@@ -33,6 +37,6 @@ export class CreateUserUseCase implements CreateUserPort {
       );
     }
 
-    await this.userRepository.create(user);
+    await this.userRepository.create(this.userMapper.userToJSON(user));
   }
 }

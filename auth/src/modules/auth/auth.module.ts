@@ -11,17 +11,22 @@ import { AuthController } from './infrastructure/adaptars/primary/http/auth.cont
 import { RedisService } from './infrastructure/adaptars/secondary/message-broker/pub-sub/redis.service';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { UserMapper } from './infrastructure/mappers/user.mapper';
+import { EnvironmentVariables } from 'src/config/environment/env.validation';
+import {
+  UserEntity,
+  UserSchema,
+} from './infrastructure/adaptars/secondary/database/entities/user.entity';
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from './domain/entities/user.entity';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
-import { EnvironmentVariables } from 'src/config/environment/env.validation';
+
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    MongooseModule.forFeature([{ name: UserEntity.name, schema: UserSchema }]),
     ClientsModule.registerAsync([
       {
         name: 'MESSAGING_CLIENT',
