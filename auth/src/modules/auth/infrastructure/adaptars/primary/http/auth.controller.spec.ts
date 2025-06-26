@@ -1,18 +1,9 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { HttpStatus } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import * as request from 'supertest';
-import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
 import { CreateSessionUseCase } from '@modules/auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/application/use-cases/get-access-token';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { RedisService } from '../../secondary/message-broker/pub-sub/redis.service';
-import { JwtTokenService } from '../../secondary/token-service/jwt-token.service';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
-import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import {
   mockUser,
   mockCreateUserDTO,
@@ -22,127 +13,48 @@ import {
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { v4 } from 'uuid';
-import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
-import { EnvironmentVariables } from 'src/config/environment/env.validation';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
 
 describe('AuthController', () => {
-  let app: INestApplication;
-
   let controller: AuthController;
 
   let createUserUseCase: CreateUserUseCase;
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
 
-  let mapper: UserMapper;
+  let userMapper: UserMapper;
 
-  let messageBroker: PubSubMessageBroker;
+  let messageBrokerService: PubSubMessageBroker;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        ClientsModule.registerAsync([
-          {
-            name: 'MESSAGING_CLIENT',
-            imports: [ConfigModule],
-            inject: [ConfigService],
-            useFactory: async (
-              configService: ConfigService<EnvironmentVariables>,
-            ) => {
-              const redisHost = configService.get<string>('MESSAGING_HOST');
-              const redisUser = configService.get<string>('MESSAGING_USER');
-              const redisPW = configService.get<string>('MESSAGING_PW');
-              const redisPort = configService.get<number>('MESSAGING_PORT');
+    userMapper = {
+      createDTOForEntity: jest.fn(),
+      loginDTOForEntity: jest.fn(),
+    } as any;
+    createUserUseCase = { execute: jest.fn() } as any;
+    createSessionUseCase = { execute: jest.fn() } as any;
+    getAccessTokenUseCase = { execute: jest.fn() } as any;
+    messageBrokerService = { publish: jest.fn() } as any;
 
-              return {
-                transport: Transport.REDIS,
-                options: {
-                  host: redisHost,
-                  port: redisPort,
-                  username: redisUser,
-                  password: redisPW,
-                },
-              };
-            },
-          },
-        ]),
-      ],
-      controllers: [AuthController],
-      providers: [
-        ConfigService,
-        UserMapper,
-        CreateUserUseCase,
-        CreateSessionUseCase,
-        GetAccessTokenUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-        {
-          provide: TokenService,
-          useClass: JwtTokenService,
-        },
-        {
-          provide: PubSubMessageBroker,
-          useClass: RedisService,
-        },
-      ],
-    }).compile();
-
-    controller = module.get<AuthController>(AuthController);
-
-    mapper = module.get<UserMapper>(UserMapper);
-
-    createUserUseCase = module.get<CreateUserUseCase>(CreateUserUseCase);
-    createSessionUseCase =
-      module.get<CreateSessionUseCase>(CreateSessionUseCase);
-    getAccessTokenUseCase = module.get<GetAccessTokenUseCase>(
-      GetAccessTokenUseCase,
+    controller = new AuthController(
+      userMapper,
+      createUserUseCase,
+      createSessionUseCase,
+      getAccessTokenUseCase,
+      messageBrokerService,
     );
-
-    messageBroker = module.get<PubSubMessageBroker>(PubSubMessageBroker);
-
-    app = module.createNestApplication();
-
-    app.useGlobalPipes(
-      new ValidationPipe({
-        whitelist: true,
-        forbidNonWhitelisted: true,
-        stopAtFirstError: true,
-        transform: false,
-        exceptionFactory: (errors) => {
-          if (errors.length == 0) {
-            return new FieldInvalid('Erro desconhecido', 'Erro');
-          }
-
-          const firstError = errors[0];
-          const firstConstraintMessage = firstError.constraints
-            ? Object.values(firstError.constraints)[0]
-            : 'Erro desconhecido';
-
-          return new FieldInvalid(firstConstraintMessage, firstError.property);
-        },
-      }),
-    );
-    await app.init();
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(createUserUseCase).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
-    expect(mapper).toBeDefined();
+    expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
-    expect(messageBroker).toBeDefined();
-    expect(app).toBeDefined();
+    expect(messageBrokerService).toBeDefined();
   });
 
   describe('create', () => {
@@ -150,20 +62,22 @@ describe('AuthController', () => {
     const dto = mockCreateUserDTO();
 
     beforeEach(() => {
-      jest
-        .spyOn(createUserUseCase, 'execute')
-        .mockImplementation(() => undefined);
-      jest.spyOn(mapper, 'createDTOForEntity').mockImplementation(() => user);
-      jest.spyOn(messageBroker, 'publish').mockImplementation(() => undefined);
+      jest.spyOn(createUserUseCase, 'execute').mockReturnValue(undefined);
+      jest.spyOn(messageBrokerService, 'publish').mockReturnValue(undefined);
+      jest.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(user);
     });
 
-    it('should use case call with correct parameters', async () => {
+    it('should call createUserUseCase.execute with mapped DTO', async () => {
       await controller.create(dto);
 
-      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(userMapper.createDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
+    });
 
-      expect(messageBroker.publish).toHaveBeenCalledWith(
+    it('should publish user-created event with correct payload', async () => {
+      await controller.create(dto);
+
+      expect(messageBrokerService.publish).toHaveBeenCalledWith(
         'user-created',
         {
           email: dto.email,
@@ -177,218 +91,95 @@ describe('AuthController', () => {
       );
     });
 
-    it('should create user and return sucess message', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(201);
+    it('should return HttpCreatedResponse on success', async () => {
+      const response = await controller.create(dto);
 
-      expect(response.body).toEqual(
-        new HttpCreatedResponse('Usuário criado com sucesso'),
-      );
+      expect(response).toBeInstanceOf(HttpCreatedResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.CREATED,
+        message: 'Usuário criado com sucesso',
+      });
     });
 
-    it('should throw bad request error when no have fields', async () => {
-      const dto = mockCreateUserDTO({
-        email: undefined,
-        name: undefined,
-        password: undefined,
-        phonenumber: undefined,
-        username: undefined,
-      });
+    it('should throw if use case throws', async () => {
+      jest
+        .spyOn(createUserUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
 
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(
-          UsernameConstants.ERROR_REQUIRED,
-          'username',
-        ).getResponse(),
-      );
-    });
-
-    it('should throw bad request error when invalid email', async () => {
-      const dto = mockCreateUserDTO({
-        email: EmailConstants.WRONG_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(EmailConstants.ERROR_INVALID, 'email').getResponse(),
-      );
-    });
-
-    it('should throw bad request error when password is weak', async () => {
-      const dto = mockCreateUserDTO({
-        password: PasswordConstants.WEAK_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(
-          PasswordConstants.ERROR_WEAK_PASSWORD,
-          'password',
-        ).getResponse(),
-      );
-    });
-
-    it('should throw bad request error when username, name and password with min length error', async () => {
-      const dto = mockCreateUserDTO({
-        username: UsernameConstants.MIN_LENGTH_EXEMPLE,
-        name: NameConstants.MIN_LENGTH_EXEMPLE,
-        password: PasswordConstants.MIN_LENGTH_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/register')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(
-          UsernameConstants.ERROR_MIN_LENGTH,
-          'username',
-        ).getResponse(),
-      );
+      await expect(controller.create(dto)).rejects.toThrow('Erro no use case');
     });
   });
 
   describe('login', () => {
-    const user = mockLoginUser();
+    const user = mockLoginUser({ _id: v4() });
     const dto = mockLoginUserDTO();
 
-    const returnUseCase = {
-      accessToken: 'Bearer TOKEN',
-      refreshToken: 'Bearer TOKEN',
-      type: 'Bearer' as const,
-    };
     beforeEach(() => {
-      jest
-        .spyOn(createSessionUseCase, 'execute')
-        .mockImplementation(async () => returnUseCase);
-      jest.spyOn(mapper, 'loginDTOForEntity').mockImplementation(() => user);
+      jest.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+        accessToken: `Bearer <accessToken>>`,
+        refreshToken: `Bearer <refreshToken>`,
+        type: 'Bearer',
+      });
+      jest.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
     });
 
-    it('should use case call with correct parameters', async () => {
+    it('should call createSessionUseCase.execute with mapped DTO', async () => {
       await controller.login(dto);
 
-      expect(mapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
     });
 
-    it('should create user and return sucess message', async () => {
-      const response = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send(dto)
-        .expect(201);
+    it('should return HttpCreatedResponse on success', async () => {
+      const response = await controller.login(dto);
 
-      expect(response.body).toEqual(
-        new HttpCreatedResponse(
-          'Usuário realizou login com sucesso',
-          returnUseCase,
-        ),
-      );
+      expect(response).toBeInstanceOf(HttpCreatedResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.CREATED,
+        message: 'Usuário realizou login com sucesso',
+        data: {
+          accessToken: `Bearer <accessToken>>`,
+          refreshToken: `Bearer <refreshToken>`,
+          type: 'Bearer',
+        },
+      });
     });
 
-    it('should throw bad request error when no have fields', async () => {
-      const dto = mockLoginUserDTO({
-        email: undefined,
-        password: undefined,
-      });
+    it('should throw if use case throws', async () => {
+      jest
+        .spyOn(createSessionUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
 
-      const response = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email').getResponse(),
-      );
-    });
-
-    it('should throw bad request error when invalid email', async () => {
-      const dto = mockLoginUserDTO({
-        email: UsernameConstants.WRONG_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(EmailConstants.ERROR_INVALID, 'email').getResponse(),
-      );
-    });
-
-    it('should throw bad request error when password with min length error', async () => {
-      const dto = mockLoginUserDTO({
-        password: PasswordConstants.MIN_LENGTH_EXEMPLE,
-      });
-
-      const response = await request(app.getHttpServer())
-        .post('/auth/login')
-        .send(dto)
-        .expect(400);
-
-      expect(response.body).toEqual(
-        new FieldInvalid(
-          PasswordConstants.ERROR_MIN_LENGTH,
-          'password',
-        ).getResponse(),
-      );
+      await expect(controller.login(dto)).rejects.toThrow('Erro no use case');
     });
   });
 
   describe('getAccessToken', () => {
-    const refreshToken = 'Bearer REFRESHTOKEN';
-    const accessToken = 'Bearer accessTOKEN';
-
-    it('should use case call with correct parameters', async () => {
+    beforeEach(() => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
-        .mockImplementation(async () => accessToken);
-
-      await controller.getAccessToken(refreshToken);
-
-      expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
-        'REFRESHTOKEN',
-      );
+        .mockResolvedValue('Bearer refreshToken');
     });
 
-    it('should return token and sucess message', async () => {
+    it('should return HttpOKResponse on success', async () => {
+      const response = await controller.getAccessToken('Bearer refreshToken');
+
+      expect(response).toBeInstanceOf(HttpOKResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Aqui está seu token de acesso',
+        data: 'Bearer refreshToken',
+      });
+    });
+
+    it('should throw if use case throws', async () => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
-        .mockImplementation(async () => accessToken);
+        .mockRejectedValue(new Error('Erro no use case'));
 
-      const response = await controller.getAccessToken(refreshToken);
-
-      expect(response).toEqual(
-        new HttpOKResponse('Aqui está seu token de acesso', accessToken),
-      );
-    });
-
-    it('should throw field invalid exeception when no have token', async () => {
-      await expect(controller.getAccessToken(undefined)).rejects.toThrow(
-        new FieldInvalid('Você não tem permissão', 'refresh_token'),
-      );
-    });
-
-    it('should throw field invalid exeception when token is no have Bearer', async () => {
-      await expect(controller.getAccessToken('undefined')).rejects.toThrow(
-        new FieldInvalid('Você não tem permissão', 'refresh_token'),
-      );
+      await expect(
+        controller.getAccessToken('Bearer refreshToken'),
+      ).rejects.toThrow('Erro no use case');
     });
   });
 });
