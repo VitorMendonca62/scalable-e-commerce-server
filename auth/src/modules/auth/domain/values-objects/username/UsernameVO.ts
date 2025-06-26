@@ -5,9 +5,9 @@ import { UsernameValidator } from './UsernameValidator';
 export default class UsernameVO {
   private value: string;
 
-  constructor(value: string, isOptionalClient: boolean) {
-    if (!UsernameValidator.isValid(value, isOptionalClient)) {
-      throw new FieldInvalid(UsernameConstants.ERROR_INVALID, 'username');
+  constructor(value: string, isOptional: boolean) {
+    if (!UsernameValidator.isValid(value, isOptional)) {
+      throw new FieldInvalid(UsernameConstants.ERROR_STRING, 'username');
     }
     this.value = value;
   }

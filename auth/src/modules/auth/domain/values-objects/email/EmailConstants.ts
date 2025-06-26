@@ -7,6 +7,7 @@ export class EmailConstants {
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O email é obrigatório';
+  static readonly ERROR_STRING = 'O email deve ser uma string';
   static readonly ERROR_INVALID = 'O email deve ser válido';
   static readonly ERROR_ALREADY_EXISTS =
     'Esse email já está sendo utilizado. Tente outro';

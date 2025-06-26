@@ -3,8 +3,8 @@ import { PhoneNumberValidator } from './PhoneNumberValidator';
 export default class PhoneNumberVO {
   private value: string;
 
-  constructor(value: string, isOptionalClient: boolean) {
-    PhoneNumberValidator.isValid(value, isOptionalClient);
+  constructor(value: string, isOptional: boolean) {
+    PhoneNumberValidator.isValid(value, isOptional);
     this.value = value;
   }
 

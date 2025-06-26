@@ -3,8 +3,8 @@ import { PhoneNumberConstants } from './PhoneNumberConstants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class PhoneNumberValidator {
-  static isValid(value: string, isOptionalClient: boolean) {
-    if (!isOptionalClient && !isNotEmpty(value)) {
+  static isValid(value: string, isOptional: boolean) {
+    if (!isOptional && !isNotEmpty(value)) {
       throw new FieldInvalid(
         PhoneNumberConstants.ERROR_REQUIRED,
         'phonenumber',

@@ -10,7 +10,7 @@ import { Password } from '../decorators/dtos/password.decorator';
 import { PhoneNumber } from '../decorators/dtos/phonenumber.decorator';
 import { Username } from '../decorators/dtos/username.decorator';
 
-export abstract class CreateUserDTO {
+export class CreateUserDTO {
   @Username(false)
   @ApiUsername(true)
   username: string;
@@ -23,11 +23,19 @@ export abstract class CreateUserDTO {
   @ApiEmail(true)
   email: string;
 
-  @Password(true)
+  @Password(true, false)
   @ApiPassword(true)
   password: string;
 
   @PhoneNumber(false)
   @ApiPhoneNumber(true)
   phonenumber: string;
+
+  constructor(props: CreateUserDTO) {
+    this.username = props.username;
+    this.name = props.name;
+    this.email = props.email;
+    this.password = props.password;
+    this.phonenumber = props.phonenumber;
+  }
 }

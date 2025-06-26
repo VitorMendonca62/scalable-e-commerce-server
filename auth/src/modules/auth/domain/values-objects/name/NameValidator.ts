@@ -3,8 +3,8 @@ import { NameConstants } from './NameConstants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class NameValidator {
-  static isValid(value: string, isOptionalClient: boolean) {
-    if (!isOptionalClient && !isNotEmpty(value)) {
+  static isValid(value: string, isOptional: boolean) {
+    if (!isOptional && !isNotEmpty(value)) {
       throw new FieldInvalid(NameConstants.ERROR_REQUIRED, 'name');
     }
 
@@ -13,7 +13,7 @@ export class NameValidator {
     }
 
     if (!isString(value)) {
-      throw new FieldInvalid(NameConstants.ERROR_INVALID, 'name');
+      throw new FieldInvalid(NameConstants.ERROR_STRING, 'name');
     }
   }
 }

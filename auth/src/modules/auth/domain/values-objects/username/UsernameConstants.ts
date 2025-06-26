@@ -9,7 +9,7 @@ export class UsernameConstants {
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O username é obrigatório';
-  static readonly ERROR_INVALID = 'O username deve ser uma string válida';
+  static readonly ERROR_STRING = 'O username deve ser uma string válida';
   static readonly ERROR_MIN_LENGTH =
     'O username está muito curto. O mínimo são 3 caracteres';
   static readonly ERROR_NO_SPACES = 'O username não pode conter com espaços.';

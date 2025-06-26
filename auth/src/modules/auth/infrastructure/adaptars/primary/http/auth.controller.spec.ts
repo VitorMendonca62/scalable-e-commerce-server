@@ -12,7 +12,6 @@ import {
 } from '@modules/auth/infrastructure/helpers/tests.helper';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
-import { v4 } from 'uuid';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
@@ -58,7 +57,7 @@ describe('AuthController', () => {
   });
 
   describe('create', () => {
-    const user = mockUser({ _id: v4() });
+    const user = mockUser();
     const dto = mockCreateUserDTO();
 
     beforeEach(() => {
@@ -111,7 +110,7 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    const user = mockLoginUser({ _id: v4() });
+    const user = mockLoginUser();
     const dto = mockLoginUserDTO();
 
     beforeEach(() => {

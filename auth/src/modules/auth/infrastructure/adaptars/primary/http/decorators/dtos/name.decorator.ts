@@ -11,7 +11,7 @@ export function Name(isOptional: boolean) {
 
   return applyDecorators(
     IsRequired,
-    IsString({ message: NameConstants.ERROR_INVALID }),
+    IsString({ message: NameConstants.ERROR_STRING }),
     MinLength(NameConstants.MIN_LENGTH, {
       message: NameConstants.ERROR_MIN_LENGTH,
     }),

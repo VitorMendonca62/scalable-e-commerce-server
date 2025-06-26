@@ -5,7 +5,7 @@ import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
-import PasswordVO from '@modules/auth/domain/values-objects/password/PassworVO';
+import PasswordVO from '@modules/auth/domain/values-objects/password/PasswordVO';
 import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
 import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phonumber/PhoneNumberVO';
@@ -25,7 +25,7 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
   const user = new User({
     email: new EmailVO(dto.email),
     name: new NameVO(dto.name, false),
-    password: new PasswordVO(dto.password, true),
+    password: new PasswordVO(dto.password, true, false),
     phonenumber: new PhoneNumberVO(dto.phonenumber, false),
     roles: defaultRoles,
     username: new UsernameVO(dto.username, false),
@@ -45,7 +45,7 @@ export const mockLoginUser = (overrides: Partial<MockUser> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, true),
+    password: new PasswordVO(dto.password, true, false),
     accessedAt: new Date('2025-02-16T17:21:05.370Z'),
   });
 };
@@ -60,6 +60,16 @@ export const mockLoginUserDTO = (
   };
 };
 
+export const mockLoginUserDTOLikeInstance = (
+  overrides: Partial<LoginUserDTO> = {},
+): LoginUserDTO => {
+  return new LoginUserDTO({
+    email: EmailConstants.EXEMPLE,
+    password: PasswordConstants.EXEMPLE,
+    ...overrides,
+  });
+};
+
 export const mockCreateUserDTO = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
@@ -71,6 +81,19 @@ export const mockCreateUserDTO = (
     phonenumber: PhoneNumberConstants.EXEMPLE,
     ...overrides,
   };
+};
+
+export const mockCreateUserDTOLikeInstance = (
+  overrides: Partial<CreateUserDTO> = {},
+): CreateUserDTO => {
+  return new CreateUserDTO({
+    username: UsernameConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    name: NameConstants.EXEMPLE,
+    password: PasswordConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
+    ...overrides,
+  });
 };
 
 export const mockUserList = () => {

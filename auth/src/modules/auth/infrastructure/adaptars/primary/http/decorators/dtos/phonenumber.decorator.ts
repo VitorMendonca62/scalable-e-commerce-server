@@ -18,7 +18,9 @@ export function PhoneNumber(isOptional: boolean) {
   return applyDecorators(
     IsRequired,
     IsString({ message: PhoneNumberConstants.ERROR_STRING }),
-    Length(PhoneNumberConstants.LENGTH, PhoneNumberConstants.LENGTH),
+    Length(PhoneNumberConstants.LENGTH, PhoneNumberConstants.LENGTH, {
+      message: PhoneNumberConstants.ERROR_LENGTH,
+    }),
     IsPhoneNumber('BR', { message: PhoneNumberConstants.ERROR_INVALID }),
   );
 }

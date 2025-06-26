@@ -17,7 +17,7 @@ export function Username(isOptional: boolean | undefined) {
 
   return applyDecorators(
     IsRequiredOrNo,
-    IsString({ message: UsernameConstants.ERROR_INVALID }),
+    IsString({ message: UsernameConstants.ERROR_STRING }),
     MinLength(UsernameConstants.MIN_LENGTH, {
       message: UsernameConstants.ERROR_MIN_LENGTH,
     }),

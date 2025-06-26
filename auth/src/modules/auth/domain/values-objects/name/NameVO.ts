@@ -3,8 +3,8 @@ import { NameValidator } from './NameValidator';
 export default class NameVO {
   private value: string;
 
-  constructor(value: string, isOptionalClient: boolean) {
-    NameValidator.isValid(value, isOptionalClient);
+  constructor(value: string, isOptional: boolean) {
+    NameValidator.isValid(value, isOptional);
     this.value = value;
   }
 

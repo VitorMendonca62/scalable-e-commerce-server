@@ -40,10 +40,7 @@ async function bootstrap() {
           ? Object.values(firstError.constraints)[0]
           : 'Erro desconhecido';
 
-        return new FieldInvalid(
-          firstConstraintMessage,
-          firstError.property,
-        );
+        return new FieldInvalid(firstConstraintMessage, firstError.property);
       },
     }),
   );

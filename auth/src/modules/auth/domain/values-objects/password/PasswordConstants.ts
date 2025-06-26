@@ -10,7 +10,7 @@ export class PasswordConstants {
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'A senha é obrigatória';
-  static readonly ERROR_INVALID = 'A senha deve ser uma string válida';
+  static readonly ERROR_STRING = 'A senha deve ser uma string válida';
   static readonly ERROR_MIN_LENGTH =
     'A senha está está muito curta. O mínimo são 8 caracteres';
   static readonly ERROR_WEAK_PASSWORD = 'A senha está muito fraca';

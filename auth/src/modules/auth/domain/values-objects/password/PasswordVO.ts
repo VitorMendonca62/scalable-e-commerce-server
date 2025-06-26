@@ -4,8 +4,8 @@ import { PasswordValidator } from './PasswordValidator';
 export default class PasswordVO {
   private value: string;
 
-  constructor(value: string, isStrongPassword: boolean) {
-    PasswordValidator.isValid(value, isStrongPassword);
+  constructor(value: string, isStrongPassword: boolean, isOptional: boolean) {
+    PasswordValidator.isValid(value, isStrongPassword, isOptional);
 
     this.value = this.hashPassword(value);
   }

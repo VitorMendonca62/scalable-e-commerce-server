@@ -2,12 +2,13 @@ import { PasswordConstants } from '@modules/auth/domain/values-objects/password/
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
   MinLength,
 } from 'class-validator';
 
-export function Password(isStrongPassword: boolean) {
+export function Password(isStrongPassword: boolean, isOptional: boolean) {
   const decorators = [];
 
   if (isStrongPassword) {
@@ -27,11 +28,15 @@ export function Password(isStrongPassword: boolean) {
     );
   }
 
+  const IsRequired = isOptional
+    ? IsOptional()
+    : IsNotEmpty({
+        message: PasswordConstants.ERROR_REQUIRED,
+      });
+
   return applyDecorators(
-    IsNotEmpty({
-      message: PasswordConstants.ERROR_REQUIRED,
-    }),
-    IsString({ message: PasswordConstants.ERROR_INVALID }),
+    IsRequired,
+    IsString({ message: PasswordConstants.ERROR_STRING }),
     MinLength(PasswordConstants.MIN_LENGTH, {
       message: PasswordConstants.ERROR_MIN_LENGTH,
     }),
