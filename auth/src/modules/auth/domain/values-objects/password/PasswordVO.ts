@@ -1,17 +1,13 @@
 import * as bcrypt from 'bcryptjs';
 import { PasswordValidator } from './PasswordValidator';
+import { ValueObject } from '../ValueObject';
 
-export default class PasswordVO {
-  private value: string;
-
+export default class PasswordVO extends ValueObject {
   constructor(value: string, isStrongPassword: boolean, isOptional: boolean) {
+    super();
     PasswordValidator.isValid(value, isStrongPassword, isOptional);
 
     this.value = this.hashPassword(value);
-  }
-
-  public getValue(): string {
-    return this.value;
   }
 
   // TODO Criar uma classe só para isso

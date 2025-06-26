@@ -1,15 +1,11 @@
+import { ValueObject } from '../ValueObject';
 import { PhoneNumberValidator } from './PhoneNumberValidator';
 
-export default class PhoneNumberVO {
-  private value: string;
-
+export default class PhoneNumberVO extends ValueObject {
   constructor(value: string, isOptional: boolean) {
     PhoneNumberValidator.isValid(value, isOptional);
+    super();
     this.value = value;
-  }
-
-  public getValue(): string {
-    return this.value;
   }
 
   public toLowerCase(): void {
