@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -13,12 +13,13 @@ import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
-import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
   HttpResponseOutbound,
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
+import { AuthorizationToken } from './decorators/getValue/authorization-token.decorator';
+import { BearerTokenValidationPipe } from 'src/common/pipes/BearerTokenValidation.pipe';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -71,17 +72,10 @@ export class AuthController {
   @HttpCode(200)
   @ApiGetAccessToken()
   async getAccessToken(
-    @Headers('authorization') refreshToken: string,
+    @AuthorizationToken('authorization', BearerTokenValidationPipe)
+    refreshToken: string,
   ): Promise<HttpResponseOutbound> {
-    if (!refreshToken) {
-      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
-    }
-    if (refreshToken.split(' ')[0] != 'Bearer') {
-      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
-    }
-
-    refreshToken = refreshToken.split(' ')[1];
-
+    console.log(refreshToken, 'refreshToken');
     return new HttpOKResponse(
       'Aqui está seu token de acesso',
       await this.getAccessTokenUseCase.execute(refreshToken),
