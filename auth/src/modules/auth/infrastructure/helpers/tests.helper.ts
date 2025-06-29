@@ -116,7 +116,7 @@ export const mockUserList = () => {
 
 export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
   return {
-    _id: '2',
+    _id: 'idididididi22332WIDWIDNDAWDA-DAWDADWADAW',
     name: NameConstants.EXEMPLE,
     username: UsernameConstants.EXEMPLE,
     email: EmailConstants.EXEMPLE,

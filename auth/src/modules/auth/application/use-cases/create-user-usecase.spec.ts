@@ -65,7 +65,7 @@ describe('CreateUserUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         username: user.username.getValue(),
       });
-      expect(userRepository.create).toHaveBeenCalledWith(user);
+      expect(userRepository.create).toHaveBeenCalledWith(userEntity);
       expect(response).toBeUndefined();
     });
 
