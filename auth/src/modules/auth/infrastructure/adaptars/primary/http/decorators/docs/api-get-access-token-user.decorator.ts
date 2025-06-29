@@ -2,6 +2,8 @@ import { HttpResponseOutbound } from '@modules/auth/domain/ports/primary/http/su
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiHeader,
   ApiOkResponse,
   ApiOperation,
   ApiUnauthorizedResponse,
@@ -11,6 +13,12 @@ export function ApiGetAccessToken() {
   return applyDecorators(
     ApiOperation({
       summary: 'Pegar token de acesso para acessar a API',
+    }),
+    ApiBearerAuth('refresh_token'),
+    ApiHeader({
+      name: 'authorization',
+      example: 'Bearer <refresh_token>',
+      description: 'Token para ter acesso a rotas seguras',
     }),
     ApiOkResponse({
       description: 'Retorna o novo token de acesso',

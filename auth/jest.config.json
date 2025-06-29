@@ -12,6 +12,7 @@
   "moduleNameMapper": {
     "^@modules/(.*)$": "<rootDir>/src/modules/$1",
     "^@auth/(.*)$": "<rootDir>/src/modules/auth/$1",
-    "^@config/(.*)$": "<rootDir>/src/config/$1"
+    "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^src/(.*)$": "<rootDir>/src/$1"
   }
 }

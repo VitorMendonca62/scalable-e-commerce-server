@@ -3,11 +3,16 @@ import { PasswordValidator } from './PasswordValidator';
 import { ValueObject } from '../ValueObject';
 
 export default class PasswordVO extends ValueObject {
-  constructor(value: string, isStrongPassword: boolean, isOptional: boolean) {
+  constructor(
+    value: string,
+    isStrongPassword: boolean,
+    isOptional: boolean,
+    hasherPassword: boolean,
+  ) {
     super();
     PasswordValidator.isValid(value, isStrongPassword, isOptional);
 
-    this.value = this.hashPassword(value);
+    this.value = hasherPassword ? this.hashPassword(value) : value;
   }
 
   // TODO Criar uma classe só para isso

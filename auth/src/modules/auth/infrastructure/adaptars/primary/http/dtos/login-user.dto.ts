@@ -11,9 +11,4 @@ export class LoginUserDTO {
   @Password(false, false)
   @ApiPassword(true)
   password: string;
-
-  constructor(props: LoginUserDTO) {
-    this.email = props.email;
-    this.password = props.password;
-  }
 }

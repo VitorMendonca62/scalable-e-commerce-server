@@ -30,12 +30,4 @@ export class CreateUserDTO {
   @PhoneNumber(false)
   @ApiPhoneNumber(true)
   phonenumber: string;
-
-  constructor(props: CreateUserDTO) {
-    this.username = props.username;
-    this.name = props.name;
-    this.email = props.email;
-    this.password = props.password;
-    this.phonenumber = props.phonenumber;
-  }
 }

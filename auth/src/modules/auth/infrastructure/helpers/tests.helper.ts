@@ -25,7 +25,7 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
   const user = new User({
     email: new EmailVO(dto.email),
     name: new NameVO(dto.name, false),
-    password: new PasswordVO(dto.password, true, false),
+    password: new PasswordVO(dto.password, true, false, true),
     phonenumber: new PhoneNumberVO(dto.phonenumber, false),
     roles: defaultRoles,
     username: new UsernameVO(dto.username, false),
@@ -45,7 +45,7 @@ export const mockLoginUser = (overrides: Partial<MockUser> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, true, false),
+    password: new PasswordVO(dto.password, true, false, false),
     accessedAt: new Date('2025-02-16T17:21:05.370Z'),
   });
 };
@@ -63,11 +63,14 @@ export const mockLoginUserDTO = (
 export const mockLoginUserDTOLikeInstance = (
   overrides: Partial<LoginUserDTO> = {},
 ): LoginUserDTO => {
-  return new LoginUserDTO({
-    email: EmailConstants.EXEMPLE,
-    password: PasswordConstants.EXEMPLE,
-    ...overrides,
-  });
+  const dto = new LoginUserDTO();
+  const keys = Object.keys(overrides);
+
+  dto.email = keys.includes('email') ? overrides.email : EmailConstants.EXEMPLE;
+  dto.password = keys.includes('password')
+    ? overrides.password
+    : PasswordConstants.EXEMPLE;
+  return dto;
 };
 
 export const mockCreateUserDTO = (
@@ -86,14 +89,21 @@ export const mockCreateUserDTO = (
 export const mockCreateUserDTOLikeInstance = (
   overrides: Partial<CreateUserDTO> = {},
 ): CreateUserDTO => {
-  return new CreateUserDTO({
-    username: UsernameConstants.EXEMPLE,
-    email: EmailConstants.EXEMPLE,
-    name: NameConstants.EXEMPLE,
-    password: PasswordConstants.EXEMPLE,
-    phonenumber: PhoneNumberConstants.EXEMPLE,
-    ...overrides,
-  });
+  const dto = new CreateUserDTO();
+  const keys = Object.keys(overrides);
+
+  dto.username = keys.includes('username')
+    ? overrides.username
+    : UsernameConstants.EXEMPLE;
+  dto.email = keys.includes('email') ? overrides.email : EmailConstants.EXEMPLE;
+  dto.name = keys.includes('name') ? overrides.name : NameConstants.EXEMPLE;
+  dto.password = keys.includes('password')
+    ? overrides.password
+    : PasswordConstants.EXEMPLE;
+  dto.phonenumber = keys.includes('phonenumber')
+    ? overrides.phonenumber
+    : PhoneNumberConstants.EXEMPLE;
+  return dto;
 };
 
 export const mockUserList = () => {

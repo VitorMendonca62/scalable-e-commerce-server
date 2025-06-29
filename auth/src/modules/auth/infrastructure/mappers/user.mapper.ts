@@ -18,7 +18,7 @@ export class UserMapper {
     return new User({
       email: new EmailVO(dto.email),
       name: new NameVO(dto.name, false),
-      password: new PasswordVO(dto.password, true, false),
+      password: new PasswordVO(dto.password, true, false, true),
       phonenumber: new PhoneNumberVO(dto.phonenumber, false),
       roles: defaultRoles,
       username: new UsernameVO(dto.username, false),
@@ -46,7 +46,7 @@ export class UserMapper {
     return new User({
       email: new EmailVO(json.email),
       name: new NameVO(json.name, false),
-      password: new PasswordVO(json.password, true, false),
+      password: new PasswordVO(json.password, true, false, false),
       phonenumber: new PhoneNumberVO(json.phonenumber, false),
       roles: json.roles,
       username: new UsernameVO(json.username, false),
@@ -59,7 +59,7 @@ export class UserMapper {
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, true, false),
+      password: new PasswordVO(dto.password, true, false, false),
       accessedAt: new Date(),
     });
   }

@@ -16,6 +16,16 @@ async function bootstrap() {
     .setDescription('The auth system for a e-commerce store')
     .setVersion('1.0')
     .addTag('auth')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        in: 'header',
+      },
+      'refresh_token',
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
