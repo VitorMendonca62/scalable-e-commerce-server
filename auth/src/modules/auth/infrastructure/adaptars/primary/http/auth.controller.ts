@@ -75,7 +75,6 @@ export class AuthController {
     @AuthorizationToken('authorization', BearerTokenValidationPipe)
     refreshToken: string,
   ): Promise<HttpResponseOutbound> {
-    console.log(refreshToken, 'refreshToken');
     return new HttpOKResponse(
       'Aqui está seu token de acesso',
       await this.getAccessTokenUseCase.execute(refreshToken),
