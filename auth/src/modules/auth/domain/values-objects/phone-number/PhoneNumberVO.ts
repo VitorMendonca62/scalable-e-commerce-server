@@ -7,8 +7,4 @@ export default class PhoneNumberVO extends ValueObject {
     super();
     this.value = value;
   }
-
-  public toLowerCase(): void {
-    this.value = this.value.toLowerCase();
-  }
 }

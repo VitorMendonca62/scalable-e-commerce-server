@@ -6,7 +6,7 @@ import { defaultRoles, Permissions } from '../types/permissions';
 // Values Objects
 import EmailVO from '../values-objects/email/EmailVO';
 import PasswordVO from '../values-objects/password/PasswordVO';
-import PhoneNumberVO from '../values-objects/phonumber/PhoneNumberVO';
+import PhoneNumberVO from '../values-objects/phone-number/PhoneNumberVO';
 import NameVO from '../values-objects/name/NameVO';
 import UsernameVO from '../values-objects/username/UsernameVO';
 

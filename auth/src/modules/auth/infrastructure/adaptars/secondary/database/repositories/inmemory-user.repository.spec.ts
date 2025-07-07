@@ -1,6 +1,6 @@
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { Test, TestingModule } from '@nestjs/testing';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 

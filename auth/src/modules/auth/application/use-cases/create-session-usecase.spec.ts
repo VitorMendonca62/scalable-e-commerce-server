@@ -8,7 +8,7 @@ import {
   mockUser,
   mockLoginUser,
   userLikeJSON,
-} from '@modules/auth/infrastructure/helpers/tests.helper';
+} from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateSessionUseCase } from './create-session.usecase';

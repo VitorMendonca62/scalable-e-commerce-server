@@ -5,7 +5,7 @@ import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 
 describe('GetAccessTokenUseCase', () => {

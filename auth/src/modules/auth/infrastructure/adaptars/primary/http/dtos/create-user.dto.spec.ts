@@ -1,9 +1,9 @@
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
-import { mockCreateUserDTOLikeInstance } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { mockCreateUserDTOLikeInstance } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { validate } from 'class-validator';
 
 describe('CreateUserDTO', () => {

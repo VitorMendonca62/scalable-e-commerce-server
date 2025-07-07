@@ -1,6 +1,6 @@
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
-import { mockLoginUserDTOLikeInstance } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { mockLoginUserDTOLikeInstance } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { validate } from 'class-validator';
 
 describe('LoginUserDTO', () => {

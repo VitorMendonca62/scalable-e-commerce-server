@@ -4,7 +4,7 @@ import { defaultRoles } from '../../domain/types/permissions';
 import EmailVO from '../../domain/values-objects/email/EmailVO';
 import NameVO from '../../domain/values-objects/name/NameVO';
 import PasswordVO from '../../domain/values-objects/password/PasswordVO';
-import PhoneNumberVO from '../../domain/values-objects/phonumber/PhoneNumberVO';
+import PhoneNumberVO from '../../domain/values-objects/phone-number/PhoneNumberVO';
 import UsernameVO from '../../domain/values-objects/username/UsernameVO';
 import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { User } from '@modules/auth/domain/entities/user.entity';
@@ -28,14 +28,22 @@ export class UserMapper {
     });
   }
 
+  loginDTOForEntity(dto: LoginUserDTO): UserLogin {
+    return new UserLogin({
+      email: new EmailVO(dto.email),
+      password: new PasswordVO(dto.password, true, false, false),
+      accessedAt: new Date(),
+    });
+  }
+
   userToJSON(user: User): UserEntity {
     return {
       _id: user._id,
-      name: user.name.getValue(),
-      username: user.username.getValue(),
-      email: user.email.getValue(),
-      password: user.password.getValue(),
-      phonenumber: user.phonenumber.getValue(),
+      name: `${user.name}`,
+      username: `${user.username}`,
+      email: `${user.email}`,
+      password: `${user.password}`,
+      phonenumber: `${user.phonenumber}`,
       roles: user.roles,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
@@ -53,14 +61,6 @@ export class UserMapper {
       createdAt: new Date(),
       updatedAt: new Date(),
       _id: json._id,
-    });
-  }
-
-  loginDTOForEntity(dto: LoginUserDTO): UserLogin {
-    return new UserLogin({
-      email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, true, false, false),
-      accessedAt: new Date(),
     });
   }
 }

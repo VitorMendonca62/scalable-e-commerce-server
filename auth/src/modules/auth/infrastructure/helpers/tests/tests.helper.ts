@@ -1,20 +1,19 @@
-import { v4 } from 'uuid';
-import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
-import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
-import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
-import { User } from '@modules/auth/domain/entities/user.entity';
-import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
-import PasswordVO from '@modules/auth/domain/values-objects/password/PasswordVO';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
-import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phonumber/PhoneNumberVO';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
-import NameVO from '@modules/auth/domain/values-objects/name/NameVO';
-import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
-import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
+import { CreateUserDTO } from '../../adaptars/primary/http/dtos/create-user.dto';
+import { LoginUserDTO } from '../../adaptars/primary/http/dtos/login-user.dto';
+import { UserLogin } from '@auth/domain/entities/user-login.entity';
+import { User } from '@auth/domain/entities/user.entity';
+import { defaultRoles } from '@auth/domain/types/permissions';
+import EmailVO from '@auth/domain/values-objects/email/EmailVO';
+import PasswordVO from '@auth/domain/values-objects/password/PasswordVO';
+import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/PhoneNumberConstants';
+import UsernameVO from '@auth/domain/values-objects/username/UsernameVO';
+import PhoneNumberVO from '@auth/domain/values-objects/phone-number/PhoneNumberVO';
+import { EmailConstants } from '@auth/domain/values-objects/email/EmailConstants';
+import { NameConstants } from '@auth/domain/values-objects/name/NameConstants';
+import NameVO from '@auth/domain/values-objects/name/NameVO';
+import { PasswordConstants } from '@auth/domain/values-objects/password/PasswordConstants';
+import { UsernameConstants } from '@auth/domain/values-objects/username/UsernameConstants';
+import { UserEntity } from '../../adaptars/secondary/database/entities/user.entity';
 
 interface MockUser extends CreateUserDTO {
   _id?: string;
@@ -31,7 +30,7 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
     username: new UsernameVO(dto.username, false),
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),
-    _id: v4(),
+    _id: '7df9e6f0-cab4-4fa6-b165-66696084c019-1',
   });
 
   if (overrides._id) {
@@ -108,15 +107,27 @@ export const mockCreateUserDTOLikeInstance = (
 
 export const mockUserList = () => {
   return [
-    mockUser({ username: 'user01', _id: v4(), email: 'exemple1@exemple.com' }),
-    mockUser({ username: 'user02', _id: v4(), email: 'exemple2@exemple.com' }),
-    mockUser({ username: 'user03', _id: v4(), email: 'exemple3@exemple.com' }),
+    mockUser({
+      username: 'user01',
+      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0191',
+      email: 'exemple1@exemple.com',
+    }),
+    mockUser({
+      username: 'user02',
+      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0192',
+      email: 'exemple2@exemple.com',
+    }),
+    mockUser({
+      username: 'user03',
+      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0193',
+      email: 'exemple3@exemple.com',
+    }),
   ];
 };
 
 export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
   return {
-    _id: 'idididididi22332WIDWIDNDAWDA-DAWDADWADAW',
+    _id: '7df9e6f0-cab4-4fa6-b165-66696084c0190',
     name: NameConstants.EXEMPLE,
     username: UsernameConstants.EXEMPLE,
     email: EmailConstants.EXEMPLE,
@@ -128,3 +139,13 @@ export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
     ...overrides,
   };
 };
+
+// export const mockUserClass = () => {
+//   type UserMockType = { new (): User };
+//   const mockUsername = jest.fn() as UserMockType;
+
+//   jest.mock('@auth/domain/entities/user.entity', () => ({
+//     __esModule: true,
+//     default: mockUsername,
+//   }));
+// };

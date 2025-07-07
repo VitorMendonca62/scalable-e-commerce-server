@@ -3,7 +3,7 @@ import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/se
 import {
   mockUser,
   userLikeJSON,
-} from '@modules/auth/infrastructure/helpers/tests.helper';
+} from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { ConfigModule } from '@nestjs/config';
 import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
@@ -65,6 +65,7 @@ describe('CreateUserUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         username: user.username.getValue(),
       });
+      userEntity.password = `${user.password}`;
       expect(userRepository.create).toHaveBeenCalledWith(userEntity);
       expect(response).toBeUndefined();
     });

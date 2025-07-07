@@ -9,7 +9,7 @@ import {
   mockCreateUserDTO,
   mockLoginUser,
   mockLoginUserDTO,
-} from '@modules/auth/infrastructure/helpers/tests.helper';
+} from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
 import {

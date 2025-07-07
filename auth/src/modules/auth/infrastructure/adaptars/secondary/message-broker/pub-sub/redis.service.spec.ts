@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
 import { ConfigService, ConfigModule } from '@nestjs/config';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';

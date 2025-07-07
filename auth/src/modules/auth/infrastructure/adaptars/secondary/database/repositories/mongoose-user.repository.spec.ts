@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseUserRepository } from './mongoose-user.repository';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests.helper';
+import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { getModelToken } from '@nestjs/mongoose';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';

@@ -6,7 +6,7 @@ import {
   Length,
 } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phonumber/PhoneNumberConstants';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
 
 export function PhoneNumber(isOptional: boolean) {
   const IsRequired = isOptional
