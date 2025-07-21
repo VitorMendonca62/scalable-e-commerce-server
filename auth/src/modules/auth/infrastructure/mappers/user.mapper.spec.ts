@@ -12,7 +12,9 @@ import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import {
   mockCreateUserDTO,
   mockLoginUserDTO,
+  mockUser,
 } from '../helpers/tests/tests.helper';
+import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -122,6 +124,32 @@ describe('UserMapper', () => {
           `Campo inválido - ${index}`,
         );
         (VO as jest.Mock).mockRestore();
+      });
+    });
+  });
+
+  describe('userToJSON', () => {
+    const user = mockUser();
+
+    it('should return object like UserEntity', async () => {
+      const json = mapper.userToJSON(user);
+
+      expect(json).toBeInstanceOf(UserEntity);
+    });
+
+    it('should return Json with correct fields', async () => {
+      const json = mapper.userToJSON(user);
+
+      expect(json).toEqual({
+        _id: user._id,
+        name: `${user.name}`,
+        username: `${user.username}`,
+        email: `${user.email}`,
+        password: `${user.password}`,
+        phonenumber: `${user.phonenumber}`,
+        roles: user.roles,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
       });
     });
   });
