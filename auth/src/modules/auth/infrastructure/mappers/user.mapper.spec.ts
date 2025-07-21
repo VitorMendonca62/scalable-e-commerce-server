@@ -13,8 +13,8 @@ import {
   mockCreateUserDTO,
   mockLoginUserDTO,
   mockUser,
+  userLikeJSON,
 } from '../helpers/tests/tests.helper';
-import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -45,7 +45,6 @@ describe('UserMapper', () => {
       const user = mapper.createDTOForEntity(dto);
 
       expect(user).toBeInstanceOf(User);
-      expect(user.roles).toEqual(defaultRoles);
       expect(user.email).toBeInstanceOf(EmailVO);
       expect(user.name).toBeInstanceOf(NameVO);
       expect(user.phonenumber).toBeInstanceOf(PhoneNumberVO);
@@ -53,6 +52,7 @@ describe('UserMapper', () => {
       expect(user.password).toBeInstanceOf(PasswordVO);
       expect(user.createdAt).toBeInstanceOf(Date);
       expect(user.updatedAt).toBeInstanceOf(Date);
+      expect(Array.isArray(user.roles)).toBe(true);
     });
 
     it('should return User with correct fields', async () => {
@@ -61,8 +61,9 @@ describe('UserMapper', () => {
       expect(user.email.toString()).toBe(dto.email);
       expect(user.name.toString()).toBe(dto.name);
       expect(user.phonenumber.toString()).toBe(dto.phonenumber);
-      expect(user.username.toString()).toBe(dto.username);
       expect(user.password.toString()).toBe(dto.password);
+      expect(user.username.toString()).toBe(dto.username);
+      expect(user.roles).toBe(defaultRoles);
     });
 
     it('should throw if value object throws error', () => {
@@ -133,8 +134,16 @@ describe('UserMapper', () => {
 
     it('should return object like UserEntity', async () => {
       const json = mapper.userToJSON(user);
-
-      expect(json).toBeInstanceOf(UserEntity);
+      expect(json).toMatchObject({
+        _id: expect.any(String),
+        name: expect.any(String),
+        username: expect.any(String),
+        email: expect.any(String),
+        password: expect.any(String),
+        phonenumber: expect.any(String),
+        createdAt: expect.any(Date),
+        updatedAt: expect.any(Date),
+      });
     });
 
     it('should return Json with correct fields', async () => {
@@ -150,6 +159,73 @@ describe('UserMapper', () => {
         roles: user.roles,
         createdAt: user.createdAt,
         updatedAt: user.updatedAt,
+      });
+    });
+  });
+
+  describe('jsonToUser', () => {
+    const json = userLikeJSON();
+
+    it('should call VOs with correct parameters', async () => {
+      mapper.jsonToUser(json);
+
+      expect(EmailVO).toHaveBeenCalledWith(json.email);
+      expect(UsernameVO).toHaveBeenCalledWith(json.username, false);
+      expect(NameVO).toHaveBeenCalledWith(json.name, false);
+      expect(PasswordVO).toHaveBeenCalledWith(
+        json.password,
+        true,
+        false,
+        false,
+      );
+      expect(PhoneNumberVO).toHaveBeenCalledWith(json.phonenumber, false);
+    });
+
+    it('should return User with correct types', async () => {
+      const user = mapper.jsonToUser(json);
+
+      expect(user).toBeInstanceOf(User);
+      expect(user.roles).toEqual(defaultRoles);
+      expect(user.email).toBeInstanceOf(EmailVO);
+      expect(user.name).toBeInstanceOf(NameVO);
+      expect(user.phonenumber).toBeInstanceOf(PhoneNumberVO);
+      expect(user.username).toBeInstanceOf(UsernameVO);
+      expect(user.password).toBeInstanceOf(PasswordVO);
+      expect(user.createdAt).toBeInstanceOf(Date);
+      expect(user.updatedAt).toBeInstanceOf(Date);
+      expect(typeof user._id).toBe('string');
+      expect(Array.isArray(user.roles)).toBe(true);
+    });
+
+    it('should return User with correct fields', async () => {
+      const user = mapper.jsonToUser(json);
+
+      expect(user.email.toString()).toBe(json.email);
+      expect(user.name.toString()).toBe(json.name);
+      expect(user.phonenumber.toString()).toBe(json.phonenumber);
+      expect(user.username.toString()).toBe(json.username);
+      expect(user.password.toString()).toBe(json.password);
+      expect(user.roles).toBe(defaultRoles);
+    });
+
+    it('should throw if value object throws error', () => {
+      const valuesObjects = [
+        UsernameVO,
+        NameVO,
+        EmailVO,
+        PasswordVO,
+        PhoneNumberVO,
+      ];
+
+      valuesObjects.forEach((VO, index) => {
+        (VO as jest.Mock).mockImplementation(() => {
+          throw new Error(`Campo inválido - ${index}`);
+        });
+
+        expect(() => mapper.jsonToUser(json)).toThrow(
+          `Campo inválido - ${index}`,
+        );
+        (VO as jest.Mock).mockRestore();
       });
     });
   });
