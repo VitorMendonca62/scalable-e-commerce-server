@@ -23,8 +23,4 @@ export default class PasswordVO extends ValueObject {
   public comparePassword(inputPassword: string) {
     return bcrypt.compareSync(inputPassword, this.value);
   }
-
-  toLowerCase(): void {
-    this.value = this.value.toLowerCase();
-  }
 }

@@ -7,8 +7,4 @@ export default class EmailVO extends ValueObject {
     EmailValidator.isValid(value);
     this.value = value;
   }
-
-  public toLowerCase(): void {
-    this.value = this.value.toLowerCase();
-  }
 }

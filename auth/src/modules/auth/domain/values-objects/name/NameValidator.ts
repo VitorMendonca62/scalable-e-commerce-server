@@ -8,12 +8,12 @@ export class NameValidator {
       throw new FieldInvalid(NameConstants.ERROR_REQUIRED, 'name');
     }
 
-    if (!length(value, NameConstants.MIN_LENGTH)) {
-      throw new FieldInvalid(NameConstants.ERROR_MIN_LENGTH, 'name');
-    }
-
     if (!isString(value)) {
       throw new FieldInvalid(NameConstants.ERROR_STRING, 'name');
+    }
+
+    if (!length(value, NameConstants.MIN_LENGTH)) {
+      throw new FieldInvalid(NameConstants.ERROR_MIN_LENGTH, 'name');
     }
   }
 }

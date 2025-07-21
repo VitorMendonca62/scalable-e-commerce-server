@@ -1,7 +1,5 @@
-import { v4 } from 'uuid';
-
 // Enums
-import { defaultRoles, Permissions } from '../types/permissions';
+import { Permissions } from '../types/permissions';
 
 // Values Objects
 import EmailVO from '../values-objects/email/EmailVO';
@@ -32,14 +30,14 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
   }) {
-    this._id = props._id ?? v4();
+    this._id = props._id;
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;
     this.password = props.password;
     this.phonenumber = props.phonenumber;
-    this.roles = props.roles ?? defaultRoles;
-    this.createdAt = props.createdAt ?? new Date();
-    this.updatedAt = props.updatedAt ?? new Date();
+    this.roles = props.roles;
+    this.createdAt = props.createdAt;
+    this.updatedAt = props.updatedAt;
   }
 }

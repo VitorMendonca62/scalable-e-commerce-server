@@ -7,8 +7,4 @@ export default class NameVO extends ValueObject {
     NameValidator.isValid(value, isOptional);
     this.value = value;
   }
-
-  public toLowerCase(): void {
-    this.value = this.value.toLowerCase();
-  }
 }

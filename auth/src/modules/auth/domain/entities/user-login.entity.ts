@@ -13,6 +13,6 @@ export class UserLogin {
   }) {
     this.email = props.email;
     this.password = props.password;
-    this.accessedAt = props.accessedAt ?? new Date();
+    this.accessedAt = props.accessedAt;
   }
 }
