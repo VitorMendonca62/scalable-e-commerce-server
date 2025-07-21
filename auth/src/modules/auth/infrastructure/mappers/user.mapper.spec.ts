@@ -1,9 +1,7 @@
+import { mockValueObjects } from '../helpers/tests/values-objects-mock';
+mockValueObjects();
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
-import { mockValueObjects } from '../helpers/tests/values-objects-mock';
-// import { mockUserClass } from '../helpers/tests/tests.helper';
-// mockUserClass();
-mockValueObjects();
 import { UserMapper } from './user.mapper';
 import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
 import NameVO from '@modules/auth/domain/values-objects/name/NameVO';
@@ -11,7 +9,10 @@ import PasswordVO from '@modules/auth/domain/values-objects/password/PasswordVO'
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phone-number/PhoneNumberVO';
 import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { mockCreateUserDTO } from '../helpers/tests/tests.helper';
+import {
+  mockCreateUserDTO,
+  mockLoginUserDTO,
+} from '../helpers/tests/tests.helper';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -47,6 +48,7 @@ describe('UserMapper', () => {
       expect(user.name).toBeInstanceOf(NameVO);
       expect(user.phonenumber).toBeInstanceOf(PhoneNumberVO);
       expect(user.username).toBeInstanceOf(UsernameVO);
+      expect(user.password).toBeInstanceOf(PasswordVO);
       expect(user.createdAt).toBeInstanceOf(Date);
       expect(user.updatedAt).toBeInstanceOf(Date);
     });
@@ -58,37 +60,69 @@ describe('UserMapper', () => {
       expect(user.name.toString()).toBe(dto.name);
       expect(user.phonenumber.toString()).toBe(dto.phonenumber);
       expect(user.username.toString()).toBe(dto.username);
+      expect(user.password.toString()).toBe(dto.password);
     });
 
     it('should throw if value object throws error', () => {
-      const valueObjects = [
-        ['UsernameVO', UsernameVO],
-        ['NameVO', NameVO],
-        ['EmailVO', EmailVO],
-        ['PasswordVO', PasswordVO],
-        ['PhoneNumberVO', PhoneNumberVO],
+      const valuesObjects = [
+        UsernameVO,
+        NameVO,
+        EmailVO,
+        PasswordVO,
+        PhoneNumberVO,
       ];
 
-      for (const [, VO] of valueObjects) {
+      valuesObjects.forEach((VO, index) => {
         (VO as jest.Mock).mockImplementation(() => {
-          throw new Error('Campo inválido');
+          throw new Error(`Campo inválido - ${index}`);
         });
 
-        expect(() => mapper.createDTOForEntity(dto)).toThrow('Campo inválido');
-      }
-      jest.clearAllMocks();
-      jest.resetAllMocks();
+        expect(() => mapper.createDTOForEntity(dto)).toThrow(
+          `Campo inválido - ${index}`,
+        );
+        (VO as jest.Mock).mockRestore();
+      });
     });
   });
 
   describe('loginDTOForEntity', () => {
-    const dto = mockCreateUserDTO();
+    const dto = mockLoginUserDTO();
+
+    it('should call VOs with correct parameters', async () => {
+      mapper.loginDTOForEntity(dto);
+
+      expect(EmailVO).toHaveBeenCalledWith(dto.email);
+      expect(PasswordVO).toHaveBeenCalledWith(dto.password, true, false, false);
+    });
+
+    it('should return User with correct types', async () => {
+      const user = mapper.loginDTOForEntity(dto);
+
+      expect(user).toBeInstanceOf(UserLogin);
+      expect(user.password).toBeInstanceOf(PasswordVO);
+      expect(user.accessedAt).toBeInstanceOf(Date);
+    });
 
     it('should return User with correct fields', async () => {
-      const userLogin = mapper.loginDTOForEntity(dto);
+      const user = mapper.loginDTOForEntity(dto);
 
-      expect(userLogin).toBeInstanceOf(UserLogin);
-      expect(userLogin.email.toString()).toBe(dto.email);
+      expect(user.email.toString()).toBe(dto.email);
+      expect(user.password.toString()).toBe(dto.password);
+    });
+
+    it('should throw if value object throws error', () => {
+      const valuesObjects = [EmailVO, PasswordVO];
+
+      valuesObjects.forEach((VO, index) => {
+        (VO as jest.Mock).mockImplementation(() => {
+          throw new Error(`Campo inválido - ${index}`);
+        });
+
+        expect(() => mapper.loginDTOForEntity(dto)).toThrow(
+          `Campo inválido - ${index}`,
+        );
+        (VO as jest.Mock).mockRestore();
+      });
     });
   });
 });

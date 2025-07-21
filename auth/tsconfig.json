@@ -20,7 +20,8 @@
     "paths": {
       "@modules/*": ["src/modules/*"],
       "@auth/*": ["src/modules/auth/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@common/*": ["src/common/*"]
     }
   }
 }

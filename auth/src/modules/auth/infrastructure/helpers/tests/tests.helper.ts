@@ -139,13 +139,3 @@ export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
     ...overrides,
   };
 };
-
-// export const mockUserClass = () => {
-//   type UserMockType = { new (): User };
-//   const mockUsername = jest.fn() as UserMockType;
-
-//   jest.mock('@auth/domain/entities/user.entity', () => ({
-//     __esModule: true,
-//     default: mockUsername,
-//   }));
-// };

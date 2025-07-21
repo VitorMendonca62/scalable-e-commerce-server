@@ -26,6 +26,6 @@
 [] Criar um adpter para senha
 [] Criar um pipe para verificar se refreshToken está válido
 
-[] usar de testesDTO.md no teste de createDTO:
+[X] usar de testesDTO.md no teste de createDTO:
 
 [] Adicionar jest.enableAutomock(); em todos os testes unitarios
