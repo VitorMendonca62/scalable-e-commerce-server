@@ -8,7 +8,7 @@ export function ApiEmail(required: boolean) {
       description: EmailConstants.DESCRIPTION,
       example: EmailConstants.EXEMPLE,
       required: required,
-      type: required ? 'string' : 'null',
+      type: 'string',
     }),
   );
 }

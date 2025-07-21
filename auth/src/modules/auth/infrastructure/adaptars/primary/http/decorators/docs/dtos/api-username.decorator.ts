@@ -9,7 +9,7 @@ export function ApiUsername(required: boolean) {
       example: UsernameConstants.EXEMPLE,
       required: required,
       minLength: UsernameConstants.MIN_LENGTH,
-      type: required ? 'string' : 'null',
+      type: 'string',
     }),
   );
 }

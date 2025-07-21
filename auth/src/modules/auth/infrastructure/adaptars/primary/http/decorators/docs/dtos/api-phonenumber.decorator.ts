@@ -8,7 +8,7 @@ export function ApiPhoneNumber(required: boolean) {
       description: PhoneNumberConstants.DESCRIPTION,
       example: PhoneNumberConstants.EXEMPLE,
       required: required,
-      type: required ? 'string' : 'null',
+      type: 'string',
     }),
   );
 }
