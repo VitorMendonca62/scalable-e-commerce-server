@@ -24,8 +24,7 @@ export class InMemoryUserRepository implements UserRepository {
           options[key] = options[key].toLowerCase();
         }
 
-        const value =
-          typeof user[key] == 'string' ? user[key] : user[key].getValue();
+        const value = user[key];
 
         if (options[key] != value) {
           return false;
