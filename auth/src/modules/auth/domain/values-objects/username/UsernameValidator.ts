@@ -16,7 +16,7 @@ export class UsernameValidator {
       throw new FieldInvalid(UsernameConstants.ERROR_MIN_LENGTH, 'username');
     }
 
-    if (!/\s/.test(value)) {
+    if (/\s/.test(value)) {
       throw new FieldInvalid(UsernameConstants.ERROR_NO_SPACES, 'username');
     }
   }
