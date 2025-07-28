@@ -24,7 +24,7 @@
 [] Implementar Guards no controller
 [X] Remover o findEmail, findUsername e colocar o findOne
 [] Criar um adpter para senha
-[] Criar um pipe para verificar se refreshToken está válido
+[X] Criar um pipe para verificar se refreshToken está válido
 
 [X] usar de testesDTO.md no teste de createDTO:
 

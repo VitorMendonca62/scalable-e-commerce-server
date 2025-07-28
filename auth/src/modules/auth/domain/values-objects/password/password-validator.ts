@@ -20,6 +20,7 @@ export class PasswordValidator {
     if (!length(value, PasswordConstants.MIN_LENGTH)) {
       throw new FieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password');
     }
+
     if (isStrongPasswordClient) {
       if (
         !isStrongPassword(value, {
