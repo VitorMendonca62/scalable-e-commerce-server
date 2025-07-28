@@ -1,10 +1,6 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ConfigModule } from '@nestjs/config';
 import { GetAccessTokenUseCase } from './get-access-token';
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 
@@ -15,24 +11,16 @@ describe('GetAccessTokenUseCase', () => {
   let tokenService: TokenService;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        GetAccessTokenUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-        {
-          provide: TokenService,
-          useClass: JwtTokenService,
-        },
-      ],
-    }).compile();
+    userRepository = {
+      findOne: jest.fn(),
+    } as any;
 
-    useCase = module.get<GetAccessTokenUseCase>(GetAccessTokenUseCase);
-    userRepository = module.get<UserRepository>(UserRepository);
-    tokenService = module.get<TokenService>(TokenService);
+    tokenService = {
+      verifyToken: jest.fn(),
+      generateAccessToken: jest.fn(),
+    } as any;
+
+    useCase = new GetAccessTokenUseCase(userRepository, tokenService);
   });
 
   it('should be defined', () => {
