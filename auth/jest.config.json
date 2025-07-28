@@ -8,7 +8,7 @@
   "collectCoverageFrom": [
     "src/**/*.ts",
     "!src/main.ts",
-    "!src/*.module.ts",
+    "!src/**/*.module.ts",
     "!src/**/*.entity.ts",
     "!src/**/*.port.ts"
   ],

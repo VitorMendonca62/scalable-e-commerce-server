@@ -32,30 +32,30 @@ export function mockValueObjects() {
     .fn()
     .mockReturnValue(UsernameConstants.EXEMPLE);
 
-  jest.mock('@modules/auth/domain/values-objects/email/EmailVO', () => ({
+  jest.mock('@modules/auth/domain/values-objects/email/email-vo', () => ({
     __esModule: true,
     default: mockEmail,
   }));
 
-  jest.mock('@modules/auth/domain/values-objects/name/NameVO', () => ({
+  jest.mock('@modules/auth/domain/values-objects/name/name-vo', () => ({
     __esModule: true,
     default: mockName,
   }));
 
-  jest.mock('@modules/auth/domain/values-objects/password/PasswordVO', () => ({
+  jest.mock('@modules/auth/domain/values-objects/password/password-vo', () => ({
     __esModule: true,
     default: mockPassword,
   }));
 
   jest.mock(
-    '@modules/auth/domain/values-objects/phone-number/PhoneNumberVO',
+    '@modules/auth/domain/values-objects/phone-number/phone-number-vo',
     () => ({
       __esModule: true,
       default: mockPhoneNumber,
     }),
   );
 
-  jest.mock('@modules/auth/domain/values-objects/username/UsernameVO', () => ({
+  jest.mock('@modules/auth/domain/values-objects/username/username-vo', () => ({
     __esModule: true,
     default: mockUsername,
   }));

@@ -4,11 +4,11 @@ import { Email } from '../decorators/dtos/email.decorator';
 import { Password } from '../decorators/dtos/password.decorator';
 
 export class LoginUserDTO {
-  @Email(false)
+  @Email()
   @ApiEmail(true)
   email: string;
 
-  @Password(false, false)
+  @Password(false)
   @ApiPassword(true)
   password: string;
 }

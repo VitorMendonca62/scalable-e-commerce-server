@@ -11,7 +11,7 @@ import { PhoneNumber } from '../decorators/dtos/phonenumber.decorator';
 import { Username } from '../decorators/dtos/username.decorator';
 
 export class CreateUserDTO {
-  @Username(false)
+  @Username()
   @ApiUsername(true)
   username: string;
 

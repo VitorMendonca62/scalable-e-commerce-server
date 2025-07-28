@@ -1,22 +1,12 @@
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
-export function Username(isOptional: boolean | undefined) {
-  const IsRequiredOrNo = isOptional
-    ? IsOptional()
-    : IsNotEmpty({
-        message: UsernameConstants.ERROR_REQUIRED,
-      });
-
+export function Username() {
   return applyDecorators(
-    IsRequiredOrNo,
+    IsNotEmpty({
+      message: UsernameConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: UsernameConstants.ERROR_STRING }),
     MinLength(UsernameConstants.MIN_LENGTH, {
       message: UsernameConstants.ERROR_MIN_LENGTH,
