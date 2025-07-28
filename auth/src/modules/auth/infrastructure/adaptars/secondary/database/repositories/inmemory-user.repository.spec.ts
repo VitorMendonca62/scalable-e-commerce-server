@@ -1,19 +1,13 @@
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
 import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { Test, TestingModule } from '@nestjs/testing';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [],
-      providers: [InMemoryUserRepository],
-    }).compile();
-
-    repository = module.get<InMemoryUserRepository>(InMemoryUserRepository);
+    repository = new InMemoryUserRepository();
   });
 
   it('should be defined', () => {
