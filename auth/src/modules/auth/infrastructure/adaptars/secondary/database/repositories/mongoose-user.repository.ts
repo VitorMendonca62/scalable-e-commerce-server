@@ -7,19 +7,19 @@ import { UserDocument, UserEntity } from '../entities/user.entity';
 @Injectable()
 export class MongooseUserRepository extends UserRepository {
   constructor(
-    @InjectModel(UserEntity.name) private userModel: Model<UserDocument>,
+    @InjectModel(UserEntity.name) private UserModel: Model<UserDocument>,
   ) {
     super();
   }
 
   async create(user: UserEntity): Promise<undefined> {
-    const userModel = new this.userModel(user);
+    const userModel = new this.UserModel(user);
     await userModel.save();
   }
 
   async findOne(
     options: Record<string, string>,
   ): Promise<UserEntity | undefined> {
-    return await this.userModel.findOne(options).exec();
+    return await this.UserModel.findOne(options).exec();
   }
 }

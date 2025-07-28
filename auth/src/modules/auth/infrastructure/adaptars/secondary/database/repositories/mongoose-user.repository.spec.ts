@@ -1,61 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseUserRepository } from './mongoose-user.repository';
 import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { getModelToken } from '@nestjs/mongoose';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
-import { UserEntity } from '../entities/user.entity';
-
-interface UserModelType {
-  prototype: {
-    save: jest.Mock<Promise<void>>;
-  };
-  findOne: jest.Mock<
-    {
-      exec: jest.Mock<Promise<UserEntity | undefined>>;
-    },
-    [Record<string, any>]
-  >;
-}
-
-type MockUserModel = UserModelType & {
-  new (): UserModelType;
-};
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
 
-  let userModel: jest.Mock<UserModelType> & MockUserModel;
+  let UserModel: any;
 
   let mockedExecFindOne: jest.Mock;
   let mockedSavePrototype: jest.Mock;
 
   beforeEach(async () => {
-    userModel = jest.fn() as unknown as jest.Mock<UserModelType, any, any> &
-      UserModelType;
+    UserModel = jest.fn();
 
-    mockedExecFindOne = jest.fn().mockResolvedValue(userLikeJSON());
-    userModel.findOne = jest
-      .fn()
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockReturnValue({
-        exec: mockedExecFindOne,
-      });
-    mockedSavePrototype = jest.fn().mockReturnValue(undefined);
-    userModel.prototype.save = mockedSavePrototype;
-
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [],
-      providers: [
-        {
-          provide: getModelToken(UserEntity.name),
-          useValue: userModel,
-        },
-        MongooseUserRepository,
-      ],
-    }).compile();
-
-    repository = module.get<MongooseUserRepository>(MongooseUserRepository);
+    repository = new MongooseUserRepository(UserModel);
   });
 
   it('should be defined', () => {
@@ -65,11 +24,16 @@ describe('MongooseUserRepository', () => {
   describe('create', () => {
     const user = userLikeJSON();
 
+    beforeEach(() => {
+      mockedSavePrototype = jest.fn().mockReturnValue(undefined);
+      UserModel.prototype.save = mockedSavePrototype;
+    });
+
     it('should create user', async () => {
       const response = await repository.create(user);
 
       expect(response).toBeUndefined();
-      expect(userModel).toHaveBeenCalledWith(user);
+      expect(UserModel).toHaveBeenCalledWith(user);
 
       expect(mockedSavePrototype).toHaveBeenCalled();
     });
@@ -83,7 +47,7 @@ describe('MongooseUserRepository', () => {
 
       for (const user of usersToCreate) {
         repository.create(user);
-        expect(userModel).toHaveBeenCalledWith(user);
+        expect(UserModel).toHaveBeenCalledWith(user);
         expect(mockedSavePrototype).toHaveBeenCalled();
       }
     });
@@ -91,11 +55,19 @@ describe('MongooseUserRepository', () => {
 
   describe('findOne', () => {
     const validEmail = EmailConstants.EXEMPLE;
+    const validUsername = UsernameConstants.EXEMPLE;
+
+    beforeEach(() => {
+      mockedExecFindOne = jest.fn().mockReturnValue(userLikeJSON());
+      UserModel.findOne = jest.fn().mockReturnValue({
+        exec: mockedExecFindOne,
+      });
+    });
 
     it('should return user with email passed', async () => {
       const response = await repository.findOne({ email: validEmail });
 
-      expect(userModel.findOne).toHaveBeenCalled();
+      expect(UserModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
       expect(response).toEqual(userLikeJSON());
       expect(response.email).toBe(validEmail);
@@ -110,18 +82,37 @@ describe('MongooseUserRepository', () => {
 
       expect(response).toBeUndefined();
     });
-  });
-
-  describe('findByUsername', () => {
-    const validUsername = UsernameConstants.EXEMPLE;
 
     it('should return user with username passed', async () => {
       const response = await repository.findOne({ username: validUsername });
 
-      expect(userModel.findOne).toHaveBeenCalled();
+      expect(UserModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
       expect(response).toEqual(userLikeJSON());
       expect(response.username).toBe(validUsername);
+    });
+
+    it('should return undefined when not found user with username', async () => {
+      mockedExecFindOne.mockReturnValue(undefined);
+
+      const response = await repository.findOne({
+        username: 'usernamenotfound',
+      });
+
+      expect(response).toBeUndefined();
+    });
+
+    it('should return user with username and email passed', async () => {
+      const response = await repository.findOne({
+        username: validUsername,
+        email: validEmail,
+      });
+
+      expect(UserModel.findOne).toHaveBeenCalled();
+      expect(mockedExecFindOne).toHaveBeenCalledWith();
+      expect(response).toEqual(userLikeJSON());
+      expect(response.username).toBe(validUsername);
+      expect(response.email).toBe(validEmail);
     });
 
     it('should return undefined when not found user with username', async () => {
