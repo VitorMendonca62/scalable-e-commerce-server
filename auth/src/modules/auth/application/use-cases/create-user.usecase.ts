@@ -3,8 +3,8 @@ import { User } from '../../domain/entities/user.entity';
 import { CreateUserPort } from '@modules/auth/domain/ports/primary/user.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import { FieldAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 
 @Injectable()

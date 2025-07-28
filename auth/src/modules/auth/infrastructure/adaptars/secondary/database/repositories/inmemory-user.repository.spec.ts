@@ -1,7 +1,7 @@
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
 import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;

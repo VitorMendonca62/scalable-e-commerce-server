@@ -3,11 +3,11 @@ mockValueObjects();
 import { User } from '@modules/auth/domain/entities/user.entity';
 import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
 import { UserMapper } from './user.mapper';
-import EmailVO from '@modules/auth/domain/values-objects/email/EmailVO';
-import NameVO from '@modules/auth/domain/values-objects/name/NameVO';
-import PasswordVO from '@modules/auth/domain/values-objects/password/PasswordVO';
-import PhoneNumberVO from '@modules/auth/domain/values-objects/phone-number/PhoneNumberVO';
-import UsernameVO from '@modules/auth/domain/values-objects/username/UsernameVO';
+import EmailVO from '@modules/auth/domain/values-objects/email/email-vo';
+import NameVO from '@modules/auth/domain/values-objects/name/name-vo';
+import PasswordVO from '@modules/auth/domain/values-objects/password/password-vo';
+import PhoneNumberVO from '@modules/auth/domain/values-objects/phone-number/phone-number-vo';
+import UsernameVO from '@modules/auth/domain/values-objects/username/username-vo';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import {
   mockCreateUserDTO,

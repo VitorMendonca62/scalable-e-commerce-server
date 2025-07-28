@@ -4,7 +4,7 @@ import {
   isStrongPassword,
   length,
 } from 'class-validator';
-import { PasswordConstants } from './PasswordConstants';
+import { PasswordConstants } from './password-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class PasswordValidator {

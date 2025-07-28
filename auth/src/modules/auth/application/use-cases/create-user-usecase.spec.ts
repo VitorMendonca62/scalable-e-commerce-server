@@ -5,8 +5,8 @@ import {
 } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { CreateUserUseCase } from './create-user.usecase';
 import { FieldAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 
 describe('CreateUserUseCase', () => {

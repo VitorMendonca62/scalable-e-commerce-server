@@ -1,5 +1,5 @@
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/password-constants';
 import { mockLoginUserDTOLikeInstance } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
 import { validate } from 'class-validator';
 

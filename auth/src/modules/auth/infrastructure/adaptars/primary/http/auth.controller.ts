@@ -19,7 +19,7 @@ import {
   HttpResponseOutbound,
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
 import { AuthorizationToken } from './decorators/getValue/authorization-token.decorator';
-import { BearerTokenValidationPipe } from '@common/pipes/BearerTokenValidation.pipe';
+import { BearerTokenValidationPipe } from '@common/pipes/bearer-token-validation.pipe';
 
 @Controller('auth')
 @ApiTags('auth')

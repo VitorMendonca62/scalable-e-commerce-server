@@ -1,5 +1,5 @@
 import { isEmail, isNotEmpty } from 'class-validator';
-import { EmailConstants } from './EmailConstants';
+import { EmailConstants } from './email-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class EmailValidator {

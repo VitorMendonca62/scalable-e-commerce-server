@@ -1,8 +1,8 @@
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
-import { PasswordConstants } from '@modules/auth/domain/values-objects/password/PasswordConstants';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/password-constants';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/phone-number-constants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
 // type ValueObjectType = { new (): ValueObject };
 

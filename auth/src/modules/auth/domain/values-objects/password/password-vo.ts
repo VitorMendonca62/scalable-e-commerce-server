@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcryptjs';
-import { PasswordValidator } from './PasswordValidator';
-import { ValueObject } from '../ValueObject';
+import { PasswordValidator } from './password-validator';
+import { ValueObject } from '../value-object';
 
 export default class PasswordVO extends ValueObject {
   constructor(

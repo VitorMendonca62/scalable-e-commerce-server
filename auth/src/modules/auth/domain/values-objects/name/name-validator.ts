@@ -1,5 +1,5 @@
 import { isNotEmpty, isString, length } from 'class-validator';
-import { NameConstants } from './NameConstants';
+import { NameConstants } from './name-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class NameValidator {

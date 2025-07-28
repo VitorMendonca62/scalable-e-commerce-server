@@ -1,5 +1,5 @@
 import { isNotEmpty, isString, length } from 'class-validator';
-import { UsernameConstants } from './UsernameConstants';
+import { UsernameConstants } from './username-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class UsernameValidator {

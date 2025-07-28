@@ -3,16 +3,16 @@ import { LoginUserDTO } from '../../adaptars/primary/http/dtos/login-user.dto';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { User } from '@auth/domain/entities/user.entity';
 import { defaultRoles } from '@auth/domain/types/permissions';
-import EmailVO from '@auth/domain/values-objects/email/EmailVO';
-import PasswordVO from '@auth/domain/values-objects/password/PasswordVO';
-import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/PhoneNumberConstants';
-import UsernameVO from '@auth/domain/values-objects/username/UsernameVO';
-import PhoneNumberVO from '@auth/domain/values-objects/phone-number/PhoneNumberVO';
-import { EmailConstants } from '@auth/domain/values-objects/email/EmailConstants';
-import { NameConstants } from '@auth/domain/values-objects/name/NameConstants';
-import NameVO from '@auth/domain/values-objects/name/NameVO';
-import { PasswordConstants } from '@auth/domain/values-objects/password/PasswordConstants';
-import { UsernameConstants } from '@auth/domain/values-objects/username/UsernameConstants';
+import EmailVO from '@modules/auth/domain/values-objects/email/email-vo';
+import PasswordVO from '@modules/auth/domain/values-objects/password/password-vo';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/phone-number-constants';
+import UsernameVO from '@modules/auth/domain/values-objects/username/username-vo';
+import PhoneNumberVO from '@modules/auth/domain/values-objects/phone-number/phone-number-vo';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
+import NameVO from '@modules/auth/domain/values-objects/name/name-vo';
+import { PasswordConstants } from '@modules/auth/domain/values-objects/password/password-constants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 import { UserEntity } from '../../adaptars/secondary/database/entities/user.entity';
 
 interface MockUser extends CreateUserDTO {

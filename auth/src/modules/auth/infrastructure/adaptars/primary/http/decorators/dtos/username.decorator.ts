@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
 export function Username(isOptional: boolean | undefined) {
   const IsRequiredOrNo = isOptional

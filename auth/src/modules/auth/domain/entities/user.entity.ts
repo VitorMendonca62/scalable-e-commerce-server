@@ -2,11 +2,11 @@
 import { Permissions } from '../types/permissions';
 
 // Values Objects
-import EmailVO from '../values-objects/email/EmailVO';
-import PasswordVO from '../values-objects/password/PasswordVO';
-import PhoneNumberVO from '../values-objects/phone-number/PhoneNumberVO';
-import NameVO from '../values-objects/name/NameVO';
-import UsernameVO from '../values-objects/username/UsernameVO';
+import EmailVO from '../values-objects/email/email-vo';
+import PasswordVO from '../values-objects/password/password-vo';
+import PhoneNumberVO from '../values-objects/phone-number/phone-number-vo';
+import NameVO from '../values-objects/name/name-vo';
+import UsernameVO from '../values-objects/username/username-vo';
 
 export class User {
   _id?: string;

@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
 
 export function Name() {
   return applyDecorators(

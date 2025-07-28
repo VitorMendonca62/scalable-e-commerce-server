@@ -1,5 +1,5 @@
-import EmailVO from '../values-objects/email/EmailVO';
-import PasswordVO from '../values-objects/password/PasswordVO';
+import EmailVO from '../values-objects/email/email-vo';
+import PasswordVO from '../values-objects/password/password-vo';
 
 export class UserLogin {
   email: EmailVO;

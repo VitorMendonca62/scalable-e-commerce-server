@@ -1,7 +1,7 @@
 import { MongooseUserRepository } from './mongoose-user.repository';
 import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;

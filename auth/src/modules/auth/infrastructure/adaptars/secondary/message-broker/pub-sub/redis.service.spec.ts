@@ -1,13 +1,13 @@
 import { RedisService } from './redis.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
+import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/phone-number-constants';
 import { ConfigService } from '@nestjs/config';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/UsernameConstants';
+import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
+import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 
 describe('RedisService', () => {
   let service: PubSubMessageBroker;

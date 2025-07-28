@@ -1,5 +1,5 @@
-import { ValueObject } from '../ValueObject';
-import { EmailValidator } from './EmailValidator';
+import { ValueObject } from '../value-object';
+import { EmailValidator } from './email-validator';
 
 export default class EmailVO extends ValueObject {
   constructor(value: string) {

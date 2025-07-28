@@ -1,5 +1,5 @@
-import { ValueObject } from '../ValueObject';
-import { PhoneNumberValidator } from './PhoneNumberValidator';
+import { ValueObject } from '../value-object';
+import { PhoneNumberValidator } from './phone-number-validator';
 
 export default class PhoneNumberVO extends ValueObject {
   constructor(value: string, isOptional: boolean) {
