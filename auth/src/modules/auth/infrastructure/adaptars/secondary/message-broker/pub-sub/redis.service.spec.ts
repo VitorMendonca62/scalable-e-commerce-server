@@ -1,9 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { RedisService } from './redis.service';
 import { ClientProxy } from '@nestjs/microservices';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/PhoneNumberConstants';
-import { ConfigService, ConfigModule } from '@nestjs/config';
+import { ConfigService } from '@nestjs/config';
 import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
@@ -20,28 +19,17 @@ describe('RedisService', () => {
       emit: jest.fn(),
     } as any;
 
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        {
-          provide: 'MESSAGING_CLIENT',
-          useValue: clientProxyMock,
-        },
-        {
-          provide: PubSubMessageBroker,
-          useClass: RedisService,
-        },
-        ConfigService,
-      ],
-    }).compile();
+    configService = {
+      get: jest.fn(),
+    } as any;
 
-    service = module.get<PubSubMessageBroker>(PubSubMessageBroker);
-    configService =
-      module.get<ConfigService<EnvironmentVariables>>(ConfigService);
+    service = new RedisService(clientProxyMock, configService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+    expect(clientProxyMock).toBeDefined();
+    expect(configService).toBeDefined();
   });
 
   describe('publish', () => {
