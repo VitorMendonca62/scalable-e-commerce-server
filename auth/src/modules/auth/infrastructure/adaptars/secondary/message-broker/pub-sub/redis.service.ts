@@ -13,7 +13,7 @@ export class RedisService implements PubSubMessageBroker {
     private configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  async publish(channel: string, value: object, service: string | undefined) {
+  async publish(channel: string, value: object, service: string | null) {
     this.client.emit(this.getChannel(channel, service), value);
   }
 

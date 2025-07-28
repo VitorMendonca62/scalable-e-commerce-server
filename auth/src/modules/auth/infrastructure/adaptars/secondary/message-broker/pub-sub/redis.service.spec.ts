@@ -11,11 +11,11 @@ import { UsernameConstants } from '@modules/auth/domain/values-objects/username/
 
 describe('RedisService', () => {
   let service: PubSubMessageBroker;
-  let clientProxyMock: jest.Mocked<ClientProxy>;
+  let clientProxy: jest.Mocked<ClientProxy>;
   let configService: ConfigService<EnvironmentVariables>;
 
   beforeEach(async () => {
-    clientProxyMock = {
+    clientProxy = {
       emit: jest.fn(),
     } as any;
 
@@ -23,12 +23,12 @@ describe('RedisService', () => {
       get: jest.fn(),
     } as any;
 
-    service = new RedisService(clientProxyMock, configService);
+    service = new RedisService(clientProxy, configService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-    expect(clientProxyMock).toBeDefined();
+    expect(clientProxy).toBeDefined();
     expect(configService).toBeDefined();
   });
 
@@ -49,8 +49,8 @@ describe('RedisService', () => {
 
       service.publish(channel, value, serviceName);
 
-      expect(clientProxyMock.emit).toHaveBeenCalledWith(expectedChannel, value);
-      expect(clientProxyMock.emit).toHaveBeenCalledTimes(1);
+      expect(clientProxy.emit).toHaveBeenCalledWith(expectedChannel, value);
+      expect(clientProxy.emit).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -67,6 +67,7 @@ describe('RedisService', () => {
       const channel = service.getChannel('user-created', null);
 
       expect(channel).toBe('auth-user-created');
+      expect(configService.get).toHaveBeenCalledWith('API_TAG');
     });
   });
 });
