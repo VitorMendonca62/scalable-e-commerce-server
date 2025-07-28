@@ -2,15 +2,11 @@
 
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { JwtTokenService } from '@modules/auth/infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import {
   mockUser,
   mockLoginUser,
   userLikeJSON,
 } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { ConfigModule } from '@nestjs/config';
-import { TestingModule, Test } from '@nestjs/testing';
 import { CreateSessionUseCase } from './create-session.usecase';
 import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
@@ -23,26 +19,24 @@ describe('CreateSessionUseCase', () => {
   let userMapper: UserMapper;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        CreateSessionUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-        {
-          provide: TokenService,
-          useClass: JwtTokenService,
-        },
-        UserMapper,
-      ],
-    }).compile();
+    userRepository = {
+      findOne: jest.fn(),
+    } as any;
 
-    useCase = module.get<CreateSessionUseCase>(CreateSessionUseCase);
-    userRepository = module.get<UserRepository>(UserRepository);
-    tokenService = module.get<TokenService>(TokenService);
-    userMapper = module.get<UserMapper>(UserMapper);
+    tokenService = {
+      generateAccessToken: jest.fn(),
+      generateRefreshToken: jest.fn(),
+    } as any;
+
+    userMapper = {
+      jsonToUser: jest.fn(),
+    } as any;
+
+    useCase = new CreateSessionUseCase(
+      userRepository,
+      tokenService,
+      userMapper,
+    );
   });
 
   it('should be defined', () => {
