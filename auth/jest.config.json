@@ -5,7 +5,13 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "collectCoverageFrom": ["src/**/*.ts", "!src/main.ts", "!src/*.module.ts", "!src/**/*.entity.ts"],
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/main.ts",
+    "!src/*.module.ts",
+    "!src/**/*.entity.ts",
+    "!src/**/*.port.ts"
+  ],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",
   "clearMocks": true,

@@ -1,5 +1,4 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
-import { HttpResponseOutbound } from './sucess.port';
 
 class HttpError extends HttpException {
   data: any;
@@ -13,14 +12,6 @@ class HttpError extends HttpException {
     super(message, HttpStatus.BAD_REQUEST);
     this.data = data;
     this.statusCode = status;
-  }
-
-  getResponse(): HttpResponseOutbound {
-    return {
-      statusCode: this.statusCode,
-      data: this.data,
-      message: this.message,
-    };
   }
 }
 
