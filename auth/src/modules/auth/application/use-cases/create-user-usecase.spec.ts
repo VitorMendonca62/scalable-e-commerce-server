@@ -38,14 +38,12 @@ describe('CreateUserUseCase', () => {
     const userEntity = userLikeJSON();
 
     beforeEach(() => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => undefined);
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => undefined);
+      jest.spyOn(userRepository, 'findOne').mockReturnValue(undefined);
+      jest.spyOn(userRepository, 'findOne').mockReturnValue(undefined);
 
-      jest.spyOn(userRepository, 'create').mockImplementation(() => undefined);
+      jest.spyOn(userRepository, 'create').mockReturnValue(undefined);
+
+      jest.spyOn(userMapper, 'userToJSON').mockReturnValue(userLikeJSON());
     });
 
     it('should use case call with correct parameters ', async () => {
@@ -57,7 +55,7 @@ describe('CreateUserUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         username: user.username.getValue(),
       });
-      userEntity.password = `${user.password}`;
+
       expect(userRepository.create).toHaveBeenCalledWith(userEntity);
       expect(response).toBeUndefined();
     });
@@ -65,8 +63,8 @@ describe('CreateUserUseCase', () => {
     it('should throw bad request exception when already exists user with new user email', async () => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockImplementationOnce(async () => undefined)
-        .mockImplementationOnce(async () => userEntity);
+        .mockReturnValueOnce(undefined)
+        .mockResolvedValueOnce(userEntity);
 
       await expect(useCase.execute(user)).rejects.toThrow(
         new FieldAlreadyExists(EmailConstants.ERROR_ALREADY_EXISTS, 'email'),
@@ -76,8 +74,8 @@ describe('CreateUserUseCase', () => {
     it('should throw bad request exception when already exists user with new user username', async () => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockImplementationOnce(async () => userEntity)
-        .mockImplementationOnce(async () => undefined);
+        .mockResolvedValueOnce(userEntity)
+        .mockReturnValueOnce(undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
         new FieldAlreadyExists(
