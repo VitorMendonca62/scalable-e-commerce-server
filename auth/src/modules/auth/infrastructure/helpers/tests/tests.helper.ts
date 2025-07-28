@@ -105,26 +105,6 @@ export const mockCreateUserDTOLikeInstance = (
   return dto;
 };
 
-export const mockUserList = () => {
-  return [
-    mockUser({
-      username: 'user01',
-      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0191',
-      email: 'exemple1@exemple.com',
-    }),
-    mockUser({
-      username: 'user02',
-      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0192',
-      email: 'exemple2@exemple.com',
-    }),
-    mockUser({
-      username: 'user03',
-      _id: '7df9e6f0-cab4-4fa6-b165-66696084c0193',
-      email: 'exemple3@exemple.com',
-    }),
-  ];
-};
-
 export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
   return {
     _id: '7df9e6f0-cab4-4fa6-b165-66696084c0190',
