@@ -1,6 +1,6 @@
 import { extractAuthorizationToken } from './authorization-token.decorator';
 
-describe('AuthorizationToken', () => {
+describe('extractAuthorizationToken', () => {
   const switchToHttpMock: jest.Mock = jest.fn();
   const getRequestMock: jest.Mock = jest.fn();
   const executionContext = { switchToHttp: switchToHttpMock };
