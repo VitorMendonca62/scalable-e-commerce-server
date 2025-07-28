@@ -2,7 +2,7 @@ import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.por
 import { PipeTransform, Injectable } from '@nestjs/common';
 
 @Injectable()
-export class BearerTokenValidationPipe implements PipeTransform {
+export class BearerTokenPipe implements PipeTransform {
   transform(value: string | undefined) {
     if (value === undefined || value === null) {
       throw new FieldInvalid('Você não tem permissão', 'refresh_token');

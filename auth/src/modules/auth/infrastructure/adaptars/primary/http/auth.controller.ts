@@ -19,7 +19,7 @@ import {
   HttpResponseOutbound,
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
 import { AuthorizationToken } from './decorators/getValue/authorization-token.decorator';
-import { BearerTokenValidationPipe } from '@common/pipes/bearer-token-validation.pipe';
+import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -72,7 +72,7 @@ export class AuthController {
   @HttpCode(200)
   @ApiGetAccessToken()
   async getAccessToken(
-    @AuthorizationToken('authorization', BearerTokenValidationPipe)
+    @AuthorizationToken('authorization', BearerTokenPipe)
     refreshToken: string,
   ): Promise<HttpResponseOutbound> {
     return new HttpOKResponse(
