@@ -15,19 +15,19 @@ export class CreateUserDTO {
   @ApiUsername(true)
   username: string;
 
-  @Name(false)
+  @Name()
   @ApiName(true)
   name: string;
 
-  @Email(false)
+  @Email()
   @ApiEmail(true)
   email: string;
 
-  @Password(true, false)
+  @Password(true)
   @ApiPassword(true)
   password: string;
 
-  @PhoneNumber(false)
+  @PhoneNumber()
   @ApiPhoneNumber(true)
   phonenumber: string;
 }

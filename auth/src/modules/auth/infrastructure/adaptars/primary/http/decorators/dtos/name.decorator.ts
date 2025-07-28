@@ -1,16 +1,12 @@
-import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { applyDecorators } from '@nestjs/common';
 import { NameConstants } from '@modules/auth/domain/values-objects/name/NameConstants';
 
-export function Name(isOptional: boolean) {
-  const IsRequired = isOptional
-    ? IsOptional()
-    : IsNotEmpty({
-        message: NameConstants.ERROR_REQUIRED,
-      });
-
+export function Name() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: NameConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: NameConstants.ERROR_STRING }),
     MinLength(NameConstants.MIN_LENGTH, {
       message: NameConstants.ERROR_MIN_LENGTH,
