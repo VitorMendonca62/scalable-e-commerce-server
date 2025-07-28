@@ -37,17 +37,15 @@ describe('GetAccessTokenUseCase', () => {
     beforeEach(() => {
       jest
         .spyOn(tokenService, 'generateAccessToken')
-        .mockImplementation(() => accessToken);
+        .mockReturnValue(accessToken);
 
-      jest.spyOn(tokenService, 'verifyToken').mockImplementation(() => {
-        return { sub: 'USERID' };
-      });
+      jest
+        .spyOn(tokenService, 'verifyToken')
+        .mockReturnValue({ sub: 'USERID' });
     });
 
     it('should use case call with correct parameters and return token', async () => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => user);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
       const response = await useCase.execute(refreshToken);
 
@@ -58,9 +56,7 @@ describe('GetAccessTokenUseCase', () => {
     });
 
     it('should throw bad request exception when user does not exist', async () => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => undefined);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       await expect(useCase.execute(refreshToken)).rejects.toThrow(
         new WrongCredentials('Token inválido ou expirado'),

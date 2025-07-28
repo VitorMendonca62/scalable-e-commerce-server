@@ -38,10 +38,10 @@ describe('MongooseUserRepository', () => {
     userModel.findOne = jest
       .fn()
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      .mockImplementation((params: Record<string, any>) => ({
+      .mockReturnValue({
         exec: mockedExecFindOne,
-      }));
-    mockedSavePrototype = jest.fn().mockImplementation(() => undefined);
+      });
+    mockedSavePrototype = jest.fn().mockReturnValue(undefined);
     userModel.prototype.save = mockedSavePrototype;
 
     const module: TestingModule = await Test.createTestingModule({
@@ -102,7 +102,7 @@ describe('MongooseUserRepository', () => {
     });
 
     it('should return undefined when not found user with email', async () => {
-      mockedExecFindOne.mockImplementation(() => undefined);
+      mockedExecFindOne.mockReturnValue(undefined);
 
       const response = await repository.findOne({
         email: 'emailnotfound@email.com',
@@ -125,7 +125,7 @@ describe('MongooseUserRepository', () => {
     });
 
     it('should return undefined when not found user with username', async () => {
-      mockedExecFindOne.mockImplementation(() => undefined);
+      mockedExecFindOne.mockReturnValue(undefined);
 
       const response = await repository.findOne({
         username: 'usernamenotfound',

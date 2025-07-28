@@ -74,9 +74,7 @@ describe('RedisService', () => {
     });
 
     it('should return channel with undefined service', async () => {
-      jest
-        .spyOn(configService, 'get')
-        .mockImplementation((apiTag: string) => (apiTag ? 'auth' : 'auth'));
+      jest.spyOn(configService, 'get').mockReturnValue('auth');
 
       const channel = service.getChannel('user-created', null);
 

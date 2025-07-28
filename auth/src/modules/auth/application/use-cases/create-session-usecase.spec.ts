@@ -52,23 +52,15 @@ describe('CreateSessionUseCase', () => {
     const userLogin = mockLoginUser();
 
     beforeEach(() => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => userEntity);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userEntity);
 
-      jest.spyOn(userMapper, 'jsonToUser').mockImplementation(() => user);
+      jest.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
 
-      jest
-        .spyOn(tokenService, 'generateAccessToken')
-        .mockImplementation(() => 'TOKEN');
+      jest.spyOn(tokenService, 'generateAccessToken').mockReturnValue('TOKEN');
 
-      jest
-        .spyOn(tokenService, 'generateRefreshToken')
-        .mockImplementation(() => 'TOKEN');
+      jest.spyOn(tokenService, 'generateRefreshToken').mockReturnValue('TOKEN');
 
-      jest
-        .spyOn(user.password, 'comparePassword')
-        .mockImplementation(() => true);
+      jest.spyOn(user.password, 'comparePassword').mockReturnValue(true);
     });
 
     it('should use case call with correct parameters and create user session', async () => {
@@ -91,9 +83,7 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw bad request exception when user does not exists', async () => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockImplementation(async () => undefined);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
         new WrongCredentials(),
@@ -101,9 +91,7 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw bad request exception when password is incorrect', async () => {
-      jest
-        .spyOn(user.password, 'comparePassword')
-        .mockImplementation(() => false);
+      jest.spyOn(user.password, 'comparePassword').mockReturnValue(false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
         new WrongCredentials(),
