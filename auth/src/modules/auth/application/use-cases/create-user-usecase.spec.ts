@@ -1,11 +1,8 @@
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { InMemoryUserRepository } from '@modules/auth/infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import {
   mockUser,
   userLikeJSON,
 } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { ConfigModule } from '@nestjs/config';
-import { TestingModule, Test } from '@nestjs/testing';
 import { CreateUserUseCase } from './create-user.usecase';
 import { FieldAlreadyExists } from '@modules/auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/EmailConstants';
@@ -18,21 +15,16 @@ describe('CreateUserUseCase', () => {
   let userMapper: UserMapper;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        CreateUserUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-        UserMapper,
-      ],
-    }).compile();
+    userRepository = {
+      findOne: jest.fn(),
+      create: jest.fn(),
+    } as any;
 
-    useCase = module.get<CreateUserUseCase>(CreateUserUseCase);
-    userRepository = module.get<UserRepository>(UserRepository);
-    userMapper = module.get<UserMapper>(UserMapper);
+    userMapper = {
+      userToJSON: jest.fn(),
+    } as any;
+
+    useCase = new CreateUserUseCase(userRepository, userMapper);
   });
 
   it('should be defined', () => {
@@ -56,7 +48,7 @@ describe('CreateUserUseCase', () => {
       jest.spyOn(userRepository, 'create').mockImplementation(() => undefined);
     });
 
-    it('should use case call with correct parameters and create user', async () => {
+    it('should use case call with correct parameters ', async () => {
       const response = await useCase.execute(user);
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
@@ -70,7 +62,7 @@ describe('CreateUserUseCase', () => {
       expect(response).toBeUndefined();
     });
 
-    it('should throw bad request exception when already exists user with newUser email', async () => {
+    it('should throw bad request exception when already exists user with new user email', async () => {
       jest
         .spyOn(userRepository, 'findOne')
         .mockImplementationOnce(async () => undefined)
@@ -81,7 +73,7 @@ describe('CreateUserUseCase', () => {
       );
     });
 
-    it('should throw bad request exception when already exists user with User username', async () => {
+    it('should throw bad request exception when already exists user with new user username', async () => {
       jest
         .spyOn(userRepository, 'findOne')
         .mockImplementationOnce(async () => userEntity)
