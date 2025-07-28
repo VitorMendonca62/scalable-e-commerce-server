@@ -3,8 +3,8 @@ import { UsernameConstants } from './username-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class UsernameValidator {
-  static isValid(value: string, isOptional: boolean) {
-    if (!isOptional && !isNotEmpty(value)) {
+  static validate(value: string) {
+    if (!isNotEmpty(value)) {
       throw new FieldInvalid(UsernameConstants.ERROR_REQUIRED, 'username');
     }
 

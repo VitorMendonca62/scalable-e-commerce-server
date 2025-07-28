@@ -17,11 +17,11 @@ export class UserMapper {
   createDTOForEntity(dto: CreateUserDTO): User {
     return new User({
       email: new EmailVO(dto.email),
-      name: new NameVO(dto.name, false),
-      password: new PasswordVO(dto.password, true, false, true),
-      phonenumber: new PhoneNumberVO(dto.phonenumber, false),
+      name: new NameVO(dto.name),
+      password: new PasswordVO(dto.password, true, true),
+      phonenumber: new PhoneNumberVO(dto.phonenumber),
       roles: defaultRoles,
-      username: new UsernameVO(dto.username, false),
+      username: new UsernameVO(dto.username),
       createdAt: new Date(),
       updatedAt: new Date(),
       _id: v4(),
@@ -31,7 +31,7 @@ export class UserMapper {
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, true, false, false),
+      password: new PasswordVO(dto.password, true, false),
       accessedAt: new Date(),
     });
   }
@@ -53,11 +53,11 @@ export class UserMapper {
   jsonToUser(json: UserEntity): User {
     return new User({
       email: new EmailVO(json.email),
-      name: new NameVO(json.name, false),
-      password: new PasswordVO(json.password, true, false, false),
-      phonenumber: new PhoneNumberVO(json.phonenumber, false),
+      name: new NameVO(json.name),
+      password: new PasswordVO(json.password, true, false),
+      phonenumber: new PhoneNumberVO(json.phonenumber),
       roles: json.roles,
-      username: new UsernameVO(json.username, false),
+      username: new UsernameVO(json.username),
       createdAt: new Date(),
       updatedAt: new Date(),
       _id: json._id,

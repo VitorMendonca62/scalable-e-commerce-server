@@ -2,9 +2,9 @@ import { ValueObject } from '../value-object';
 import { UsernameValidator } from './username-validator';
 
 export default class UsernameVO extends ValueObject {
-  constructor(value: string, isOptional: boolean) {
+  constructor(value: string) {
     super();
-    UsernameValidator.isValid(value, isOptional);
+    UsernameValidator.validate(value);
     this.value = value;
   }
 }

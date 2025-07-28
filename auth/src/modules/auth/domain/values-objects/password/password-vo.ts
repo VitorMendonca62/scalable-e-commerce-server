@@ -6,11 +6,10 @@ export default class PasswordVO extends ValueObject {
   constructor(
     value: string,
     isStrongPassword: boolean,
-    isOptional: boolean,
     hasherPassword: boolean,
   ) {
     super();
-    PasswordValidator.isValid(value, isStrongPassword, isOptional);
+    PasswordValidator.validate(value, isStrongPassword);
 
     this.value = hasherPassword ? this.hashPassword(value) : value;
   }

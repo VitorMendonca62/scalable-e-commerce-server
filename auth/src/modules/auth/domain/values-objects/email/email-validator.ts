@@ -3,7 +3,7 @@ import { EmailConstants } from './email-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class EmailValidator {
-  static isValid(value: string) {
+  static validate(value: string) {
     if (!isNotEmpty(value)) {
       throw new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email');
     }

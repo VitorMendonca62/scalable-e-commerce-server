@@ -10,10 +10,10 @@ import UsernameVO from '@modules/auth/domain/values-objects/username/username-vo
 import PhoneNumberVO from '@modules/auth/domain/values-objects/phone-number/phone-number-vo';
 import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
 import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
-import NameVO from '@modules/auth/domain/values-objects/name/name-vo';
 import { PasswordConstants } from '@modules/auth/domain/values-objects/password/password-constants';
 import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 import { UserEntity } from '../../adaptars/secondary/database/entities/user.entity';
+import NameVO from '@modules/auth/domain/values-objects/name/name-vo';
 
 interface MockUser extends CreateUserDTO {
   _id?: string;
@@ -23,11 +23,11 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
   const dto = mockCreateUserDTO(overrides);
   const user = new User({
     email: new EmailVO(dto.email),
-    name: new NameVO(dto.name, false),
-    password: new PasswordVO(dto.password, true, false, true),
-    phonenumber: new PhoneNumberVO(dto.phonenumber, false),
+    name: new NameVO(dto.name),
+    password: new PasswordVO(dto.password, true, true),
+    phonenumber: new PhoneNumberVO(dto.phonenumber),
     roles: defaultRoles,
-    username: new UsernameVO(dto.username, false),
+    username: new UsernameVO(dto.username),
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),
     _id: '7df9e6f0-cab4-4fa6-b165-66696084c019-1',
@@ -44,7 +44,7 @@ export const mockLoginUser = (overrides: Partial<MockUser> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, true, false, false),
+    password: new PasswordVO(dto.password, true, false),
     accessedAt: new Date('2025-02-16T17:21:05.370Z'),
   });
 };

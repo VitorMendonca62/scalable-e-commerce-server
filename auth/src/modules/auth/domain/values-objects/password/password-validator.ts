@@ -8,12 +8,8 @@ import { PasswordConstants } from './password-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export class PasswordValidator {
-  static isValid(
-    value: string,
-    isStrongPasswordClient: boolean,
-    isOptional: boolean,
-  ) {
-    if (!isOptional && !isNotEmpty(value)) {
+  static validate(value: string, isStrongPasswordClient: boolean) {
+    if (!isNotEmpty(value)) {
       throw new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
     }
 

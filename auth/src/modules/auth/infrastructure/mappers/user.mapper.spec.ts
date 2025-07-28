@@ -35,10 +35,10 @@ describe('UserMapper', () => {
       mapper.createDTOForEntity(dto);
 
       expect(EmailVO).toHaveBeenCalledWith(dto.email);
-      expect(UsernameVO).toHaveBeenCalledWith(dto.username, false);
-      expect(NameVO).toHaveBeenCalledWith(dto.name, false);
-      expect(PasswordVO).toHaveBeenCalledWith(dto.password, true, false, true);
-      expect(PhoneNumberVO).toHaveBeenCalledWith(dto.phonenumber, false);
+      expect(UsernameVO).toHaveBeenCalledWith(dto.username);
+      expect(NameVO).toHaveBeenCalledWith(dto.name);
+      expect(PasswordVO).toHaveBeenCalledWith(dto.password, true, true);
+      expect(PhoneNumberVO).toHaveBeenCalledWith(dto.phonenumber);
     });
 
     it('should return User with correct types', async () => {
@@ -95,7 +95,7 @@ describe('UserMapper', () => {
       mapper.loginDTOForEntity(dto);
 
       expect(EmailVO).toHaveBeenCalledWith(dto.email);
-      expect(PasswordVO).toHaveBeenCalledWith(dto.password, true, false, false);
+      expect(PasswordVO).toHaveBeenCalledWith(dto.password, true, false);
     });
 
     it('should return User with correct types', async () => {
@@ -170,15 +170,10 @@ describe('UserMapper', () => {
       mapper.jsonToUser(json);
 
       expect(EmailVO).toHaveBeenCalledWith(json.email);
-      expect(UsernameVO).toHaveBeenCalledWith(json.username, false);
-      expect(NameVO).toHaveBeenCalledWith(json.name, false);
-      expect(PasswordVO).toHaveBeenCalledWith(
-        json.password,
-        true,
-        false,
-        false,
-      );
-      expect(PhoneNumberVO).toHaveBeenCalledWith(json.phonenumber, false);
+      expect(UsernameVO).toHaveBeenCalledWith(json.username);
+      expect(NameVO).toHaveBeenCalledWith(json.name);
+      expect(PasswordVO).toHaveBeenCalledWith(json.password, true, false);
+      expect(PhoneNumberVO).toHaveBeenCalledWith(json.phonenumber);
     });
 
     it('should return User with correct types', async () => {
