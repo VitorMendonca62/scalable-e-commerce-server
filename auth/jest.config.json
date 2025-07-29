@@ -10,7 +10,10 @@
     "!src/main.ts",
     "!src/**/*.module.ts",
     "!src/**/*.entity.ts",
-    "!src/**/*.port.ts"
+    "!src/**/*.config.ts",
+    "!src/**/env.validation.ts",
+    "!src/**/*.port.ts",
+    "!src/config/environment/utils.ts"
   ],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",
