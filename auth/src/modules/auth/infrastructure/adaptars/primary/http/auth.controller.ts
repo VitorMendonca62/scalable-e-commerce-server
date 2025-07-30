@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { CreateUserDTO } from './dtos/create-user.dto';
 
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -33,7 +33,7 @@ export class AuthController {
   ) {}
 
   @Post('/register')
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
     await this.createUserUseCase.execute(
@@ -57,7 +57,7 @@ export class AuthController {
   }
 
   @Post('/login')
-  @HttpCode(201)
+  @HttpCode(HttpStatus.CREATED)
   @ApiLoginUser()
   async login(@Body() dto: LoginUserDTO): Promise<HttpResponseOutbound> {
     return new HttpCreatedResponse(
@@ -69,7 +69,7 @@ export class AuthController {
   }
 
   @Get('/token')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiGetAccessToken()
   async getAccessToken(
     @AuthorizationToken('authorization', BearerTokenPipe)
