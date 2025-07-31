@@ -1,8 +1,8 @@
 [X] Analisar tipos ( Criar tipos para email, senha e etc)
 [x] Criar modulo para message broker
 [] MS-USER que cria usuarios, nao auth
-[] Testes em 100%
-[] Revisar testes
+[X] Testes em 100%
+[X] Revisar testes
 [] Seguir Principios SOLID
 [] Id privado compartilhado entre servicos
 [X] Remover dependencia da entidade em DTO
@@ -27,5 +27,4 @@
 [X] Criar um pipe para verificar se refreshToken está válido
 
 [X] usar de testesDTO.md no teste de createDTO:
-
-[] Adicionar jest.enableAutomock(); em todos os testes unitarios
+[] Fazer validacao no ci de cobertura de testes
