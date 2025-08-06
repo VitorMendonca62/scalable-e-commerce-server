@@ -103,7 +103,6 @@ describe('UserMapper', () => {
 
       expect(user).toBeInstanceOf(UserLogin);
       expect(user.password).toBeInstanceOf(PasswordVO);
-      expect(user.accessedAt).toBeInstanceOf(Date);
     });
 
     it('should return User with correct fields', async () => {

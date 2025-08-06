@@ -45,7 +45,6 @@ export const mockLoginUser = (overrides: Partial<MockUser> = {}) => {
   return new UserLogin({
     email: new EmailVO(dto.email),
     password: new PasswordVO(dto.password, true, false),
-    accessedAt: new Date('2025-02-16T17:21:05.370Z'),
   });
 };
 

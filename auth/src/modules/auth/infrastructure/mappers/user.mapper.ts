@@ -32,7 +32,6 @@ export class UserMapper {
     return new UserLogin({
       email: new EmailVO(dto.email),
       password: new PasswordVO(dto.password, true, false),
-      accessedAt: new Date(),
     });
   }
 
