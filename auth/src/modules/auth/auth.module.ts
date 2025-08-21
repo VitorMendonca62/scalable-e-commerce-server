@@ -5,10 +5,8 @@ import { CreateSessionUseCase } from './application/use-cases/create-session.use
 import { CreateUserUseCase } from './application/use-cases/create-user.usecase';
 import { GetAccessTokenUseCase } from './application/use-cases/get-access-token';
 import { TokenService } from './domain/ports/primary/session.port';
-import { PubSubMessageBroker } from './domain/ports/secondary/pub-sub.port';
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { AuthController } from './infrastructure/adaptars/primary/http/auth.controller';
-import { RedisService } from './infrastructure/adaptars/secondary/message-broker/pub-sub/redis.service';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { UserMapper } from './infrastructure/mappers/user.mapper';
 import { EnvironmentVariables } from 'src/config/environment/env.validation';
@@ -17,36 +15,42 @@ import {
   UserSchema,
 } from './infrastructure/adaptars/secondary/database/entities/user.entity';
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseModule } from '@nestjs/mongoose';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
+import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: UserEntity.name, schema: UserSchema }]),
     ClientsModule.registerAsync([
       {
-        name: 'MESSAGING_CLIENT',
+        name: 'USERS_BROKER_SERVICE',
         imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: async (
           configService: ConfigService<EnvironmentVariables>,
         ) => {
-          const redisHost = configService.get<string>('MESSAGING_HOST');
-          const redisUser = configService.get<string>('MESSAGING_USER');
-          const redisPW = configService.get<string>('MESSAGING_PW');
-          const redisPort = configService.get<number>('MESSAGING_PORT');
+          const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
+          const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
+          const host = configService.get<string>('RABBITMQ_HOST');
+          const port = configService.get<number>('RABBITMQ_NODE_PORT');
+
+          const uri = `amqp://${user}:${password}@${host}:${port}`;
 
           return {
-            transport: Transport.REDIS,
+            transport: Transport.RMQ,
             options: {
-              host: redisHost,
-              port: redisPort,
-              username: redisUser,
-              password: redisPW,
+              urls: [uri],
+              queue: 'users_queue',
+              queueOptions: {
+                exclusive: false,
+                autoDelete: false,
+                arguments: null,
+                durable: false,
+              },
             },
           };
         },
@@ -59,13 +63,10 @@ import { MongooseUserRepository } from './infrastructure/adaptars/secondary/data
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     UserMapper,
+    UsersQueueService,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,
-    },
-    {
-      provide: PubSubMessageBroker,
-      useClass: RedisService,
     },
     {
       provide: TokenService,

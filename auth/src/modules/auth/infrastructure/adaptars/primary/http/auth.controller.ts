@@ -18,7 +18,6 @@ import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.d
 
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
 import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
-import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
 import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 import {
   HttpCreatedResponse,
@@ -27,6 +26,7 @@ import {
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
 import { AuthorizationToken } from './decorators/getValue/authorization-token.decorator';
 import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
+import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -36,7 +36,7 @@ export class AuthController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
-    private readonly messageBrokerService: PubSubMessageBroker,
+    private readonly usersQueueService: UsersQueueService,
   ) {}
 
   @Post('/register')
@@ -47,18 +47,14 @@ export class AuthController {
       this.userMapper.createDTOForEntity(dto),
     );
 
-    this.messageBrokerService.publish(
-      'user-created',
-      {
-        _id: '1',
-        roles: defaultRoles,
-        email: dto.email,
-        name: dto.name,
-        username: dto.username,
-        phonenumber: dto.phonenumber,
-      },
-      'auth',
-    );
+    this.usersQueueService.send('user-created', {
+      _id: '1',
+      roles: defaultRoles,
+      email: dto.email,
+      name: dto.name,
+      username: dto.username,
+      phonenumber: dto.phonenumber,
+    });
 
     return new HttpCreatedResponse('Usuário criado com sucesso');
   }

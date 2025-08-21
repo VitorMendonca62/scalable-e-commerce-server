@@ -3,7 +3,6 @@ import {
   IsNotEmpty,
   IsNumber,
   IsString,
-  IsUrl,
   Max,
   Min,
 } from 'class-validator';
@@ -30,25 +29,24 @@ export class EnvironmentVariables {
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
   PORT: number;
 
-  @IsString({ message: 'MESSAGING_HOST must be a string.' })
-  @IsNotEmpty({ message: 'MESSAGING_HOST cannot be empty.' })
-  @IsUrl({}, { message: 'MESSAGING_HOST must be a valid URL.' })
-  MESSAGING_HOST: string;
+  @IsString({ message: 'RABBITMQ_HOST must be a string.' })
+  @IsNotEmpty({ message: 'RABBITMQ_HOST cannot be empty.' })
+  RABBITMQ_HOST: string;
 
-  @IsString({ message: 'MESSAGING_USER must be a string.' })
-  @IsNotEmpty({ message: 'MESSAGING_USER cannot be empty.' })
-  MESSAGING_USER: string;
+  @IsString({ message: 'RABBITMQ_DEFAULT_USER must be a string.' })
+  @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_USER cannot be empty.' })
+  RABBITMQ_DEFAULT_USER: string;
 
-  @IsString({ message: 'MESSAGING_PW must be a string.' })
-  @IsNotEmpty({ message: 'MESSAGING_PW cannot be empty.' })
-  MESSAGING_PW: string;
+  @IsString({ message: 'RABBITMQ_DEFAULT_PASS must be a string.' })
+  @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_PASS cannot be empty.' })
+  RABBITMQ_DEFAULT_PASS: string;
 
-  @IsNumber({}, { message: 'MESSAGING_PORT must be a number.' })
-  @Min(1, { message: 'MESSAGING_PORT must be greater than or equal to 1.' })
+  @IsNumber({}, { message: 'RABBITMQ_NODE_PORT must be a number.' })
+  @Min(1, { message: 'RABBITMQ_NODE_PORT must be greater than or equal to 1.' })
   @Max(65535, {
-    message: 'MESSAGING_PORT must be less than or equal to 65535.',
+    message: 'RABBITMQ_NODE_PORT must be less than or equal to 65535.',
   })
-  MESSAGING_PORT: number;
+  RABBITMQ_NODE_PORT: number;
 
   @IsString({ message: 'JWT_SECRET must be a string.' })
   @IsNotEmpty({ message: 'JWT_SECRET cannot be empty.' })
@@ -58,7 +56,15 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'API_TAG cannot be empty.' })
   API_TAG: string;
 
-  @IsString({ message: 'MONGO_DB_URL must be a string.' })
-  @IsNotEmpty({ message: 'MONGO_DB_URL cannot be empty.' })
-  MONGO_DB_URL: string;
+  @IsString({ message: 'MONGO_INITDB_ROOT_USERNAME must be a string.' })
+  @IsNotEmpty({ message: 'MONGO_INITDB_ROOT_USERNAME cannot be empty.' })
+  MONGO_INITDB_ROOT_USERNAME: string;
+
+  @IsString({ message: 'MONGO_INITDB_ROOT_PASSWORD must be a string.' })
+  @IsNotEmpty({ message: 'MONGO_INITDB_ROOT_PASSWORD cannot be empty.' })
+  MONGO_INITDB_ROOT_PASSWORD: string;
+
+  @IsString({ message: 'MONGO_INITDB_DATABASE must be a string.' })
+  @IsNotEmpty({ message: 'MONGO_INITDB_DATABASE cannot be empty.' })
+  MONGO_INITDB_DATABASE: string;
 }

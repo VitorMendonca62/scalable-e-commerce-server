@@ -3,7 +3,7 @@ import { AuthController } from './auth.controller';
 import { CreateSessionUseCase } from '@modules/auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/application/use-cases/get-access-token';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/pub-sub.port';
+import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/message-broker.port';
 import {
   mockUser,
   mockCreateUserDTO,

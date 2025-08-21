@@ -3,6 +3,8 @@ services:
   database:
     image: mongo:8.0.13-rc1
     container_name: database-auth
+    networks:
+      - default
     restart: always
     ports:
       - "27017:27017"
@@ -17,14 +19,14 @@ services:
 
   message-broker:
     image: rabbitmq:3-management-alpine 
-    container_name: rabbitmq
+    container_name: message-broker-auth
     restart: always
     ports:
       - '5672:5672' 
       - '15672:15672'
     environment:
-      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     networks:
       - rabbitmq_network
 
@@ -33,6 +35,9 @@ services:
     build: .
     ports:
       - "$PORT:$PORT"
+    networks:
+      - rabbitmq_network
+      - default
     depends_on:
       - database
       - message-broker
@@ -41,6 +46,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     links:
       - database
       - message-broker
@@ -56,5 +63,6 @@ volumes:
     driver: local
 
 networks:
+  default: 
   rabbitmq_network:
     driver: bridge
