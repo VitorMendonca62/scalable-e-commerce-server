@@ -3,7 +3,6 @@ import { AuthController } from './auth.controller';
 import { CreateSessionUseCase } from '@modules/auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@modules/auth/application/use-cases/get-access-token';
 import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PubSubMessageBroker } from '@modules/auth/domain/ports/secondary/message-broker.port';
 import {
   mockUser,
   mockCreateUserDTO,
@@ -16,6 +15,7 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@modules/auth/domain/ports/primary/http/sucess.port';
+import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -26,7 +26,7 @@ describe('AuthController', () => {
 
   let userMapper: UserMapper;
 
-  let messageBrokerService: PubSubMessageBroker;
+  let messageBrokerService: UsersQueueService;
 
   beforeEach(async () => {
     userMapper = {
@@ -36,7 +36,7 @@ describe('AuthController', () => {
     createUserUseCase = { execute: jest.fn() } as any;
     createSessionUseCase = { execute: jest.fn() } as any;
     getAccessTokenUseCase = { execute: jest.fn() } as any;
-    messageBrokerService = { publish: jest.fn() } as any;
+    messageBrokerService = { send: jest.fn() } as any;
 
     controller = new AuthController(
       userMapper,
@@ -62,7 +62,7 @@ describe('AuthController', () => {
 
     beforeEach(() => {
       jest.spyOn(createUserUseCase, 'execute').mockReturnValue(undefined);
-      jest.spyOn(messageBrokerService, 'publish').mockReturnValue(undefined);
+      jest.spyOn(messageBrokerService, 'send').mockReturnValue(undefined);
       jest.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(user);
     });
 
@@ -76,18 +76,14 @@ describe('AuthController', () => {
     it('should publish user-created event with correct payload', async () => {
       await controller.create(dto);
 
-      expect(messageBrokerService.publish).toHaveBeenCalledWith(
-        'user-created',
-        {
-          email: dto.email,
-          name: dto.name,
-          roles: defaultRoles,
-          username: dto.username,
-          _id: '1',
-          phonenumber: dto.phonenumber,
-        },
-        'auth',
-      );
+      expect(messageBrokerService.send).toHaveBeenCalledWith('user-created', {
+        email: dto.email,
+        name: dto.name,
+        roles: defaultRoles,
+        username: dto.username,
+        _id: '1',
+        phonenumber: dto.phonenumber,
+      });
     });
 
     it('should return HttpCreatedResponse on success', async () => {

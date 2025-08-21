@@ -36,9 +36,8 @@ import { UsersQueueService } from './infrastructure/adaptars/secondary/message-b
           const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
           const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
           const host = configService.get<string>('RABBITMQ_HOST');
-          const port = configService.get<number>('RABBITMQ_NODE_PORT');
 
-          const uri = `amqp://${user}:${password}@${host}:${port}`;
+          const uri = `amqp://${user}:${password}@${host}:5672`;
 
           return {
             transport: Transport.RMQ,

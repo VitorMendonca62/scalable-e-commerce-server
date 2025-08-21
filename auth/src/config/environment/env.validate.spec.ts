@@ -22,13 +22,14 @@ describe('validateENV', () => {
   mockInstance.NODE_ENV = NodeEnv.Development;
   mockInstance.HOST = 'localhost';
   mockInstance.PORT = 8080;
-  mockInstance.MESSAGING_HOST = '127.0.0.1';
-  mockInstance.MESSAGING_USER = 'default';
-  mockInstance.MESSAGING_PW = '1234';
-  mockInstance.MESSAGING_PORT = 6379;
+  mockInstance.RABBITMQ_HOST = 'message-broker-auth';
+  mockInstance.RABBITMQ_DEFAULT_USER = 'default';
+  mockInstance.RABBITMQ_DEFAULT_PASS = '1234';
   mockInstance.JWT_SECRET = 'jwtsecret123';
   mockInstance.API_TAG = 'test_auth';
-  mockInstance.MONGO_DB_URL = 'mongodb://localhost:27017/test_auth_users';
+  mockInstance.MONGO_INITDB_ROOT_USERNAME = 'vhmendonca_test';
+  mockInstance.MONGO_INITDB_ROOT_PASSWORD = '12345678';
+  mockInstance.MONGO_INITDB_DATABASE = 'auth';
 
   let plainToInstanceMocked: jest.SpyInstance;
   let validateSyncMocked: jest.SpyInstance;

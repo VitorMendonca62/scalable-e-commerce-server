@@ -41,13 +41,6 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_PASS cannot be empty.' })
   RABBITMQ_DEFAULT_PASS: string;
 
-  @IsNumber({}, { message: 'RABBITMQ_NODE_PORT must be a number.' })
-  @Min(1, { message: 'RABBITMQ_NODE_PORT must be greater than or equal to 1.' })
-  @Max(65535, {
-    message: 'RABBITMQ_NODE_PORT must be less than or equal to 65535.',
-  })
-  RABBITMQ_NODE_PORT: number;
-
   @IsString({ message: 'JWT_SECRET must be a string.' })
   @IsNotEmpty({ message: 'JWT_SECRET cannot be empty.' })
   JWT_SECRET: string;

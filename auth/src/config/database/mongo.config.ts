@@ -17,9 +17,7 @@ export const configMongoDB = (
     onConnectionCreate(connection: Connection) {
       connection
         .asPromise()
-        .then(() =>
-          new Logger('MongoDBTESTE').debug(`MongoDB running in ${uri}`),
-        )
+        .then(() => new Logger('MongoDB').debug(`MongoDB running in ${uri}`))
         .catch((error) => new Logger('TEfe').error(error));
 
       return connection;

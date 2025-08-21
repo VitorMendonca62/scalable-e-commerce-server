@@ -5,7 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { getCurrentNodeENV } from '@config/environment/utils';
 import { validateENV } from '@config/environment/env.validate';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { configMongoDB } from '@config/database/mongo';
+import { configMongoDB } from '@config/database/mongo.config';
 
 @Module({
   imports: [
