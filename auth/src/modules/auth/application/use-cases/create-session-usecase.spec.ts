@@ -1,5 +1,3 @@
-// TODO: Adicionar chamadas ao userMapper
-
 import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
 import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
 import {
