@@ -1,6 +1,8 @@
-import { applyDecorators } from '@nestjs/common';
+import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiOperation,
 } from '@nestjs/swagger';
@@ -12,10 +14,29 @@ export function ApiCreateUser() {
     }),
     ApiCreatedResponse({
       description: 'Foi possivel criar usuário',
+      example: {
+        statusCode: HttpStatus.CREATED,
+        message: 'Usuário criado com sucesso',
+        data: undefined,
+      },
+      type: HttpResponseOutbound,
     }),
     ApiBadRequestResponse({
-      description:
-        'Algum campo está inválido ou o sistema encontrou outro usuário com o mesmo username ou email',
+      description: 'Erro de validação em algum campo',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: 'email',
+        message: 'O email deve ser válido',
+      },
+    }),
+    ApiConflictResponse({
+      description: 'Email ou username já existe no banco de dados',
+      example: {
+        statusCode: HttpStatus.CONFLICT,
+        data: 'email',
+        message: 'Esse email já está sendo utilizado. Tente outro',
+      },
+      type: HttpResponseOutbound,
     }),
   );
 }

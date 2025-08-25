@@ -4,11 +4,20 @@ import { GetUserUseCase } from '@modules/user2/application/use-cases/get-user.us
 import { GetUsersUseCase } from '@modules/user2/application/use-cases/get-users.usecase';
 import { UpdateUserUseCase } from '@modules/user2/application/use-cases/update-user.usecase';
 import { UserMapper } from '@modules/user2/infrastructure/mappers/user.mapper';
-import { Controller, UsePipes, ValidationPipe, Body } from '@nestjs/common';
+import {
+  Controller,
+  UsePipes,
+  ValidationPipe,
+  Body,
+  Post,
+  HttpCode,
+  HttpStatus,
+} from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
+import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -23,6 +32,9 @@ export class UserController {
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
 
+  @Post('/')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO) {
     const userId = v4();
 
