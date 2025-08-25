@@ -45,10 +45,6 @@ export class InMemoryUserRepository implements UserRepository {
     delete this.users[index];
   }
 
-  async getAll(): Promise<UserEntity[]> {
-    return this.users;
-  }
-
   async update(
     id: string,
     newFields: { [key: string]: any },

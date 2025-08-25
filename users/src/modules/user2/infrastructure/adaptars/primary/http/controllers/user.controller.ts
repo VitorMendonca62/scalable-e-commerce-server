@@ -1,7 +1,6 @@
 import { CreateUserUseCase } from '@modules/user2/application/use-cases/create-user.usecase';
 import { DeleteUserUseCase } from '@modules/user2/application/use-cases/delete-user.usecase';
 import { GetUserUseCase } from '@modules/user2/application/use-cases/get-user.usecase';
-import { GetUsersUseCase } from '@modules/user2/application/use-cases/get-users.usecase';
 import { UpdateUserUseCase } from '@modules/user2/application/use-cases/update-user.usecase';
 import { UserMapper } from '@modules/user2/infrastructure/mappers/user.mapper';
 import {
@@ -12,6 +11,7 @@ import {
   Post,
   HttpCode,
   HttpStatus,
+  Get,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
@@ -27,7 +27,6 @@ export class UserController {
     private readonly userMapper: UserMapper,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
-    private readonly getUsesrUseCase: GetUsersUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
@@ -51,16 +50,6 @@ export class UserController {
 
     await this.createUserUseCase.execute(user);
   }
-
-  // @Get()
-  // @HttpCode(200)
-  // @ApiGetAllUsers()
-  // async getAll(): Promise<UserControllerResponse> {
-  //   return {
-  //     message: 'Aqui está a listagem de todos os usuários',
-  //     data: await this.getUsesrUseCase.getAll(),
-  //   };
-  // }
 
   // @Get('/find')
   // @HttpCode(200)

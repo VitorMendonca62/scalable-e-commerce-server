@@ -2,7 +2,6 @@ import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/ent
 
 export abstract class UserRepository {
   abstract create(user: UserEntity): Promise<void>;
-  abstract getAll(): Promise<UserEntity[]>;
   abstract findOne(
     options: Record<string, string>,
   ): Promise<UserEntity | undefined>;
