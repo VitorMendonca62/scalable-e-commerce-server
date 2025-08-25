@@ -1,0 +1,15 @@
+import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
+import { applyDecorators } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
+
+export function ApiUsername(required: boolean) {
+  return applyDecorators(
+    ApiProperty({
+      description: UsernameConstants.DESCRIPTION,
+      example: UsernameConstants.EXEMPLE,
+      required: required,
+      minLength: UsernameConstants.MIN_LENGTH,
+      type: 'string',
+    }),
+  );
+}

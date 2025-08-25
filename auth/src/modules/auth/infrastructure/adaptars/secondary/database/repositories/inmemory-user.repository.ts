@@ -14,7 +14,7 @@ export class InMemoryUserRepository implements UserRepository {
 
     this.users.push(user);
   }
-  // TODO esse metodo esta implementado errado, ele retorna true caso de certo no primeiro for
+
   async findOne(
     options: Record<string, string>,
   ): Promise<UserEntity | undefined> {
