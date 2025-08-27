@@ -50,11 +50,11 @@ export class UserController {
 
     this.usersQueueService.send('user-created', {
       id: userId,
-      roles: defaultRoles,
       email: dto.email,
-      name: dto.name,
-      username: dto.username,
-      phonenumber: dto.phonenumber,
+      password: dto.password,
+      roles: defaultRoles,
+      email_verified: false,
+      phone_verified: false,
     });
 
     await this.createUserUseCase.execute(user);
