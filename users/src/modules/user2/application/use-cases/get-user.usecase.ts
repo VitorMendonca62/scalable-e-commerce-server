@@ -3,6 +3,7 @@ import { UserEntity } from '@modules/user2/infrastructure/adaptars/secondary/dat
 import { GetUserPort } from '@modules/user2/domain/ports/primary/user.port';
 import { UserRepository } from '@modules/user2/domain/ports/secondary/user-repository.port';
 import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
+import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 
 @Injectable()
 export class GetUserUseCase implements GetUserPort {
@@ -18,10 +19,12 @@ export class GetUserUseCase implements GetUserPort {
     return user;
   }
 
-  async findByUsername(username: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ username });
+  async findByUsername(username: UsernameVO): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({
+      username: username.getValue(),
+    });
 
-    if (!user) {
+    if (user == undefined || user == null) {
       throw new NotFoundUser();
     }
 

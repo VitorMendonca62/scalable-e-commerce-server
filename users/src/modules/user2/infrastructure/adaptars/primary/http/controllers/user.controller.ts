@@ -25,6 +25,8 @@ import {
 } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
 import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
+import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
+import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -67,17 +69,19 @@ export class UserController {
     @Query('id') id?: string,
     @Query('username') username?: string,
   ): Promise<HttpResponseOutbound> {
-    if (id) {
+    if (id !== null && id !== undefined) {
+      IDValidator.validate(id);
       return new HttpCreatedResponse(
         'Aqui está usuário pelo ID',
         await this.getUserUseCase.findById(id),
       );
     }
 
-    if (username) {
+    if (username !== null && username !== undefined) {
+      const usernameVO = new UsernameVO(username);
       return new HttpCreatedResponse(
         'Aqui está usuário pelo username',
-        await this.getUserUseCase.findByUsername(username),
+        await this.getUserUseCase.findByUsername(usernameVO),
       );
     }
 

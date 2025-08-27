@@ -1,6 +1,7 @@
 import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/entities/user.entity';
 import { Address } from '@user/domain/entities/address.entity';
 import { User } from '../../entities/user.entity';
+import UsernameVO from '../../values-objects/user/username/username-vo';
 
 export abstract class CreateUserPort {
   abstract execute(user: User): Promise<void>;
@@ -8,7 +9,7 @@ export abstract class CreateUserPort {
 
 export abstract class GetUserPort {
   abstract findById(id: string): Promise<UserEntity>;
-  abstract findByUsername(username: string): Promise<UserEntity>;
+  abstract findByUsername(username: UsernameVO): Promise<UserEntity>;
 }
 
 export abstract class GetUsersPort {
