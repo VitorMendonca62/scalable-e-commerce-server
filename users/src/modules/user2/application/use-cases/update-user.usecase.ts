@@ -12,7 +12,7 @@ export class UpdateUserUseCase implements UpdateUserPort {
     id: string,
     newFields: Record<string, any>,
   ): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ user_id: id });
+    const user = await this.userRepository.findOne({ userId: id });
 
     if (user == undefined || user == null) {
       throw new NotFoundUser();

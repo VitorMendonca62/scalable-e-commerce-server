@@ -34,14 +34,14 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async findById(id: string): Promise<UserEntity | undefined> {
-    return this.users.find((user) => user.user_id == id);
+    return this.users.find((user) => user.userId == id);
   }
 
   async update(
     id: string,
     newFields: { [key: string]: any },
   ): Promise<UserEntity> {
-    const oldUser: UserEntity = this.users.find((user) => user.user_id == id);
+    const oldUser: UserEntity = this.users.find((user) => user.userId == id);
     const oldUserIndex = this.users.indexOf(oldUser);
 
     this.users[oldUserIndex] = { ...this.users[oldUserIndex], ...newFields };
@@ -49,7 +49,7 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async delete(id: string): Promise<void> {
-    const index = this.users.findIndex((user) => user.user_id === id);
+    const index = this.users.findIndex((user) => user.userId === id);
 
     this.users.splice(index, 1);
 

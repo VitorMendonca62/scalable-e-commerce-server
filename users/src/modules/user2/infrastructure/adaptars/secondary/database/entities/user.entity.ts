@@ -5,7 +5,7 @@ import {
 
 export class UserEntity {
   _id?: number;
-  user_id: string;
+  userId: string;
   name: string;
   username: string;
   email: string;
@@ -20,7 +20,7 @@ export class UserEntity {
 
   constructor(props: {
     _id: number;
-    user_id: string;
+    userId: string;
     name: string;
     username: string;
     email: string;
@@ -34,7 +34,7 @@ export class UserEntity {
     updatedAt?: Date;
   }) {
     this._id = props._id;
-    this.user_id = props.user_id;
+    this.userId = props.userId;
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;

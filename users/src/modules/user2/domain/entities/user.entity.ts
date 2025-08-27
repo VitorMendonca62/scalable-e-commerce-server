@@ -8,7 +8,7 @@ import UsernameVO from '../values-objects/user/username/username-vo';
 
 export class User {
   _id?: number;
-  user_id: string;
+  userId: string;
   name: NameVO;
   username: UsernameVO;
   email: EmailVO;
@@ -37,7 +37,7 @@ export class User {
     updatedAt?: Date;
   }) {
     this._id = props._id;
-    this.user_id = props.userId;
+    this.userId = props.userId;
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;

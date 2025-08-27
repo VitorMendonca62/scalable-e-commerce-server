@@ -45,7 +45,7 @@ export class UserMapper {
   userToJSON(user: User): UserEntity {
     return {
       _id: user._id,
-      user_id: user.user_id,
+      userId: user.userId,
       name: `${user.name}`,
       username: `${user.username}`,
       email: `${user.email}`,

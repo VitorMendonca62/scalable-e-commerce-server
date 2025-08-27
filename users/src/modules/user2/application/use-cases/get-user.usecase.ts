@@ -10,7 +10,7 @@ export class GetUserUseCase implements GetUserPort {
   constructor(private readonly userRepository: UserRepository) {}
 
   async findById(id: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ user_id: id });
+    const user = await this.userRepository.findOne({ userId: id });
 
     if (!user) {
       throw new NotFoundUser();
