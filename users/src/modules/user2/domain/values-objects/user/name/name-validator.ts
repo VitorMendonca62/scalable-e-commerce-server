@@ -3,8 +3,8 @@ import { NameConstants } from './name-constants';
 import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 export class NameValidator {
-  static validate(value: string) {
-    if (!isNotEmpty(value)) {
+  static validate(value: string, required: boolean) {
+    if (required && !isNotEmpty(value)) {
       throw new FieldInvalid(NameConstants.ERROR_REQUIRED, 'name');
     }
 

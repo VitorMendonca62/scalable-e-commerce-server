@@ -3,8 +3,8 @@ import { AvatarConstants } from './avatar-constants';
 import { FieldInvalid } from '../../../ports/primary/http/error.port';
 
 export class AvatarValidator {
-  static validate(value: string) {
-    if (!isNotEmpty(value)) {
+  static validate(value: string, required: boolean) {
+    if (required && !isNotEmpty(value)) {
       throw new FieldInvalid(AvatarConstants.ERROR_REQUIRED, 'avatar');
     }
 

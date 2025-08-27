@@ -12,7 +12,7 @@ export class User {
   name: NameVO;
   username: UsernameVO;
   email: EmailVO;
-  avatar: AvatarVO;
+  avatar?: AvatarVO;
   active: boolean;
   email_verified: boolean;
   phone_verified: boolean;
@@ -27,7 +27,7 @@ export class User {
     name: NameVO;
     username: UsernameVO;
     email: EmailVO;
-    avatar: AvatarVO;
+    avatar: AvatarVO | null;
     phonenumber: PhoneNumberVO;
     active: boolean;
     email_verified: boolean;

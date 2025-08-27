@@ -14,6 +14,7 @@ import {
   Get,
   Query,
   Patch,
+  Param,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
@@ -26,7 +27,10 @@ import {
   HttpResponseOutbound,
 } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
-import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
+import {
+  FieldInvalid,
+  NotFoundUser,
+} from '@modules/user2/domain/ports/primary/http/error.port';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
 import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
@@ -34,6 +38,7 @@ import { AuthorizationToken } from '../getValue/authorization-token.decorator';
 import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
 import { UsernameValidator } from '@modules/user2/domain/values-objects/user/username/username-validator';
 import { UserEntity } from '../../../secondary/database/entities/user.entity';
+import { UpdateUserDTO } from '../dtos/update-user.dto';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -84,7 +89,7 @@ export class UserController {
     }
 
     if (username !== null && username !== undefined) {
-      UsernameValidator.validate(username);
+      UsernameValidator.validate(username, true);
       user = await this.getUserUseCase.findByUsername(username);
     }
 
@@ -101,32 +106,33 @@ export class UserController {
     });
   }
 
-  // @Patch('/')
-  // @HttpCode(200)
-  // @ApiUpdateUser()
-  // async update(
-  //   @Body() dto: UpdateUserDTO,
-  //   @Header("authorization"):
-  // ): Promise<UserControllerResponse> {
-  //   if (!id) {
-  //     throw new NotFoundException('Não foi possivel encontrar o usuário');
-  //   }
+  @Patch('/:id')
+  @HttpCode(200)
+  @ApiUpdateUser()
+  async update(
+    @Body() dto: UpdateUserDTO,
+    @Param('id') id: string,
+  ): Promise<HttpResponseOutbound> {
+    if (Object.keys(dto).length === 0) {
+      throw new FieldInvalid(
+        'Adicione algum campo para o usuário ser atualizado',
+        'all',
+      );
+    }
 
-  //   const newUser = this.userMapper.updateDTOForEntity(dto);
+    IDValidator.validate(id);
 
-  //   if (Object.keys(newUser).length === 1) {
-  //     throw new BadRequestException(
-  //       'Adicione algum campo para o usuário ser atualizado',
-  //     );
-  //   }
+    const userUpdateDTO = this.userMapper.updateDTOForEntity(dto, id);
+    const userUpdated = await this.updateUserUseCase.execute(id, userUpdateDTO);
 
-  //   await this.updateUserUseCase.execute(id, newUser);
-
-  //   return {
-  //     message: 'Usuário atualizado com sucesso',
-  //     data: undefined,
-  //   };
-  // }
+    return new HttpOKResponse('Usuário atualizado com sucesso', {
+      name: userUpdated.name,
+      username: userUpdated.username,
+      email: userUpdated.email,
+      avatar: userUpdated.avatar,
+      phonenumber: userUpdated.phonenumber,
+    });
+  }
 
   // @Delete(':id')
   // @HttpCode(200)

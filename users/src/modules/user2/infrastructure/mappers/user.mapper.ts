@@ -8,23 +8,37 @@ import { Injectable } from '@nestjs/common';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
+import { UserUpdate } from '@modules/user2/domain/entities/user-update.entity';
+import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
+import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
 
 @Injectable()
 export class UserMapper {
   createDTOForEntity(dto: CreateUserDTO, userId: string) {
     return new User({
       userId,
-      name: new NameVO(dto.name),
-      username: new UsernameVO(dto.username),
-      email: new EmailVO(dto.email),
-      avatar: new AvatarVO(dto.avatar),
-      phonenumber: new PhoneNumberVO(dto.phonenumber),
+      name: new NameVO(dto.name, true),
+      username: new UsernameVO(dto.username, true),
+      email: new EmailVO(dto.email, true),
+      phonenumber: new PhoneNumberVO(dto.phonenumber, true),
       active: true,
       email_verified: false,
       phone_verified: false,
+      avatar: null,
       roles: defaultRoles,
       createdAt: new Date(),
       updatedAt: new Date(),
+    });
+  }
+
+  updateDTOForEntity(dto: UpdateUserDTO, userId: string) {
+    return new UserUpdate({
+      userId: new IDVO(userId),
+      name: new NameVO(dto.name, false),
+      username: new UsernameVO(dto.username, false),
+      email: new EmailVO(dto.email, false),
+      avatar: new AvatarVO(dto.avatar, false),
+      phonenumber: new PhoneNumberVO(dto.phonenumber, false),
     });
   }
 

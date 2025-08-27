@@ -31,8 +31,4 @@ export class CreateUserDTO {
   @PhoneNumber(true)
   @ApiPhoneNumber(true)
   phonenumber: string;
-
-  @Avatar(true)
-  @ApiAvatar(true)
-  avatar: string;
 }

@@ -3,8 +3,8 @@ import { PhoneNumberConstants } from './phone-number-constants';
 import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 export class PhoneNumberValidator {
-  static validate(value: string) {
-    if (!isNotEmpty(value)) {
+  static validate(value: string, required: boolean) {
+    if (required && !isNotEmpty(value)) {
       throw new FieldInvalid(
         PhoneNumberConstants.ERROR_REQUIRED,
         'phonenumber',

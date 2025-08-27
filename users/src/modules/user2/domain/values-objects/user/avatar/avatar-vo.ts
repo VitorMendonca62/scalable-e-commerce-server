@@ -2,9 +2,9 @@ import { ValueObject } from '../../value-object';
 import { AvatarValidator } from './avatar-validator';
 
 export default class AvatarVO extends ValueObject {
-  constructor(value: string) {
+  constructor(value: string, required: boolean) {
     super();
-    AvatarValidator.validate(value);
+    AvatarValidator.validate(value, required);
     this.value = value;
   }
 }
