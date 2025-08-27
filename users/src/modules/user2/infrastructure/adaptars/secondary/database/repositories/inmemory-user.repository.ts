@@ -15,7 +15,7 @@ export class InMemoryUserRepository implements UserRepository {
   }
 
   async findOne(
-    options: Record<string, string>,
+    options: Partial<Record<keyof UserEntity, string>>,
   ): Promise<UserEntity | undefined> {
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {

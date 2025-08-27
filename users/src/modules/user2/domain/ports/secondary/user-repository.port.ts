@@ -3,7 +3,7 @@ import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/ent
 export abstract class UserRepository {
   abstract create(user: UserEntity): Promise<void>;
   abstract findOne(
-    options: Record<string, string>,
+    options: Partial<Record<keyof UserEntity, string>>,
   ): Promise<UserEntity | undefined>;
   abstract delete(id: string): Promise<void>;
   abstract update(

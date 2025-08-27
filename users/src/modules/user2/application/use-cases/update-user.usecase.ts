@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { UpdateUserPort } from '../../domain/ports/primary/user.port';
-import { UserRepository } from '../../../user/domain/ports/secondary/user-repository.port';
 import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
 import { UserEntity } from '@modules/user2/infrastructure/adaptars/secondary/database/entities/user.entity';
+import { UserRepository } from '@modules/user2/domain/ports/secondary/user-repository.port';
 
 @Injectable()
 export class UpdateUserUseCase implements UpdateUserPort {
@@ -12,9 +12,9 @@ export class UpdateUserUseCase implements UpdateUserPort {
     id: string,
     newFields: Record<string, any>,
   ): Promise<UserEntity> {
-    const user = await this.userRepository.findById(id);
+    const user = await this.userRepository.findOne({ user_id: id });
 
-    if (!user) {
+    if (user == undefined || user == null) {
       throw new NotFoundUser();
     }
 

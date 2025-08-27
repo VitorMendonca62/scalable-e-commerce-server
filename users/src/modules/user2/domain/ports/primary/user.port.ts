@@ -9,7 +9,7 @@ export abstract class CreateUserPort {
 
 export abstract class GetUserPort {
   abstract findById(id: string): Promise<UserEntity>;
-  abstract findByUsername(username: UsernameVO): Promise<UserEntity>;
+  abstract findByUsername(username: string): Promise<UserEntity>;
 }
 
 export abstract class GetUsersPort {
