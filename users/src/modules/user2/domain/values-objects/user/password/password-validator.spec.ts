@@ -1,6 +1,6 @@
 import { PasswordValidator } from './password-validator';
 import { PasswordConstants } from './password-constants';
-import { FieldInvalid } from '../../ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 describe('PasswordValidator', () => {
   it('should not throw if password is valid and strong', () => {

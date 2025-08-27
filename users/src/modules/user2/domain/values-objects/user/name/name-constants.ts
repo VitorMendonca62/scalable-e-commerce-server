@@ -12,4 +12,9 @@ export class NameConstants {
   static readonly ERROR_STRING = 'O nome completo deve ser uma string válida';
   static readonly ERROR_MIN_LENGTH =
     'O nome completo está muito curto. O mínimo são 3 caracteres';
+
+  // Errors exemples
+  static readonly ERROR_REQUIRED_EXEMPLE = '';
+  static readonly ERROR_STRING_EXEMPLE = 12345;
+  static readonly ERROR_MIN_LENGTH_EXEMPLE = 'Vi';
 }

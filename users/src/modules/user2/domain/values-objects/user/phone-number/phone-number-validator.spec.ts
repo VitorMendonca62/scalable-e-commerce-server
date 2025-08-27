@@ -1,6 +1,6 @@
 import { PhoneNumberValidator } from './phone-number-validator';
 import { PhoneNumberConstants } from './phone-number-constants';
-import { FieldInvalid } from '../../ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 describe('PhoneNumberValidator', () => {
   it('should not throw if phone number is valid', () => {

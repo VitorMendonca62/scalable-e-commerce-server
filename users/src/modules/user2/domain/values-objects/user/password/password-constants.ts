@@ -14,4 +14,10 @@ export class PasswordConstants {
   static readonly ERROR_MIN_LENGTH =
     'A senha está está muito curta. O mínimo são 8 caracteres';
   static readonly ERROR_WEAK_PASSWORD = 'A senha está muito fraca';
+
+  // Errors exemple
+  static readonly ERROR_REQUIRED_EXEMPLE = '';
+  static readonly ERROR_STRING_EXEMPLE = 12345678;
+  static readonly ERROR_MIN_LENGTH_EXEMPLE = 'abc123';
+  static readonly ERROR_WEAK_PASSWORD_EXEMPLE = 'abcdefgh';
 }

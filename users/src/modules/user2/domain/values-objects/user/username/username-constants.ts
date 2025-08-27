@@ -15,4 +15,11 @@ export class UsernameConstants {
   static readonly ERROR_NO_SPACES = 'O username não pode conter com espaços.';
   static readonly ERROR_ALREADY_EXISTS =
     'Esse username já está sendo utilizado. Tente outro';
+
+  // Errors exemple
+  static readonly ERROR_REQUIRED_EXEMPLE = '';
+  static readonly ERROR_STRING_EXEMPLE = 12345;
+  static readonly ERROR_MIN_LENGTH_EXEMPLE = 'ab';
+  static readonly ERROR_NO_SPACES_EXEMPLE = 'user name';
+  static readonly ERROR_ALREADY_EXISTS_EXEMPLE = 'vitormendonca62';
 }

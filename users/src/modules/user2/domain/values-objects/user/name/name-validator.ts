@@ -1,6 +1,6 @@
 import { isNotEmpty, isString, length } from 'class-validator';
 import { NameConstants } from './name-constants';
-import { FieldInvalid } from '../../ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 export class NameValidator {
   static validate(value: string) {

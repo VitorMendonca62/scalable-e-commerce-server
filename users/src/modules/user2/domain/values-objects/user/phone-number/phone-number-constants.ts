@@ -11,4 +11,10 @@ export class PhoneNumberConstants {
   static readonly ERROR_REQUIRED = 'O telefone é obrigatório';
   static readonly ERROR_INVALID = 'O telefone deve ser válido do Brasil';
   static readonly ERROR_STRING = 'O telefone deve ser uma string';
+
+  // Errors exemple
+  static readonly ERROR_LENGTH_EXEMPLE = '+55819999999';
+  static readonly ERROR_REQUIRED_EXEMPLE = '';
+  static readonly ERROR_INVALID_EXEMPLE = '+15551234567';
+  static readonly ERROR_STRING_EXEMPLE = 12345678901234;
 }

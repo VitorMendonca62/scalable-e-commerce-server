@@ -1,4 +1,4 @@
-import { FieldInvalid } from '../../ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 import { EmailConstants } from './email-constants';
 import { EmailValidator } from './email-validator';
 

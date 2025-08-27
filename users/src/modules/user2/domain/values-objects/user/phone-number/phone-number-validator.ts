@@ -1,6 +1,6 @@
 import { isNotEmpty, isPhoneNumber, isString, length } from 'class-validator';
 import { PhoneNumberConstants } from './phone-number-constants';
-import { FieldInvalid } from '../../ports/primary/http/errors.port';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
 export class PhoneNumberValidator {
   static validate(value: string) {
