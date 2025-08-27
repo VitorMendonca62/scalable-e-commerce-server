@@ -15,6 +15,7 @@ import {
   Query,
   Patch,
   Param,
+  Delete,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
@@ -23,8 +24,10 @@ import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 import {
   HttpCreatedResponse,
+  HttpDeletedResponse,
   HttpOKResponse,
   HttpResponseOutbound,
+  HttpUpdatedResponse,
 } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
 import {
@@ -39,6 +42,7 @@ import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
 import { UsernameValidator } from '@modules/user2/domain/values-objects/user/username/username-validator';
 import { UserEntity } from '../../../secondary/database/entities/user.entity';
 import { UpdateUserDTO } from '../dtos/update-user.dto';
+import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.decorator';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -107,7 +111,7 @@ export class UserController {
   }
 
   @Patch('/:id')
-  @HttpCode(200)
+  @HttpCode(HttpStatus.OK)
   @ApiUpdateUser()
   async update(
     @Body() dto: UpdateUserDTO,
@@ -125,7 +129,7 @@ export class UserController {
     const userUpdateDTO = this.userMapper.updateDTOForEntity(dto, id);
     const userUpdated = await this.updateUserUseCase.execute(id, userUpdateDTO);
 
-    return new HttpOKResponse('Usuário atualizado com sucesso', {
+    return new HttpUpdatedResponse('Usuário atualizado com sucesso', {
       name: userUpdated.name,
       username: userUpdated.username,
       email: userUpdated.email,
@@ -134,19 +138,14 @@ export class UserController {
     });
   }
 
-  // @Delete(':id')
-  // @HttpCode(200)
-  // @ApiDeleteUser()
-  // async delete(@Param('id') id: string): Promise<UserControllerResponse> {
-  //   if (!id) {
-  //     throw new NotFoundException('Não foi possivel encontrar o usuário');
-  //   }
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiDeleteUser()
+  async delete(@Param('id') id: string): Promise<HttpResponseOutbound> {
+    IDValidator.validate(id);
 
-  //   await this.deleteUserUseCase.execute(id);
+    await this.deleteUserUseCase.execute(id);
 
-  //   return {
-  //     message: 'Usuário deletado com sucesso',
-  //     data: undefined,
-  //   };
-  // }
+    return new HttpDeletedResponse('Usuário deletado com sucesso');
+  }
 }

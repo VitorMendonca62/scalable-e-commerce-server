@@ -37,14 +37,6 @@ export class InMemoryUserRepository implements UserRepository {
     return this.users.find((user) => user.user_id == id);
   }
 
-  async delete(id: string): Promise<void> {
-    const index = this.users.findIndex((user) => user.user_id === id);
-
-    this.users.splice(index, 1);
-
-    delete this.users[index];
-  }
-
   async update(
     id: string,
     newFields: { [key: string]: any },
@@ -54,5 +46,13 @@ export class InMemoryUserRepository implements UserRepository {
 
     this.users[oldUserIndex] = { ...this.users[oldUserIndex], ...newFields };
     return this.users[oldUserIndex];
+  }
+
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex((user) => user.user_id === id);
+
+    this.users.splice(index, 1);
+
+    delete this.users[index];
   }
 }

@@ -8,7 +8,7 @@ export class DeleteUserUseCase implements DeleteUserPort {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(id: string): Promise<void> {
-    const user = await this.userRepository.findOne({ id });
+    const user = await this.userRepository.findOne({ user_id: id });
 
     if (!user) {
       throw new NotFoundUser();

@@ -1,4 +1,6 @@
-import { applyDecorators } from '@nestjs/common';
+import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -14,16 +16,26 @@ export function ApiDeleteUser() {
     ApiParam({
       description: 'Deletar o usuáro pelo id',
       name: 'id',
-      example: 'edd2023d-bf54-4185-b50f-9b4c08db82d4',
+      example: IDConstants.EXEMPLE,
       required: true,
       allowEmptyValue: false,
     }),
     ApiOkResponse({
       description: 'Foi possivel deletar usuário',
+      example: {
+        statusCode: HttpStatus.NO_CONTENT,
+        message: 'Usuário deletado com sucesso',
+      },
+      type: HttpResponseOutbound,
     }),
     ApiNotFoundResponse({
-      description:
-        'Não foi possivel encontrar o usuário ou não foi passado o id',
+      description: 'Não foi possivel encontrar o usuário',
+
+      example: {
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Não foi possivel encontrar o usuário',
+      },
+      type: HttpResponseOutbound,
     }),
   );
 }

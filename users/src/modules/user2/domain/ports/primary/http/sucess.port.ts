@@ -36,3 +36,9 @@ export class HttpUpdatedResponse extends HttpResponseOutbound {
     super(HttpStatus.OK, message, data);
   }
 }
+
+export class HttpDeletedResponse extends HttpResponseOutbound {
+  constructor(message: string = 'Deletado!', data: any = undefined) {
+    super(HttpStatus.OK, message, data);
+  }
+}
