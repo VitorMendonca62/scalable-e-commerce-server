@@ -1,5 +1,6 @@
 import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
+import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
@@ -15,13 +16,13 @@ export function ApiFindOneUser() {
     }),
     ApiQuery({
       name: 'id',
-      description: 'Pesquisar por ID único de usuário',
-      example: 'edd2023d-bf54-4185-b50f-9b4c08db82d4',
+      description: IDConstants.DESCRIPTION,
+      example: IDConstants.EXEMPLE,
       required: false,
     }),
     ApiQuery({
       name: 'username',
-      description: 'Pesquisar por username de usuário',
+      description:  UsernameConstants.DESCRIPTION,
       example: UsernameConstants.EXEMPLE,
       required: false,
     }),
