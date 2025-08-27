@@ -26,7 +26,7 @@ export class FieldInvalid extends HttpError {
 
 export class WrongCredentials extends HttpError {
   constructor(
-    message: string = 'Suas credenciais estão incorretas. Tente novamente',
+    message: string = 'Token ausente ou inválido!',
     data: any = {},
   ) {
     super(message, HttpStatus.UNAUTHORIZED, data);

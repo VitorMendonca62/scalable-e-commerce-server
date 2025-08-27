@@ -1,4 +1,5 @@
-import { applyDecorators } from '@nestjs/common';
+import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -13,11 +14,20 @@ export function ApiUpdateUser() {
       summary: 'Atualizar um usuário por id',
     }),
     ApiParam({
-      description: 'Atualizar o usuáro pelo id',
-      name: 'id',
-      example: 'edd2023d-bf54-4185-b50f-9b4c08db82d4',
+      description: IDConstants.DESCRIPTION,
+      example: IDConstants.EXEMPLE,
+      name: "id",
       required: true,
       allowEmptyValue: false,
+    }),
+    ApiNotFoundResponse({
+      description: 'Usuário não foi encontrado',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: {},
+        message: 'Não foi possivel encontrar o usuário',
+      },
+      type: HttpResponseOutbound,
     }),
     ApiOkResponse({
       description: 'Foi possivel atualizar usuário',
@@ -29,5 +39,15 @@ export function ApiUpdateUser() {
       description:
         'Não foi possivel encontrar o usuário ou não foi passado o id',
     }),
+    ApiNotFoundResponse({
+      description: 'Usuário não foi encontrado',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: {},
+        message: 'Não foi possivel encontrar o usuário',
+      },
+      type: HttpResponseOutbound,
+    }),
   );
 }
+

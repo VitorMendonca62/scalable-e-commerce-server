@@ -11,7 +11,7 @@ import { Password } from '../../common/decorators/dtos/password.decorator';
 import { PhoneNumber } from '../../common/decorators/dtos/phonenumber.decorator';
 import { Username } from '../../common/decorators/dtos/username.decorator';
 
-export abstract class CreateUserDTO {
+export class CreateUserDTO {
   @Name(true)
   @ApiName(true)
   name: string;

@@ -29,7 +29,7 @@ export function ApiFindOneUser() {
     ApiOkResponse({
       description: 'Conseguiu encontrar um usuário',
       example: {
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.OK,
         data: {},
         message: 'Aqui está usuário pelo ID',
       },

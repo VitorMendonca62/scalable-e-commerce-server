@@ -19,12 +19,16 @@ export class GetUserUseCase implements GetUserPort {
     return user;
   }
 
-  async findByUsername(username: UsernameVO): Promise<UserEntity> {
+  async findByUsername(username): Promise<UserEntity> {
     const user = await this.userRepository.findOne({
-      username: username.getValue(),
+      username,
     });
 
     if (user == undefined || user == null) {
+      throw new NotFoundUser();
+    }
+
+    if (user.active) {
       throw new NotFoundUser();
     }
 

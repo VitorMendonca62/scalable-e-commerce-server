@@ -13,6 +13,7 @@ import {
   HttpStatus,
   Get,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
@@ -21,12 +22,18 @@ import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 import {
   HttpCreatedResponse,
+  HttpOKResponse,
   HttpResponseOutbound,
 } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
 import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
+import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
+import { AuthorizationToken } from '../getValue/authorization-token.decorator';
+import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
+import { UsernameValidator } from '@modules/user2/domain/values-objects/user/username/username-validator';
+import { UserEntity } from '../../../secondary/database/entities/user.entity';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -69,31 +76,37 @@ export class UserController {
     @Query('id') id?: string,
     @Query('username') username?: string,
   ): Promise<HttpResponseOutbound> {
+    let user: UserEntity | null = null;
+
     if (id !== null && id !== undefined) {
       IDValidator.validate(id);
-      return new HttpCreatedResponse(
-        'Aqui está usuário pelo ID',
-        await this.getUserUseCase.findById(id),
-      );
+      user = await this.getUserUseCase.findById(id);
     }
 
     if (username !== null && username !== undefined) {
-      const usernameVO = new UsernameVO(username);
-      return new HttpCreatedResponse(
-        'Aqui está usuário pelo username',
-        await this.getUserUseCase.findByUsername(usernameVO),
-      );
+      UsernameValidator.validate(username);
+      user = await this.getUserUseCase.findByUsername(username);
     }
 
-    throw new NotFoundUser();
+    if (user == null) {
+      throw new NotFoundUser();
+    }
+
+    return new HttpOKResponse('Usuário encontrado com sucesso', {
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      phonenumber: user.phonenumber,
+    });
   }
 
-  // @Patch(':id')
+  // @Patch('/')
   // @HttpCode(200)
   // @ApiUpdateUser()
   // async update(
-  //   @Param('id') id: string,
   //   @Body() dto: UpdateUserDTO,
+  //   @Header("authorization"):
   // ): Promise<UserControllerResponse> {
   //   if (!id) {
   //     throw new NotFoundException('Não foi possivel encontrar o usuário');

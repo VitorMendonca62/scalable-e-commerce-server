@@ -30,3 +30,9 @@ export class HttpCreatedResponse extends HttpResponseOutbound {
     super(HttpStatus.CREATED, message, data);
   }
 }
+
+export class HttpUpdatedResponse extends HttpResponseOutbound {
+  constructor(message: string = 'Atualizado!', data: any = undefined) {
+    super(HttpStatus.OK, message, data);
+  }
+}

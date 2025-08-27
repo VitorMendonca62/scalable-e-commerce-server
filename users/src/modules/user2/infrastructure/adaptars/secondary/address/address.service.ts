@@ -1,7 +1,7 @@
 import {
   AddressPort,
   SearchCEPBrasilAPI,
-} from '@modules/user2/domain/ports/secondary/address-service';
+} from '@modules/user2/domain/ports/secondary/address-service.port';
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { Observable } from 'rxjs';

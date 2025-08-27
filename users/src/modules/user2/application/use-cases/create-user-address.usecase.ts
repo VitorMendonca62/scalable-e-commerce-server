@@ -6,7 +6,7 @@ import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.por
 import { AddressService } from '@modules/user2/infrastructure/adaptars/secondary/address/address.service';
 import { firstValueFrom } from 'rxjs';
 import { AxiosError } from 'axios';
-import { BrasilAPICEPError } from '@modules/user2/domain/ports/secondary/address-service';
+import { BrasilAPICEPError } from '@modules/user2/domain/ports/secondary/address-service.port';
 
 @Injectable()
 export class CreateUserAddressUseCase implements CreateUserAddressPort {

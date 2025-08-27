@@ -15,6 +15,7 @@ export abstract class GetAccessTokenPort {
   abstract execute(refreshToken: string): Promise<string>;
 }
 
+// TODO: Colocar isso em uma porta em secondary
 export abstract class TokenService {
   abstract generateRefreshToken(id: string): string;
   abstract generateAccessToken(user: UserEntity): string;

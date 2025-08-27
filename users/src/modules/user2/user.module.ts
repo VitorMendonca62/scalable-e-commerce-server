@@ -5,10 +5,20 @@ import { EnvironmentVariables } from '@config/environment/env.validation';
 import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { HttpModule } from '@nestjs/axios';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
     HttpModule,
+    JwtModule.registerAsync({
+      useFactory: async (
+        configService: ConfigService<EnvironmentVariables>,
+      ) => {
+        return {
+          secret: configService.get<string>('JWT_SECRET'),
+        };
+      },
+    }),
     ClientsModule.registerAsync([
       {
         name: 'USERS_BROKER_SERVICE',

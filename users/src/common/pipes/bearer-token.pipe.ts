@@ -1,15 +1,14 @@
-import { FieldInvalid } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { FieldInvalid, WrongCredentials } from '@modules/user2/domain/ports/primary/http/error.port';
 import { PipeTransform, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class BearerTokenPipe implements PipeTransform {
   transform(value: string | undefined) {
     if (value === undefined || value === null) {
-      // Todo Nao deveria ser fieldINvalid, esim um 401
-      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
+      throw new WrongCredentials();
     }
     if (!value.startsWith('Bearer')) {
-      throw new FieldInvalid('Você não tem permissão', 'refresh_token');
+      throw new WrongCredentials();
     }
 
     return value.replace('Bearer ', '');
