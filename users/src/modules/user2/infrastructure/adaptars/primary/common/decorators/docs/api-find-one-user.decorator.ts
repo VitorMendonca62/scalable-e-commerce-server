@@ -1,4 +1,5 @@
 import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
@@ -21,7 +22,7 @@ export function ApiFindOneUser() {
     ApiQuery({
       name: 'username',
       description: 'Pesquisar por username de usuário',
-      example: 'vitormendonca62',
+      example: UsernameConstants.EXEMPLE,
       required: false,
     }),
     ApiOkResponse({
