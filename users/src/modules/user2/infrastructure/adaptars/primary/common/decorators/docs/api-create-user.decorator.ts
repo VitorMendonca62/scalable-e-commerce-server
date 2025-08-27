@@ -28,6 +28,7 @@ export function ApiCreateUser() {
         data: 'email',
         message: 'O email deve ser válido',
       },
+      type: HttpResponseOutbound,
     }),
     ApiConflictResponse({
       description: 'Email ou username já existe no banco de dados',

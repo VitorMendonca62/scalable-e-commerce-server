@@ -12,12 +12,19 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  Query,
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
+import {
+  HttpCreatedResponse,
+  HttpResponseOutbound,
+} from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
+import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -34,7 +41,7 @@ export class UserController {
   @Post('/')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreateUser()
-  async create(@Body() dto: CreateUserDTO) {
+  async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
     const userId = v4();
 
     const user = this.userMapper.createDTOForEntity(dto, userId);
@@ -49,31 +56,33 @@ export class UserController {
     });
 
     await this.createUserUseCase.execute(user);
+
+    return new HttpCreatedResponse('Usuário criado com sucesso');
   }
 
-  // @Get('/find')
-  // @HttpCode(200)
-  // @ApiFindOneUser()
-  // async findOne(
-  //   @Query('id') id?: string,
-  //   @Query('username') username?: string,
-  // ): Promise<UserControllerResponse> {
-  //   if (id) {
-  //     return {
-  //       message: 'Aqui está usuário pelo ID',
-  //       data: await this.getUserUseCase.findById(id),
-  //     };
-  //   }
+  @Get('/')
+  @HttpCode(HttpStatus.OK)
+  @ApiFindOneUser()
+  async findOne(
+    @Query('id') id?: string,
+    @Query('username') username?: string,
+  ): Promise<HttpResponseOutbound> {
+    if (id) {
+      return new HttpCreatedResponse(
+        'Aqui está usuário pelo ID',
+        await this.getUserUseCase.findById(id),
+      );
+    }
 
-  //   if (username) {
-  //     return {
-  //       message: 'Aqui está usuário pelo username',
-  //       data: await this.getUserUseCase.findByUsername(username),
-  //     };
-  //   }
+    if (username) {
+      return new HttpCreatedResponse(
+        'Aqui está usuário pelo username',
+        await this.getUserUseCase.findByUsername(username),
+      );
+    }
 
-  //   throw new NotFoundException('Não foi possivel encontrar o usuário');
-  // }
+    throw new NotFoundUser();
+  }
 
   // @Patch(':id')
   // @HttpCode(200)

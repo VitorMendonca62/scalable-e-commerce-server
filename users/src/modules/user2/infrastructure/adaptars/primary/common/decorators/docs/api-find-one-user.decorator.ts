@@ -1,4 +1,5 @@
-import { applyDecorators } from '@nestjs/common';
+import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -25,9 +26,21 @@ export function ApiFindOneUser() {
     }),
     ApiOkResponse({
       description: 'Conseguiu encontrar um usuário',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: {},
+        message: 'Aqui está usuário pelo ID',
+      },
+      type: HttpResponseOutbound,
     }),
     ApiNotFoundResponse({
       description: 'Usuário não foi encontrado',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: {},
+        message: 'Não foi possivel encontrar o usuário',
+      },
+      type: HttpResponseOutbound,
     }),
   );
 }
