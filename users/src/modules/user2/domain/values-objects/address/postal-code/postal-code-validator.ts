@@ -1,4 +1,4 @@
-import { isNotEmpty, isString } from 'class-validator';
+import { isNotEmpty, isNumberString, isString } from 'class-validator';
 import { PostalCodeConstants } from './postal-code-constants';
 import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
@@ -16,8 +16,7 @@ export class PostalCodeValidator {
       throw new FieldInvalid(PostalCodeConstants.ERROR_LENGTH, 'postalCode');
     }
 
-    const postalCodeRegex = /^\d{5}-?\d{3}$/;
-    if (!postalCodeRegex.test(value)) {
+    if (!isNumberString(value)) {
       throw new FieldInvalid(PostalCodeConstants.ERROR_INVALID, 'postalCode');
     }
   }

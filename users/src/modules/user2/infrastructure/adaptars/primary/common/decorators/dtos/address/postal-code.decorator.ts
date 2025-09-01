@@ -1,6 +1,12 @@
 import { PostalCodeConstants } from '@modules/user2/domain/values-objects/address/postal-code/postal-code-constants';
 import { applyDecorators } from '@nestjs/common';
-import { IsNotEmpty, IsOptional, IsString, Length, Matches } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  Length,
+} from 'class-validator';
 
 export function PostalCode(required: boolean) {
   const IsRequired = required
@@ -15,8 +21,11 @@ export function PostalCode(required: boolean) {
     Length(PostalCodeConstants.LENGTH, PostalCodeConstants.LENGTH, {
       message: PostalCodeConstants.ERROR_LENGTH,
     }),
-    Matches(PostalCodeConstants.PATTERN, {
-      message: PostalCodeConstants.ERROR_INVALID,
-    }),
+    IsNumberString(
+      { no_symbols: true },
+      {
+        message: PostalCodeConstants.ERROR_INVALID,
+      },
+    ),
   );
 }

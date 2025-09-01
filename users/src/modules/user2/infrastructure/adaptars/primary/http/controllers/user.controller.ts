@@ -153,14 +153,13 @@ export class UserController {
 
   @Post(':id/address')
   @HttpCode(HttpStatus.CREATED)
-  @ApiCreateUser()
   async addAddress(
     @Body() dto: AddUserAddressDTO,
     @Param('id') userId: string,
   ): Promise<HttpResponseOutbound> {
-    const user = this.addressMapper.addUserAddressDTOForEntity(dto, userId);
+    const address = this.addressMapper.addUserAddressDTOForEntity(dto, userId);
 
-    await this.addUserAddressUseCase.execute(userId, user);
+    await this.addUserAddressUseCase.execute(userId, address);
 
     return new HttpCreatedResponse('Usuário criado com sucesso');
   }

@@ -3,7 +3,7 @@ import StreetVO from '../values-objects/address/street/street-vo';
 import NumberVO from '../values-objects/address/number/number-vo';
 import IDVO from '../values-objects/uuid/id-vo';
 import ComplementVO from '../values-objects/address/complement/complement-vo';
-import DistrictVO from '../values-objects/address/district/district-vo';
+import NeighborhoodVO from '../values-objects/address/neighborhood/neighborhood-vo';
 import CityVO from '../values-objects/address/city/city-vo';
 import PostalCodeVO from '../values-objects/address/postal-code/postal-code-vo';
 import StateVO from '../values-objects/address/state/state-vo';
@@ -14,7 +14,7 @@ export class Address {
   street: StreetVO;
   number: NumberVO;
   complement: ComplementVO;
-  district: DistrictVO;
+  neighborhood: NeighborhoodVO;
   city: CityVO;
   postalCode: PostalCodeVO;
   state: StateVO;
@@ -28,7 +28,7 @@ export class Address {
     street: StreetVO;
     number: NumberVO;
     complement: ComplementVO;
-    district: DistrictVO;
+    neighborhood: NeighborhoodVO;
     city: CityVO;
     postalCode: PostalCodeVO;
     state: StateVO;
@@ -41,7 +41,7 @@ export class Address {
     this.street = props.street;
     this.number = props.number;
     this.complement = props.complement;
-    this.district = props.district;
+    this.neighborhood = props.neighborhood;
     this.city = props.city;
     this.postalCode = props.postalCode;
     this.state = props.state;

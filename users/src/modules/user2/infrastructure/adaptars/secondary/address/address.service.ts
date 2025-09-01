@@ -19,7 +19,7 @@ export class AddressService implements AddressPort {
       rejectUnauthorized: false,
     });
     return this.httpService.get<SearchCEPBrasilAPI>(`${this.baseUrl}/${cep}`, {
-      httpAgent: agent,
+      httpsAgent: agent,
     });
   }
 }

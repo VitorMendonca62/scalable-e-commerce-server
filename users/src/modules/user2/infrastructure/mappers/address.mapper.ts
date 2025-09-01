@@ -4,7 +4,7 @@ import { AddUserAddressDTO } from '../adaptars/primary/http/dtos/add-user-addres
 import { Address } from '@modules/user2/domain/entities/address.entity';
 import CityVO from '@modules/user2/domain/values-objects/address/city/city-vo';
 import ComplementVO from '@modules/user2/domain/values-objects/address/complement/complement-vo';
-import DistrictVO from '@modules/user2/domain/values-objects/address/district/district-vo';
+import NeighborhoodVO from '@modules/user2/domain/values-objects/address/neighborhood/neighborhood-vo';
 import NumberVO from '@modules/user2/domain/values-objects/address/number/number-vo';
 import PostalCodeVO from '@modules/user2/domain/values-objects/address/postal-code/postal-code-vo';
 import CountryVO from '@modules/user2/domain/values-objects/address/country/country-vo';
@@ -18,7 +18,7 @@ export class AddressMapper {
     return new Address({
       city: new CityVO(dto.city),
       complement: new ComplementVO(dto.complement),
-      district: new DistrictVO(dto.district),
+      neighborhood: new NeighborhoodVO(dto.neighborhood),
       number: new NumberVO(dto.number),
       postalCode: new PostalCodeVO(dto.postalCode),
       country: new CountryVO(dto.country),

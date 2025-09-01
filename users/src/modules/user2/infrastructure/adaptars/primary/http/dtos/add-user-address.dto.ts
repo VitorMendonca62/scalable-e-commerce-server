@@ -2,8 +2,8 @@ import { Street } from '../../common/decorators/dtos/address/street.decorator';
 import { ApiStreet } from '../../common/decorators/docs/dtos/address/api-street.decorator';
 import { Complement } from '../../common/decorators/dtos/address/complement.decorator';
 import { ApiComplement } from '../../common/decorators/docs/dtos/address/api-complement.decorator';
-import { District } from '../../common/decorators/dtos/address/district.decorator';
-import { ApiDistrict } from '../../common/decorators/docs/dtos/address/api-district.decorator';
+import { Neighborhood } from '../../common/decorators/dtos/address/neighborhood.decorator';
+import { ApiNeighborhood } from '../../common/decorators/docs/dtos/address/api-neighborhood.decorator';
 import { City } from '../../common/decorators/dtos/address/city.decorator';
 import { ApiCity } from '../../common/decorators/docs/dtos/address/api-city.decorator';
 import { PostalCode } from '../../common/decorators/dtos/address/postal-code.decorator';
@@ -28,9 +28,9 @@ export class AddUserAddressDTO {
   @ApiComplement()
   complement: string;
 
-  @District(true)
-  @ApiDistrict(true)
-  district: string;
+  @Neighborhood(true)
+  @ApiNeighborhood(true)
+  neighborhood: string;
 
   @City(true)
   @ApiCity(true)

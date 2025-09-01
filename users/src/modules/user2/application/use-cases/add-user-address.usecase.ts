@@ -16,9 +16,13 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
   ) {}
 
   async execute(userId: string, newAddress: Address): Promise<void> {
-    const userExists = await this.userRepository.findOne({ userId: userId });
+    const user = await this.userRepository.findOne({ userId: userId });
 
-    if (userExists == undefined) {
+    if (user == undefined || user == null) {
+      throw new NotFoundUser();
+    }
+
+    if (!user.active) {
       throw new NotFoundUser();
     }
 
@@ -28,5 +32,7 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
       // eslint-disable-next-line no-console
       console.log(error);
     });
+
+    console.log(await cepInfo)
   }
 }
