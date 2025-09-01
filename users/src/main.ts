@@ -62,7 +62,7 @@ async function bootstrap() {
     new Logger('Server').debug(`Server running in ${HOST}:${PORT}`),
   );
 
-  await addRabbitMQClient(app, configService);
+  // await addRabbitMQClient(app, configService);
 }
 
 bootstrap();

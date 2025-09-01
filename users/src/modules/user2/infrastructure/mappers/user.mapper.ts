@@ -11,10 +11,12 @@ import { UserEntity } from '../adaptars/secondary/database/entities/user.entity'
 import { UserUpdate } from '@modules/user2/domain/entities/user-update.entity';
 import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
 import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
+import { UserModule } from '@modules/user2/user.module';
 
 @Injectable()
 export class UserMapper {
   createDTOForEntity(dto: CreateUserDTO, userId: string) {
+    const dateNow = new Date();
     return new User({
       userId,
       name: new NameVO(dto.name, true),
@@ -26,12 +28,13 @@ export class UserMapper {
       phone_verified: false,
       avatar: null,
       roles: defaultRoles,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      createdAt: dateNow,
+      updatedAt: dateNow,
     });
   }
 
   updateDTOForEntity(dto: UpdateUserDTO, userId: string) {
+    console.log(dto);
     return new UserUpdate({
       userId: new IDVO(userId),
       name: new NameVO(dto.name, false),
@@ -39,7 +42,20 @@ export class UserMapper {
       email: new EmailVO(dto.email, false),
       avatar: new AvatarVO(dto.avatar, false),
       phonenumber: new PhoneNumberVO(dto.phonenumber, false),
+      updatedAt: new Date(),
     });
+  }
+
+  updateEntityForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
+    return {
+      avatar: `${user.avatar}`,
+      email: `${user.email}`,
+      name: `${user.name}`,
+      phonenumber: `${user.phonenumber}`,
+      updatedAt: user.updatedAt,
+      userId: `${user.userId}`,
+      username: `${user.username}`,
+    };
   }
 
   userToJSON(user: User): UserEntity {

@@ -6,11 +6,23 @@ import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/data
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
+import { UserController } from './infrastructure/adaptars/primary/http/controllers/user.controller';
+import { AddUserAddressUseCase } from './application/use-cases/add-user-address.usecase';
+import { CreateUserUseCase } from './application/use-cases/create-user.usecase';
+import { DeleteUserUseCase } from './application/use-cases/delete-user.usecase';
+import { GetUserUseCase } from './application/use-cases/get-user.usecase';
+import { UpdateUserUseCase } from './application/use-cases/update-user.usecase';
+import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+import { AddressMapper } from './infrastructure/mappers/address.mapper';
+import { UserMapper } from './infrastructure/mappers/user.mapper';
+import { AddressService } from './infrastructure/adaptars/secondary/address/address.service';
 
 @Module({
   imports: [
     HttpModule,
     JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (
         configService: ConfigService<EnvironmentVariables>,
       ) => {
@@ -19,39 +31,48 @@ import { JwtModule } from '@nestjs/jwt';
         };
       },
     }),
-    ClientsModule.registerAsync([
-      {
-        name: 'USERS_BROKER_SERVICE',
-        imports: [ConfigModule],
-        inject: [ConfigService],
-        useFactory: async (
-          configService: ConfigService<EnvironmentVariables>,
-        ) => {
-          const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
-          const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
-          const host = configService.get<string>('RABBITMQ_HOST');
+    // ClientsModule.registerAsync([
+    //   {
+    //     name: 'USERS_BROKER_SERVICE',
+    //     imports: [ConfigModule],
+    //     inject: [ConfigService],
+    //     useFactory: async (
+    //       configService: ConfigService<EnvironmentVariables>,
+    //     ) => {
+    //       const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
+    //       const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
+    //       const host = configService.get<string>('RABBITMQ_HOST');
 
-          const uri = `amqp://${user}:${password}@${host}:5672`;
+    //       const uri = `amqp://${user}:${password}@${host}:5672`;
 
-          return {
-            transport: Transport.RMQ,
-            options: {
-              urls: [uri],
-              queue: 'users_queue',
-              queueOptions: {
-                exclusive: false,
-                autoDelete: false,
-                arguments: null,
-                durable: false,
-              },
-            },
-          };
-        },
-      },
-    ]),
+    //       return {
+    //         transport: Transport.RMQ,
+    //         options: {
+    //           urls: [uri],
+    //           queue: 'users_queue',
+    //           queueOptions: {
+    //             exclusive: false,
+    //             autoDelete: false,
+    //             arguments: null,
+    //             durable: false,
+    //           },
+    //         },
+    //       };
+    //     },
+    //   },
+    // ]),
   ],
-  controllers: [],
+  controllers: [UserController],
   providers: [
+    // UsersQueueService,
+    UserMapper,
+    AddressMapper,
+    CreateUserUseCase,
+    AddUserAddressUseCase,
+    GetUserUseCase,
+    UpdateUserUseCase,
+    AddressService,
+    DeleteUserUseCase,
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,

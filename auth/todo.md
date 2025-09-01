@@ -30,3 +30,4 @@
 [] Fazer validacao no ci de cobertura de testes
 
 [] usar isso: https://www.luiztools.com.br/post/autenticacao-json-web-token-jwt-em-nestjs/
+[] Adicionar faker js

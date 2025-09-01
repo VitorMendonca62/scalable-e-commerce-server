@@ -25,24 +25,11 @@ export class UserUpdate {
     updatedAt?: Date;
   }) {
     this.userId = props.userId;
-    
-    if (this.name != null && this.name != undefined) {
-      this.name = props.name;
-    }
-    if (this.username != null && this.username != undefined) {
-      this.username = props.username;
-    }
-    if (this.email != null && this.email != undefined) {
-      this.email = props.email;
-    }
-    if (this.avatar != null && this.avatar != undefined) {
-      this.avatar = props.avatar;
-    }
-    if (this.phonenumber != null && this.phonenumber != undefined) {
-      this.phonenumber = props.phonenumber;
-    }
-    if (this.updatedAt != null && this.updatedAt != undefined) {
-      this.updatedAt = props.updatedAt;
-    }
+    this.name = props.name;
+    this.username = props.username;
+    this.email = props.email;
+    this.avatar = props.avatar;
+    this.phonenumber = props.phonenumber;
+    this.updatedAt = props.updatedAt;
   }
 }

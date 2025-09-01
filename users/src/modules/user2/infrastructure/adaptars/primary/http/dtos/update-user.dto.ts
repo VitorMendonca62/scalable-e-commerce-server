@@ -1,13 +1,13 @@
-import { ApiAvatar } from '../../common/decorators/docs/dtos/api-avatar.decorator';
-import { ApiEmail } from '../../common/decorators/docs/dtos/api-email.decorator';
-import { ApiName } from '../../common/decorators/docs/dtos/api-name.decorator';
-import { ApiPhoneNumber } from '../../common/decorators/docs/dtos/api-phonenumber.decorator';
-import { ApiUsername } from '../../common/decorators/docs/dtos/api-username.decorator';
-import { Avatar } from '../../common/decorators/dtos/avatar.decorator';
-import { Email } from '../../common/decorators/dtos/email.decorator';
-import { Name } from '../../common/decorators/dtos/name.decorator';
-import { PhoneNumber } from '../../common/decorators/dtos/phonenumber.decorator';
-import { Username } from '../../common/decorators/dtos/username.decorator';
+import { ApiAvatar } from '../../common/decorators/docs/dtos/user/api-avatar.decorator';
+import { ApiEmail } from '../../common/decorators/docs/dtos/user/api-email.decorator';
+import { ApiName } from '../../common/decorators/docs/dtos/user/api-name.decorator';
+import { ApiPhoneNumber } from '../../common/decorators/docs/dtos/user/api-phonenumber.decorator';
+import { ApiUsername } from '../../common/decorators/docs/dtos/user/api-username.decorator';
+import { Avatar } from '../../common/decorators/dtos/user/avatar.decorator';
+import { Email } from '../../common/decorators/dtos/user/email.decorator';
+import { Name } from '../../common/decorators/dtos/user/name.decorator';
+import { PhoneNumber } from '../../common/decorators/dtos/user/phonenumber.decorator';
+import { Username } from '../../common/decorators/dtos/user/username.decorator';
 
 export abstract class UpdateUserDTO {
   @Username(false)

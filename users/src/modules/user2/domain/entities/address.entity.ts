@@ -1,35 +1,43 @@
 import CountryVO from '../values-objects/address/country/country-vo';
+import StreetVO from '../values-objects/address/street/street-vo';
+import NumberVO from '../values-objects/address/number/number-vo';
+import IDVO from '../values-objects/uuid/id-vo';
+import ComplementVO from '../values-objects/address/complement/complement-vo';
+import DistrictVO from '../values-objects/address/district/district-vo';
+import CityVO from '../values-objects/address/city/city-vo';
+import PostalCodeVO from '../values-objects/address/postal-code/postal-code-vo';
+import StateVO from '../values-objects/address/state/state-vo';
 
 export class Address {
-  id: number;
-  user_id: string;
-  street: string;
-  number: number;
-  complement: string | null;
-  district: string;
-  city: string;
-  postalCode: string;
-  state: string;
+  id?: number;
+  userId: IDVO;
+  street: StreetVO;
+  number: NumberVO;
+  complement: ComplementVO;
+  district: DistrictVO;
+  city: CityVO;
+  postalCode: PostalCodeVO;
+  state: StateVO;
   country: CountryVO;
   createdAt: Date;
   updatedAt: Date;
 
   constructor(props: {
-    id: number;
-    user_id: string;
-    street: string;
-    number: number;
-    complement: string | null;
-    district: string;
-    city: string;
-    postalCode: string;
-    state: string;
+    id?: number;
+    userId: IDVO;
+    street: StreetVO;
+    number: NumberVO;
+    complement: ComplementVO;
+    district: DistrictVO;
+    city: CityVO;
+    postalCode: PostalCodeVO;
+    state: StateVO;
     country: CountryVO;
     createdAt: Date;
     updatedAt: Date;
   }) {
     this.id = props.id;
-    this.user_id = props.user_id;
+    this.userId = props.userId;
     this.street = props.street;
     this.number = props.number;
     this.complement = props.complement;

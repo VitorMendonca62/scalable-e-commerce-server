@@ -5,7 +5,7 @@ import { PipeTransform, Injectable } from '@nestjs/common';
 export class BearerTokenPipe implements PipeTransform {
   transform(value: string | undefined) {
     if (value === undefined || value === null) {
-      // Todo Nao deveria ser fieldINvalid, esim um 401
+      // TODO Nao deveria ser fieldINvalid, e sim um 401
       throw new FieldInvalid('Você não tem permissão', 'refresh_token');
     }
     if (!value.startsWith('Bearer')) {

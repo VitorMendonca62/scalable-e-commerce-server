@@ -6,10 +6,10 @@ class HttpError extends HttpException {
 
   constructor(
     message: string = 'Algo de errado aconteceu!',
-    status: number,
+    status: number = HttpStatus.BAD_REQUEST,
     data: any = undefined,
   ) {
-    super(message, HttpStatus.BAD_REQUEST);
+    super(message, status); 
     this.data = data;
     this.statusCode = status;
   }

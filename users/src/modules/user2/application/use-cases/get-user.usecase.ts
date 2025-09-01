@@ -12,7 +12,11 @@ export class GetUserUseCase implements GetUserPort {
   async findById(id: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ userId: id });
 
-    if (!user) {
+    if (user == undefined || user == null) {
+      throw new NotFoundUser();
+    }
+
+    if (!user.active) {
       throw new NotFoundUser();
     }
 
@@ -28,7 +32,7 @@ export class GetUserUseCase implements GetUserPort {
       throw new NotFoundUser();
     }
 
-    if (user.active) {
+    if (!user.active) {
       throw new NotFoundUser();
     }
 

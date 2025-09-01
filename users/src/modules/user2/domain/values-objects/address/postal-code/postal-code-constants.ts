@@ -5,6 +5,7 @@ export class PostalCodeConstants {
   static readonly EXEMPLE = '01310-100';
   static readonly WRONG_EXEMPLE = '12345';
   static readonly LENGTH = 9;
+  static readonly PATTERN = /^\d{5}-?\d{3}$/;
 
   // ERRORS
   static readonly ERROR_REQUIRED = 'O CEP é obrigatório';

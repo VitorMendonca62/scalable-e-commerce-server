@@ -19,7 +19,7 @@ import {
 } from '@nestjs/common';
 import { v4 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
-import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+// import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 import {
@@ -34,23 +34,25 @@ import {
   FieldInvalid,
   NotFoundUser,
 } from '@modules/user2/domain/ports/primary/http/error.port';
-import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
 import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
-import { AuthorizationToken } from '../getValue/authorization-token.decorator';
-import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
 import { UsernameValidator } from '@modules/user2/domain/values-objects/user/username/username-validator';
 import { UserEntity } from '../../../secondary/database/entities/user.entity';
 import { UpdateUserDTO } from '../dtos/update-user.dto';
 import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.decorator';
+import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
+import { AddressMapper } from '@modules/user2/infrastructure/mappers/address.mapper';
+import { AddUserAddressUseCase } from '@modules/user2/application/use-cases/add-user-address.usecase';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class UserController {
   constructor(
-    private readonly usersQueueService: UsersQueueService,
+    // private readonly usersQueueService: UsersQueueService,
     private readonly userMapper: UserMapper,
+    private readonly addressMapper: AddressMapper,
     private readonly createUserUseCase: CreateUserUseCase,
+    private readonly addUserAddressUseCase: AddUserAddressUseCase,
     private readonly getUserUseCase: GetUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
@@ -64,14 +66,14 @@ export class UserController {
 
     const user = this.userMapper.createDTOForEntity(dto, userId);
 
-    this.usersQueueService.send('user-created', {
-      id: userId,
-      email: dto.email,
-      password: dto.password,
-      roles: defaultRoles,
-      email_verified: false,
-      phone_verified: false,
-    });
+    // this.usersQueueService.send('user-created', {
+    //   id: userId,
+    //   email: dto.email,
+    //   password: dto.password,
+    //   roles: defaultRoles,
+    //   email_verified: false,
+    //   phone_verified: false,
+    // });
 
     await this.createUserUseCase.execute(user);
 
@@ -95,7 +97,7 @@ export class UserController {
     if (username !== null && username !== undefined) {
       UsernameValidator.validate(username, true);
       user = await this.getUserUseCase.findByUsername(username);
-    }
+    }   
 
     if (user == null) {
       throw new NotFoundUser();
@@ -126,8 +128,8 @@ export class UserController {
 
     IDValidator.validate(id);
 
-    const userUpdateDTO = this.userMapper.updateDTOForEntity(dto, id);
-    const userUpdated = await this.updateUserUseCase.execute(id, userUpdateDTO);
+    const userUpdate = this.userMapper.updateDTOForEntity(dto, id);
+    const userUpdated = await this.updateUserUseCase.execute(id, userUpdate);
 
     return new HttpUpdatedResponse('Usuário atualizado com sucesso', {
       name: userUpdated.name,
@@ -139,7 +141,7 @@ export class UserController {
   }
 
   @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @ApiDeleteUser()
   async delete(@Param('id') id: string): Promise<HttpResponseOutbound> {
     IDValidator.validate(id);
@@ -147,5 +149,19 @@ export class UserController {
     await this.deleteUserUseCase.execute(id);
 
     return new HttpDeletedResponse('Usuário deletado com sucesso');
+  }
+
+  @Post(':id/address')
+  @HttpCode(HttpStatus.CREATED)
+  @ApiCreateUser()
+  async addAddress(
+    @Body() dto: AddUserAddressDTO,
+    @Param('id') userId: string,
+  ): Promise<HttpResponseOutbound> {
+    const user = this.addressMapper.addUserAddressDTOForEntity(dto, userId);
+
+    await this.addUserAddressUseCase.execute(userId, user);
+
+    return new HttpCreatedResponse('Usuário criado com sucesso');
   }
 }

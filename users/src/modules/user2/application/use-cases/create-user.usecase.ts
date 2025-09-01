@@ -19,7 +19,7 @@ export class CreateUserUseCase implements CreateUserPort {
       username: `${user.username}`,
     });
 
-    if (userExistsWithUsername) {
+    if (userExistsWithUsername != null && userExistsWithUsername != undefined) {
       throw new FieldAlreadyExists(
         UsernameConstants.ERROR_ALREADY_EXISTS,
         'username',
@@ -30,7 +30,7 @@ export class CreateUserUseCase implements CreateUserPort {
       email: `${user.email}`,
     });
 
-    if (userExistsWithEmail) {
+    if (userExistsWithEmail != null && userExistsWithEmail != undefined) {
       throw new FieldAlreadyExists(
         EmailConstants.ERROR_ALREADY_EXISTS,
         'email',
