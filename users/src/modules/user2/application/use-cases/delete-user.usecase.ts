@@ -9,8 +9,8 @@ export class DeleteUserUseCase {
   async execute(id: string): Promise<void> {
     const user = await this.userRepository.findOne({ userId: id });
 
-    if (!user) {
-      throw new NotFoundItem();
+    if (user == undefined || user == null) {
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     await this.userRepository.delete(id);

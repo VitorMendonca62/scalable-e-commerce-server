@@ -30,11 +30,11 @@ export class AddUserAddressUseCase {
     const user = await this.userRepository.findOne({ userId: userId });
 
     if (user == undefined || user == null) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     if (!user.active) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     if((await this.addressRepositoy.getAll(userId)).length == 3) {

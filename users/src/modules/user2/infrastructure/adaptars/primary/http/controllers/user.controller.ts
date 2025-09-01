@@ -44,6 +44,7 @@ import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
 import { AddressMapper } from '@modules/user2/infrastructure/mappers/address.mapper';
 import { AddUserAddressUseCase } from '@modules/user2/application/use-cases/add-user-address.usecase';
 import { GetUserAddressUseCase } from '@modules/user2/application/use-cases/get-user-addresses.usecase';
+import { DeleteUserAddressUseCase } from '@modules/user2/application/use-cases/delete-user-address.usecase';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -58,6 +59,7 @@ export class UserController {
     private readonly getUserAddressUseCase: GetUserAddressUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
+    private readonly deleteUserAddressUseCase: DeleteUserAddressUseCase,
   ) {}
 
   @Post('/')
@@ -102,7 +104,7 @@ export class UserController {
     }
 
     if (user == null) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     return new HttpOKResponse('Usuário encontrado com sucesso', {
@@ -153,11 +155,11 @@ export class UserController {
     return new HttpDeletedResponse('Usuário deletado com sucesso');
   }
 
-  @Post(':id/address')
+  @Post(':userId/address')
   @HttpCode(HttpStatus.CREATED)
   async addAddress(
     @Body() dto: AddUserAddressDTO,
-    @Param('id') userId: string,
+    @Param('userId') userId: string,
   ): Promise<HttpResponseOutbound> {
     const address = this.addressMapper.addUserAddressDTOForEntity(dto, userId);
 
@@ -166,14 +168,26 @@ export class UserController {
     return new HttpCreatedResponse('Endereço criado com sucesso');
   }
 
-  @Get(':id/address')
+  @Get(':userId/address')
   @HttpCode(HttpStatus.OK)
   async getAddresses(
-    @Param('id') userId: string,
+    @Param('userId') userId: string,
   ): Promise<HttpResponseOutbound> {
     return new HttpOKResponse(
       'Aqui está todos os endereços do usuário',
       await this.getUserAddressUseCase.execute(userId),
+    );
+  }
+
+  @Delete(':userId/address/:addressId')
+  @HttpCode(HttpStatus.OK)
+  async updateAddress(
+    @Param('userId') userId: string,
+    @Param('addressId') addressId: number,
+  ): Promise<HttpResponseOutbound> {
+    return new HttpOKResponse(
+      'Endereço deletado com sucesso.',
+      await this.deleteUserAddressUseCase.execute(userId, addressId),
     );
   }
 }

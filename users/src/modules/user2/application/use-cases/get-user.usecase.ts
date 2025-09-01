@@ -12,11 +12,11 @@ export class GetUserUseCase{
     const user = await this.userRepository.findOne({ userId: id });
 
     if (user == undefined || user == null) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     if (!user.active) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     return user;
@@ -28,11 +28,11 @@ export class GetUserUseCase{
     });
 
     if (user == undefined || user == null) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     if (!user.active) {
-      throw new NotFoundItem();
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
     return user;

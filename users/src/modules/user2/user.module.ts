@@ -19,6 +19,7 @@ import { AddressService } from './infrastructure/adaptars/secondary/address/addr
 import { AddressRepositoy } from './domain/ports/secondary/address-repository.port';
 import InMemoryAddressRepository from './infrastructure/adaptars/secondary/database/repositories/inmemory-address.repository';
 import { GetUserAddressUseCase } from './application/use-cases/get-user-addresses.usecase';
+import { DeleteUserAddressUseCase } from './application/use-cases/delete-user-address.usecase';
 
 @Module({
   imports: [
@@ -77,6 +78,7 @@ import { GetUserAddressUseCase } from './application/use-cases/get-user-addresse
     AddressService,
     DeleteUserUseCase,
     GetUserAddressUseCase,
+    DeleteUserAddressUseCase,
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,
