@@ -71,3 +71,15 @@ export class ExternalServiceError extends HttpError {
     this.data = data;
   }
 }
+
+export class BusinessRuleViolation extends HttpError {
+  constructor(
+    message: string = 'Regra de negócio violada',
+    data: any = {},
+  ) {
+    super(message, HttpStatus.UNPROCESSABLE_ENTITY, data);
+    this.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
+    this.message = message;
+    this.data = data;
+  }
+}

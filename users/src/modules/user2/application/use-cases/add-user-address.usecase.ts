@@ -5,6 +5,7 @@ import {
   FieldInvalid,
   NotFoundItem,
   ExternalServiceError,
+  BusinessRuleViolation,
 } from '@modules/user2/domain/ports/primary/http/error.port';
 import { AddressService } from '@modules/user2/infrastructure/adaptars/secondary/address/address.service';
 import { firstValueFrom } from 'rxjs';
@@ -34,6 +35,10 @@ export class AddUserAddressUseCase {
 
     if (!user.active) {
       throw new NotFoundItem();
+    }
+
+    if((await this.addressRepositoy.getAll(userId)).length == 3) {
+      throw new BusinessRuleViolation('O usuário já possui o número máximo de endereços permitidos (3).');
     }
 
     let cepResponse: AxiosResponse<SearchCEPBrasilAPI, any>;
