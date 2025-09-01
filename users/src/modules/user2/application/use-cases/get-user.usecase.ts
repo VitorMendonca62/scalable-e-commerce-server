@@ -1,23 +1,22 @@
 import { Injectable } from '@nestjs/common';
 import { UserEntity } from '@modules/user2/infrastructure/adaptars/secondary/database/entities/user.entity';
-import { GetUserPort } from '@modules/user2/domain/ports/primary/user.port';
 import { UserRepository } from '@modules/user2/domain/ports/secondary/user-repository.port';
-import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
+import { NotFoundItem } from '@modules/user2/domain/ports/primary/http/error.port';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 
 @Injectable()
-export class GetUserUseCase implements GetUserPort {
+export class GetUserUseCase{
   constructor(private readonly userRepository: UserRepository) {}
 
   async findById(id: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ userId: id });
 
     if (user == undefined || user == null) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     if (!user.active) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     return user;
@@ -29,11 +28,11 @@ export class GetUserUseCase implements GetUserPort {
     });
 
     if (user == undefined || user == null) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     if (!user.active) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     return user;

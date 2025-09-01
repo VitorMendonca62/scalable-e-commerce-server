@@ -48,13 +48,25 @@ export class FieldAlreadyExists extends HttpError {
   }
 }
 
-export class NotFoundUser extends HttpError {
+export class NotFoundItem extends HttpError {
   constructor(
     message: string = 'Não foi possivel encontrar o usuário',
     data: any = {},
   ) {
     super(message, HttpStatus.NOT_FOUND, data);
     this.statusCode = HttpStatus.NOT_FOUND;
+    this.message = message;
+    this.data = data;
+  }
+}
+
+export class ExternalServiceError extends HttpError {
+  constructor(
+    message: string = 'Erro ao comunicar com serviço externo',
+    data: any = {},
+  ) {
+    super(message, HttpStatus.SERVICE_UNAVAILABLE, data);
+    this.statusCode = HttpStatus.SERVICE_UNAVAILABLE;
     this.message = message;
     this.data = data;
   }

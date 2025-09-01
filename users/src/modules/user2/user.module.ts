@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
+import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/users/inmemory-user.repository';
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { HttpModule } from '@nestjs/axios';
 import { JwtModule } from '@nestjs/jwt';
@@ -16,6 +16,9 @@ import { UsersQueueService } from './infrastructure/adaptars/secondary/message-b
 import { AddressMapper } from './infrastructure/mappers/address.mapper';
 import { UserMapper } from './infrastructure/mappers/user.mapper';
 import { AddressService } from './infrastructure/adaptars/secondary/address/address.service';
+import { AddressRepositoy } from './domain/ports/secondary/address-repository.port';
+import InMemoryAddressRepository from './infrastructure/adaptars/secondary/database/repositories/inmemory-address.repository';
+import { GetUserAddressUseCase } from './application/use-cases/get-user-addresses.usecase';
 
 @Module({
   imports: [
@@ -73,9 +76,14 @@ import { AddressService } from './infrastructure/adaptars/secondary/address/addr
     UpdateUserUseCase,
     AddressService,
     DeleteUserUseCase,
+    GetUserAddressUseCase,
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,
+    },
+    {
+      provide: AddressRepositoy,
+      useClass: InMemoryAddressRepository,
     },
   ],
 })

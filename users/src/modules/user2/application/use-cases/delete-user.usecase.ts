@@ -1,17 +1,16 @@
-import { DeleteUserPort } from '@user/domain/ports/primary/user.port';
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
-import { NotFoundUser } from '@modules/user2/domain/ports/primary/http/error.port';
+import { NotFoundItem } from '@modules/user2/domain/ports/primary/http/error.port';
 
 @Injectable()
-export class DeleteUserUseCase implements DeleteUserPort {
+export class DeleteUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
   async execute(id: string): Promise<void> {
     const user = await this.userRepository.findOne({ userId: id });
 
     if (!user) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     await this.userRepository.delete(id);

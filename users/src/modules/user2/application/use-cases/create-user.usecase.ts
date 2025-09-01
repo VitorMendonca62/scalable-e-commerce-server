@@ -1,4 +1,3 @@
-import { CreateUserPort } from '@user/domain/ports/primary/user.port';
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
 import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
@@ -8,7 +7,7 @@ import { User } from '@modules/user2/domain/entities/user.entity';
 import { UserMapper } from '@modules/user2/infrastructure/mappers/user.mapper';
 
 @Injectable()
-export class CreateUserUseCase implements CreateUserPort {
+export class CreateUserUseCase{
   constructor(
     private readonly userRepository: UserRepository,
     private readonly userMapper: UserMapper,

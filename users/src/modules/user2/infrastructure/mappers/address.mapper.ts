@@ -10,6 +10,7 @@ import PostalCodeVO from '@modules/user2/domain/values-objects/address/postal-co
 import CountryVO from '@modules/user2/domain/values-objects/address/country/country-vo';
 import StateVO from '@modules/user2/domain/values-objects/address/state/state-vo';
 import StreetVO from '@modules/user2/domain/values-objects/address/street/street-vo';
+import { AddressEntity } from '../adaptars/secondary/database/entities/address.entity';
 
 @Injectable()
 export class AddressMapper {
@@ -28,5 +29,22 @@ export class AddressMapper {
       createdAt: dateNow,
       updatedAt: dateNow,
     });
+  }
+
+  addressForEntity(entity: Address): Record<keyof AddressEntity, any> {
+    return {
+      id: entity.id,
+      city: `${entity.city}`,
+      complement: `${entity.complement}`,
+      neighborhood: `${entity.neighborhood}`,
+      number: `${entity.number}`,
+      postalCode: `${entity.postalCode}`,
+      country: `${entity.country}`,
+      state: `${entity.state}`,
+      street: `${entity.street}`,
+      userId: `${entity.userId}`,
+      createdAt: entity.createdAt,
+      updatedAt: entity.updatedAt,
+    };
   }
 }

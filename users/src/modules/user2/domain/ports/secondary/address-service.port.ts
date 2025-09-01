@@ -7,7 +7,7 @@ export interface BrasilAPICEPError {
   name: string;
 }
 
-interface BrasilAPICEP {
+export interface BrasilAPICEP {
   cep: string;
   state: string;
   city: string;

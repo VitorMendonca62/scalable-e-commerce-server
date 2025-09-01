@@ -32,7 +32,7 @@ import {
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
 import {
   FieldInvalid,
-  NotFoundUser,
+  NotFoundItem,
 } from '@modules/user2/domain/ports/primary/http/error.port';
 import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
 import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
@@ -43,6 +43,7 @@ import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.deco
 import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
 import { AddressMapper } from '@modules/user2/infrastructure/mappers/address.mapper';
 import { AddUserAddressUseCase } from '@modules/user2/application/use-cases/add-user-address.usecase';
+import { GetUserAddressUseCase } from '@modules/user2/application/use-cases/get-user-addresses.usecase';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -54,6 +55,7 @@ export class UserController {
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly addUserAddressUseCase: AddUserAddressUseCase,
     private readonly getUserUseCase: GetUserUseCase,
+    private readonly getUserAddressUseCase: GetUserAddressUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
   ) {}
@@ -97,10 +99,10 @@ export class UserController {
     if (username !== null && username !== undefined) {
       UsernameValidator.validate(username, true);
       user = await this.getUserUseCase.findByUsername(username);
-    }   
+    }
 
     if (user == null) {
-      throw new NotFoundUser();
+      throw new NotFoundItem();
     }
 
     return new HttpOKResponse('Usuário encontrado com sucesso', {
@@ -161,6 +163,17 @@ export class UserController {
 
     await this.addUserAddressUseCase.execute(userId, address);
 
-    return new HttpCreatedResponse('Usuário criado com sucesso');
+    return new HttpCreatedResponse('Endereço criado com sucesso');
+  }
+
+  @Get(':id/address')
+  @HttpCode(HttpStatus.OK)
+  async getAddresses(
+    @Param('id') userId: string,
+  ): Promise<HttpResponseOutbound> {
+    return new HttpOKResponse(
+      'Aqui está todos os endereços do usuário',
+      await this.getUserAddressUseCase.execute(userId),
+    );
   }
 }

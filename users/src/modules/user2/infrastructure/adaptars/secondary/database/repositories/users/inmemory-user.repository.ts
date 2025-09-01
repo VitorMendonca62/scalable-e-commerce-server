@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
-import { UserEntity } from '../entities/user.entity';
+import { UserEntity } from '../../entities/user.entity';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
 
 @Injectable()
@@ -34,7 +34,6 @@ export class InMemoryUserRepository implements UserRepository {
   async findOne(
     options: Partial<Record<keyof UserEntity, string>>,
   ): Promise<UserEntity | undefined> {
-    console.log(this.users);
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {
         if (this.keysCanToLowerCase.includes(key)) {

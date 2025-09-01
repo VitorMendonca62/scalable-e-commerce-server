@@ -7,7 +7,7 @@ import {
   mockUser,
 } from '@modules/user2/infrastructure/helpers/tests.helper';
 import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
-import { InMemoryUserRepository } from '../../secondary/database/repositories/inmemory-user.repository';
+import { InMemoryUserRepository } from '../../secondary/database/repositories/users/inmemory-user.repository';
 
 import UserExternalController from './user.external.controller';
 import { MessagingService } from '../../secondary/messaging/messaging.service';
