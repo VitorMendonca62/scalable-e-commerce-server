@@ -34,7 +34,6 @@ export class UserMapper {
   }
 
   updateDTOForEntity(dto: UpdateUserDTO, userId: string) {
-    console.log(dto);
     return new UserUpdate({
       userId: new IDVO(userId),
       name: new NameVO(dto.name, false),

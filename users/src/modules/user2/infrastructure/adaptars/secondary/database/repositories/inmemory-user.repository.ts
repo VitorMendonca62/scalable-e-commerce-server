@@ -29,12 +29,12 @@ export class InMemoryUserRepository implements UserRepository {
     this.lastID++;
     user._id = this.lastID;
     this.users.push(user);
-    console.log(this.users);
   }
 
   async findOne(
     options: Partial<Record<keyof UserEntity, string>>,
   ): Promise<UserEntity | undefined> {
+    console.log(this.users);
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {
         if (this.keysCanToLowerCase.includes(key)) {
@@ -59,8 +59,6 @@ export class InMemoryUserRepository implements UserRepository {
   ): Promise<UserEntity> {
     const oldUser: UserEntity = this.users.find((user) => user.userId == id);
     const oldUserIndex = this.users.indexOf(oldUser);
-
-    console.log(this.users[oldUserIndex], newFields);
 
     this.users[oldUserIndex] = { ...this.users[oldUserIndex], ...newFields };
     return this.users[oldUserIndex];
