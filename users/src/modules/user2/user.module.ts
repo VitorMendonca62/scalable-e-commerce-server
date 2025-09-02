@@ -20,6 +20,7 @@ import { AddressRepositoy } from './domain/ports/secondary/address-repository.po
 import InMemoryAddressRepository from './infrastructure/adaptars/secondary/database/repositories/inmemory-address.repository';
 import { GetUserAddressUseCase } from './application/use-cases/get-user-addresses.usecase';
 import { DeleteUserAddressUseCase } from './application/use-cases/delete-user-address.usecase';
+import { AddressController } from './infrastructure/adaptars/primary/http/controllers/address.controller';
 
 @Module({
   imports: [
@@ -66,7 +67,7 @@ import { DeleteUserAddressUseCase } from './application/use-cases/delete-user-ad
     //   },
     // ]),
   ],
-  controllers: [UserController],
+  controllers: [UserController, AddressController],
   providers: [
     // UsersQueueService,
     UserMapper,

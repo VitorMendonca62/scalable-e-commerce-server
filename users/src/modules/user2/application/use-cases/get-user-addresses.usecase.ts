@@ -31,7 +31,8 @@ export class GetUserAddressUseCase {
       );
     }
 
-    return addresses.map((address) => ({
+    return addresses.map((address, index) => ({
+      id: index,
       city: address.city,
       complement: address.complement,
       country: address.country,
