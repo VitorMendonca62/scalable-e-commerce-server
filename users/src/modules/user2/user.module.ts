@@ -21,6 +21,8 @@ import InMemoryAddressRepository from './infrastructure/adaptars/secondary/datab
 import { GetUserAddressUseCase } from './application/use-cases/get-user-addresses.usecase';
 import { DeleteUserAddressUseCase } from './application/use-cases/delete-user-address.usecase';
 import { AddressController } from './infrastructure/adaptars/primary/http/controllers/address.controller';
+import { TokenService } from './domain/ports/secondary/token-service.port';
+import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 
 @Module({
   imports: [
@@ -80,6 +82,10 @@ import { AddressController } from './infrastructure/adaptars/primary/http/contro
     DeleteUserUseCase,
     GetUserAddressUseCase,
     DeleteUserAddressUseCase,
+    {
+      provide: TokenService,
+      useClass: JwtTokenService,
+    },
     {
       provide: UserRepository,
       useClass: InMemoryUserRepository,

@@ -20,6 +20,10 @@ import { AddUserAddressUseCase } from '@modules/user2/application/use-cases/add-
 import { DeleteUserAddressUseCase } from '@modules/user2/application/use-cases/delete-user-address.usecase';
 import { GetUserAddressUseCase } from '@modules/user2/application/use-cases/get-user-addresses.usecase';
 import { AddressMapper } from '@modules/user2/infrastructure/mappers/address.mapper';
+import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
+import { AuthorizationToken } from '../getValue/authorization-token.decorator';
+import { TokenService } from '@modules/user2/domain/ports/secondary/token-service.port';
+import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
 
 @Controller('/address')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -31,26 +35,29 @@ export class AddressController {
     private readonly deleteUserAddressUseCase: DeleteUserAddressUseCase,
   ) {}
 
-  // TODO pegar id do usuario de alguma forma
   @Post('/')
   @HttpCode(HttpStatus.CREATED)
   async addAddress(
     @Body() dto: AddUserAddressDTO,
+    @AuthorizationToken('authorization', IdInTokenPipe)
+    id: string,
   ): Promise<HttpResponseOutbound> {
-    // TODO mockado useriD
-    const address = this.addressMapper.addUserAddressDTOForEntity(dto, "20f4b8ce-c6a2-49c7-972b-5e969a29cea9");
+    const address = this.addressMapper.addUserAddressDTOForEntity(dto, id);
 
-    await this.addUserAddressUseCase.execute("20f4b8ce-c6a2-49c7-972b-5e969a29cea9", address);
+    await this.addUserAddressUseCase.execute(id, address);
 
     return new HttpCreatedResponse('Endereço criado com sucesso');
   }
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
-  async getAddresses(): Promise<HttpResponseOutbound> {
+  async getAddresses(
+    @AuthorizationToken('authorization', IdInTokenPipe)
+    id: string,
+  ): Promise<HttpResponseOutbound> {
     return new HttpOKResponse(
       'Aqui está todos os endereços do usuário',
-      await this.getUserAddressUseCase.execute("20f4b8ce-c6a2-49c7-972b-5e969a29cea9"),
+      await this.getUserAddressUseCase.execute(id),
     );
   }
 
@@ -58,10 +65,12 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async updateAddress(
     @Param('addressId') addressId: number,
+    @AuthorizationToken('authorization', IdInTokenPipe)
+    id: string,
   ): Promise<HttpResponseOutbound> {
     return new HttpOKResponse(
       'Endereço deletado com sucesso.',
-      await this.deleteUserAddressUseCase.execute("20f4b8ce-c6a2-49c7-972b-5e969a29cea9", addressId),
+      await this.deleteUserAddressUseCase.execute(id, addressId),
     );
   }
 }

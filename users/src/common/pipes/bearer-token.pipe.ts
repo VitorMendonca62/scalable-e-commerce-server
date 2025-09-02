@@ -1,4 +1,4 @@
-import { FieldInvalid, WrongCredentials } from '@modules/user2/domain/ports/primary/http/error.port';
+import { WrongCredentials } from '@modules/user2/domain/ports/primary/http/error.port';
 import { PipeTransform, Injectable } from '@nestjs/common';
 
 @Injectable()
