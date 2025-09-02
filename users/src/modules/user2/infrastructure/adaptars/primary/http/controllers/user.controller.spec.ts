@@ -116,7 +116,7 @@ describe('UserController', () => {
     });
   });
 
-  describe('GET /', () => {
+  describe('GET /:identifier', () => {
     const id = IDConstants.EXEMPLE;
     const username = UsernameConstants.EXEMPLE;
     const user = mockUserEntity({ userId: id });

@@ -11,6 +11,47 @@ import NameVO from '@modules/user2/domain/values-objects/user/name/name-vo';
 import EmailVO from '@modules/user2/domain/values-objects/user/email/email-vo';
 import PhoneNumberVO from '@modules/user2/domain/values-objects/user/phone-number/phone-number-vo';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
+import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
+
+export const mockUser = (overrides: Partial<Record<keyof User, any>> = {}): User => {
+  const data = {
+    userId: IDConstants.EXEMPLE,
+    name: new NameVO(NameConstants.EXEMPLE, true),
+    username: new UsernameVO(UsernameConstants.EXEMPLE, true),
+    email: new EmailVO(EmailConstants.EXEMPLE, true),
+    phonenumber: new PhoneNumberVO(PhoneNumberConstants.EXEMPLE, true),
+    active: true,
+    email_verified: false,
+    phone_verified: false,
+    avatar: null,
+    roles: defaultRoles,
+    createdAt: new Date('2025-09-02T13:30:08.633Z'),
+    updatedAt: new Date('2025-09-02T13:30:08.633Z'),
+    ...overrides,
+  };
+  return new User(data);
+};
+
+export const mockUserEntity = (
+  overrides: Partial<Record<keyof User, any>> = {},
+): UserEntity => {
+  const data = {
+    userId: IDConstants.EXEMPLE,
+    name: NameConstants.EXEMPLE,
+    username: UsernameConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
+    active: true,
+    email_verified: false,
+    phone_verified: false,
+    avatar: null,
+    roles: defaultRoles,
+    createdAt: new Date('2025-09-02T13:30:08.633Z'),
+    updatedAt: new Date('2025-09-02T13:30:08.633Z'),
+    ...overrides,
+  };
+  return data;
+};
 
 export const mockCreatedUserDTOToUser = (
   dto: CreateUserDTO,
