@@ -12,11 +12,15 @@ import { UserUpdate } from '@modules/user2/domain/entities/user-update.entity';
 import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
 import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
 import { UserModule } from '@modules/user2/user.module';
+import { v7 } from 'uuid';
 
 @Injectable()
 export class UserMapper {
-  createDTOForEntity(dto: CreateUserDTO, userId: string) {
+  createDTOForEntity(dto: CreateUserDTO) {
     const dateNow = new Date();
+    // TODO realizar pesquisa sobre a diferença de versões do uuid
+    const userId = v7();
+    
     return new User({
       userId,
       name: new NameVO(dto.name, true),

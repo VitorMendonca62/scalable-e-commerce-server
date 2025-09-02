@@ -17,7 +17,6 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { v7 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 import {
@@ -57,10 +56,9 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
-    const userId = v7();
+    const user = this.userMapper.createDTOForEntity(dto);
 
-    const user = this.userMapper.createDTOForEntity(dto, userId);
-
+    await this.createUserUseCase.execute(user);
     // TODO COnsertar isso aqui
     // this.usersQueueService.send('user-created', {
     //   id: userId,
@@ -70,8 +68,6 @@ export class UserController {
     //   email_verified: false,
     //   phone_verified: false,
     // });
-
-    await this.createUserUseCase.execute(user);
 
     return new HttpCreatedResponse('Usuário criado com sucesso');
   }
