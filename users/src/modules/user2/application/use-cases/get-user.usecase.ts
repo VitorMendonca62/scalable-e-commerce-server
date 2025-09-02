@@ -3,38 +3,43 @@ import { UserEntity } from '@modules/user2/infrastructure/adaptars/secondary/dat
 import { UserRepository } from '@modules/user2/domain/ports/secondary/user-repository.port';
 import { NotFoundItem } from '@modules/user2/domain/ports/primary/http/error.port';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
+import { isUUID } from 'class-validator';
+import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
+import { UsernameValidator } from '@modules/user2/domain/values-objects/user/username/username-validator';
 
 @Injectable()
-export class GetUserUseCase{
+export class GetUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async findById(id: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({ userId: id });
+  async execute(
+    identifier: string,
+  ): Promise<Partial<Record<keyof UserEntity, any>>> {
+    let user: UserEntity | null = null;
 
-    if (user == undefined || user == null) {
-      throw new NotFoundItem('Não foi possivel encontrar o usuário');
+    if (isUUID(identifier)) {
+      IDValidator.validate(identifier);
+      user = await this.userRepository.findOne({ userId: identifier });
+    }
+
+    if (user == null || user == undefined) {
+      UsernameValidator.validate(identifier, true);
+      user = await this.userRepository.findOne({ username: identifier });
+
+      if (user == null || user == undefined) {
+        throw new NotFoundItem('Não foi possivel encontrar o usuário');
+      }
     }
 
     if (!user.active) {
       throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
-    return user;
-  }
-
-  async findByUsername(username: string): Promise<UserEntity> {
-    const user = await this.userRepository.findOne({
-      username,
-    });
-
-    if (user == undefined || user == null) {
-      throw new NotFoundItem('Não foi possivel encontrar o usuário');
-    }
-
-    if (!user.active) {
-      throw new NotFoundItem('Não foi possivel encontrar o usuário');
-    }
-
-    return user;
+    return {
+      name: user.name,
+      username: user.username,
+      email: user.email,
+      avatar: user.avatar,
+      phonenumber: user.phonenumber,
+    };
   }
 }

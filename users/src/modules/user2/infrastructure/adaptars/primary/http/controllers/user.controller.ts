@@ -74,36 +74,16 @@ export class UserController {
 
   // TODO verificar para que exatamente vai servir isso, seria mais facil criar um /me no qual ele pega do token
   // TODO talvez ele nao vai precisar visitar outros usuarios, ou sim, nao sei
-  @Get('/')
+  @Get('/:identifier')
   @HttpCode(HttpStatus.OK)
   @ApiFindOneUser()
   async findOne(
-    @Query('id') id?: string,
-    @Query('username') username?: string,
+    @Param('identifier') identifier: string,
   ): Promise<HttpResponseOutbound> {
-    let user: UserEntity | null = null;
-
-    if (id !== null && id !== undefined) {
-      IDValidator.validate(id);
-      user = await this.getUserUseCase.findById(id);
-    }
-
-    if (username !== null && username !== undefined) {
-      UsernameValidator.validate(username, true);
-      user = await this.getUserUseCase.findByUsername(username);
-    }
-
-    if (user == null) {
-      throw new NotFoundItem('Não foi possivel encontrar o usuário');
-    }
-
-    return new HttpOKResponse('Usuário encontrado com sucesso', {
-      name: user.name,
-      username: user.username,
-      email: user.email,
-      avatar: user.avatar,
-      phonenumber: user.phonenumber,
-    });
+    return new HttpOKResponse(
+      'Usuário encontrado com sucesso',
+      await this.getUserUseCase.execute(identifier),
+    );
   }
 
   @Patch('/')

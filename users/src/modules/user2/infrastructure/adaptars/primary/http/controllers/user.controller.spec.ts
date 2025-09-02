@@ -11,12 +11,18 @@ import { UserController } from './user.controller';
 import {
   mockCreatedUserDTOToUser,
   mockCreateUserDTO,
+  mockUser,
+  mockUserEntity,
 } from '@modules/user2/infrastructure/helpers/tests.helper';
-import { v7 } from 'uuid';
 import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
-import { HttpCreatedResponse } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import {
+  HttpCreatedResponse,
+  HttpOKResponse,
+} from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { HttpStatus } from '@nestjs/common';
+import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
+import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -61,7 +67,7 @@ describe('UserController', () => {
   });
 
   describe('POST /', () => {
-    const id = v7();
+    const id = IDConstants.EXEMPLE;
     const dto = mockCreateUserDTO();
     const user = mockCreatedUserDTOToUser(dto, { userId: id });
 
@@ -107,6 +113,49 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       await expect(controller.create(dto)).rejects.toThrow('Erro no use case');
+    });
+  });
+
+  describe('GET /', () => {
+    const id = IDConstants.EXEMPLE;
+    const username = UsernameConstants.EXEMPLE;
+    const user = mockUserEntity({ userId: id });
+
+    beforeEach(() => {
+      jest.spyOn(getUserUseCase, 'execute').mockResolvedValue(user);
+    });
+
+    describe('should call getUserUseCase.execute with id', async () => {
+      const identifier = id;
+      await controller.findOne(identifier);
+
+      expect(getUserUseCase.execute).toHaveBeenCalledWith(identifier);
+    });
+
+    describe('should call getUserUseCase.execute with username', async () => {
+      const identifier = username;
+      await controller.findOne(identifier);
+
+      expect(getUserUseCase.execute).toHaveBeenCalledWith(identifier);
+    });
+
+    describe('should return HttpCreatedResponse on success', async () => {
+      const response = await controller.findOne(username);
+
+      expect(response).toBeInstanceOf(HttpOKResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Usuário encontrado com sucesso',
+        data: user,
+      });
+    });
+
+    describe('should throw error if use case throw error', async () => {
+      jest
+        .spyOn(getUserUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(controller.findOne(id)).rejects.toThrow('Erro no use case');
     });
   });
 });
