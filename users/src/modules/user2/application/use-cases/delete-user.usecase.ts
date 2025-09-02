@@ -13,6 +13,10 @@ export class DeleteUserUseCase {
       throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
+    if (!user.active) {
+      throw new NotFoundItem('Não foi possivel encontrar o usuário');
+    }
+
     await this.userRepository.delete(id);
   }
 }

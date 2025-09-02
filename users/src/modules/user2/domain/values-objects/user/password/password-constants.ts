@@ -8,6 +8,18 @@ export class PasswordConstants {
   static readonly MIN_LENGTH_EXEMPLE = 'abc';
   static readonly WEAK_EXEMPLE = 'adwawdawdwad';
 
+  static readonly MIN_LOWERCASE = 8;
+  static readonly MIN_SYMBOLS = 8;
+  static readonly MIN_UPPERCASE = 8;
+  static readonly MIN_NUMBERS = 8;
+  static readonly STRONG_OPTIONS = {
+    minLowercase: this.MIN_LOWERCASE,
+    minLength: this.MIN_LENGTH,
+    minSymbols: this.MIN_SYMBOLS,
+    minUppercase: this.MIN_UPPERCASE,
+    minNumbers: this.MIN_NUMBERS,
+  };
+
   // ERRORS
   static readonly ERROR_REQUIRED = 'A senha é obrigatória';
   static readonly ERROR_STRING = 'A senha deve ser uma string válida';

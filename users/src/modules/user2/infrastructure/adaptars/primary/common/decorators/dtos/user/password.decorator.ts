@@ -12,18 +12,9 @@ export function Password(isStrongPassword: boolean) {
 
   if (isStrongPassword) {
     decorators.push(
-      IsStrongPassword(
-        {
-          minLowercase: 1,
-          minLength: PasswordConstants.MIN_LENGTH,
-          minSymbols: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-        },
-        {
-          message: PasswordConstants.ERROR_WEAK_PASSWORD,
-        },
-      ),
+      IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
+        message: PasswordConstants.ERROR_WEAK_PASSWORD,
+      }),
     );
   }
 

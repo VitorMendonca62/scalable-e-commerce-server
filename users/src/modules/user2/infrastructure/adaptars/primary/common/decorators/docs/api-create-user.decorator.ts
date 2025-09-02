@@ -1,4 +1,5 @@
 import { HttpResponseOutbound } from '@modules/user2/domain/ports/primary/http/sucess.port';
+import { EmailConstants } from '@modules/user2/domain/values-objects/user/email/email-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -26,7 +27,7 @@ export function ApiCreateUser() {
       example: {
         statusCode: HttpStatus.BAD_REQUEST,
         data: 'email',
-        message: 'O email deve ser válido',
+        message: EmailConstants.ERROR_INVALID,
       },
       type: HttpResponseOutbound,
     }),
@@ -35,7 +36,7 @@ export function ApiCreateUser() {
       example: {
         statusCode: HttpStatus.CONFLICT,
         data: 'email',
-        message: 'Esse email já está sendo utilizado. Tente outro',
+        message: EmailConstants.ERROR_ALREADY_EXISTS,
       },
       type: HttpResponseOutbound,
     }),

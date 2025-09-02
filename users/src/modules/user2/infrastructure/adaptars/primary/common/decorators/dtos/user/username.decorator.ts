@@ -17,11 +17,10 @@ export function Username(required: boolean) {
 
   return applyDecorators(
     IsRequired,
-
     IsString({ message: UsernameConstants.ERROR_STRING }),
     MinLength(UsernameConstants.MIN_LENGTH, {
       message: UsernameConstants.ERROR_MIN_LENGTH,
     }),
-    Matches(/^\S+$/, { message: UsernameConstants.ERROR_NO_SPACES }),
+    Matches(/\s/, { message: UsernameConstants.ERROR_NO_SPACES }),
   );
 }

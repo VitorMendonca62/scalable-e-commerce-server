@@ -3,6 +3,7 @@ import { UsernameConstants } from '@modules/user2/domain/values-objects/user/use
 import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -22,7 +23,7 @@ export function ApiFindOneUser() {
     }),
     ApiQuery({
       name: 'username',
-      description:  UsernameConstants.DESCRIPTION,
+      description: UsernameConstants.DESCRIPTION,
       example: UsernameConstants.EXEMPLE,
       required: false,
     }),
@@ -32,6 +33,15 @@ export function ApiFindOneUser() {
         statusCode: HttpStatus.OK,
         data: {},
         message: 'Aqui está usuário pelo ID',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiBadRequestResponse({
+      description: 'Username ou id está inválido.',
+      example: {
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: 'id',
+        message: IDConstants.ERROR_INVALID,
       },
       type: HttpResponseOutbound,
     }),

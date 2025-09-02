@@ -17,14 +17,7 @@ import {
 export function ApiUpdateUser() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Atualizar um usuário por id',
-    }),
-    ApiParam({
-      description: IDConstants.DESCRIPTION,
-      example: IDConstants.EXEMPLE,
-      name: 'id',
-      required: true,
-      allowEmptyValue: false,
+      summary: 'Atualizar um usuário por token',
     }),
     ApiOkResponse({
       description: 'Foi possivel atualizar usuário',
@@ -44,7 +37,7 @@ export function ApiUpdateUser() {
     ApiBadRequestResponse({
       description: 'Não passou nenhum campo para o usuário ser atualizado',
       example: {
-        statusCode: HttpStatus.OK,
+        statusCode: HttpStatus.BAD_REQUEST,
         data: 'all',
         message: 'Adicione algum campo para o usuário ser atualizado',
       },

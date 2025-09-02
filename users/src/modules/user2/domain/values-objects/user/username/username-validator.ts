@@ -1,4 +1,4 @@
-import { isNotEmpty, isString, length } from 'class-validator';
+import { isNotEmpty, isString, length, minLength } from 'class-validator';
 import { UsernameConstants } from './username-constants';
 import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
 
@@ -12,7 +12,7 @@ export class UsernameValidator {
       throw new FieldInvalid(UsernameConstants.ERROR_STRING, 'username');
     }
 
-    if (!length(value, UsernameConstants.MIN_LENGTH)) {
+    if (!minLength(value, UsernameConstants.MIN_LENGTH)) {
       throw new FieldInvalid(UsernameConstants.ERROR_MIN_LENGTH, 'username');
     }
 

@@ -12,7 +12,14 @@ export class UpdateUserUseCase {
     private readonly userMapper: UserMapper,
   ) {}
 
-  async execute(id: string, userUpdate: UserUpdate): Promise<UserEntity> {
+  async execute(
+    id: string,
+    userUpdate: UserUpdate,
+  ): Promise<
+    Partial<
+    Record<keyof UserUpdate, any> 
+    >
+  > {
     const user = await this.userRepository.findOne({ userId: id });
 
     if (user == undefined || user == null) {
@@ -23,9 +30,17 @@ export class UpdateUserUseCase {
       throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
-    return await this.userRepository.update(
+    const userUpdated = await this.userRepository.update(
       id,
       this.userMapper.updateEntityForJSON(userUpdate),
     );
+
+    return {
+      name: userUpdated.name,
+      username: userUpdated.username,
+      email: userUpdated.email,
+      avatar: userUpdated.avatar,
+      phonenumber: userUpdated.phonenumber,
+    };
   }
 }

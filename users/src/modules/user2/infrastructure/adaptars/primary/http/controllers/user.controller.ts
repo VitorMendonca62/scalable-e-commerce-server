@@ -17,7 +17,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { v4 } from 'uuid';
+import { v7 } from 'uuid';
 import { CreateUserDTO } from '../dtos/create-user.dto';
 import { ApiCreateUser } from '../../common/decorators/docs/api-create-user.decorator';
 import {
@@ -38,6 +38,8 @@ import { UsernameValidator } from '@modules/user2/domain/values-objects/user/use
 import { UserEntity } from '../../../secondary/database/entities/user.entity';
 import { UpdateUserDTO } from '../dtos/update-user.dto';
 import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.decorator';
+import { AuthorizationToken } from '../getValue/authorization-token.decorator';
+import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
 
 @Controller('users')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -49,17 +51,17 @@ export class UserController {
     private readonly getUserUseCase: GetUserUseCase,
     private readonly updateUserUseCase: UpdateUserUseCase,
     private readonly deleteUserUseCase: DeleteUserUseCase,
-
   ) {}
 
   @Post('/')
   @HttpCode(HttpStatus.CREATED)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
-    const userId = v4();
+    const userId = v7();
 
     const user = this.userMapper.createDTOForEntity(dto, userId);
 
+    // TODO COnsertar isso aqui
     // this.usersQueueService.send('user-created', {
     //   id: userId,
     //   email: dto.email,
@@ -74,6 +76,8 @@ export class UserController {
     return new HttpCreatedResponse('Usuário criado com sucesso');
   }
 
+  // TODO verificar para que exatamente vai servir isso, seria mais facil criar um /me no qual ele pega do token
+  // TODO talvez ele nao vai precisar visitar outros usuarios, ou sim, nao sei
   @Get('/')
   @HttpCode(HttpStatus.OK)
   @ApiFindOneUser()
@@ -106,12 +110,13 @@ export class UserController {
     });
   }
 
-  @Patch('/:id')
+  @Patch('/')
   @HttpCode(HttpStatus.OK)
   @ApiUpdateUser()
   async update(
     @Body() dto: UpdateUserDTO,
-    @Param('id') id: string,
+    @AuthorizationToken('authorization', IdInTokenPipe)
+    id: string,
   ): Promise<HttpResponseOutbound> {
     if (Object.keys(dto).length === 0) {
       throw new FieldInvalid(
@@ -123,21 +128,20 @@ export class UserController {
     IDValidator.validate(id);
 
     const userUpdate = this.userMapper.updateDTOForEntity(dto, id);
-    const userUpdated = await this.updateUserUseCase.execute(id, userUpdate);
 
-    return new HttpUpdatedResponse('Usuário atualizado com sucesso', {
-      name: userUpdated.name,
-      username: userUpdated.username,
-      email: userUpdated.email,
-      avatar: userUpdated.avatar,
-      phonenumber: userUpdated.phonenumber,
-    });
+    return new HttpUpdatedResponse(
+      'Usuário atualizado com sucesso',
+      await this.updateUserUseCase.execute(id, userUpdate),
+    );
   }
 
-  @Delete(':id')
+  @Delete('/')
   @HttpCode(HttpStatus.OK)
   @ApiDeleteUser()
-  async delete(@Param('id') id: string): Promise<HttpResponseOutbound> {
+  async delete(
+    @AuthorizationToken('authorization', IdInTokenPipe)
+    id: string,
+  ): Promise<HttpResponseOutbound> {
     IDValidator.validate(id);
 
     await this.deleteUserUseCase.execute(id);

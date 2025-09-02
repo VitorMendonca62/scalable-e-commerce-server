@@ -1,4 +1,4 @@
-import { isNotEmpty, isURL } from 'class-validator';
+import { isNotEmpty, isURL, maxLength } from 'class-validator';
 import { AvatarConstants } from './avatar-constants';
 import { FieldInvalid } from '../../../ports/primary/http/error.port';
 
@@ -12,7 +12,7 @@ export class AvatarValidator {
       throw new FieldInvalid(AvatarConstants.ERROR_INVALID, 'avatar');
     }
 
-    if (value.length > AvatarConstants.MAX_LENGTH) {
+    if (maxLength(value, AvatarConstants.MAX_LENGTH)) {
       throw new FieldInvalid(AvatarConstants.ERROR_TOO_LONG, 'avatar');
     }
   }
