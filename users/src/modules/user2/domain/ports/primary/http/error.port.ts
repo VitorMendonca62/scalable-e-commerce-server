@@ -9,7 +9,7 @@ class HttpError extends HttpException {
     status: number = HttpStatus.BAD_REQUEST,
     data: any = undefined,
   ) {
-    super(message, status); 
+    super(message, status);
     this.data = data;
     this.statusCode = status;
   }
@@ -25,10 +25,7 @@ export class FieldInvalid extends HttpError {
 }
 
 export class WrongCredentials extends HttpError {
-  constructor(
-    message: string = 'Token ausente ou inválido!',
-    data: any = {},
-  ) {
+  constructor(message: string = 'Token ausente ou inválido!', data: any = {}) {
     super(message, HttpStatus.UNAUTHORIZED, data);
     this.statusCode = HttpStatus.UNAUTHORIZED;
     this.message = message;
@@ -73,12 +70,9 @@ export class ExternalServiceError extends HttpError {
 }
 
 export class BusinessRuleViolation extends HttpError {
-  constructor(
-    message: string = 'Regra de negócio violada',
-    data: any = {},
-  ) {
-    super(message, HttpStatus.UNPROCESSABLE_ENTITY, data);
-    this.statusCode = HttpStatus.UNPROCESSABLE_ENTITY;
+  constructor(message: string = 'Regra de negócio violada', data: any = {}) {
+    super(message, HttpStatus.CONFLICT, data);
+    this.statusCode = HttpStatus.CONFLICT;
     this.message = message;
     this.data = data;
   }

@@ -20,9 +20,7 @@ import { AddUserAddressUseCase } from '@modules/user2/application/use-cases/add-
 import { DeleteUserAddressUseCase } from '@modules/user2/application/use-cases/delete-user-address.usecase';
 import { GetUserAddressUseCase } from '@modules/user2/application/use-cases/get-user-addresses.usecase';
 import { AddressMapper } from '@modules/user2/infrastructure/mappers/address.mapper';
-import { BearerTokenPipe } from '@common/pipes/bearer-token.pipe';
 import { AuthorizationToken } from '../getValue/authorization-token.decorator';
-import { TokenService } from '@modules/user2/domain/ports/secondary/token-service.port';
 import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
 
 @Controller('/address')
