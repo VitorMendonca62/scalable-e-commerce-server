@@ -11,7 +11,6 @@ import { UserEntity } from '../adaptars/secondary/database/entities/user.entity'
 import { UserUpdate } from '@modules/user2/domain/entities/user-update.entity';
 import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
 import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
-import { UserModule } from '@modules/user2/user.module';
 import { v7 } from 'uuid';
 
 @Injectable()
@@ -20,9 +19,9 @@ export class UserMapper {
     const dateNow = new Date();
     // TODO realizar pesquisa sobre a diferença de versões do uuid
     const userId = v7();
-    
+
     return new User({
-      userId,
+      userId: new IDVO(userId),
       name: new NameVO(dto.name, true),
       username: new UsernameVO(dto.username, true),
       email: new EmailVO(dto.email, true),
@@ -64,7 +63,7 @@ export class UserMapper {
   userToJSON(user: User): UserEntity {
     return {
       _id: user._id,
-      userId: user.userId,
+      userId: `${user.userId}`,
       name: `${user.name}`,
       username: `${user.username}`,
       email: `${user.email}`,

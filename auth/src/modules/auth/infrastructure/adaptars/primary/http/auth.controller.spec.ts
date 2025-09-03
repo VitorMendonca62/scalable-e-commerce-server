@@ -60,11 +60,7 @@ describe('AuthController', () => {
     const user = mockUser();
     const dto = mockCreateUserDTO();
 
-    beforeEach(() => {
-      jest.spyOn(createUserUseCase, 'execute').mockReturnValue(undefined);
-      jest.spyOn(messageBrokerService, 'send').mockReturnValue(undefined);
-      jest.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(user);
-    });
+
 
     it('should call createUserUseCase.execute with mapped DTO', async () => {
       await controller.create(dto);

@@ -5,10 +5,11 @@ import EmailVO from '../values-objects/user/email/email-vo';
 import NameVO from '../values-objects/user/name/name-vo';
 import PhoneNumberVO from '../values-objects/user/phone-number/phone-number-vo';
 import UsernameVO from '../values-objects/user/username/username-vo';
+import IDVO from '../values-objects/uuid/id-vo';
 
 export class User {
   _id?: number;
-  userId: string;
+  userId: IDVO;
   name: NameVO;
   username: UsernameVO;
   email: EmailVO;
@@ -23,7 +24,7 @@ export class User {
 
   constructor(props: {
     _id?: number;
-    userId: string;
+    userId: IDVO;
     name: NameVO;
     username: UsernameVO;
     email: EmailVO;

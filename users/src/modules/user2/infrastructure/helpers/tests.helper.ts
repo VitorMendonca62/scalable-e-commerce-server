@@ -12,8 +12,15 @@ import EmailVO from '@modules/user2/domain/values-objects/user/email/email-vo';
 import PhoneNumberVO from '@modules/user2/domain/values-objects/user/phone-number/phone-number-vo';
 import UsernameVO from '@modules/user2/domain/values-objects/user/username/username-vo';
 import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
+import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
+import { UserUpdate } from '@modules/user2/domain/entities/user-update.entity';
+import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
+import AvatarVO from '@modules/user2/domain/values-objects/user/avatar/avatar-vo';
+import { AvatarConstants } from '@modules/user2/domain/values-objects/user/avatar/avatar-constants';
 
-export const mockUser = (overrides: Partial<Record<keyof User, any>> = {}): User => {
+export const mockUser = (
+  overrides: Partial<Record<keyof User, any>> = {},
+): User => {
   const data = {
     userId: IDConstants.EXEMPLE,
     name: new NameVO(NameConstants.EXEMPLE, true),
@@ -92,4 +99,42 @@ export const mockCreateUserDTO = (
     phonenumber: PhoneNumberConstants.EXEMPLE,
     ...overrides,
   };
+};
+
+export const mockUpdateUserDTO = (
+  overrides: Partial<
+    Record<keyof UpdateUserDTO, UpdateUserDTO[keyof UpdateUserDTO]>
+  > = {},
+): UpdateUserDTO => {
+  return {
+    name: NameConstants.EXEMPLE,
+    username: UsernameConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
+    avatar: AvatarConstants.EXEMPLE,
+    ...overrides,
+  };
+};
+
+export const mockUserUpdatedDTOToUserUpdated = (
+  dto: UpdateUserDTO,
+  userId: IDVO,
+  overrides: Partial<Record<keyof UserUpdate, any>> = {},
+): UserUpdate => {
+  const vos = {
+    name: new NameVO(dto.name, false),
+    username: new UsernameVO(dto.username, false),
+    email: new EmailVO(dto.email, false),
+    phonenumber: new PhoneNumberVO(dto.phonenumber, false),
+    avatar: new AvatarVO(dto.avatar, false),
+  };
+  const data = {
+    userId,
+    ...vos,
+    roles: defaultRoles,
+    updatedAt: new Date('2025-09-02T13:30:08.633Z'),
+    ...overrides,
+  };
+
+  return new UserUpdate(data);
 };

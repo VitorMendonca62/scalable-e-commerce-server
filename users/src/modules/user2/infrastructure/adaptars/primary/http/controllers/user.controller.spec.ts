@@ -2,27 +2,28 @@ import { CreateUserUseCase } from '@modules/user2/application/use-cases/create-u
 import { DeleteUserUseCase } from '@modules/user2/application/use-cases/delete-user.usecase';
 import { GetUserUseCase } from '@modules/user2/application/use-cases/get-user.usecase';
 import { UpdateUserUseCase } from '@modules/user2/application/use-cases/update-user.usecase';
-import { UserRepository } from '@modules/user2/domain/ports/secondary/user-repository.port';
 import { UserMapper } from '@modules/user2/infrastructure/mappers/user.mapper';
-import { TestingModule, Test } from '@nestjs/testing';
-import { request } from 'http';
-import { InMemoryUserRepository } from '../../../secondary/database/repositories/users/inmemory-user.repository';
 import { UserController } from './user.controller';
 import {
   mockCreatedUserDTOToUser,
   mockCreateUserDTO,
-  mockUser,
+  mockUpdateUserDTO,
   mockUserEntity,
+  mockUserUpdatedDTOToUserUpdated,
 } from '@modules/user2/infrastructure/helpers/tests.helper';
 import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { defaultRoles } from '@modules/user2/domain/types/permissions';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
+  HttpUpdatedResponse,
 } from '@modules/user2/domain/ports/primary/http/sucess.port';
 import { HttpStatus } from '@nestjs/common';
 import { IDConstants } from '@modules/user2/domain/values-objects/uuid/id-constants';
 import { UsernameConstants } from '@modules/user2/domain/values-objects/user/username/username-constants';
+import IDVO from '@modules/user2/domain/values-objects/uuid/id-vo';
+import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
+import { IDValidator } from '@modules/user2/domain/values-objects/uuid/id-validator';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -156,6 +157,75 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       await expect(controller.findOne(id)).rejects.toThrow('Erro no use case');
+    });
+  });
+
+  describe('PATCH /', () => {
+    const id = IDConstants.EXEMPLE;
+    const dto = mockUpdateUserDTO();
+    const user = mockUserUpdatedDTOToUserUpdated(dto, new IDVO(id));
+    jest.mock('@modules/user2/domain/values-objects/uuid/id-validator');
+
+    beforeEach(() => {
+      jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(user);
+      jest.spyOn(userMapper, 'updateDTOForEntity').mockReturnValue(user);
+      (IDValidator as unknown as jest.Mock).mockImplementation(() => {
+        return { validate: jest.fn() };
+      });
+    });
+
+    describe('should call updateUserUseCase.execute with mapped DTO and user id', async () => {
+      await controller.update(dto, id);
+
+      expect(userMapper.updateDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(updateUserUseCase.execute).toHaveBeenCalledWith(id, user);
+    });
+
+    describe('should return HttpUpdatedResponse on success', async () => {
+      const response = await controller.update(dto, id);
+
+      expect(response).toBeInstanceOf(HttpUpdatedResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Usuário atualizado com sucesso',
+        data: dto,
+      });
+    });
+
+    describe('should return FieldInvalid when no have fields', async () => {
+      const response = await controller.update({}, id);
+
+      expect(response).rejects.toThrow(
+        new FieldInvalid(
+          'Adicione algum campo para o usuário ser atualizado',
+          'all',
+        ),
+      );
+      expect(response).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum campo para o usuário ser atualizado',
+        data: 'all',
+      });
+    });
+
+    describe('should throw error if id validator throw error', async () => {
+      (IDValidator.validate as jest.Mock).mockRejectedValue(
+        new Error('Erro no id validator'),
+      );
+
+      await expect(controller.update(dto, id)).rejects.toThrow(
+        'Erro no id validator',
+      );
+    });
+
+    describe('should throw error if use case throw error', async () => {
+      jest
+        .spyOn(updateUserUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(controller.update(dto, id)).rejects.toThrow(
+        'Erro no use case',
+      );
     });
   });
 });

@@ -1,13 +1,29 @@
 {
-  "moduleFileExtensions": ["ts", "js", "json"],
+  "moduleFileExtensions": ["js", "json", "ts"],
   "rootDir": ".",
   "testRegex": ".*\\.spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "collectCoverageFrom": [
+    "src/**/*.ts",
+    "!src/main.ts",
+    "!src/**/*.module.ts",
+    "!src/**/*.entity.ts",
+    "!src/**/*.config.ts",
+    "!src/**/env.validation.ts",
+    "!src/**/*.port.ts",
+    "!src/config/environment/utils.ts"
+  ],
+  "coverageDirectory": "./coverage",
+  "testEnvironment": "node",
+  "clearMocks": true,
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.ts"],
   "moduleNameMapper": {
     "^@modules/(.*)$": "<rootDir>/src/modules/$1",
-    "^@user/(.*)$": "<rootDir>/src/modules/user/$1"
-  },
-  "testEnvironment": "node"
+    "^@user/(.*)$": "<rootDir>/src/modules/user/$1",
+    "^@config/(.*)$": "<rootDir>/src/config/$1",
+    "^@common/(.*)$": "<rootDir>/src/common/$1",
+    "^@/(.*)$": "<rootDir>/$1"
+  }
 }
