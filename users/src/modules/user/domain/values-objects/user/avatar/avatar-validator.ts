@@ -12,7 +12,8 @@ export class AvatarValidator {
       throw new FieldInvalid(AvatarConstants.ERROR_INVALID, 'avatar');
     }
 
-    if (maxLength(value, AvatarConstants.MAX_LENGTH)) {
+    if (!maxLength(value, AvatarConstants.MAX_LENGTH)) {
+      console.error(value);
       throw new FieldInvalid(AvatarConstants.ERROR_TOO_LONG, 'avatar');
     }
   }

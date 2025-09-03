@@ -43,7 +43,7 @@ describe('UserController', () => {
       updateDTOForEntity: jest.fn(),
     } as any;
     createUserUseCase = { execute: jest.fn() } as any;
-    getUserUseCase = { findById: jest.fn(), findByUsername: jest.fn() } as any;
+    getUserUseCase = { execute: jest.fn() } as any;
     updateUserUseCase = { execute: jest.fn() } as any;
     deleteUserUseCase = { execute: jest.fn() } as any;
 
@@ -78,14 +78,14 @@ describe('UserController', () => {
       jest.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(user);
     });
 
-    describe('should call createUserUseCase.execute with mapped DTO', async () => {
+    it('should call createUserUseCase.execute with mapped DTO', async () => {
       await controller.create(dto);
 
       expect(userMapper.createDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 
-    describe('should send user-created event with correct payload', async () => {
+    it('should send user-created event with correct payload', async () => {
       await controller.create(dto);
 
       expect(usersQueueService.send).toHaveBeenCalledWith('user-created', {
@@ -99,7 +99,7 @@ describe('UserController', () => {
       });
     });
 
-    describe('should return HttpCreatedResponse on success', async () => {
+    it('should return HttpCreatedResponse on success', async () => {
       const response = await controller.create(dto);
 
       expect(response).toBeInstanceOf(HttpCreatedResponse);
@@ -108,7 +108,7 @@ describe('UserController', () => {
         message: 'Usuário criado com sucesso',
       });
     });
-    describe('should throw error if use case throw error', async () => {
+    it('should throw error if use case throw error', async () => {
       jest
         .spyOn(createUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
@@ -126,21 +126,21 @@ describe('UserController', () => {
       jest.spyOn(getUserUseCase, 'execute').mockResolvedValue(user);
     });
 
-    describe('should call getUserUseCase.execute with id', async () => {
+    it('should call getUserUseCase.execute with id', async () => {
       const identifier = id;
       await controller.findOne(identifier);
 
       expect(getUserUseCase.execute).toHaveBeenCalledWith(identifier);
     });
 
-    describe('should call getUserUseCase.execute with username', async () => {
+    it('should call getUserUseCase.execute with username', async () => {
       const identifier = username;
       await controller.findOne(identifier);
 
       expect(getUserUseCase.execute).toHaveBeenCalledWith(identifier);
     });
 
-    describe('should return HttpCreatedResponse on success', async () => {
+    it('should return HttpCreatedResponse on success', async () => {
       const response = await controller.findOne(username);
 
       expect(response).toBeInstanceOf(HttpOKResponse);
@@ -151,7 +151,7 @@ describe('UserController', () => {
       });
     });
 
-    describe('should throw error if use case throw error', async () => {
+    it('should throw error if use case throw error', async () => {
       jest
         .spyOn(getUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
@@ -164,24 +164,23 @@ describe('UserController', () => {
     const id = IDConstants.EXEMPLE;
     const dto = mockUpdateUserDTO();
     const user = mockUserUpdatedDTOToUserUpdated(dto, new IDVO(id));
+
     jest.mock('@user/domain/values-objects/uuid/id-validator');
 
     beforeEach(() => {
-      jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(user);
+      jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(dto);
       jest.spyOn(userMapper, 'updateDTOForEntity').mockReturnValue(user);
-      (IDValidator as unknown as jest.Mock).mockImplementation(() => {
-        return { validate: jest.fn() };
-      });
+      jest.spyOn(IDValidator, 'validate').mockImplementation(jest.fn());
     });
 
-    describe('should call updateUserUseCase.execute with mapped DTO and user id', async () => {
+    it('should call updateUserUseCase.execute with mapped DTO and user id', async () => {
       await controller.update(dto, id);
 
-      expect(userMapper.updateDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(userMapper.updateDTOForEntity).toHaveBeenCalledWith(dto, id);
       expect(updateUserUseCase.execute).toHaveBeenCalledWith(id, user);
     });
 
-    describe('should return HttpUpdatedResponse on success', async () => {
+    it('should return HttpUpdatedResponse on success', async () => {
       const response = await controller.update(dto, id);
 
       expect(response).toBeInstanceOf(HttpUpdatedResponse);
@@ -192,33 +191,23 @@ describe('UserController', () => {
       });
     });
 
-    describe('should return FieldInvalid when no have fields', async () => {
-      const response = await controller.update({}, id);
-
-      expect(response).rejects.toThrow(
-        new FieldInvalid(
-          'Adicione algum campo para o usuário ser atualizado',
-          'all',
-        ),
+    it('should return FieldInvalid when no have fields', async () => {
+      await expect(controller.update({}, id)).rejects.toThrow(
+        'Adicione algum campo para o usuário ser atualizado',
       );
-      expect(response).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Adicione algum campo para o usuário ser atualizado',
-        data: 'all',
-      });
     });
 
-    describe('should throw error if id validator throw error', async () => {
-      (IDValidator.validate as jest.Mock).mockRejectedValue(
-        new Error('Erro no id validator'),
-      );
+    it('should throw error if id validator throw error', async () => {
+      jest.spyOn(IDValidator, 'validate').mockImplementation(() => {
+        throw new Error('Erro no id validator');
+      });
 
       await expect(controller.update(dto, id)).rejects.toThrow(
         'Erro no id validator',
       );
     });
 
-    describe('should throw error if use case throw error', async () => {
+    it('should throw error if use case throw error', async () => {
       jest
         .spyOn(updateUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
