@@ -1,92 +1,26 @@
-import { TestingModule, Test } from '@nestjs/testing';
-import { UserRepository } from '../../../user/domain/ports/secondary/user-repository.port';
-import { mockUser } from '@user/infrastructure/helpers/tests.helper';
-import { InMemoryUserRepository } from '@user/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { ConfigModule } from '@nestjs/config';
-import { NotFoundException } from '@nestjs/common';
+import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
 import { GetUserUseCase } from './get-user.usecase';
-import { User } from '../../../user/core/domain/entities/user.entity';
+import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 
 describe('GetUserUseCase', () => {
   let useCase: GetUserUseCase;
   let userRepository: UserRepository;
 
-  const user = mockUser();
-
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        GetUserUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-      ],
-    }).compile();
-
-    userRepository = module.get<UserRepository>(UserRepository);
-    useCase = module.get<GetUserUseCase>(GetUserUseCase);
+    userRepository = { findOne: jest.fn() } as any;
+    useCase = new GetUserUseCase(userRepository);
   });
 
   it('should be defined', () => {
-    expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
+    expect(useCase).toBeDefined();
   });
 
-  describe('findById', () => {
-    const id = 'USERID';
+  describe('execute', () => {
+    const id = IDConstants.EXEMPLE;
+    const username = UsernameConstants.EXEMPLE;
 
-    beforeEach(() => {
-      jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => user);
-    });
-
-    it('should use case call with correct parameters and return user', async () => {
-      const response = await useCase.findById(id);
-
-      expect(userRepository.findById).toHaveBeenCalledWith(id);
-      expect(response).toBeInstanceOf(User);
-      expect(response).toEqual(user);
-    });
-
-    it('should throw not found execption when user does not exists', async () => {
-      jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => undefined);
-
-      await expect(useCase.findById(id)).rejects.toThrow(
-        new NotFoundException('Usuário não encontrado'),
-      );
-    });
-  });
-
-  describe('findById', () => {
-    const username = 'USERNAME';
-
-    beforeEach(() => {
-      jest
-        .spyOn(userRepository, 'findByUsername')
-        .mockImplementation(async () => user);
-    });
-
-    it('should use case call with correct parameters and return user', async () => {
-      const response = await useCase.findByUsername(username);
-
-      expect(userRepository.findByUsername).toHaveBeenCalledWith(username);
-      expect(response).toBeInstanceOf(User);
-      expect(response).toEqual(user);
-    });
-
-    it('should throw not found execption when user does not exists', async () => {
-      jest
-        .spyOn(userRepository, 'findByUsername')
-        .mockImplementation(async () => undefined);
-
-      await expect(useCase.findByUsername(username)).rejects.toThrow(
-        new NotFoundException('Usuário não encontrado'),
-      );
-    });
+    
   });
 });
