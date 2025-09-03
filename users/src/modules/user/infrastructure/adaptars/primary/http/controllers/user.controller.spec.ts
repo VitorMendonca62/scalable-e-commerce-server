@@ -22,8 +22,8 @@ import { HttpStatus } from '@nestjs/common';
 import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
 import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
 import IDVO from '@user/domain/values-objects/uuid/id-vo';
-import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 import { IDValidator } from '@user/domain/values-objects/uuid/id-validator';
+import { FieldInvalid } from '@modules/user/domain/ports/primary/http/error.port';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -113,7 +113,7 @@ describe('UserController', () => {
         .spyOn(createUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.create(dto)).rejects.toThrow('Erro no use case');
+      await expect(controller.create(dto)).rejects.toThrow(new Error('Erro no use case'));
     });
   });
 
@@ -156,7 +156,9 @@ describe('UserController', () => {
         .spyOn(getUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.findOne(id)).rejects.toThrow('Erro no use case');
+      await expect(controller.findOne(id)).rejects.toThrow(
+        new Error('Erro no use case'),
+      );
     });
   });
 
@@ -193,7 +195,10 @@ describe('UserController', () => {
 
     it('should return FieldInvalid when no have fields', async () => {
       await expect(controller.update({}, id)).rejects.toThrow(
-        'Adicione algum campo para o usuário ser atualizado',
+        new FieldInvalid(
+          'Adicione algum campo para o usuário ser atualizado',
+          'all',
+        ),
       );
     });
 
@@ -203,7 +208,7 @@ describe('UserController', () => {
       });
 
       await expect(controller.update(dto, id)).rejects.toThrow(
-        'Erro no id validator',
+        new Error('Erro no id validator'),
       );
     });
 
@@ -213,7 +218,7 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       await expect(controller.update(dto, id)).rejects.toThrow(
-        'Erro no use case',
+        new Error('Erro no use case'),
       );
     });
   });

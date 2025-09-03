@@ -12,7 +12,6 @@ import {
   HttpCode,
   HttpStatus,
   Get,
-  Query,
   Patch,
   Param,
   Delete,
@@ -27,14 +26,9 @@ import {
   HttpUpdatedResponse,
 } from '@user/domain/ports/primary/http/sucess.port';
 import { ApiFindOneUser } from '../../common/decorators/docs/api-find-one-user.decorator';
-import {
-  FieldInvalid,
-  NotFoundItem,
-} from '@user/domain/ports/primary/http/error.port';
+import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 import { IDValidator } from '@user/domain/values-objects/uuid/id-validator';
 import { ApiUpdateUser } from '../../common/decorators/docs/api-update-user.decorator';
-import { UsernameValidator } from '@user/domain/values-objects/user/username/username-validator';
-import { UserEntity } from '../../../secondary/database/entities/user.entity';
 import { UpdateUserDTO } from '../dtos/update-user.dto';
 import { ApiDeleteUser } from '../../common/decorators/docs/api-delete-user.decorator';
 import { AuthorizationToken } from '../getValue/authorization-token.decorator';
@@ -72,8 +66,9 @@ export class UserController {
     return new HttpCreatedResponse('Usuário criado com sucesso');
   }
 
-  // TODO verificar para que exatamente vai servir isso, seria mais facil criar um /me no qual ele pega do token
-  // TODO talvez ele nao vai precisar visitar outros usuarios, ou sim, nao sei
+  //TODO
+  /* verificar para que exatamente vai servir isso, seria mais facil criar um /me no qual ele pega do token
+  talvez ele nao vai precisar visitar outros usuarios, ou sim, nao sei */
   @Get('/:identifier')
   @HttpCode(HttpStatus.OK)
   @ApiFindOneUser()
