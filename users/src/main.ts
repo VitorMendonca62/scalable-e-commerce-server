@@ -6,7 +6,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { addRabbitMQClient } from './config/message-broker/rabbitmq.config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { EnvironmentVariables } from './config/environment/env.validation';
-import { FieldInvalid } from '@modules/user2/domain/ports/primary/http/error.port';
+import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

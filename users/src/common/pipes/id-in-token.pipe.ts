@@ -1,6 +1,6 @@
 import { Injectable, PipeTransform } from '@nestjs/common';
-import { TokenService } from '@modules/user2/domain/ports/secondary/token-service.port';
-import { WrongCredentials } from '@modules/user2/domain/ports/primary/http/error.port';
+import { TokenService } from '@user/domain/ports/secondary/token-service.port';
+import { WrongCredentials } from '@user/domain/ports/primary/http/error.port';
 
 @Injectable()
 export class IdInTokenPipe
