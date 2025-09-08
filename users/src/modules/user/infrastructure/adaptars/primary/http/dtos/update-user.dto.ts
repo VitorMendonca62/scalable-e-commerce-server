@@ -9,7 +9,7 @@ import { Name } from '../../common/decorators/dtos/user/name.decorator';
 import { PhoneNumber } from '../../common/decorators/dtos/user/phonenumber.decorator';
 import { Username } from '../../common/decorators/dtos/user/username.decorator';
 
-export abstract class UpdateUserDTO {
+export class UpdateUserDTO {
   @Username(false)
   @ApiUsername(false)
   username?: string;
