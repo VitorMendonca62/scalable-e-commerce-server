@@ -138,3 +138,23 @@ export const mockUserUpdatedDTOToUserUpdated = (
 
   return new UserUpdate(data);
 };
+
+export const mockCreateUserDTOLikeInstance = (
+  overrides: Partial<CreateUserDTO> = {},
+): CreateUserDTO => {
+  const dto = new CreateUserDTO();
+  const keys = Object.keys(overrides);
+
+  dto.username = keys.includes('username')
+    ? overrides.username
+    : UsernameConstants.EXEMPLE;
+  dto.email = keys.includes('email') ? overrides.email : EmailConstants.EXEMPLE;
+  dto.name = keys.includes('name') ? overrides.name : NameConstants.EXEMPLE;
+  dto.password = keys.includes('password')
+    ? overrides.password
+    : PasswordConstants.EXEMPLE;
+  dto.phonenumber = keys.includes('phonenumber')
+    ? overrides.phonenumber
+    : PhoneNumberConstants.EXEMPLE;
+  return dto;
+};

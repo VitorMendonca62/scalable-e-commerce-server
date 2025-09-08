@@ -50,9 +50,9 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
-    const user = this.userMapper.createDTOForEntity(dto);
-
-    await this.createUserUseCase.execute(user);
+    await this.createUserUseCase.execute(
+      this.userMapper.createDTOForEntity(dto),
+    );
     // TODO COnsertar isso aqui
     // this.usersQueueService.send('user-created', {
     //   id: userId,

@@ -19,7 +19,7 @@ export class UserMapper {
     const dateNow = new Date();
     // TODO realizar pesquisa sobre a diferença de versões do uuid
     const userId = v7();
-
+    
     return new User({
       userId: new IDVO(userId),
       name: new NameVO(dto.name, true),

@@ -21,6 +21,6 @@ export function Username(required: boolean) {
     MinLength(UsernameConstants.MIN_LENGTH, {
       message: UsernameConstants.ERROR_MIN_LENGTH,
     }),
-    Matches(/\s/, { message: UsernameConstants.ERROR_NO_SPACES }),
+    Matches(/^\S+$/, { message: UsernameConstants.ERROR_NO_SPACES }),
   );
 }
