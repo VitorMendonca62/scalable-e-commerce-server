@@ -9,10 +9,18 @@ export class IdInTokenPipe
   constructor(private readonly tokenService: TokenService) {}
 
   transform(authorizationHeader: string | undefined): string {
+    if (authorizationHeader === undefined || authorizationHeader === null) {
+      throw new WrongCredentials();
+    }
+    if (!authorizationHeader.startsWith('Bearer')) {
+      throw new WrongCredentials();
+    }
+
     const token = authorizationHeader.replace('Bearer ', '');
     const payload = this.tokenService.verifyToken(token);
 
     const { sub } = payload;
+
     if (sub == null || sub == undefined) {
       throw new WrongCredentials();
     }
