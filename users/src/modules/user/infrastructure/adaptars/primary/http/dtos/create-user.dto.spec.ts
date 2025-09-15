@@ -1,6 +1,6 @@
+import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
 import { EmailConstants } from '@modules/user/domain/values-objects/user/email/email-constants';
 import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
-import { PasswordConstants } from '@modules/user/domain/values-objects/user/password/password-constants';
 import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
 import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 import { mockCreateUserDTOLikeInstance } from '@modules/user/infrastructure/helpers/tests.helper';
