@@ -4,9 +4,7 @@ import { StateValidator } from './state-validator';
 
 describe('StateValidator', () => {
   it('should not throw if state is valid', () => {
-    const validState = StateConstants.EXEMPLE;
-
-    expect(() => StateValidator.validate(validState)).not.toThrow();
+    expect(() => StateValidator.validate(StateConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw for valid states with special characters', () => {
@@ -24,29 +22,25 @@ describe('StateValidator', () => {
   });
 
   it('should throw if state is empty', () => {
-    expect(() => StateValidator.validate('')).toThrow(
+    expect(() => StateValidator.validate(StateConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(StateConstants.ERROR_REQUIRED, 'state'),
     );
   });
 
   it('should throw if state is not a string', () => {
-    expect(() => StateValidator.validate(123 as any)).toThrow(
+    expect(() => StateValidator.validate(StateConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(StateConstants.ERROR_STRING, 'state'),
     );
   });
 
   it('should throw if state is too short', () => {
-    const shortState = StateConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => StateValidator.validate(shortState)).toThrow(
+    expect(() => StateValidator.validate(StateConstants.ERROR_TOO_SHORT_EXEMPLE)).toThrow(
       new FieldInvalid(StateConstants.ERROR_TOO_SHORT, 'state'),
     );
   });
 
   it('should throw if state is too long', () => {
-    const longState = StateConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => StateValidator.validate(longState)).toThrow(
+    expect(() => StateValidator.validate(StateConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(StateConstants.ERROR_TOO_LONG, 'state'),
     );
   });

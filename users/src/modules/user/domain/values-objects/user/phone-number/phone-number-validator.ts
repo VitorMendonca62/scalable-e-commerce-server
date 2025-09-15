@@ -1,10 +1,12 @@
-import { isNotEmpty, isPhoneNumber, isString, length } from 'class-validator';
+import { isEmpty, isNotEmpty, isPhoneNumber, isString, length } from 'class-validator';
 import { PhoneNumberConstants } from './phone-number-constants';
 import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
 export class PhoneNumberValidator {
   static validate(value: string, required: boolean) {
-    if (required && !isNotEmpty(value)) {
+    if (!required && isEmpty(value)) return;
+
+    if (required && isEmpty(value)) {
       throw new FieldInvalid(
         PhoneNumberConstants.ERROR_REQUIRED,
         'phonenumber',

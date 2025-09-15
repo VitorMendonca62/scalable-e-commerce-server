@@ -5,32 +5,60 @@ import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 describe('UsernameValidator', () => {
   it('should not throw error if username is valid', () => {
     const validUsername = UsernameConstants.EXEMPLE;
-    expect(() => UsernameValidator.validate(validUsername)).not.toThrow();
+    expect(() => UsernameValidator.validate(validUsername, true)).not.toThrow();
   });
 
-  it('should throw if value is empty', () => {
-    expect(() => UsernameValidator.validate('')).toThrow(
-      new FieldInvalid(UsernameConstants.ERROR_REQUIRED, 'username'),
-    );
+  it('should dont throw if value is empty and field is optional', () => {
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_REQUIRED_EXEMPLE,
+        false,
+      ),
+    ).not.toThrow();
+  });
+
+  it('should throw if value is empty and field is required', () => {
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_REQUIRED_EXEMPLE,
+        true,
+      ),
+    ).toThrow(new FieldInvalid(UsernameConstants.ERROR_REQUIRED, 'username'));
   });
 
   it('should throw if value is not a string', () => {
-    expect(() => UsernameValidator.validate(123 as any)).toThrow(
-      new FieldInvalid(UsernameConstants.ERROR_STRING, 'username'),
-    );
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_STRING_EXEMPLE as any,
+        true,
+      ),
+    ).toThrow(new FieldInvalid(UsernameConstants.ERROR_STRING, 'username'));
+  });
+
+  it('should throw if valueis not a string and field is optional', () => {
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_STRING_EXEMPLE as any,
+        false,
+      ),
+    ).toThrow(new FieldInvalid(UsernameConstants.ERROR_STRING, 'username'));
   });
 
   it('should throw if value is shorter than MIN_LENGTH', () => {
-    const shortUsername = 'ab';
-    expect(() => UsernameValidator.validate(shortUsername)).toThrow(
-      new FieldInvalid(UsernameConstants.ERROR_MIN_LENGTH, 'username'),
-    );
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_MIN_LENGTH_EXEMPLE,
+        true,
+      ),
+    ).toThrow(new FieldInvalid(UsernameConstants.ERROR_MIN_LENGTH, 'username'));
   });
 
   it('should throw if value contains spaces', () => {
-    const usernameWithSpaces = 'user name';
-    expect(() => UsernameValidator.validate(usernameWithSpaces)).toThrow(
-      new FieldInvalid(UsernameConstants.ERROR_NO_SPACES, 'username'),
-    );
+    expect(() =>
+      UsernameValidator.validate(
+        UsernameConstants.ERROR_NO_SPACES_EXEMPLE,
+        true,
+      ),
+    ).toThrow(new FieldInvalid(UsernameConstants.ERROR_NO_SPACES, 'username'));
   });
 });

@@ -15,6 +15,6 @@ export class PhoneNumberConstants {
   // Errors exemple
   static readonly ERROR_LENGTH_EXEMPLE = '+55819999999';
   static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_INVALID_EXEMPLE = '+15551234567';
-  static readonly ERROR_STRING_EXEMPLE = 12345678901234;
+  static readonly ERROR_INVALID_EXEMPLE = '+1181999999999';
+  static readonly ERROR_STRING_EXEMPLE = 11181999999999;
 }

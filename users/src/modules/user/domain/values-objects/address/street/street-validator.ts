@@ -1,4 +1,4 @@
-import { isNotEmpty, isString } from 'class-validator';
+import { isNotEmpty, isString, length } from 'class-validator';
 import { StreetConstants } from './street-constants';
 import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
@@ -12,12 +12,12 @@ export class StreetValidator {
       throw new FieldInvalid(StreetConstants.ERROR_STRING, 'street');
     }
 
-    if (value.length < StreetConstants.MIN_LENGTH) {
-      throw new FieldInvalid(StreetConstants.ERROR_TOO_SHORT, 'street');
-    }
-
     if (value.length > StreetConstants.MAX_LENGTH) {
       throw new FieldInvalid(StreetConstants.ERROR_TOO_LONG, 'street');
+    }
+
+    if (value.length < StreetConstants.MIN_LENGTH) {
+      throw new FieldInvalid(StreetConstants.ERROR_TOO_SHORT, 'street');
     }
 
     const streetRegex = /^[a-zA-ZÀ-ÿ\s\-'()\.]+$/;

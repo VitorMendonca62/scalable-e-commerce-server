@@ -4,51 +4,23 @@ import { NumberValidator } from './number-validator';
 
 describe('NumberValidator', () => {
   it('should not throw if number is valid', () => {
-    const validNumber = NumberConstants.EXEMPLE;
-
-    expect(() => NumberValidator.validate(validNumber)).not.toThrow();
-  });
-
-  it('should not throw for valid numbers with special formats', () => {
-    const validNumbers = [
-      '123',
-      '456A',
-      '789-B',
-      'S/N',
-      '1234',
-      'A1',
-      '12.34',
-    ];
-
-    validNumbers.forEach((number) => {
-      expect(() => NumberValidator.validate(number)).not.toThrow();
-    });
+    expect(() => NumberValidator.validate(NumberConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should throw if number is empty', () => {
-    expect(() => NumberValidator.validate('')).toThrow(
+    expect(() => NumberValidator.validate(NumberConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(NumberConstants.ERROR_REQUIRED, 'number'),
     );
   });
 
   it('should throw if number is not a string', () => {
-    expect(() => NumberValidator.validate(123 as any)).toThrow(
+    expect(() => NumberValidator.validate(NumberConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(NumberConstants.ERROR_STRING, 'number'),
     );
   });
-
-  it('should throw if number is too short', () => {
-    const shortNumber = NumberConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => NumberValidator.validate(shortNumber)).toThrow(
-      new FieldInvalid(NumberConstants.ERROR_TOO_SHORT, 'number'),
-    );
-  });
-
+  
   it('should throw if number is too long', () => {
-    const longNumber = NumberConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => NumberValidator.validate(longNumber)).toThrow(
+    expect(() => NumberValidator.validate(NumberConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(NumberConstants.ERROR_TOO_LONG, 'number'),
     );
   });

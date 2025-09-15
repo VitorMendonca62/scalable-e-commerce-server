@@ -12,13 +12,11 @@ export class NumberConstants {
   static readonly ERROR_INVALID = 'O número deve ser válido';
   static readonly ERROR_TOO_LONG =
     'O número não pode ter mais de 10 caracteres';
-  static readonly ERROR_TOO_SHORT = 'O número deve ter pelo menos 1 caractere';
 
   // ERROR EXAMPLES
   static readonly ERROR_REQUIRED_EXEMPLE = '';
   static readonly ERROR_STRING_EXEMPLE = 123;
   static readonly ERROR_INVALID_EXEMPLE = 'ABC';
   static readonly ERROR_TOO_LONG_EXEMPLE = '12345678901';
-  static readonly ERROR_TOO_SHORT_EXEMPLE = '';
 }
 

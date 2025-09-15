@@ -1,10 +1,12 @@
-import { isEmail, isNotEmpty, isString } from 'class-validator';
+import { isEmail, isEmpty, isNotEmpty, isString } from 'class-validator';
 import { EmailConstants } from './email-constants';
 import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
 export class EmailValidator {
   static validate(value: string, required: boolean) {
-    if (required && !isNotEmpty(value)) {
+    if (!required && isEmpty(value)) return;
+
+    if (required && isEmpty(value)) {
       throw new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email');
     }
 

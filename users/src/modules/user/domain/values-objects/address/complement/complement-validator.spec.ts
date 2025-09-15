@@ -4,9 +4,7 @@ import { ComplementValidator } from './complement-validator';
 
 describe('ComplementValidator', () => {
   it('should not throw if complement is valid', () => {
-    const validComplement = ComplementConstants.EXEMPLE;
-
-    expect(() => ComplementValidator.validate(validComplement)).not.toThrow();
+    expect(() => ComplementValidator.validate(ComplementConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw if complement is null', () => {
@@ -37,15 +35,13 @@ describe('ComplementValidator', () => {
   });
 
   it('should throw if complement is not a string', () => {
-    expect(() => ComplementValidator.validate(123 as any)).toThrow(
+    expect(() => ComplementValidator.validate(ComplementConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(ComplementConstants.ERROR_STRING, 'complement'),
     );
   });
 
   it('should throw if complement is too long', () => {
-    const longComplement = ComplementConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => ComplementValidator.validate(longComplement)).toThrow(
+    expect(() => ComplementValidator.validate(ComplementConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(ComplementConstants.ERROR_TOO_LONG, 'complement'),
     );
   });

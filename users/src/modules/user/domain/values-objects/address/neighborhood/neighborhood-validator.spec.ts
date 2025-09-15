@@ -4,18 +4,14 @@ import { NeighborhoodValidator } from './neighborhood-validator';
 
 describe('DistrictValidator', () => {
   it('should not throw if district is valid', () => {
-    const validDistrict = NeighborhoodConstants.EXEMPLE;
-
-    expect(() => NeighborhoodValidator.validate(validDistrict)).not.toThrow();
+    expect(() => NeighborhoodValidator.validate(NeighborhoodConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw for valid districts with special characters', () => {
     const validDistricts = [
-      'Vila Madalena',
-      'Pinheiros',
-      'Itaim Bibi',
-      'Jardins',
-      'Moema',
+      'São Paulo',
+      'Cidade universitária',    
+      'Bábá',    
     ];
 
     validDistricts.forEach((district) => {
@@ -24,29 +20,25 @@ describe('DistrictValidator', () => {
   });
 
   it('should throw if district is empty', () => {
-    expect(() => NeighborhoodValidator.validate('')).toThrow(
+    expect(() => NeighborhoodValidator.validate(NeighborhoodConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(NeighborhoodConstants.ERROR_REQUIRED, 'district'),
     );
   });
 
   it('should throw if district is not a string', () => {
-    expect(() => NeighborhoodValidator.validate(123 as any)).toThrow(
+    expect(() => NeighborhoodValidator.validate(NeighborhoodConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(NeighborhoodConstants.ERROR_STRING, 'district'),
     );
   });
 
   it('should throw if district is too short', () => {
-    const shortDistrict = NeighborhoodConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => NeighborhoodValidator.validate(shortDistrict)).toThrow(
+    expect(() => NeighborhoodValidator.validate(NeighborhoodConstants.ERROR_TOO_SHORT_EXEMPLE)).toThrow(
       new FieldInvalid(NeighborhoodConstants.ERROR_TOO_SHORT, 'district'),
     );
   });
 
   it('should throw if district is too long', () => {
-    const longDistrict = NeighborhoodConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => NeighborhoodValidator.validate(longDistrict)).toThrow(
+    expect(() => NeighborhoodValidator.validate(NeighborhoodConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(NeighborhoodConstants.ERROR_TOO_LONG, 'district'),
     );
   });

@@ -1,4 +1,4 @@
-import { isNotEmpty, isString } from 'class-validator';
+import { isNotEmpty, isNumberString, isString } from 'class-validator';
 import { NumberConstants } from './number-constants';
 import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
@@ -12,12 +12,12 @@ export class NumberValidator {
       throw new FieldInvalid(NumberConstants.ERROR_STRING, 'number');
     }
 
-    if (value.length < NumberConstants.MIN_LENGTH) {
-      throw new FieldInvalid(NumberConstants.ERROR_TOO_SHORT, 'number');
-    }
-
     if (value.length > NumberConstants.MAX_LENGTH) {
       throw new FieldInvalid(NumberConstants.ERROR_TOO_LONG, 'number');
+    }
+
+    if (!isNumberString(value)) {
+      throw new FieldInvalid(NumberConstants.ERROR_INVALID, 'postalCode');
     }
   }
 }

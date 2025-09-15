@@ -1,10 +1,12 @@
-import { isNotEmpty, isString, length } from 'class-validator';
+import { isEmpty, isNotEmpty, isString, length } from 'class-validator';
 import { NameConstants } from './name-constants';
 import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 
 export class NameValidator {
   static validate(value: string, required: boolean) {
-    if (required && !isNotEmpty(value)) {
+    if (!required && isEmpty(value)) return;
+
+    if (required && isEmpty(value)) {
       throw new FieldInvalid(NameConstants.ERROR_REQUIRED, 'name');
     }
 

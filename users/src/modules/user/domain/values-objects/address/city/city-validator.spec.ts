@@ -4,9 +4,7 @@ import { CityValidator } from './city-validator';
 
 describe('CityValidator', () => {
   it('should not throw if city is valid', () => {
-    const validCity = CityConstants.EXEMPLE;
-
-    expect(() => CityValidator.validate(validCity)).not.toThrow();
+    expect(() => CityValidator.validate(CityConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw for valid cities with special characters', () => {
@@ -24,29 +22,25 @@ describe('CityValidator', () => {
   });
 
   it('should throw if city is empty', () => {
-    expect(() => CityValidator.validate('')).toThrow(
+    expect(() => CityValidator.validate(CityConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(CityConstants.ERROR_REQUIRED, 'city'),
     );
   });
 
   it('should throw if city is not a string', () => {
-    expect(() => CityValidator.validate(123 as any)).toThrow(
+    expect(() => CityValidator.validate(CityConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(CityConstants.ERROR_STRING, 'city'),
     );
   });
 
   it('should throw if city is too short', () => {
-    const shortCity = CityConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => CityValidator.validate(shortCity)).toThrow(
+    expect(() => CityValidator.validate(CityConstants.ERROR_TOO_SHORT_EXEMPLE)).toThrow(
       new FieldInvalid(CityConstants.ERROR_TOO_SHORT, 'city'),
     );
   });
 
   it('should throw if city is too long', () => {
-    const longCity = CityConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => CityValidator.validate(longCity)).toThrow(
+    expect(() => CityValidator.validate(CityConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(CityConstants.ERROR_TOO_LONG, 'city'),
     );
   });

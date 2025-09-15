@@ -4,9 +4,7 @@ import { StreetValidator } from './street-validator';
 
 describe('StreetValidator', () => {
   it('should not throw if street is valid', () => {
-    const validStreet = StreetConstants.EXEMPLE;
-
-    expect(() => StreetValidator.validate(validStreet)).not.toThrow();
+    expect(() => StreetValidator.validate(StreetConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw for valid streets with special characters', () => {
@@ -24,29 +22,25 @@ describe('StreetValidator', () => {
   });
 
   it('should throw if street is empty', () => {
-    expect(() => StreetValidator.validate('')).toThrow(
+    expect(() => StreetValidator.validate(StreetConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(StreetConstants.ERROR_REQUIRED, 'street'),
     );
   });
 
   it('should throw if street is not a string', () => {
-    expect(() => StreetValidator.validate(123 as any)).toThrow(
+    expect(() => StreetValidator.validate(StreetConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(StreetConstants.ERROR_STRING, 'street'),
     );
   });
 
   it('should throw if street is too short', () => {
-    const shortStreet = StreetConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => StreetValidator.validate(shortStreet)).toThrow(
+    expect(() => StreetValidator.validate(StreetConstants.ERROR_TOO_SHORT_EXEMPLE)).toThrow(
       new FieldInvalid(StreetConstants.ERROR_TOO_SHORT, 'street'),
     );
   });
 
   it('should throw if street is too long', () => {
-    const longStreet = StreetConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => StreetValidator.validate(longStreet)).toThrow(
+    expect(() => StreetValidator.validate(StreetConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(StreetConstants.ERROR_TOO_LONG, 'street'),
     );
   });

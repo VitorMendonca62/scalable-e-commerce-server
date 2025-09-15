@@ -4,9 +4,7 @@ import { CountryValidator } from './country-validator';
 
 describe('CountryValidator', () => {
   it('should not throw if country is valid', () => {
-    const validCountry = CountryConstants.EXEMPLE;
-
-    expect(() => CountryValidator.validate(validCountry)).not.toThrow();
+    expect(() => CountryValidator.validate(CountryConstants.EXEMPLE)).not.toThrow();
   });
 
   it('should not throw for valid countries with special characters', () => {
@@ -24,29 +22,25 @@ describe('CountryValidator', () => {
   });
 
   it('should throw if country is empty', () => {
-    expect(() => CountryValidator.validate('')).toThrow(
+    expect(() => CountryValidator.validate(CountryConstants.ERROR_REQUIRED_EXEMPLE)).toThrow(
       new FieldInvalid(CountryConstants.ERROR_REQUIRED, 'country'),
     );
   });
 
   it('should throw if country is not a string', () => {
-    expect(() => CountryValidator.validate(123 as any)).toThrow(
+    expect(() => CountryValidator.validate(CountryConstants.ERROR_STRING_EXEMPLE as any)).toThrow(
       new FieldInvalid(CountryConstants.ERROR_STRING, 'country'),
     );
   });
 
   it('should throw if country is too short', () => {
-    const shortCountry = CountryConstants.ERROR_TOO_SHORT_EXEMPLE;
-
-    expect(() => CountryValidator.validate(shortCountry)).toThrow(
+    expect(() => CountryValidator.validate(CountryConstants.ERROR_TOO_SHORT_EXEMPLE)).toThrow(
       new FieldInvalid(CountryConstants.ERROR_TOO_SHORT, 'country'),
     );
   });
 
   it('should throw if country is too long', () => {
-    const longCountry = CountryConstants.ERROR_TOO_LONG_EXEMPLE;
-
-    expect(() => CountryValidator.validate(longCountry)).toThrow(
+    expect(() => CountryValidator.validate(CountryConstants.ERROR_TOO_LONG_EXEMPLE)).toThrow(
       new FieldInvalid(CountryConstants.ERROR_TOO_LONG, 'country'),
     );
   });
