@@ -1,4 +1,4 @@
-import { PasswordConstants } from '@user/domain/values-objects/user/password/password-constants';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

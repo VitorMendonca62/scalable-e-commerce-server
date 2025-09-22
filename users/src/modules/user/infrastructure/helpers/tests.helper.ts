@@ -4,7 +4,7 @@ import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
 import { defaultRoles } from '@user/domain/types/permissions';
 import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
 import { NameConstants } from '@user/domain/values-objects/user/name/name-constants';
-import { PasswordConstants } from '@user/domain/values-objects/user/password/password-constants';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
 import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
 import { PhoneNumberConstants } from '@user/domain/values-objects/user/phone-number/phone-number-constants';
 import NameVO from '@user/domain/values-objects/user/name/name-vo';

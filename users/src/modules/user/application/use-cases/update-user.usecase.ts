@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundItem } from '@user/domain/ports/primary/http/error.port';
-import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/entities/user.entity';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import { UserUpdate } from '@user/domain/entities/user-update.entity';
