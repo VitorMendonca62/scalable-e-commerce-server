@@ -6,6 +6,8 @@ export class ValueObject {
   }
 
   public toString(): string {
-    return String(this.value);
+    return this.value == null || this.value == undefined
+      ? this.value
+      : String(this.value);
   }
 }

@@ -4,10 +4,8 @@ import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constan
 import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 import { IDValidator } from '@modules/user/domain/values-objects/uuid/id-validator';
 import {
-  mockUser,
   mockUserEntity,
 } from '@modules/user/infrastructure/helpers/tests.helper';
-import UsernameVO from '@modules/user/domain/values-objects/user/username/username-vo';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
 
 describe('GetUserUseCase', () => {

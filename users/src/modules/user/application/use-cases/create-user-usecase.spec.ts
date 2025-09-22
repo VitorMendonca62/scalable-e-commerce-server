@@ -39,7 +39,6 @@ describe('CreateUserUseCase', () => {
 
     beforeEach(() => {
       jest.spyOn(userRepository, 'findOne').mockReturnValue(undefined);
-      jest.spyOn(userRepository, 'findOne').mockReturnValue(undefined);
 
       jest.spyOn(userRepository, 'create').mockReturnValue(undefined);
 
@@ -69,7 +68,7 @@ describe('CreateUserUseCase', () => {
     it('should throw bad request exception when already exists user with new user email', async () => {
       jest
         .spyOn(userRepository, 'findOne')
-        .mockReturnValueOnce(undefined)
+        .mockResolvedValueOnce(undefined)
         .mockResolvedValueOnce(userEntity);
 
       await expect(useCase.execute(user)).rejects.toThrow(
@@ -81,7 +80,7 @@ describe('CreateUserUseCase', () => {
       jest
         .spyOn(userRepository, 'findOne')
         .mockResolvedValueOnce(userEntity)
-        .mockReturnValueOnce(undefined);
+        .mockResolvedValueOnce(undefined);
 
       await expect(useCase.execute(user)).rejects.toThrow(
         new FieldAlreadyExists(

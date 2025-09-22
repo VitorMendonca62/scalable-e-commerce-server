@@ -22,7 +22,7 @@ export const mockUser = (
   overrides: Partial<Record<keyof User, any>> = {},
 ): User => {
   const data = {
-    userId: IDConstants.EXEMPLE,
+    userId: new IDVO(IDConstants.EXEMPLE),
     name: new NameVO(NameConstants.EXEMPLE, true),
     username: new UsernameVO(UsernameConstants.EXEMPLE, true),
     email: new EmailVO(EmailConstants.EXEMPLE, true),
@@ -37,6 +37,22 @@ export const mockUser = (
     ...overrides,
   };
   return new User(data);
+};
+
+export const mockUserUpdate = (
+  overrides: Partial<Record<keyof UserUpdate, any>> = {},
+): UserUpdate => {
+  const data = {
+    userId: new IDVO(IDConstants.EXEMPLE),
+    name: new NameVO(NameConstants.EXEMPLE, false),
+    username: new UsernameVO(UsernameConstants.EXEMPLE, false),
+    email: new EmailVO(EmailConstants.EXEMPLE, false),
+    phonenumber: new PhoneNumberVO(PhoneNumberConstants.EXEMPLE, false),
+    avatar: new AvatarVO(AvatarConstants.EXEMPLE, false),
+    updatedAt: new Date('2025-09-02T13:30:08.633Z'),
+    ...overrides,
+  };
+  return new UserUpdate(data);
 };
 
 export const mockUserEntity = (
@@ -177,4 +193,19 @@ export const mockUpdateUserDTOLikeInstance = (
     ? overrides.avatar
     : AvatarConstants.EXEMPLE;
   return dto;
+};
+
+export const mockUpdateUserLikeJSON = (
+  overrides: Partial<UserUpdate> = {},
+): Record<keyof UserUpdate, any> => {
+  return {
+    avatar: AvatarConstants.EXEMPLE,
+    email: EmailConstants.EXEMPLE,
+    name: NameConstants.EXEMPLE,
+    phonenumber: PhoneNumberConstants.EXEMPLE,
+    updatedAt: new Date('2025-09-02T13:30:08.633Z'),
+    userId: IDConstants.EXEMPLE,
+    username: UsernameConstants.EXEMPLE,
+    ...overrides,
+  };
 };

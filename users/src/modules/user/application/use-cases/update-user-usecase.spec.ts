@@ -1,66 +1,100 @@
-import { TestingModule, Test } from '@nestjs/testing';
-import { UserRepository } from '../../../user/domain/ports/secondary/user-repository.port';
-import { mockUser, mockUserUpdate } from '@user/infrastructure/helpers/tests.helper';
-import { InMemoryUserRepository } from '@user/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { ConfigModule } from '@nestjs/config';
+import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
+import {
+  mockUpdateUserLikeJSON,
+  mockUserEntity,
+  mockUserUpdate,
+} from '@modules/user/infrastructure/helpers/tests.helper';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateUserUseCase } from './update-user.usecase';
-import { User } from '../../../user/core/domain/entities/user.entity';
+import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
+import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
+import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;
   let userRepository: UserRepository;
+  let userMapper: UserMapper;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        UpdateUserUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-      ],
-    }).compile();
+    userRepository = {
+      update: jest.fn(),
+      findOne: jest.fn(),
+    } as any;
 
-    userRepository = module.get<UserRepository>(UserRepository);
-    useCase = module.get<UpdateUserUseCase>(UpdateUserUseCase);
+    userMapper = {
+      updateEntityForJSON: jest.fn(),
+    } as any;
+
+    useCase = new UpdateUserUseCase(userRepository, userMapper);
   });
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
+    expect(userMapper).toBeDefined();
   });
 
   describe('execute', () => {
-    const user = mockUser({ username: 'changeuser' });
-    const newUser = mockUserUpdate();
-    const id = 'USERID';
+    const user = mockUserEntity();
+    const newUser = mockUserUpdate({ username: 'usernameChange' });
+    const userUpdated = mockUserEntity({ username: 'usernameChange' });
+    const id = IDConstants.EXEMPLE;
 
     beforeEach(() => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'update').mockResolvedValue(userUpdated);
       jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => user);
-
-      jest.spyOn(userRepository, 'update').mockImplementation(async () => user);
+        .spyOn(userMapper, 'updateEntityForJSON')
+        .mockReturnValue(mockUpdateUserLikeJSON());
     });
 
-    it('should use case call with correct parameters and delete user', async () => {
+    it('should return undefined on sucess', async () => {
       const response = await useCase.execute(id, newUser);
 
-      expect(userRepository.findById).toHaveBeenCalledWith(id);
-      expect(userRepository.update).toHaveBeenCalledWith(id, newUser);
-      expect(response).toBeInstanceOf(User);
-      expect(response).toEqual(user);
+      expect(response).toEqual({
+        name: userUpdated.name,
+        username: userUpdated.username,
+        email: userUpdated.email,
+        avatar: userUpdated.avatar,
+        phonenumber: userUpdated.phonenumber,
+      });
     });
 
-    it('should throw not found execption when user does not exists', async () => {
-      jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => undefined);
+    it('should call repository with correct parameters ', async () => {
+      await useCase.execute(id, newUser);
+
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        userId: id,
+      });
+
+      expect(userRepository.update).toHaveBeenCalledWith(
+        id,
+        mockUpdateUserLikeJSON(),
+      );
+    });
+
+    it('should call mapper with correct parameters ', async () => {
+      await useCase.execute(id, newUser);
+
+      expect(userMapper.updateEntityForJSON).toHaveBeenCalledWith(newUser);
+    });
+
+    it('should throw not found item when user does not exist', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       await expect(useCase.execute(id, newUser)).rejects.toThrow(
-        new NotFoundException('Usuário não encontrado'),
+        new NotFoundItem('Não foi possivel encontrar o usuário'),
+      );
+    });
+
+    it('should throw not found item when user is not active', async () => {
+      const user = mockUserEntity({ active: false });
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+
+      await expect(useCase.execute(id, newUser)).rejects.toThrow(
+        new NotFoundItem('Não foi possivel encontrar o usuário'),
       );
     });
   });
