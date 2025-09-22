@@ -49,11 +49,11 @@ describe('CreateUserUseCase', () => {
       await useCase.execute(user);
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        username: user.username,
+        username: user.username.getValue(),
       });
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        email: user.email,
+        email: user.email.getValue(),
       });
 
       expect(userRepository.create).toHaveBeenCalledWith(userEntity);
