@@ -1,29 +1,24 @@
-import { TestingModule, Test } from '@nestjs/testing';
-import { UserRepository } from '../../../user/domain/ports/secondary/user-repository.port';
-import { mockUser } from '@user/infrastructure/helpers/tests.helper';
-import { InMemoryUserRepository } from '@user/adaptars/secondary/database/repositories/inmemory-user.repository';
-import { ConfigModule } from '@nestjs/config';
+import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
+import {
+  mockUser,
+  mockUserEntity,
+} from '@modules/user/infrastructure/helpers/tests.helper';
 import { NotFoundException } from '@nestjs/common';
 import { DeleteUserUseCase } from './delete-user.usecase';
+import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
+import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
 
 describe('DeleteUserUseCase', () => {
   let useCase: DeleteUserUseCase;
   let userRepository: UserRepository;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      imports: [ConfigModule.forRoot({ isGlobal: true })],
-      providers: [
-        DeleteUserUseCase,
-        {
-          provide: UserRepository,
-          useClass: InMemoryUserRepository,
-        },
-      ],
-    }).compile();
+    userRepository = {
+      findOne: jest.fn(),
+      delete: jest.fn(),
+    } as any;
 
-    userRepository = module.get<UserRepository>(UserRepository);
-    useCase = module.get<DeleteUserUseCase>(DeleteUserUseCase);
+    useCase = new DeleteUserUseCase(userRepository);
   });
 
   it('should be defined', () => {
@@ -32,32 +27,45 @@ describe('DeleteUserUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser();
-    const id = 'USERID';
+    const user = mockUserEntity();
+    const id = IDConstants.EXEMPLE;
 
     beforeEach(() => {
-      jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => user);
-
-      jest.spyOn(userRepository, 'delete').mockImplementation(() => undefined);
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      jest.spyOn(userRepository, 'delete').mockReturnValue(undefined);
     });
 
-    it('should use case call with correct parameters and delete user', async () => {
+    it('should call repository with correct parameters ', async () => {
+      await useCase.execute(id);
+
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        userId: id,
+      });
+
+      expect(userRepository.delete).toHaveBeenCalledWith(id);
+    });
+
+    it('should return undefined on sucess', async () => {
       const response = await useCase.execute(id);
 
-      expect(userRepository.findById).toHaveBeenCalledWith(id);
-      expect(userRepository.delete).toHaveBeenCalledWith(id);
       expect(response).toBeUndefined();
     });
 
-    it('should throw not found execption when user does not exists', async () => {
-      jest
-        .spyOn(userRepository, 'findById')
-        .mockImplementation(async () => undefined);
+    it('should throw not found item when user does not exist', async () => {
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       await expect(useCase.execute(id)).rejects.toThrow(
-        new NotFoundException('Usuário não encontrado'),
+        new NotFoundItem('Não foi possivel encontrar o usuário'),
+      );
+    });
+
+    it('should throw not found item when user is not active', async () => {
+      const user = mockUserEntity({ active: false });
+
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+
+      await expect(useCase.execute(id)).rejects.toThrow(
+        new NotFoundItem('Não foi possivel encontrar o usuário'),
       );
     });
   });
