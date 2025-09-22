@@ -19,7 +19,7 @@ export class UserMapper {
     const dateNow = new Date();
     // TODO realizar pesquisa sobre a diferença de versões do uuid
     const userId = v7();
-    
+
     return new User({
       userId: new IDVO(userId),
       name: new NameVO(dto.name, true),
@@ -50,28 +50,28 @@ export class UserMapper {
 
   updateEntityForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
     return {
-      avatar: `${user.avatar}`,
-      email: `${user.email}`,
-      name: `${user.name}`,
-      phonenumber: `${user.phonenumber}`,
+      avatar: user.avatar.getValue(),
+      email: user.email.getValue(),
+      name: user.name.getValue(),
+      phonenumber: user.phonenumber.getValue(),
       updatedAt: user.updatedAt,
-      userId: `${user.userId}`,
-      username: `${user.username}`,
+      userId: user.userId.getValue(),
+      username: user.username.getValue(),
     };
   }
 
   userToJSON(user: User): UserEntity {
     return {
       _id: user._id,
-      userId: `${user.userId}`,
-      name: `${user.name}`,
-      username: `${user.username}`,
-      email: `${user.email}`,
-      avatar: `${user.avatar}`,
+      userId: user.userId.getValue(),
+      name: user.name.getValue(),
+      username: user.username.getValue(),
+      email: user.email.getValue(),
+      avatar: user.avatar?.getValue(),
       active: user.active,
       email_verified: user.email_verified,
       phone_verified: user.phone_verified,
-      phonenumber: `${user.phonenumber}`,
+      phonenumber: user.phonenumber.getValue(),
       roles: user.roles,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

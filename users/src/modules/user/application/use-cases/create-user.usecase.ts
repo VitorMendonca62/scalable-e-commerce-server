@@ -15,7 +15,7 @@ export class CreateUserUseCase{
 
   async execute(user: User): Promise<void> {
     const userExistsWithUsername = await this.userRepository.findOne({
-      username: `${user.username}`,
+      username: user.username.getValue(),
     });
 
     if (userExistsWithUsername != null && userExistsWithUsername != undefined) {
@@ -26,7 +26,7 @@ export class CreateUserUseCase{
     }
 
     const userExistsWithEmail = await this.userRepository.findOne({
-      email: `${user.email}`,
+      email: user.email.getValue(),
     });
 
     if (userExistsWithEmail != null && userExistsWithEmail != undefined) {

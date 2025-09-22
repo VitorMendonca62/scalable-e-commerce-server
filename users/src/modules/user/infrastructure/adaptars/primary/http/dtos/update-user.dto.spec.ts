@@ -129,7 +129,6 @@ describe('UpdateUserDTO', () => {
 
     const errors = await validate(dto);
     const fieldError = errors[0];
-    console.error(fieldError)
     expect(fieldError.constraints.isUrl).toBe(
       AvatarConstants.ERROR_INVALID,
     );

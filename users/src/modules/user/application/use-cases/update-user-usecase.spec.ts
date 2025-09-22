@@ -4,10 +4,8 @@ import {
   mockUserEntity,
   mockUserUpdate,
 } from '@modules/user/infrastructure/helpers/tests.helper';
-import { NotFoundException } from '@nestjs/common';
 import { UpdateUserUseCase } from './update-user.usecase';
 import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
 

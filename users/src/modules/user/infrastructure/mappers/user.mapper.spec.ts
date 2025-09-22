@@ -19,6 +19,7 @@ import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constan
 import { v7 } from 'uuid';
 import AvatarVO from '@modules/user/domain/values-objects/user/avatar/avatar-vo';
 import { UserUpdate } from '@modules/user/domain/entities/user-update.entity';
+import { AvatarConstants } from '@modules/user/domain/values-objects/user/avatar/avatar-constants';
 
 jest.mock('uuid', () => ({
   __esModule: true,
@@ -75,11 +76,11 @@ describe('UserMapper', () => {
     it('should return User with correct fields', async () => {
       const user = mapper.createDTOForEntity(dto);
 
-      expect(`${user.userId}`).toBe(id);
-      expect(`${user.name}`).toBe(dto.name);
-      expect(`${user.username}`).toBe(dto.username);
-      expect(`${user.email}`).toBe(dto.email);
-      expect(`${user.phonenumber}`).toBe(dto.phonenumber);
+      expect(user.userId.getValue()).toBe(id);
+      expect(user.name.getValue()).toBe(dto.name);
+      expect(user.username.getValue()).toBe(dto.username);
+      expect(user.email.getValue()).toBe(dto.email);
+      expect(user.phonenumber.getValue()).toBe(dto.phonenumber);
       expect(user.active).toBe(true);
       expect(user.email_verified).toBe(false);
       expect(user.phone_verified).toBe(false);
@@ -130,12 +131,12 @@ describe('UserMapper', () => {
     it('should return UserUpdate with correct fields', async () => {
       const user = mapper.updateDTOForEntity(dto, id);
 
-      expect(`${user.userId}`).toBe(id);
-      expect(`${user.name}`).toBe(dto.name);
-      expect(`${user.username}`).toBe(dto.username);
-      expect(`${user.email}`).toBe(dto.email);
-      expect(`${user.avatar}`).toBe(dto.avatar);
-      expect(`${user.phonenumber}`).toBe(dto.phonenumber);
+      expect(user.userId.getValue()).toBe(id);
+      expect(user.name.getValue()).toBe(dto.name);
+      expect(user.username.getValue()).toBe(dto.username);
+      expect(user.email.getValue()).toBe(dto.email);
+      expect(user.avatar?.getValue()).toBe(dto.avatar);
+      expect(user.phonenumber.getValue()).toBe(dto.phonenumber);
     });
 
     it('should throw if any value object throws an error', () => {
@@ -156,6 +157,47 @@ describe('UserMapper', () => {
       mockUpdateUserDTO(),
       userId,
     );
+
+    beforeEach(() => {
+      mockValueObjects();
+    });
+
+    it('return the field null if the field is null ', () => {
+      const userUpdate1 = mockUserUpdatedDTOToUserUpdated(
+        mockUpdateUserDTO({
+          avatar: null,
+          email: null,
+          name: null,
+          phonenumber: null,
+          username: null,
+        }),
+        userId,
+      );
+
+      (userUpdate1.avatar.getValue as unknown as jest.Mock).mockReturnValueOnce(
+        null,
+      );
+      (userUpdate1.name.getValue as unknown as jest.Mock).mockReturnValueOnce(
+        null,
+      );
+      (userUpdate1.email.getValue as unknown as jest.Mock).mockReturnValueOnce(
+        null,
+      );
+      (
+        userUpdate1.phonenumber.getValue as unknown as jest.Mock
+      ).mockReturnValueOnce(null);
+      (userUpdate1.username.getValue as unknown as jest.Mock).mockReturnValueOnce(
+        null,
+      );
+
+      const result = mapper.updateEntityForJSON(userUpdate1);
+
+      expect(result.avatar).toBeNull();
+      expect(result.email).toBeNull();
+      expect(result.name).toBeNull();
+      expect(result.phonenumber).toBeNull();
+      expect(result.username).toBeNull();
+    });
 
     it('should return correct JSON structure', () => {
       const result = mapper.updateEntityForJSON(userUpdate);
@@ -189,12 +231,12 @@ describe('UserMapper', () => {
     it('should return correct values', () => {
       const result = mapper.updateEntityForJSON(userUpdate);
 
-      expect(result.avatar).toBe(`${userUpdate.avatar}`);
-      expect(result.email).toBe(`${userUpdate.email}`);
-      expect(result.name).toBe(`${userUpdate.name}`);
-      expect(result.phonenumber).toBe(`${userUpdate.phonenumber}`);
-      expect(result.userId).toBe(`${userUpdate.userId}`);
-      expect(result.username).toBe(`${userUpdate.username}`);
+      expect(result.avatar).toBe(userUpdate.avatar.getValue());
+      expect(result.email).toBe(userUpdate.email.getValue());
+      expect(result.name).toBe(userUpdate.name.getValue());
+      expect(result.phonenumber).toBe(userUpdate.phonenumber.getValue());
+      expect(result.userId).toBe(userUpdate.userId.getValue());
+      expect(result.username).toBe(userUpdate.username.getValue());
       expect(result.updatedAt).toBe(userUpdate.updatedAt);
     });
   });
@@ -220,7 +262,22 @@ describe('UserMapper', () => {
       expect(result).toHaveProperty('updatedAt');
     });
 
-    it('should convert Value Objects to strings', () => {
+    it('should convert Value Objects to strings with avatar is null', () => {
+      const result = mapper.userToJSON(user);
+
+      expect(typeof result.userId).toBe('string');
+      expect(typeof result.name).toBe('string');
+      expect(typeof result.username).toBe('string');
+      expect(typeof result.email).toBe('string');
+      expect(typeof result.avatar).toBe('undefined');
+      expect(typeof result.phonenumber).toBe('string');
+    });
+
+    it('should return avatar as undefined when avatar is a string', () => {
+      const user = mockUser({
+        avatar: new AvatarVO(AvatarConstants.EXEMPLE, true),
+      });
+
       const result = mapper.userToJSON(user);
 
       expect(typeof result.userId).toBe('string');
@@ -251,15 +308,15 @@ describe('UserMapper', () => {
       const result = mapper.userToJSON(user);
 
       expect(result._id).toBe(user._id);
-      expect(result.userId).toBe(`${user.userId}`);
-      expect(result.name).toBe(`${user.name}`);
-      expect(result.username).toBe(`${user.username}`);
-      expect(result.email).toBe(`${user.email}`);
-      expect(result.avatar).toBe(`${user.avatar}`);
+      expect(result.userId).toBe(user.userId.getValue());
+      expect(result.name).toBe(user.name.getValue());
+      expect(result.username).toBe(user.username.getValue());
+      expect(result.email).toBe(user.email.getValue());
+      expect(result.avatar).toBe(user.avatar?.getValue());
       expect(result.active).toBe(user.active);
       expect(result.email_verified).toBe(user.email_verified);
       expect(result.phone_verified).toBe(user.phone_verified);
-      expect(result.phonenumber).toBe(`${user.phonenumber}`);
+      expect(result.phonenumber).toBe(user.phonenumber.getValue());
       expect(result.roles).toBe(user.roles);
       expect(result.createdAt).toBe(user.createdAt);
       expect(result.updatedAt).toBe(user.updatedAt);
