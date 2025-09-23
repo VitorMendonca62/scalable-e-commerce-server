@@ -15,6 +15,7 @@ import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/us
 import { defaultRoles } from '@user/domain/types/permissions';
 import {
   HttpCreatedResponse,
+  HttpDeletedResponse,
   HttpOKResponse,
   HttpUpdatedResponse,
 } from '@user/domain/ports/primary/http/sucess.port';
@@ -113,7 +114,9 @@ describe('UserController', () => {
         .spyOn(createUserUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.create(dto)).rejects.toThrow(new Error('Erro no use case'));
+      await expect(controller.create(dto)).rejects.toThrow(
+        new Error('Erro no use case'),
+      );
     });
   });
 
@@ -218,6 +221,54 @@ describe('UserController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       await expect(controller.update(dto, id)).rejects.toThrow(
+        new Error('Erro no use case'),
+      );
+    });
+  });
+
+  describe('DELETE /', () => {
+    const id = IDConstants.EXEMPLE;
+
+    jest.mock('@user/domain/values-objects/uuid/id-validator');
+
+    beforeEach(() => {
+      jest.spyOn(deleteUserUseCase, 'execute').mockResolvedValue(undefined);
+      jest.spyOn(IDValidator, 'validate').mockImplementation(jest.fn());
+    });
+
+    it('should call deleteUserUseCase.execute with user id', async () => {
+      await controller.delete(id);
+
+      expect(deleteUserUseCase.execute).toHaveBeenCalledWith(id);
+    });
+
+    it('should return HttpDeletedResponse on success', async () => {
+      const response = await controller.delete(id);
+
+      expect(response).toBeInstanceOf(HttpDeletedResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Usuário deletado com sucesso',
+        data: undefined,
+      });
+    });
+
+    it('should throw error if id validator throw error', async () => {
+      jest.spyOn(IDValidator, 'validate').mockImplementation(() => {
+        throw new Error('Erro no id validator');
+      });
+
+      await expect(controller.delete(id)).rejects.toThrow(
+        new Error('Erro no id validator'),
+      );
+    });
+
+    it('should throw error if use case throw error', async () => {
+      jest
+        .spyOn(deleteUserUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(controller.delete(id)).rejects.toThrow(
         new Error('Erro no use case'),
       );
     });
