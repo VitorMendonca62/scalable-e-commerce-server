@@ -12,9 +12,6 @@ export function Number(required: boolean) {
   return applyDecorators(
     IsRequired,
     IsString({ message: NumberConstants.ERROR_STRING }),
-    MinLength(NumberConstants.MIN_LENGTH, {
-      message: NumberConstants.ERROR_TOO_SHORT,
-    }),
     MaxLength(NumberConstants.MAX_LENGTH, {
       message: NumberConstants.ERROR_TOO_LONG,
     }),
