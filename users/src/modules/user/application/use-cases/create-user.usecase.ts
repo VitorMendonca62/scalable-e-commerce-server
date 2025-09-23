@@ -35,6 +35,6 @@ export class CreateUserUseCase{
         'email',
       );
     }
-    await this.userRepository.create(this.userMapper.userToJSON(user));
+    await this.userRepository.create(this.userMapper.userModelToJSON(user));
   }
 }

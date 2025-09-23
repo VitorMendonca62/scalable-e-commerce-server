@@ -3,10 +3,8 @@ import { GetUserUseCase } from './get-user.usecase';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
 import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 import { IDValidator } from '@modules/user/domain/values-objects/uuid/id-validator';
-import {
-  mockUserEntity,
-} from '@modules/user/infrastructure/helpers/tests.helper';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
+import { UserFactory } from '@modules/user/infrastructure/helpers/users/user-factory';
 
 describe('GetUserUseCase', () => {
   let useCase: GetUserUseCase;
@@ -25,8 +23,8 @@ describe('GetUserUseCase', () => {
   describe('execute', () => {
     const id = IDConstants.EXEMPLE;
     const username = UsernameConstants.EXEMPLE;
-    const userWithId = mockUserEntity();
-    const userWithUsername = mockUserEntity({
+    const userWithId = UserFactory.createEntity();
+    const userWithUsername = UserFactory.createEntity({
       username: 'teste1243',
     });
 

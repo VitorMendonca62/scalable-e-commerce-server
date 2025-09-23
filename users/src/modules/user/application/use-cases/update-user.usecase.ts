@@ -31,7 +31,7 @@ export class UpdateUserUseCase {
 
     const userUpdated = await this.userRepository.update(
       id,
-      this.userMapper.updateEntityForJSON(userUpdate),
+      this.userMapper.userUpdateModelForJSON(userUpdate),
     );
 
     return {

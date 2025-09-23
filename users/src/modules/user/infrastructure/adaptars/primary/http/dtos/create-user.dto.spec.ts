@@ -3,12 +3,12 @@ import { EmailConstants } from '@modules/user/domain/values-objects/user/email/e
 import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
 import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
 import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
-import { mockCreateUserDTOLikeInstance } from '@modules/user/infrastructure/helpers/tests.helper';
+import { UserDTO } from '@modules/user/infrastructure/helpers/users/user-factory';
 import { validate } from 'class-validator';
 
 describe('CreateUserDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
-    const errors = await validate(mockCreateUserDTOLikeInstance());
+    const errors = await validate(UserDTO.createCreateUserDTOLikeInstance());
     expect(errors).toHaveLength(0);
   });
 
@@ -23,7 +23,7 @@ describe('CreateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockCreateUserDTOLikeInstance({ [key]: undefined });
+      const dto = UserDTO.createCreateUserDTOLikeInstance({ [key]: undefined });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
@@ -46,7 +46,7 @@ describe('CreateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockCreateUserDTOLikeInstance({ [key]: 12345 });
+      const dto = UserDTO.createCreateUserDTOLikeInstance({ [key]: 12345 });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
@@ -65,7 +65,7 @@ describe('CreateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockCreateUserDTOLikeInstance({ [key]: 'a' });
+      const dto = UserDTO.createCreateUserDTOLikeInstance({ [key]: 'a' });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
@@ -80,7 +80,7 @@ describe('CreateUserDTO', () => {
   });
 
   it('should return error when email is invalid', async () => {
-    const dto = mockCreateUserDTOLikeInstance({
+    const dto = UserDTO.createCreateUserDTOLikeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 
@@ -91,7 +91,7 @@ describe('CreateUserDTO', () => {
   });
 
   it('should return error when password is not strong', async () => {
-    const dto = mockCreateUserDTOLikeInstance({
+    const dto = UserDTO.createCreateUserDTOLikeInstance({
       password: PasswordConstants.WEAK_EXEMPLE,
     });
 
@@ -104,7 +104,7 @@ describe('CreateUserDTO', () => {
   });
 
   it('should return error when password is not brazilian phonenumber', async () => {
-    const dto = mockCreateUserDTOLikeInstance({
+    const dto = UserDTO.createCreateUserDTOLikeInstance({
       phonenumber: PhoneNumberConstants.WRONG_EXEMPLE,
     });
 
@@ -117,7 +117,7 @@ describe('CreateUserDTO', () => {
   });
 
   it('should return error when username have empyt spaces', async () => {
-    const dto = mockCreateUserDTOLikeInstance({
+    const dto = UserDTO.createCreateUserDTOLikeInstance({
       username: UsernameConstants.WRONG_EXEMPLE,
     });
 

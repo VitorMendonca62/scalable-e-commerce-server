@@ -2,12 +2,10 @@ import { FieldAlreadyExists } from '@user/domain/ports/primary/http/error.port';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
 import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
 import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
-import {
-  mockUser,
-  mockUserEntity,
-} from '@user/infrastructure/helpers/tests.helper';
+
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from './create-user.usecase';
+import { UserFactory } from '@modules/user/infrastructure/helpers/users/user-factory';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
@@ -21,7 +19,7 @@ describe('CreateUserUseCase', () => {
     } as any;
 
     userMapper = {
-      userToJSON: jest.fn(),
+      userModelToJSON: jest.fn(),
     } as any;
 
     useCase = new CreateUserUseCase(userRepository, userMapper);
@@ -34,15 +32,15 @@ describe('CreateUserUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser();
-    const userEntity = mockUserEntity();
+    const user = UserFactory.createModel();
+    const userEntity = UserFactory.createEntity();
 
     beforeEach(() => {
       jest.spyOn(userRepository, 'findOne').mockReturnValue(undefined);
 
       jest.spyOn(userRepository, 'create').mockReturnValue(undefined);
 
-      jest.spyOn(userMapper, 'userToJSON').mockReturnValue(mockUserEntity());
+      jest.spyOn(userMapper, 'userModelToJSON').mockReturnValue(userEntity);
     });
 
     it('should call repository with correct parameters ', async () => {

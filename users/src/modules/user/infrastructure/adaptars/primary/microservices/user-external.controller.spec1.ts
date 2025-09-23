@@ -5,7 +5,7 @@ import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import {
   mockCreatUserDTO as mockCreateUserDTO,
   mockUser,
-} from '@user/infrastructure/helpers/tests.helper';
+} from '@modules/user/infrastructure/helpers/user-tests.helper';
 import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
 import { InMemoryUserRepository } from '../../secondary/database/repositories/users/inmemory-user.repository';
 
@@ -89,7 +89,7 @@ describe('UserExternalController', () => {
       const dto = mockCreateUserDTO();
       await controller.create(dto);
 
-      expect(mapper.createDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(mapper.createDTOForModel).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 

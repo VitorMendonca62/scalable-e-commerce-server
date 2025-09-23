@@ -3,12 +3,12 @@ import { EmailConstants } from '@modules/user/domain/values-objects/user/email/e
 import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
 import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
 import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
-import { mockUpdateUserDTOLikeInstance } from '@modules/user/infrastructure/helpers/tests.helper';
+import { UserDTO } from '@modules/user/infrastructure/helpers/users/user-factory';
 import { validate } from 'class-validator';
 
 describe('UpdateUserDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
-    const errors = await validate(mockUpdateUserDTOLikeInstance());
+    const errors = await validate(UserDTO.createUpdateUserDTOLikeInstance());
     expect(errors).toHaveLength(0);
   });
 
@@ -23,7 +23,7 @@ describe('UpdateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, _] = field;
-      const dto = mockUpdateUserDTOLikeInstance({ [key]: undefined });
+      const dto = UserDTO.createUpdateUserDTOLikeInstance({ [key]: undefined });
 
       const errors = await validate(dto);
 
@@ -42,7 +42,7 @@ describe('UpdateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdateUserDTOLikeInstance({ [key]: 12345 });
+      const dto = UserDTO.createUpdateUserDTOLikeInstance({ [key]: 12345 });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
@@ -60,7 +60,7 @@ describe('UpdateUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdateUserDTOLikeInstance({ [key]: 'a' });
+      const dto = UserDTO.createUpdateUserDTOLikeInstance({ [key]: 'a' });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
@@ -74,7 +74,7 @@ describe('UpdateUserDTO', () => {
   });
 
   it('should return error avatar value is bigger than the allowed length', async () => {
-    const dto = mockUpdateUserDTOLikeInstance({
+    const dto = UserDTO.createUpdateUserDTOLikeInstance({
       avatar: AvatarConstants.ERROR_TOO_LONG_EXEMPLE,
     });
 
@@ -86,7 +86,7 @@ describe('UpdateUserDTO', () => {
   });
 
   it('should return error when email is invalid', async () => {
-    const dto = mockUpdateUserDTOLikeInstance({
+    const dto = UserDTO.createUpdateUserDTOLikeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 
@@ -97,7 +97,7 @@ describe('UpdateUserDTO', () => {
   });
 
   it('should return error when phonenumber is not brazilian phonenumber', async () => {
-    const dto = mockUpdateUserDTOLikeInstance({
+    const dto = UserDTO.createUpdateUserDTOLikeInstance({
       phonenumber: PhoneNumberConstants.WRONG_EXEMPLE,
     });
 
@@ -110,7 +110,7 @@ describe('UpdateUserDTO', () => {
   });
 
   it('should return error when username have empyt spaces', async () => {
-    const dto = mockUpdateUserDTOLikeInstance({
+    const dto = UserDTO.createUpdateUserDTOLikeInstance({
       username: UsernameConstants.WRONG_EXEMPLE,
     });
 
@@ -123,14 +123,12 @@ describe('UpdateUserDTO', () => {
   });
 
   it('should return error when avatar is not url', async () => {
-    const dto = mockUpdateUserDTOLikeInstance({
+    const dto = UserDTO.createUpdateUserDTOLikeInstance({
       avatar: AvatarConstants.WRONG_EXEMPLE,
     });
 
     const errors = await validate(dto);
     const fieldError = errors[0];
-    expect(fieldError.constraints.isUrl).toBe(
-      AvatarConstants.ERROR_INVALID,
-    );
+    expect(fieldError.constraints.isUrl).toBe(AvatarConstants.ERROR_INVALID);
   });
 });

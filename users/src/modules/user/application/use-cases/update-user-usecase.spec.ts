@@ -1,13 +1,12 @@
 import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
-import {
-  mockUpdateUserLikeJSON,
-  mockUserEntity,
-  mockUserUpdate,
-} from '@modules/user/infrastructure/helpers/tests.helper';
 import { UpdateUserUseCase } from './update-user.usecase';
 import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
+import {
+  UserFactory,
+  UserUpdateFactory,
+} from '@modules/user/infrastructure/helpers/users/user-factory';
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;
@@ -21,7 +20,7 @@ describe('UpdateUserUseCase', () => {
     } as any;
 
     userMapper = {
-      updateEntityForJSON: jest.fn(),
+      userUpdateModelForJSON: jest.fn(),
     } as any;
 
     useCase = new UpdateUserUseCase(userRepository, userMapper);
@@ -34,17 +33,19 @@ describe('UpdateUserUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUserEntity();
-    const newUser = mockUserUpdate({ username: 'usernameChange' });
-    const userUpdated = mockUserEntity({ username: 'usernameChange' });
+    const user = UserFactory.createEntity();
+    const newUser = UserUpdateFactory.createEntity({
+      username: 'usernameChange',
+    });
+    const userUpdated = UserFactory.createEntity({
+      username: 'usernameChange',
+    });
     const id = IDConstants.EXEMPLE;
 
     beforeEach(() => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
       jest.spyOn(userRepository, 'update').mockResolvedValue(userUpdated);
-      jest
-        .spyOn(userMapper, 'updateEntityForJSON')
-        .mockReturnValue(mockUpdateUserLikeJSON());
+      jest.spyOn(userMapper, 'userUpdateModelForJSON').mockReturnValue(newUser);
     });
 
     it('should return undefined on sucess', async () => {
@@ -66,16 +67,13 @@ describe('UpdateUserUseCase', () => {
         userId: id,
       });
 
-      expect(userRepository.update).toHaveBeenCalledWith(
-        id,
-        mockUpdateUserLikeJSON(),
-      );
+      expect(userRepository.update).toHaveBeenCalledWith(id, newUser);
     });
 
     it('should call mapper with correct parameters ', async () => {
       await useCase.execute(id, newUser);
 
-      expect(userMapper.updateEntityForJSON).toHaveBeenCalledWith(newUser);
+      expect(userMapper.userUpdateModelForJSON).toHaveBeenCalledWith(newUser);
     });
 
     it('should throw not found item when user does not exist', async () => {
@@ -87,7 +85,7 @@ describe('UpdateUserUseCase', () => {
     });
 
     it('should throw not found item when user is not active', async () => {
-      const user = mockUserEntity({ active: false });
+      const user = UserFactory.createEntity({ active: false });
 
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 

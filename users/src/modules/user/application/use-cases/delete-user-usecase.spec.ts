@@ -1,12 +1,8 @@
 import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
-import {
-  mockUser,
-  mockUserEntity,
-} from '@modules/user/infrastructure/helpers/tests.helper';
-import { NotFoundException } from '@nestjs/common';
 import { DeleteUserUseCase } from './delete-user.usecase';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
+import { UserFactory } from '@modules/user/infrastructure/helpers/users/user-factory';
 
 describe('DeleteUserUseCase', () => {
   let useCase: DeleteUserUseCase;
@@ -27,7 +23,7 @@ describe('DeleteUserUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUserEntity();
+    const user = UserFactory.createEntity();
     const id = IDConstants.EXEMPLE;
 
     beforeEach(() => {
@@ -60,7 +56,7 @@ describe('DeleteUserUseCase', () => {
     });
 
     it('should throw not found item when user is not active', async () => {
-      const user = mockUserEntity({ active: false });
+      const user = UserFactory.createEntity({ active: false });
 
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 

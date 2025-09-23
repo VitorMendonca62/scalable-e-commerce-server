@@ -51,7 +51,7 @@ export class UserController {
   @ApiCreateUser()
   async create(@Body() dto: CreateUserDTO): Promise<HttpResponseOutbound> {
     await this.createUserUseCase.execute(
-      this.userMapper.createDTOForEntity(dto),
+      this.userMapper.createDTOForModel(dto),
     );
     // TODO COnsertar isso aqui
     // this.usersQueueService.send('user-created', {
@@ -98,7 +98,7 @@ export class UserController {
 
     IDValidator.validate(id);
 
-    const userUpdate = this.userMapper.updateDTOForEntity(dto, id);
+    const userUpdate = this.userMapper.updateDTOForModel(dto, id);
 
     return new HttpUpdatedResponse(
       'Usuário atualizado com sucesso',

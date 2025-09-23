@@ -15,7 +15,7 @@ import { v7 } from 'uuid';
 
 @Injectable()
 export class UserMapper {
-  createDTOForEntity(dto: CreateUserDTO) {
+  createDTOForModel(dto: CreateUserDTO) {
     const dateNow = new Date();
     // TODO realizar pesquisa sobre a diferença de versões do uuid
     const userId = v7();
@@ -29,14 +29,14 @@ export class UserMapper {
       active: true,
       email_verified: false,
       phone_verified: false,
-      avatar: null,
+      avatar: new AvatarVO(null, false),
       roles: defaultRoles,
       createdAt: dateNow,
       updatedAt: dateNow,
     });
   }
 
-  updateDTOForEntity(dto: UpdateUserDTO, userId: string) {
+  updateDTOForModel(dto: UpdateUserDTO, userId: string) {
     return new UserUpdate({
       userId: new IDVO(userId),
       name: new NameVO(dto.name, false),
@@ -48,7 +48,7 @@ export class UserMapper {
     });
   }
 
-  updateEntityForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
+  userUpdateModelForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
     return {
       avatar: user.avatar.getValue(),
       email: user.email.getValue(),
@@ -60,14 +60,14 @@ export class UserMapper {
     };
   }
 
-  userToJSON(user: User): UserEntity {
+  userModelToJSON(user: User): UserEntity {
     return {
       _id: user._id,
       userId: user.userId.getValue(),
       name: user.name.getValue(),
       username: user.username.getValue(),
       email: user.email.getValue(),
-      avatar: user.avatar?.getValue(),
+      avatar: user.avatar.getValue(),
       active: user.active,
       email_verified: user.email_verified,
       phone_verified: user.phone_verified,

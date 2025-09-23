@@ -1,86 +1,72 @@
-import { CreateUserUseCase } from '@user/application/use-cases/create-user.usecase';
-import { DeleteUserUseCase } from '@user/application/use-cases/delete-user.usecase';
-import { GetUserUseCase } from '@user/application/use-cases/get-user.usecase';
-import { UpdateUserUseCase } from '@user/application/use-cases/update-user.usecase';
-import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
-import { UserController } from './user.controller';
-import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
-import { defaultRoles } from '@user/domain/types/permissions';
-import {
-  HttpCreatedResponse,
-  HttpDeletedResponse,
-  HttpOKResponse,
-  HttpUpdatedResponse,
-} from '@user/domain/ports/primary/http/sucess.port';
-import { HttpStatus } from '@nestjs/common';
-import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
-import IDVO from '@user/domain/values-objects/uuid/id-vo';
-import { IDValidator } from '@user/domain/values-objects/uuid/id-validator';
+import { AddUserAddressUseCase } from '@modules/user/application/use-cases/add-user-address.usecase';
+import { DeleteUserAddressUseCase } from '@modules/user/application/use-cases/delete-user-address.usecase';
+import { GetUserAddressUseCase } from '@modules/user/application/use-cases/get-user-addresses.usecase';
 import { FieldInvalid } from '@modules/user/domain/ports/primary/http/error.port';
 import {
-  UserDTO,
-  UserFactory,
-  UserUpdateFactory,
-} from '@modules/user/infrastructure/helpers/users/user-factory';
+  HttpCreatedResponse,
+  HttpOKResponse,
+  HttpUpdatedResponse,
+  HttpDeletedResponse,
+} from '@modules/user/domain/ports/primary/http/sucess.port';
+import { defaultRoles } from '@modules/user/domain/types/permissions';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
+import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
+import { IDValidator } from '@modules/user/domain/values-objects/uuid/id-validator';
+import IDVO from '@modules/user/domain/values-objects/uuid/id-vo';
+import { AddressMapper } from '@modules/user/infrastructure/mappers/address.mapper';
+import { HttpStatus } from '@nestjs/common';
+import { AddressController } from './address.controller';
 
-describe('UserController', () => {
-  let controller: UserController;
+describe('AddressController', () => {
+  let controller: AddressController;
 
-  let userMapper: UserMapper;
+  let addressMapper: AddressMapper;
 
-  let createUserUseCase: CreateUserUseCase;
-  let getUserUseCase: GetUserUseCase;
-  let updateUserUseCase: UpdateUserUseCase;
-  let deleteUserUseCase: DeleteUserUseCase;
-
-  let usersQueueService: UsersQueueService;
+  let addUserAddressUseCase: AddUserAddressUseCase;
+  let getUserAddressUseCase: GetUserAddressUseCase;
+  let deleteUserAddressUseCase: DeleteUserAddressUseCase;
 
   beforeEach(async () => {
-    userMapper = {
-      createDTOForModel: jest.fn(),
-      updateDTOForModel: jest.fn(),
+    addressMapper = {
+      addUserAddressDTOForEntity: jest.fn(),
+      addressForEntity: jest.fn(),
     } as any;
-    createUserUseCase = { execute: jest.fn() } as any;
-    getUserUseCase = { execute: jest.fn() } as any;
-    updateUserUseCase = { execute: jest.fn() } as any;
-    deleteUserUseCase = { execute: jest.fn() } as any;
+    addUserAddressUseCase = { execute: jest.fn() } as any;
+    getUserAddressUseCase = { execute: jest.fn() } as any;
+    deleteUserAddressUseCase = { execute: jest.fn() } as any;
 
-    usersQueueService = { send: jest.fn() } as any;
-
-    controller = new UserController(
-      userMapper,
-      createUserUseCase,
-      getUserUseCase,
-      updateUserUseCase,
-      deleteUserUseCase,
+    controller = new AddressController(
+      addressMapper,
+      addUserAddressUseCase,
+      getUserAddressUseCase,
+      deleteUserAddressUseCase,
     );
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-    expect(userMapper).toBeDefined();
-    expect(createUserUseCase).toBeDefined();
-    expect(getUserUseCase).toBeDefined();
-    expect(updateUserUseCase).toBeDefined();
-    expect(deleteUserUseCase).toBeDefined();
+    expect(addressMapper).toBeDefined();
+    expect(addUserAddressUseCase).toBeDefined();
+    expect(getUserAddressUseCase).toBeDefined();
+    expect(deleteUserAddressUseCase).toBeDefined();
   });
 
   describe('POST /', () => {
     const id = IDConstants.EXEMPLE;
-    const dto = UserDTO.createCreateUserDTO();
-    const user = UserFactory.createModel();
+    const dto = mockCreateUserDTO();
+    const user = mockCreatedUserDTOToUser(dto, { userId: id });
 
     beforeEach(() => {
-      jest.spyOn(createUserUseCase, 'execute').mockReturnValue(undefined);
-      jest.spyOn(usersQueueService, 'send').mockReturnValue(undefined);
-      jest.spyOn(userMapper, 'createDTOForModel').mockReturnValue(user);
+      jest.spyOn(addUserAddressUseCase, 'execute').mockReturnValue(undefined);
+      jest
+        .spyOn(userMapper, 'addUserAddressDTOForEntity')
+        .mockReturnValue(user);
     });
 
     it('should call createUserUseCase.execute with mapped DTO', async () => {
       await controller.create(dto);
 
-      expect(userMapper.createDTOForModel).toHaveBeenCalledWith(dto);
+      expect(userMapper.createDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
     });
 
@@ -121,7 +107,7 @@ describe('UserController', () => {
   describe('GET /:identifier', () => {
     const id = IDConstants.EXEMPLE;
     const username = UsernameConstants.EXEMPLE;
-    const user = UserFactory.createEntity();
+    const user = mockUserEntity({ userId: id });
 
     beforeEach(() => {
       jest.spyOn(getUserUseCase, 'execute').mockResolvedValue(user);
@@ -165,21 +151,21 @@ describe('UserController', () => {
 
   describe('PATCH /', () => {
     const id = IDConstants.EXEMPLE;
-    const dto = UserDTO.createUpdateUserDTO();
-    const user = UserUpdateFactory.createModel();
+    const dto = mockUpdateUserDTO();
+    const user = mockUserUpdatedDTOToUserUpdated(dto, new IDVO(id));
 
     jest.mock('@user/domain/values-objects/uuid/id-validator');
 
     beforeEach(() => {
       jest.spyOn(updateUserUseCase, 'execute').mockResolvedValue(dto);
-      jest.spyOn(userMapper, 'updateDTOForModel').mockReturnValue(user);
+      jest.spyOn(userMapper, 'updateDTOForEntity').mockReturnValue(user);
       jest.spyOn(IDValidator, 'validate').mockImplementation(jest.fn());
     });
 
     it('should call updateUserUseCase.execute with mapped DTO and user id', async () => {
       await controller.update(dto, id);
 
-      expect(userMapper.updateDTOForModel).toHaveBeenCalledWith(dto, id);
+      expect(userMapper.updateDTOForEntity).toHaveBeenCalledWith(dto, id);
       expect(updateUserUseCase.execute).toHaveBeenCalledWith(id, user);
     });
 
