@@ -16,7 +16,7 @@ import {
 
 @Injectable()
 export class AddressMapper {
-  addUserAddressDTOForEntity(dto: AddUserAddressDTO, userId: string) {
+  addUserAddressDTOForModel(dto: AddUserAddressDTO, userId: string) {
     const dateNow = new Date();
     return new Address({
       city: new CityVO(dto.city),
@@ -33,7 +33,7 @@ export class AddressMapper {
     });
   }
 
-  addressForEntity(entity: Address): Record<keyof AddressEntity, any> {
+  addressModelForEntity(entity: Address): Record<keyof AddressEntity, any> {
     return {
       id: entity.id,
       city: `${entity.city}`,
