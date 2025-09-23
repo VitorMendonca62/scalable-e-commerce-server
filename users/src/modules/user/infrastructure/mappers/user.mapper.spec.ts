@@ -3,22 +3,24 @@ import { mockValueObjects } from '../helpers/values-objects-mock';
 mockValueObjects();
 import { User } from '@modules/user/domain/entities/user.entity';
 import { defaultRoles } from '@modules/user/domain/types/permissions';
-import EmailVO from '@modules/user/domain/values-objects/user/email/email-vo';
-import NameVO from '@modules/user/domain/values-objects/user/name/name-vo';
-import PhoneNumberVO from '@modules/user/domain/values-objects/user/phone-number/phone-number-vo';
-import UsernameVO from '@modules/user/domain/values-objects/user/username/username-vo';
 import { UserMapper } from './user.mapper';
 import IDVO from '@modules/user/domain/values-objects/uuid/id-vo';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
 import { v7 } from 'uuid';
-import AvatarVO from '@modules/user/domain/values-objects/user/avatar/avatar-vo';
 import { UserUpdate } from '@modules/user/domain/entities/user-update.entity';
-import { AvatarConstants } from '@modules/user/domain/values-objects/user/avatar/avatar-constants';
 import {
   UserFactory,
   UserDTO,
   UserUpdateFactory,
 } from '../helpers/users/user-factory';
+import { AvatarConstants } from '@modules/user/domain/values-objects/user/constants';
+import {
+  NameVO,
+  UsernameVO,
+  EmailVO,
+  PhoneNumberVO,
+  AvatarVO,
+} from '@modules/user/domain/values-objects/user/values-object';
 
 jest.mock('uuid', () => ({
   __esModule: true,

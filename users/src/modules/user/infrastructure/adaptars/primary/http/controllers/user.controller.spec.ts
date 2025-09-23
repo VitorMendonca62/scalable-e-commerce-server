@@ -14,8 +14,6 @@ import {
 } from '@user/domain/ports/primary/http/sucess.port';
 import { HttpStatus } from '@nestjs/common';
 import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
-import IDVO from '@user/domain/values-objects/uuid/id-vo';
 import { IDValidator } from '@user/domain/values-objects/uuid/id-validator';
 import { FieldInvalid } from '@modules/user/domain/ports/primary/http/error.port';
 import {
@@ -23,6 +21,7 @@ import {
   UserFactory,
   UserUpdateFactory,
 } from '@modules/user/infrastructure/helpers/users/user-factory';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
 
 describe('UserController', () => {
   let controller: UserController;

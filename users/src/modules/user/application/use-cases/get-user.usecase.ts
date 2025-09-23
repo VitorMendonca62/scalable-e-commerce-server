@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/entities/user.entity';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
 import { NotFoundItem } from '@user/domain/ports/primary/http/error.port';
-import UsernameVO from '@user/domain/values-objects/user/username/username-vo';
 import { isUUID } from 'class-validator';
 import { IDValidator } from '@user/domain/values-objects/uuid/id-validator';
-import { UsernameValidator } from '@user/domain/values-objects/user/username/username-validator';
+import { UsernameValidator } from '@modules/user/domain/values-objects/user/validators';
 
 @Injectable()
 export class GetUserUseCase {

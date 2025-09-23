@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
 import { FieldAlreadyExists } from '@user/domain/ports/primary/http/error.port';
-import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
 import { User } from '@user/domain/entities/user.entity';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
+import { EmailConstants, UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
 
 @Injectable()
 export class CreateUserUseCase{

@@ -1,10 +1,12 @@
+import {
+  PhoneNumberConstants,
+  EmailConstants,
+  NameConstants,
+  UsernameConstants,
+  AvatarConstants,
+} from '@modules/user/domain/values-objects/user/constants';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/email/email-constants';
-import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
-import { AvatarConstants } from '@modules/user/domain/values-objects/user/avatar/avatar-constants';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
-import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
 
 type MockValueObjectsKeys = keyof CreateUserDTO | 'avatar' | 'id';
 

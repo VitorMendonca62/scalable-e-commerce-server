@@ -1,4 +1,4 @@
-import { NameConstants } from '@user/domain/values-objects/user/name/name-constants';
+import { NameConstants } from '@modules/user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 

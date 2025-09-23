@@ -1,18 +1,18 @@
 import { HttpResponseOutbound } from '@user/domain/ports/primary/http/sucess.port';
-import { AvatarConstants } from '@user/domain/values-objects/user/avatar/avatar-constants';
-import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
-import { NameConstants } from '@user/domain/values-objects/user/name/name-constants';
-import { PhoneNumberConstants } from '@user/domain/values-objects/user/phone-number/phone-number-constants';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
-import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
 } from '@nestjs/swagger';
+import {
+  AvatarConstants,
+  EmailConstants,
+  NameConstants,
+  PhoneNumberConstants,
+  UsernameConstants,
+} from '@modules/user/domain/values-objects/user/constants';
 
 export function ApiUpdateUser() {
   return applyDecorators(

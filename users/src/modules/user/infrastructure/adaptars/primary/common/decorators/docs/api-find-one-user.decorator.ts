@@ -1,5 +1,4 @@
 import { HttpResponseOutbound } from '@user/domain/ports/primary/http/sucess.port';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
 import { IDConstants } from '@user/domain/values-objects/uuid/id-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
@@ -8,12 +7,14 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiParam,
-  ApiQuery,
 } from '@nestjs/swagger';
-import { AvatarConstants } from '@modules/user/domain/values-objects/user/avatar/avatar-constants';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/email/email-constants';
-import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
-import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
+import {
+  UsernameConstants,
+  NameConstants,
+  EmailConstants,
+  AvatarConstants,
+  PhoneNumberConstants,
+} from '@modules/user/domain/values-objects/user/constants';
 
 export function ApiFindOneUser() {
   return applyDecorators(

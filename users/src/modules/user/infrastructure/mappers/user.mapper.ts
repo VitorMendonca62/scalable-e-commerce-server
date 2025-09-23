@@ -1,17 +1,19 @@
 import { User } from '@user/domain/entities/user.entity';
-import AvatarVO from '@user/domain/values-objects/user/avatar/avatar-vo';
-import EmailVO from '@user/domain/values-objects/user/email/email-vo';
-import NameVO from '@user/domain/values-objects/user/name/name-vo';
-import PhoneNumberVO from '@user/domain/values-objects/user/phone-number/phone-number-vo';
-import UsernameVO from '@user/domain/values-objects/user/username/username-vo';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
 import { defaultRoles } from '@user/domain/types/permissions';
 import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 import { UserUpdate } from '@user/domain/entities/user-update.entity';
-import IDVO from '@user/domain/values-objects/uuid/id-vo';
 import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
 import { v7 } from 'uuid';
+import IDVO from '@user/domain/values-objects/uuid/id-vo';
+import {
+  AvatarVO,
+  EmailVO,
+  NameVO,
+  PhoneNumberVO,
+  UsernameVO,
+} from '@modules/user/domain/values-objects/user/values-object';
 
 @Injectable()
 export class UserMapper {

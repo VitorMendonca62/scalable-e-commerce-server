@@ -2,15 +2,17 @@ import { Injectable } from '@nestjs/common';
 import IDVO from '@user/domain/values-objects/uuid/id-vo';
 import { AddUserAddressDTO } from '../adaptars/primary/http/dtos/add-user-address.dto';
 import { Address } from '@user/domain/entities/address.entity';
-import CityVO from '@user/domain/values-objects/address/city/city-vo';
-import ComplementVO from '@user/domain/values-objects/address/complement/complement-vo';
-import NeighborhoodVO from '@user/domain/values-objects/address/neighborhood/neighborhood-vo';
-import NumberVO from '@user/domain/values-objects/address/number/number-vo';
-import PostalCodeVO from '@user/domain/values-objects/address/postal-code/postal-code-vo';
-import CountryVO from '@user/domain/values-objects/address/country/country-vo';
-import StateVO from '@user/domain/values-objects/address/state/state-vo';
-import StreetVO from '@user/domain/values-objects/address/street/street-vo';
 import { AddressEntity } from '../adaptars/secondary/database/entities/address.entity';
+import {
+  CityVO,
+  ComplementVO,
+  NeighborhoodVO,
+  NumberVO,
+  PostalCodeVO,
+  CountryVO,
+  StateVO,
+  StreetVO,
+} from '@modules/user/domain/values-objects/address/values-object';
 
 @Injectable()
 export class AddressMapper {

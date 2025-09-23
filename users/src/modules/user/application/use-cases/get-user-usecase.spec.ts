@@ -1,10 +1,10 @@
 import { UserRepository } from '@modules/user/domain/ports/secondary/user-repository.port';
 import { GetUserUseCase } from './get-user.usecase';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
 import { IDValidator } from '@modules/user/domain/values-objects/uuid/id-validator';
 import { NotFoundItem } from '@modules/user/domain/ports/primary/http/error.port';
 import { UserFactory } from '@modules/user/infrastructure/helpers/users/user-factory';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
 
 describe('GetUserUseCase', () => {
   let useCase: GetUserUseCase;

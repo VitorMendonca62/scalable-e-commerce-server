@@ -1,5 +1,4 @@
 import { HttpResponseOutbound } from '@user/domain/ports/primary/http/sucess.port';
-import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -7,6 +6,7 @@ import {
   ApiCreatedResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
 
 export function ApiCreateUser() {
   return applyDecorators(

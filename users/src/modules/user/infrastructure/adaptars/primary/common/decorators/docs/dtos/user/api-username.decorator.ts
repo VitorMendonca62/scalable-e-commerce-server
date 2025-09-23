@@ -1,4 +1,4 @@
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
+import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

@@ -1,8 +1,10 @@
-import { AvatarConstants } from '@modules/user/domain/values-objects/user/avatar/avatar-constants';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/email/email-constants';
-import { NameConstants } from '@modules/user/domain/values-objects/user/name/name-constants';
-import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/phone-number/phone-number-constants';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/username/username-constants';
+import {
+  UsernameConstants,
+  NameConstants,
+  EmailConstants,
+  AvatarConstants,
+  PhoneNumberConstants,
+} from '@modules/user/domain/values-objects/user/constants';
 import { UserDTO } from '@modules/user/infrastructure/helpers/users/user-factory';
 import { validate } from 'class-validator';
 

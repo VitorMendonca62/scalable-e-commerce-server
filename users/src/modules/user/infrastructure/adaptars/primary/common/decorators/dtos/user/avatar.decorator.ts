@@ -1,4 +1,4 @@
-import { AvatarConstants } from '@user/domain/values-objects/user/avatar/avatar-constants';
+import { AvatarConstants } from '@modules/user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
