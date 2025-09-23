@@ -1,4 +1,4 @@
-import { NumberConstants } from '@user/domain/values-objects/address/number/number-constants';
+import { NumberConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsOptional, IsString, MinLength, MaxLength, Matches } from 'class-validator';
 

@@ -1,4 +1,4 @@
-import { CityConstants } from '@user/domain/values-objects/address/city/city-constants';
+import { CityConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

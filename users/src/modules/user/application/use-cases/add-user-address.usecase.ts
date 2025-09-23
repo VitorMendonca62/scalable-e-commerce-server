@@ -73,7 +73,7 @@ export class AddUserAddressUseCase {
     newAddress.street.validateInPostalCode(data.street);
 
     await this.addressRepositoy.addAddress(
-      this.addressMapper.addressForEntity(newAddress),
+      this.addressMapper.addressModelForEntity(newAddress),
     );
   }
 }

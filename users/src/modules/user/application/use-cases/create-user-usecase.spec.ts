@@ -1,11 +1,10 @@
 import { FieldAlreadyExists } from '@user/domain/ports/primary/http/error.port';
 import { UserRepository } from '@user/domain/ports/secondary/user-repository.port';
-import { EmailConstants } from '@user/domain/values-objects/user/email/email-constants';
-import { UsernameConstants } from '@user/domain/values-objects/user/username/username-constants';
 
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from './create-user.usecase';
 import { UserFactory } from '@modules/user/infrastructure/helpers/users/user-factory';
+import { EmailConstants, UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;

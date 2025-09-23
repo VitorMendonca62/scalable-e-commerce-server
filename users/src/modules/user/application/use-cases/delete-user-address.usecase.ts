@@ -10,7 +10,7 @@ export class DeleteUserAddressUseCase {
     private readonly userRepository: UserRepository,
   ) {}
 
-  async execute(userId: string, addressIndex: number): Promise<void> {
+  async execute(addressIndex: number, userId: string): Promise<void> {
     const user = await this.userRepository.findOne({ userId: userId });
 
     if (user == undefined || user == null) {

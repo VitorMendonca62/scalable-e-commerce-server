@@ -1,4 +1,4 @@
-import { NeighborhoodConstants } from '@user/domain/values-objects/address/neighborhood/neighborhood-constants';
+import { NeighborhoodConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,

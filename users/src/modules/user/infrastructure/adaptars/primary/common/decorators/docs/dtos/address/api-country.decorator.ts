@@ -1,4 +1,4 @@
-import { CountryConstants } from '@user/domain/values-objects/address/country/country-constants';
+import { CountryConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

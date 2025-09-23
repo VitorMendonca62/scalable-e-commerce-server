@@ -1,4 +1,4 @@
-import { StreetConstants } from '@user/domain/values-objects/address/street/street-constants';
+import { StreetConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
 

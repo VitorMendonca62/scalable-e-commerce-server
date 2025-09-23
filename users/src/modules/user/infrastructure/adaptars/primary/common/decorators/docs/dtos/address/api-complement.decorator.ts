@@ -1,4 +1,4 @@
-import { ComplementConstants } from '@user/domain/values-objects/address/complement/complement-constants';
+import { ComplementConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

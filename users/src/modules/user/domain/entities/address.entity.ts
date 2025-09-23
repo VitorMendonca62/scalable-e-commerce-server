@@ -1,12 +1,14 @@
-import CountryVO from '../values-objects/address/country/country-vo';
-import StreetVO from '../values-objects/address/street/street-vo';
-import NumberVO from '../values-objects/address/number/number-vo';
+import {
+  CityVO,
+  ComplementVO,
+  CountryVO,
+  NeighborhoodVO,
+  NumberVO,
+  PostalCodeVO,
+  StateVO,
+  StreetVO,
+} from '../values-objects/address/values-object';
 import IDVO from '../values-objects/uuid/id-vo';
-import ComplementVO from '../values-objects/address/complement/complement-vo';
-import NeighborhoodVO from '../values-objects/address/neighborhood/neighborhood-vo';
-import CityVO from '../values-objects/address/city/city-vo';
-import PostalCodeVO from '../values-objects/address/postal-code/postal-code-vo';
-import StateVO from '../values-objects/address/state/state-vo';
 
 export class Address {
   id?: number;
