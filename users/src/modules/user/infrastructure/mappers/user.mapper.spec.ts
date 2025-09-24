@@ -1,4 +1,4 @@
-import { mockValueObjects } from '../helpers/values-objects-mock';
+import { mockValueObjects } from '../helpers/users/user-values-objects-mock';
 
 mockValueObjects();
 import { User } from '@modules/user/domain/entities/user.entity';

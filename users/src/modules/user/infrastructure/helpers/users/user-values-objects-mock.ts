@@ -6,61 +6,52 @@ import {
   AvatarConstants,
 } from '@modules/user/domain/values-objects/user/constants';
 import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constants';
-import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
 
-type MockValueObjectsKeys = keyof CreateUserDTO | 'avatar' | 'id';
-
-type MockValueObjects = Partial<Record<MockValueObjectsKeys, any>>;
-
-export function mockValueObjects(overrides: MockValueObjects = {}) {
+export function mockValueObjects() {
   const mockPhoneNumber = jest.fn();
   mockPhoneNumber.prototype.toString = jest
     .fn()
-    .mockReturnValue(overrides.phonenumber ?? PhoneNumberConstants.EXEMPLE);
+    .mockReturnValue(PhoneNumberConstants.EXEMPLE);
 
   mockPhoneNumber.prototype.getValue = jest
     .fn()
-    .mockReturnValue(overrides.phonenumber ?? PhoneNumberConstants.EXEMPLE);
+    .mockReturnValue(PhoneNumberConstants.EXEMPLE);
 
   const mockEmail = jest.fn();
   mockEmail.prototype.toString = jest
     .fn()
-    .mockReturnValue(overrides.email ?? EmailConstants.EXEMPLE);
+    .mockReturnValue(EmailConstants.EXEMPLE);
   mockEmail.prototype.getValue = jest
     .fn()
-    .mockReturnValue(overrides.email ?? EmailConstants.EXEMPLE);
+    .mockReturnValue(EmailConstants.EXEMPLE);
 
   const mockName = jest.fn();
   mockName.prototype.toString = jest
     .fn()
-    .mockReturnValue(overrides.name ?? NameConstants.EXEMPLE);
+    .mockReturnValue(NameConstants.EXEMPLE);
   mockName.prototype.getValue = jest
     .fn()
-    .mockReturnValue(overrides.name ?? NameConstants.EXEMPLE);
+    .mockReturnValue(NameConstants.EXEMPLE);
 
   const mockUsername = jest.fn();
   mockUsername.prototype.toString = jest
     .fn()
-    .mockReturnValue(overrides.username ?? UsernameConstants.EXEMPLE);
+    .mockReturnValue(UsernameConstants.EXEMPLE);
   mockUsername.prototype.getValue = jest
     .fn()
-    .mockReturnValue(overrides.username ?? UsernameConstants.EXEMPLE);
+    .mockReturnValue(UsernameConstants.EXEMPLE);
 
   const mockID = jest.fn();
-  mockID.prototype.toString = jest
-    .fn()
-    .mockReturnValue(overrides.id ?? IDConstants.EXEMPLE);
-  mockID.prototype.getValue = jest
-    .fn()
-    .mockReturnValue(overrides.id ?? IDConstants.EXEMPLE);
+  mockID.prototype.toString = jest.fn().mockReturnValue(IDConstants.EXEMPLE);
+  mockID.prototype.getValue = jest.fn().mockReturnValue(IDConstants.EXEMPLE);
 
   const mockAvatar = jest.fn();
   mockAvatar.prototype.toString = jest
     .fn()
-    .mockReturnValue(overrides.avatar ?? AvatarConstants.EXEMPLE);
+    .mockReturnValue(AvatarConstants.EXEMPLE);
   mockAvatar.prototype.getValue = jest
     .fn()
-    .mockReturnValue(overrides.avatar ?? AvatarConstants.EXEMPLE);
+    .mockReturnValue(AvatarConstants.EXEMPLE);
 
   jest.mock('@modules/user/domain/values-objects/user/email/email-vo', () => ({
     __esModule: true,
