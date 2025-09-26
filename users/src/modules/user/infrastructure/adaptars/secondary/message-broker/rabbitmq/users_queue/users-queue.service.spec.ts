@@ -1,10 +1,12 @@
 import { ClientProxy } from '@nestjs/microservices';
-import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/phone-number-constants';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
 import { UsersQueueService } from './users-queue.service';
+import {
+  EmailConstants,
+  NameConstants,
+  PhoneNumberConstants,
+  UsernameConstants,
+} from '@modules/user/domain/values-objects/user/constants';
+import { defaultRoles } from '@modules/user/domain/types/permissions';
 
 describe('UsersQueueService', () => {
   let service: UsersQueueService;
