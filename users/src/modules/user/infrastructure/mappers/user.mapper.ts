@@ -14,6 +14,7 @@ import {
   PhoneNumberVO,
   UsernameVO,
 } from '@modules/user/domain/values-objects/user/values-object';
+import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class UserMapper {
@@ -38,28 +39,37 @@ export class UserMapper {
     });
   }
 
-  updateDTOForModel(dto: UpdateUserDTO, userId: string) {
-    return new UserUpdate({
+  updateDTOForModel(dto: UpdateUserDTO, userId: string): UserUpdate {
+    const props: any = {
       userId: new IDVO(userId),
-      name: new NameVO(dto.name, false),
-      username: new UsernameVO(dto.username, false),
-      email: new EmailVO(dto.email, false),
-      avatar: new AvatarVO(dto.avatar, false),
-      phonenumber: new PhoneNumberVO(dto.phonenumber, false),
       updatedAt: new Date(),
-    });
+    };
+
+    if (!isEmpty(dto.name)) props.name = new NameVO(dto.name, false);
+    if (!isEmpty(dto.username))
+      props.username = new UsernameVO(dto.username, false);
+    if (!isEmpty(dto.email)) props.email = new EmailVO(dto.email, false);
+    if (!isEmpty(dto.avatar)) props.avatar = new AvatarVO(dto.avatar, false);
+    if (!isEmpty(dto.phonenumber))
+      props.phonenumber = new PhoneNumberVO(dto.phonenumber, false);
+
+    return new UserUpdate(props);
   }
 
   userUpdateModelForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
-    return {
-      avatar: user.avatar.getValue(),
-      email: user.email.getValue(),
-      name: user.name.getValue(),
-      phonenumber: user.phonenumber.getValue(),
-      updatedAt: user.updatedAt,
+    const returned: any = {
       userId: user.userId.getValue(),
-      username: user.username.getValue(),
+      updatedAt: user.updatedAt,
     };
+
+    if (!isEmpty(user.avatar)) returned.avatar = user.avatar.getValue();
+    if (!isEmpty(user.email)) returned.email = user.email.getValue();
+    if (!isEmpty(user.name)) returned.name = user.name.getValue();
+    if (!isEmpty(user.phonenumber))
+      returned.phonenumber = user.phonenumber.getValue();
+    if (!isEmpty(user.username)) returned.username = user.username.getValue();
+
+    return returned;
   }
 
   userModelToJSON(user: User): UserEntity {
