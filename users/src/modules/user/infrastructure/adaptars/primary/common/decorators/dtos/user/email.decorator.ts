@@ -2,15 +2,11 @@ import { EmailConstants } from '@modules/user/domain/values-objects/user/constan
 import { applyDecorators } from '@nestjs/common';
 import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
-export function Email(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: EmailConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function Email() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: EmailConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: EmailConstants.ERROR_STRING }),
     IsEmail({}, { message: EmailConstants.ERROR_INVALID }),
   );

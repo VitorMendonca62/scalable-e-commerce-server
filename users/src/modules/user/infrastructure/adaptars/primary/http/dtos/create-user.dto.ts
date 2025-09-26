@@ -10,23 +10,23 @@ import { PhoneNumber } from '../../common/decorators/dtos/user/phonenumber.decor
 import { Username } from '../../common/decorators/dtos/user/username.decorator';
 
 export class CreateUserDTO {
-  @Name(true)
-  @ApiName(true)
+  @Name()
+  @ApiName()
   name: string;
 
-  @Username(true)
-  @ApiUsername(true)
+  @Username()
+  @ApiUsername()
   username: string;
 
-  @Email(true)
-  @ApiEmail(true)
+  @Email()
+  @ApiEmail()
   email: string;
 
   @Password(true)
-  @ApiPassword(true)
+  @ApiPassword()
   password: string;
 
-  @PhoneNumber(true)
-  @ApiPhoneNumber(true)
+  @PhoneNumber()
+  @ApiPhoneNumber()
   phonenumber: string;
 }

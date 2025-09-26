@@ -8,15 +8,11 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Username(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: UsernameConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function Username() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: UsernameConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: UsernameConstants.ERROR_STRING }),
     MinLength(UsernameConstants.MIN_LENGTH, {
       message: UsernameConstants.ERROR_MIN_LENGTH,

@@ -8,15 +8,11 @@ import {
   Length,
 } from 'class-validator';
 
-export function PhoneNumber(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: PhoneNumberConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function PhoneNumber() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: PhoneNumberConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: PhoneNumberConstants.ERROR_STRING }),
     Length(PhoneNumberConstants.LENGTH, PhoneNumberConstants.LENGTH, {
       message: PhoneNumberConstants.ERROR_LENGTH,

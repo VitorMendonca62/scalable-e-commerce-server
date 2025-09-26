@@ -10,6 +10,6 @@ import { v4 } from 'uuid';
 export default class UserExternalController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
-    private readonly userMapper: UserMapper,
+    private readonly userMapper: UserMapper
   ) {}
 }

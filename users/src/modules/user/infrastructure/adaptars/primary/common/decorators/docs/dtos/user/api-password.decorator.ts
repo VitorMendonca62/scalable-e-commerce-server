@@ -2,12 +2,12 @@ import { PasswordConstants } from '@user/domain/constants/password-constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiPassword(required: boolean) {
+export function ApiPassword() {
   return applyDecorators(
     ApiProperty({
       description: PasswordConstants.DESCRIPTION,
       example: PasswordConstants.EXEMPLE,
-      required: required,
+      required: true,
       minLength: PasswordConstants.MIN_LENGTH,
       type: 'string',
     }),

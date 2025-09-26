@@ -2,12 +2,12 @@ import { AvatarConstants } from '@modules/user/domain/values-objects/user/consta
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiAvatar(required: boolean) {
+export function ApiAvatar() {
   return applyDecorators(
     ApiProperty({
       description: AvatarConstants.DESCRIPTION,
       example: AvatarConstants.EXEMPLE,
-      required: required,
+      required: true,
     }),
   );
 }

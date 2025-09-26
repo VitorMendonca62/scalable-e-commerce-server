@@ -2,12 +2,12 @@ import { EmailConstants } from '@modules/user/domain/values-objects/user/constan
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiEmail(required: boolean) {
+export function ApiEmail() {
   return applyDecorators(
     ApiProperty({
       description: EmailConstants.DESCRIPTION,
       example: EmailConstants.EXEMPLE,
-      required: required,
+      required: true,
       type: 'string',
     }),
   );

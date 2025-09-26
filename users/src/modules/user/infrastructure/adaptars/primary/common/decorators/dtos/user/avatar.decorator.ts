@@ -8,15 +8,11 @@ import {
   MaxLength,
 } from 'class-validator';
 
-export function Avatar(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: AvatarConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function Avatar() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: AvatarConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: AvatarConstants.ERROR_STRING }),
     IsUrl({}, { message: AvatarConstants.ERROR_INVALID }),
     MaxLength(AvatarConstants.MAX_LENGTH, {
