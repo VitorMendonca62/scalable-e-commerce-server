@@ -129,6 +129,22 @@ describe('UserMapper', () => {
       expect(user.updatedAt).toBeInstanceOf(Date);
     });
 
+    it('should return UserUpdate with correct types when no have all fields', async () => {
+    const dto = UserDTO.createUpdateUserDTO({
+      email: null,
+      name: null,
+      phonenumber: null,
+      username: null
+    });
+
+      const user = mapper.updateDTOForModel(dto, id);
+
+      expect(user).toBeInstanceOf(UserUpdate);
+      expect(user.userId).toBeInstanceOf(IDVO);
+      expect(user.avatar).toBeInstanceOf(AvatarVO);
+      expect(user.updatedAt).toBeInstanceOf(Date);
+    });
+
     it('should return UserUpdate with correct fields', async () => {
       const user = mapper.updateDTOForModel(dto, id);
 
@@ -159,36 +175,18 @@ describe('UserMapper', () => {
 
     it('return the field null if the field is null ', () => {
       const userUpdate = UserUpdateFactory.createModel({
-        avatar: new AvatarVO(null, false),
-        name: new NameVO(null, false),
-        email: new EmailVO(null, false),
-        phonenumber: new PhoneNumberVO(null, false),
-        username: new UsernameVO(null, false),
+        name: null,
+        email: null,
+        phonenumber: null,
+        username: null,
       });
 
-      (userUpdate.avatar.getValue as unknown as jest.Mock).mockReturnValueOnce(
-        null,
-      );
-      (userUpdate.name.getValue as unknown as jest.Mock).mockReturnValueOnce(
-        null,
-      );
-      (userUpdate.email.getValue as unknown as jest.Mock).mockReturnValueOnce(
-        null,
-      );
-      (
-        userUpdate.phonenumber.getValue as unknown as jest.Mock
-      ).mockReturnValueOnce(null);
-      (
-        userUpdate.username.getValue as unknown as jest.Mock
-      ).mockReturnValueOnce(null);
 
       const result = mapper.userUpdateModelForJSON(userUpdate);
-
-      expect(result.avatar).toBeNull();
-      expect(result.email).toBeNull();
-      expect(result.name).toBeNull();
-      expect(result.phonenumber).toBeNull();
-      expect(result.username).toBeNull();
+      expect(result).not.toHaveProperty('email');
+      expect(result).not.toHaveProperty('name');
+      expect(result).not.toHaveProperty('phonenumber');
+      expect(result).not.toHaveProperty('username');
     });
 
     it('should return correct JSON structure', () => {
