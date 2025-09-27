@@ -13,28 +13,24 @@ import { IDConstants } from '@modules/user/domain/values-objects/uuid/id-constan
 export function mockAddressValueObjects() {
   const MockStreet = jest.fn();
   MockStreet.prototype.getValue = jest.fn().mockReturnValue(StreetConstants.EXEMPLE);
-  MockStreet.prototype.validateInPostalCode = jest.fn().mockReturnValue(true);
 
   const MockNumber = jest.fn();
   MockNumber.prototype.getValue = jest.fn().mockReturnValue(NumberConstants.EXEMPLE);
 
   const MockNeighborhood = jest.fn();
   MockNeighborhood.prototype.getValue = jest.fn().mockReturnValue(NeighborhoodConstants.EXEMPLE);
-  MockNeighborhood.prototype.validateInPostalCode = jest.fn().mockReturnValue(true);
 
   const MockComplement = jest.fn();
   MockComplement.prototype.getValue = jest.fn().mockReturnValue(ComplementConstants.EXEMPLE);
 
   const MockCity = jest.fn();
   MockCity.prototype.getValue = jest.fn().mockReturnValue(CityConstants.EXEMPLE);
-  MockCity.prototype.validateInPostalCode = jest.fn().mockReturnValue(true);
 
   const MockPostalCode = jest.fn();
   MockPostalCode.prototype.getValue = jest.fn().mockReturnValue(PostalCodeConstants.EXEMPLE);
 
   const MockState = jest.fn();
   MockState.prototype.getValue = jest.fn().mockReturnValue(StateConstants.EXEMPLE);
-  MockState.prototype.validateInPostalCode = jest.fn().mockReturnValue(true);
 
   const MockCountry = jest.fn();
   MockCountry.prototype.getValue = jest.fn().mockReturnValue(CountryConstants.EXEMPLE);

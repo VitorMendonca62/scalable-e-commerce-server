@@ -81,8 +81,6 @@ describe('DeleteUserAddressUseCase', () => {
     });
 
     it('should throw NotFoundItem when when the address index is greater than the user address quantity ', async () => {
-      const user = UserFactory.createEntity({ active: false });
-
       jest
         .spyOn(addressRepository, 'getAll')
         .mockResolvedValue([
