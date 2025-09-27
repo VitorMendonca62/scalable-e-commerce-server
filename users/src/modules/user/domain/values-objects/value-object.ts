@@ -4,8 +4,4 @@ export class ValueObject {
   public getValue() {
     return this.value;
   }
-
-  public toString(): string {
-    return String(this.value);
-  }
 }

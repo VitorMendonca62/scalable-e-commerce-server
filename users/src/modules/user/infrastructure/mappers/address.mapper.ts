@@ -33,7 +33,7 @@ export class AddressMapper {
     });
   }
 
-  addressModelForEntity(entity: Address): Record<keyof AddressEntity, any> {
+  addressModelForEntity(entity: Address): AddressEntity {
     return {
       id: entity.id,
       city: entity.city.getValue(),

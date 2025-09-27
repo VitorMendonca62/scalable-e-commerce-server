@@ -1,3 +1,5 @@
+// TODO A validacao de token nao deveria estar aqui, da uma ajeitada!
+
 import { Injectable, PipeTransform } from '@nestjs/common';
 import { TokenService } from '@user/domain/ports/secondary/token-service.port';
 import { WrongCredentials } from '@user/domain/ports/primary/http/error.port';

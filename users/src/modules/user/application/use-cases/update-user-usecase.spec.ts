@@ -48,7 +48,7 @@ describe('UpdateUserUseCase', () => {
       jest.spyOn(userMapper, 'userUpdateModelForJSON').mockReturnValue(newUser);
     });
 
-    it('should return undefined on sucess', async () => {
+    it('should return updated user', async () => {
       const response = await useCase.execute(id, newUser);
 
       expect(response).toEqual({

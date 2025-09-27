@@ -8,7 +8,7 @@ import {
   BusinessRuleViolation,
 } from '@user/domain/ports/primary/http/error.port';
 import { AddressService } from '@user/infrastructure/adaptars/secondary/address/address.service';
-import { firstValueFrom } from 'rxjs';
+import { lastValueFrom } from 'rxjs';
 import { AxiosError, AxiosResponse } from 'axios';
 import {
   BrasilAPICEP,
@@ -37,23 +37,29 @@ export class AddUserAddressUseCase {
       throw new NotFoundItem('Não foi possivel encontrar o usuário');
     }
 
-    if((await this.addressRepositoy.getAll(userId)).length == 3) {
-      throw new BusinessRuleViolation('O usuário já possui o número máximo de endereços permitidos (3).');
+    if ((await this.addressRepositoy.getAll(userId)).length == 3) {
+      throw new BusinessRuleViolation(
+        'O usuário já possui o número máximo de endereços permitidos (3).',
+      );
     }
 
     let cepResponse: AxiosResponse<SearchCEPBrasilAPI, any>;
 
     try {
-      cepResponse = await firstValueFrom(
+      cepResponse = await lastValueFrom(
         this.addressService.searchCEP(newAddress.postalCode.getValue()),
       );
     } catch (error: unknown) {
       if (error instanceof AxiosError) {
-        if (error.response?.status === HttpStatus.NOT_FOUND) {
-          throw new FieldInvalid('O CEP informado não existe.', 'postalCode');
+        if (error.response?.status === HttpStatus.BAD_REQUEST) {
+          throw new FieldInvalid('Erro na validação do CEP. O mesto deve estar no formato XXXXXXXX', 'postalCode');
         }
 
-        if (error.response?.status >= 500) {
+        if (error.response?.status === HttpStatus.NOT_FOUND) {
+          throw new ExternalServiceError('O CEP informado não existe.');
+        }
+
+        if (error.response?.status >= HttpStatus.BAD_GATEWAY) {
           throw new ExternalServiceError(
             'Serviço de CEP temporariamente indisponível. Tente novamente mais tarde.',
           );
