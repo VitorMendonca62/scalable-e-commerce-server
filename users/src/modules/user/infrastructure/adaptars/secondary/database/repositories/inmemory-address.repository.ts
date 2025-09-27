@@ -23,32 +23,13 @@ export default class InMemoryAddressRepository implements AddressRepositoy {
     return this.addresses.filter((address) => address.userId == userId);
   }
 
-  async findOne(
-    options: Partial<Record<keyof AddressEntity, any>>,
-  ): Promise<AddressEntity> {
-    return this.addresses.find((addres) => {
-      for (const key of Object.keys(options)) {
-        if (this.keysCanToLowerCase.includes(key)) {
-          options[key] = options[key].toLowerCase();
-        }
-
-        const value = this.keysCanToLowerCase.includes(key)
-          ? addres[key].toLowerCase()
-          : addres[key];
-        if (options[key] != value) {
-          return false;
-        }
-      }
-
-      return true;
-    });
-  }
+  // Todo consertar essa funcao
   async delete(userId: string, addressIndex: number): Promise<void> {
     const addresses = this.addresses.filter(
       (address) => address.userId === userId,
     );
 
-    const index = this.addresses.findIndex((_, i) => i == addressIndex );
+    const index = addresses.findIndex((_, i) => i == addressIndex );
 
     this.addresses.splice(index, 1);
   }
