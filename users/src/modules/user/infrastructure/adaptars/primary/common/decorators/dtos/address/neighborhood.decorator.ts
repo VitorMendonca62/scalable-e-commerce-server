@@ -2,21 +2,16 @@ import { NeighborhoodConstants } from '@modules/user/domain/values-objects/addre
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
-  IsOptional,
   IsString,
   MinLength,
   MaxLength,
 } from 'class-validator';
 
-export function Neighborhood(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: NeighborhoodConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function Neighborhood() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: NeighborhoodConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: NeighborhoodConstants.ERROR_STRING }),
     MinLength(NeighborhoodConstants.MIN_LENGTH, {
       message: NeighborhoodConstants.ERROR_TOO_SHORT,

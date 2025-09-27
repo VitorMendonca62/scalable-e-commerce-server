@@ -16,35 +16,35 @@ import { Number } from '../../common/decorators/dtos/address/number.decorator';
 import { ApiNumber } from '../../common/decorators/docs/dtos/address/api-number.decorator';
 
 export class AddUserAddressDTO {
-  @Street(true)
-  @ApiStreet(true)
+  @Street()
+  @ApiStreet()
   street: string;
 
-  @Number(true)
-  @ApiNumber(true)
+  @Number()
+  @ApiNumber()
   number: string;
 
   @Complement()
   @ApiComplement()
   complement: string;
 
-  @Neighborhood(true)
-  @ApiNeighborhood(true)
+  @Neighborhood()
+  @ApiNeighborhood()
   neighborhood: string;
 
-  @City(true)
-  @ApiCity(true)
+  @City()
+  @ApiCity()
   city: string;
 
-  @PostalCode(true)
-  @ApiPostalCode(true)
+  @PostalCode()
+  @ApiPostalCode()
   postalCode: string;
 
-  @State(true)
-  @ApiState(true)
+  @State()
+  @ApiState()
   state: string;
 
-  @Country(true)
-  @ApiCountry(true)
+  @Country()
+  @ApiCountry()
   country: string;
 }

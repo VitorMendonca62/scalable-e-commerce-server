@@ -1,16 +1,12 @@
 import { StreetConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
-import { IsNotEmpty, IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
-export function Street(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: StreetConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function Street() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: StreetConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: StreetConstants.ERROR_STRING }),
     MinLength(StreetConstants.MIN_LENGTH, {
       message: StreetConstants.ERROR_TOO_SHORT,

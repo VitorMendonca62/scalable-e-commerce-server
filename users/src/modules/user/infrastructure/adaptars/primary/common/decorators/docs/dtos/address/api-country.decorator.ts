@@ -2,12 +2,12 @@ import { CountryConstants } from '@modules/user/domain/values-objects/address/co
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiCountry(required: boolean) {
+export function ApiCountry( ) {
   return applyDecorators(
     ApiProperty({
       description: CountryConstants.DESCRIPTION,
       example: CountryConstants.EXEMPLE,
-      required: required,
+      required: true,
       minLength: CountryConstants.MIN_LENGTH,
       maxLength: CountryConstants.MAX_LENGTH,
       type: 'string',

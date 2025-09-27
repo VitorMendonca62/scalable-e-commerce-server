@@ -1,17 +1,13 @@
 import { StateConstants } from '@modules/user/domain/values-objects/address/constants';
 
 import { applyDecorators } from '@nestjs/common';
-import { IsNotEmpty, IsOptional, IsString, MinLength, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
-export function State(required: boolean) {
-  const IsRequired = required
-    ? IsNotEmpty({
-        message: StateConstants.ERROR_REQUIRED,
-      })
-    : IsOptional();
-
+export function State() {
   return applyDecorators(
-    IsRequired,
+    IsNotEmpty({
+      message: StateConstants.ERROR_REQUIRED,
+    }),
     IsString({ message: StateConstants.ERROR_STRING }),
     MinLength(StateConstants.MIN_LENGTH, {
       message: StateConstants.ERROR_TOO_SHORT,

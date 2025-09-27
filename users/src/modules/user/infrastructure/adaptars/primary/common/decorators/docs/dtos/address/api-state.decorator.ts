@@ -2,12 +2,12 @@ import { StateConstants } from '@modules/user/domain/values-objects/address/cons
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiState(required: boolean) {
+export function ApiState( ) {
   return applyDecorators(
     ApiProperty({
       description: StateConstants.DESCRIPTION,
       example: StateConstants.EXEMPLE,
-      required: required,
+      required: true,
       minLength: StateConstants.MIN_LENGTH,
       maxLength: StateConstants.MAX_LENGTH,
       type: 'string',
