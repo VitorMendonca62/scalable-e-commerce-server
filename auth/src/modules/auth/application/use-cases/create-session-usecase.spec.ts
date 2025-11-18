@@ -45,8 +45,8 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser({ _id: 'USERID' });
-    const userEntity = userLikeJSON({ _id: 'USERID' });
+    const user = mockUser({ userID: 'USERID' });
+    const userEntity = userLikeJSON({ userID: 'USERID' });
     const userLogin = mockLoginUser();
 
     beforeEach(() => {

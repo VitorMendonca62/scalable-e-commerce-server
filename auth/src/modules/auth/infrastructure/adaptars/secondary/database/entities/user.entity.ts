@@ -10,7 +10,7 @@ export type UserDocument = UserEntity & Document;
 @Schema({ timestamps: true, collection: 'users' })
 export class UserEntity {
   @Prop({ type: String, default: v4() })
-  _id?: string;
+  userID?: string;
 
   @Prop({ required: true, type: String })
   name: string;
@@ -42,7 +42,7 @@ export class UserEntity {
   updatedAt: Date;
 
   constructor(props: {
-    _id?: string;
+    userID?: string;
     name: string;
     username: string;
     email: string;
@@ -52,7 +52,7 @@ export class UserEntity {
     createdAt?: Date;
     updatedAt?: Date;
   }) {
-    this._id = props._id ?? v4();
+    this.userID = props.userID ?? v4();
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;

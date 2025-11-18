@@ -33,7 +33,7 @@ export class CreateSessionUseCase implements CreateSessionPort {
 
     const accessToken = this.tokenService.generateAccessToken(userJSON);
 
-    const refreshToken = this.tokenService.generateRefreshToken(user._id);
+    const refreshToken = this.tokenService.generateRefreshToken(user.userID);
 
     return {
       accessToken: `Bearer ${accessToken}`,

@@ -24,7 +24,7 @@ export class UserMapper {
       username: new UsernameVO(dto.username),
       createdAt: new Date(),
       updatedAt: new Date(),
-      _id: v4(),
+      userID: v4(),
     });
   }
 
@@ -37,7 +37,7 @@ export class UserMapper {
 
   userToJSON(user: User): UserEntity {
     return {
-      _id: user._id,
+      userID: user.userID,
       name: `${user.name}`,
       username: `${user.username}`,
       email: `${user.email}`,
@@ -59,7 +59,7 @@ export class UserMapper {
       username: new UsernameVO(json.username),
       createdAt: new Date(),
       updatedAt: new Date(),
-      _id: json._id,
+      userID: json.userID,
     });
   }
 }

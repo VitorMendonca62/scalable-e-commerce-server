@@ -26,7 +26,7 @@ export class JwtTokenService implements TokenService {
 
   generateAccessToken(user: UserEntity): string {
     const playload = {
-      sub: user._id,
+      sub: user.userID,
       email: user.email,
       roles: user.roles,
       type: 'access' as const,

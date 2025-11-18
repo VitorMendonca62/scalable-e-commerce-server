@@ -30,7 +30,7 @@ describe('GetAccessTokenUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = userLikeJSON({ _id: 'USERID' });
+    const user = userLikeJSON({ userID: 'USERID' });
     const refreshToken = 'REFRESHTOKEN';
     const accessToken = 'Bearer ACCESSTOKEN';
 
@@ -49,7 +49,7 @@ describe('GetAccessTokenUseCase', () => {
 
       const response = await useCase.execute(refreshToken);
 
-      expect(userRepository.findOne).toHaveBeenCalledWith({ _id: user._id });
+      expect(userRepository.findOne).toHaveBeenCalledWith({ userID: user.userID });
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
       expect(tokenService.verifyToken).toHaveBeenCalledWith(refreshToken);
       expect(response).toBe(accessToken);

@@ -16,7 +16,7 @@ import { UserEntity } from '../../adaptars/secondary/database/entities/user.enti
 import NameVO from '@modules/auth/domain/values-objects/name/name-vo';
 
 interface MockUser extends CreateUserDTO {
-  _id?: string;
+  userID?: string;
 }
 
 export const mockUser = (overrides: Partial<MockUser> = {}) => {
@@ -30,11 +30,11 @@ export const mockUser = (overrides: Partial<MockUser> = {}) => {
     username: new UsernameVO(dto.username),
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),
-    _id: '7df9e6f0-cab4-4fa6-b165-66696084c019-1',
+    userID: '7df9e6f0-cab4-4fa6-b165-66696084c019-1',
   });
 
-  if (overrides._id) {
-    user._id = overrides._id;
+  if (overrides.userID) {
+    user.userID = overrides.userID;
   }
 
   return user;
@@ -106,7 +106,7 @@ export const mockCreateUserDTOLikeInstance = (
 
 export const userLikeJSON = (overrides: Partial<MockUser> = {}): UserEntity => {
   return {
-    _id: '7df9e6f0-cab4-4fa6-b165-66696084c0190',
+    userID: '7df9e6f0-cab4-4fa6-b165-66696084c0190',
     name: NameConstants.EXEMPLE,
     username: UsernameConstants.EXEMPLE,
     email: EmailConstants.EXEMPLE,

@@ -9,7 +9,7 @@ export class InMemoryUserRepository implements UserRepository {
   readonly keysCanToLowerCase = ['username', 'name', 'email'];
 
   async create(user: UserEntity): Promise<undefined> {
-    user._id = v4();
+    user.userID = v4();
     this.keysCanToLowerCase.forEach((key) => user[key].toLowerCase());
 
     this.users.push(user);

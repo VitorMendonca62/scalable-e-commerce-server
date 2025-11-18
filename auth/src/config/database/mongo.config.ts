@@ -9,7 +9,7 @@ export const configMongoDB = (
   const username = configService.get('MONGO_INITDB_ROOT_USERNAME');
   const password = configService.get('MONGO_INITDB_ROOT_PASSWORD');
   const host = configService.get('MONGO_DB_HOST');
-  const uri = `mongodb://${username}:${password}@${host}:27017`;
+  const uri = `mongodb://${username}:${password}@${host}:27017/auth?authSource=admin`;
 
   return {
     uri,

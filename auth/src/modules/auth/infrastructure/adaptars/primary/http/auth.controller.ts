@@ -48,7 +48,7 @@ export class AuthController {
     );
 
     this.usersQueueService.send('user-created', {
-      _id: '1',
+      userID: '1',
       roles: defaultRoles,
       email: dto.email,
       name: dto.name,

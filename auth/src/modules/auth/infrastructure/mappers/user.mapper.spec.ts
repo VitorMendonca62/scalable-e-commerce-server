@@ -134,7 +134,7 @@ describe('UserMapper', () => {
     it('should return object like UserEntity', async () => {
       const json = mapper.userToJSON(user);
       expect(json).toMatchObject({
-        _id: expect.any(String),
+        userID: expect.any(String),
         name: expect.any(String),
         username: expect.any(String),
         email: expect.any(String),
@@ -149,7 +149,7 @@ describe('UserMapper', () => {
       const json = mapper.userToJSON(user);
 
       expect(json).toEqual({
-        _id: user._id,
+        userID: user.userID,
         name: `${user.name}`,
         username: `${user.username}`,
         email: `${user.email}`,
@@ -187,7 +187,7 @@ describe('UserMapper', () => {
       expect(user.password).toBeInstanceOf(PasswordVO);
       expect(user.createdAt).toBeInstanceOf(Date);
       expect(user.updatedAt).toBeInstanceOf(Date);
-      expect(typeof user._id).toBe('string');
+      expect(typeof user.userID).toBe('string');
       expect(Array.isArray(user.roles)).toBe(true);
     });
 

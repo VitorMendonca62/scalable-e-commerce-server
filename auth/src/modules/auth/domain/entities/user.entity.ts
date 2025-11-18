@@ -9,7 +9,7 @@ import NameVO from '../values-objects/name/name-vo';
 import UsernameVO from '../values-objects/username/username-vo';
 
 export class User {
-  _id?: string;
+  userID?: string;
   name: NameVO;
   username: UsernameVO;
   email: EmailVO;
@@ -20,7 +20,7 @@ export class User {
   updatedAt: Date;
 
   constructor(props: {
-    _id?: string;
+    userID?: string;
     name: NameVO;
     username: UsernameVO;
     email: EmailVO;
@@ -30,7 +30,7 @@ export class User {
     createdAt?: Date;
     updatedAt?: Date;
   }) {
-    this._id = props._id;
+    this.userID = props.userID;
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;

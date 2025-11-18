@@ -66,7 +66,7 @@ describe('JwtTokenService', () => {
       service.generateAccessToken(user);
 
       const playload = {
-        sub: user._id,
+        sub: user.userID,
         email: user.email,
         roles: user.roles,
         type: 'access',

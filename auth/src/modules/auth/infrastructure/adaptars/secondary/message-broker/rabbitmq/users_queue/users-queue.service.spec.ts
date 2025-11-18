@@ -26,7 +26,7 @@ describe('UsersQueueService', () => {
   describe('send', () => {
     it('should send message broker', async () => {
       const value = {
-        _id: '1',
+        userID: '1',
         roles: defaultRoles,
         email: EmailConstants.EXEMPLE,
         name: NameConstants.EXEMPLE,
