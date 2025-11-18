@@ -42,13 +42,13 @@ async function bootstrap() {
       transform: false,
       exceptionFactory: (errors) => {
         if (errors.length == 0) {
-          return new FieldInvalid('Erro desconhecido', 'Erro');
+          return new FieldInvalid('Unknown error', 'Error');
         }
 
         const firstError = errors[0];
         const firstConstraintMessage = firstError.constraints
           ? Object.values(firstError.constraints)[0]
-          : 'Erro desconhecido';
+          : 'Unknown error';
 
         return new FieldInvalid(firstConstraintMessage, firstError.property);
       },

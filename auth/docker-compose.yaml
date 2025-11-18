@@ -4,16 +4,15 @@ services:
     image: mongo:8.0.13-rc1
     container_name: database-auth
     restart: always
+    networks:
+      - rabbit_connection_net
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     volumes:
       - mongodb_data:/data/db
-      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
-    command: mongod --auth
   api:
     container_name: scalable-e-commerce-api
     build: .
@@ -22,10 +21,13 @@ services:
     depends_on:
       - database
     restart: always
+    networks:
+      - rabbit_connection_net
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     links:
       - database
     user: root
@@ -42,3 +44,8 @@ services:
 volumes:
   mongodb_data:
     driver: local
+
+networks:
+  rabbit_connection_net:
+    name: scalable-commerce-net
+    external: true
