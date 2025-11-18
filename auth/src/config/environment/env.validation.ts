@@ -56,4 +56,8 @@ export class EnvironmentVariables {
   @IsString({ message: 'MONGO_INITDB_ROOT_PASSWORD must be a string.' })
   @IsNotEmpty({ message: 'MONGO_INITDB_ROOT_PASSWORD cannot be empty.' })
   MONGO_INITDB_ROOT_PASSWORD: string;
+
+  @IsString({ message: 'MONGO_DB_HOST must be a string.' })
+  @IsNotEmpty({ message: 'MONGO_DB_HOST cannot be empty.' })
+  MONGO_DB_HOST: string;
 }

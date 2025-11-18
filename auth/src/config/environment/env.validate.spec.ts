@@ -29,6 +29,7 @@ describe('validateENV', () => {
   mockInstance.API_TAG = 'test_auth';
   mockInstance.MONGO_INITDB_ROOT_USERNAME = 'vhmendonca_test';
   mockInstance.MONGO_INITDB_ROOT_PASSWORD = '12345678';
+  mockInstance.MONGO_DB_HOST = 'database-auth';
 
   let plainToInstanceMocked: jest.SpyInstance;
   let validateSyncMocked: jest.SpyInstance;
