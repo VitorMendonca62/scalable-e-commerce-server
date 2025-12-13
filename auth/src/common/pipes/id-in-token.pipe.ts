@@ -3,9 +3,10 @@ import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 
 @Injectable()
-export class IdInTokenPipe
-  implements PipeTransform<string | undefined, string>
-{
+export class IdInTokenPipe implements PipeTransform<
+  string | undefined,
+  string
+> {
   constructor(private readonly tokenService: TokenService) {}
 
   transform(authorizationHeader: string | undefined): string {

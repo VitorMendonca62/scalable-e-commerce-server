@@ -27,7 +27,7 @@ export class EnvironmentVariables {
   @IsNumber({}, { message: 'PORT must be a number.' })
   @Min(1, { message: 'PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
-  @IsNotEmpty({ message: 'HOST cannot be empty.' })
+  @IsNotEmpty({ message: 'PORT cannot be empty.' })
   PORT: number;
 
   @IsString({ message: 'RABBITMQ_HOST must be a string.' })
@@ -61,4 +61,22 @@ export class EnvironmentVariables {
   @IsString({ message: 'MONGO_INITDB_DATABASE must be a string.' })
   @IsNotEmpty({ message: 'MONGO_INITDB_DATABASE cannot be empty.' })
   MONGO_INITDB_DATABASE: string;
+
+  @IsString({ message: 'SMTP_HOST must be a string.' })
+  @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
+  SMTP_HOST: string;
+
+  @IsNumber({}, { message: 'SMTP_PORT must be a number.' })
+  @Min(1, { message: 'SMTP_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'SMTP_PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'SMTP_PORT cannot be empty.' })
+  SMTP_PORT: number;
+
+  @IsString({ message: 'SMPT_USER_ID must be a string.' })
+  @IsNotEmpty({ message: 'SMPT_USER_ID cannot be empty.' })
+  SMPT_USER_ID: string;
+
+  @IsString({ message: 'SMPT_USER_PASSWORD must be a string.' })
+  @IsNotEmpty({ message: 'SMPT_USER_PASSWORD cannot be empty.' })
+  SMPT_USER_PASSWORD: string;
 }

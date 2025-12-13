@@ -35,3 +35,15 @@ export class WrongCredentials extends HttpError {
     this.data = data;
   }
 }
+
+export class ExternalServiceError extends HttpError {
+  constructor(
+    message: string = 'Erro ao comunicar com serviço externo',
+    data: any = {},
+  ) {
+    super(message, HttpStatus.SERVICE_UNAVAILABLE, data);
+    this.statusCode = HttpStatus.SERVICE_UNAVAILABLE;
+    this.message = message;
+    this.data = data;
+  }
+}

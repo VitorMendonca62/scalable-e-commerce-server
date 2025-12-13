@@ -1,3 +1,4 @@
+import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import {
   HttpCreatedResponse,
   HttpResponseOutbound,
@@ -7,14 +8,17 @@ import { ApiTags } from '@nestjs/swagger';
 
 @Controller('pass')
 @ApiTags('pass')
-export class AuthController {
-  constructor() {}
+export class ForgorPasswordController {
+  constructor(
+    private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
+  ) {}
 
   @Post('/send-code')
   @HttpCode(HttpStatus.CREATED)
-  async login(
-    @Body() dto: SendCodeForForgotPasswordDTO,
+  async sendCode(
+    @Body() dto: { email: string },
   ): Promise<HttpResponseOutbound> {
-    return new HttpCreatedResponse('Usuário realizou login com sucesso' );
+    this.sendCodeForForgotPasswordUseCase.execute(dto.email);
+    return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
 }

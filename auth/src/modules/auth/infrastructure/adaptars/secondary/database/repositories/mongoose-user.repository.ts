@@ -5,12 +5,10 @@ import { Model } from 'mongoose';
 import { UserDocument, UserModel } from '../models/user.model';
 
 @Injectable()
-export class MongooseUserRepository extends UserRepository {
+export class MongooseUserRepository implements UserRepository {
   constructor(
     @InjectModel(UserModel.name) private UserModel: Model<UserDocument>,
-  ) {
-    super();
-  }
+  ) {}
 
   async findOne(
     options: Partial<UserModel>,

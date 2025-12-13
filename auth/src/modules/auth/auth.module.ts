@@ -14,9 +14,6 @@ import {
 } from './infrastructure/adaptars/secondary/database/models/user.model';
 
 import { MongooseModule } from '@nestjs/mongoose';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { InMemoryUserRepository } from './infrastructure/adaptars/secondary/database/repositories/inmemory-user.repository';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
@@ -24,10 +21,23 @@ import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtModule } from '@nestjs/jwt';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
+import { ForgorPasswordController } from './infrastructure/adaptars/primary/http/forgot-password.controller';
+import { EmailSender } from './domain/ports/secondary/mail-sender.port';
+import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
+import SendCodeForForgotPasswordUseCase from './application/use-cases/send-code-for-forgot-password.usecase';
+import {
+  CodeModel,
+  CodeSchema,
+} from './infrastructure/adaptars/secondary/database/models/code.model';
+import CodeRepository from './domain/ports/secondary/code-repository.port';
+import MongooseCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-code.repository';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: UserModel.name, schema: UserSchema }]),
+    MongooseModule.forFeature([
+      { name: UserModel.name, schema: UserSchema },
+      { name: CodeModel.name, schema: CodeSchema },
+    ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -70,16 +80,21 @@ import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-h
       },
     ]),
   ],
-  controllers: [AuthController],
+  controllers: [AuthController, ForgorPasswordController],
   providers: [
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     UserMapper,
     UsersQueueService,
     IdInTokenPipe,
+    SendCodeForForgotPasswordUseCase,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,
+    },
+    {
+      provide: CodeRepository,
+      useClass: MongooseCodeRepository,
     },
     {
       provide: TokenService,
@@ -88,6 +103,10 @@ import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-h
     {
       provide: PasswordHasher,
       useClass: BcryptPasswordHasher,
+    },
+    {
+      provide: EmailSender,
+      useClass: NodemailerEmailSender,
     },
   ],
 })
