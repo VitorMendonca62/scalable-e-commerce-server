@@ -1,108 +1,44 @@
 import { HttpStatus } from '@nestjs/common';
 import { AuthController } from './auth.controller';
-import { CreateSessionUseCase } from '@modules/auth/application/use-cases/create-session.usecase';
-import { GetAccessTokenUseCase } from '@modules/auth/application/use-cases/get-access-token';
-import { defaultRoles } from '@modules/auth/domain/types/permissions';
+import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
+import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token';
 import {
-  mockUser,
-  mockCreateUserDTO,
   mockLoginUser,
   mockLoginUserDTO,
-} from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
-import { CreateUserUseCase } from '@modules/auth/application/use-cases/create-user.usecase';
+} from '@auth/infrastructure/helpers/tests/tests.helper';
+import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
-} from '@modules/auth/domain/ports/primary/http/sucess.port';
-import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+} from '@auth/domain/ports/primary/http/sucess.port';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
-  let createUserUseCase: CreateUserUseCase;
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
 
   let userMapper: UserMapper;
 
-  let messageBrokerService: UsersQueueService;
-
   beforeEach(async () => {
     userMapper = {
-      createDTOForEntity: jest.fn(),
       loginDTOForEntity: jest.fn(),
     } as any;
-    createUserUseCase = { execute: jest.fn() } as any;
     createSessionUseCase = { execute: jest.fn() } as any;
     getAccessTokenUseCase = { execute: jest.fn() } as any;
-    messageBrokerService = { send: jest.fn() } as any;
 
     controller = new AuthController(
       userMapper,
-      createUserUseCase,
       createSessionUseCase,
       getAccessTokenUseCase,
-      messageBrokerService,
     );
   });
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-    expect(createUserUseCase).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
     expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
-    expect(messageBrokerService).toBeDefined();
-  });
-
-  describe('create', () => {
-    const user = mockUser();
-    const dto = mockCreateUserDTO();
-
-    beforeEach(() => {
-      jest.spyOn(createUserUseCase, 'execute').mockReturnValue(undefined);
-      jest.spyOn(messageBrokerService, 'send').mockReturnValue(undefined);
-      jest.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(user);
-    });
-
-    it('should call createUserUseCase.execute with mapped DTO', async () => {
-      await controller.create(dto);
-
-      expect(userMapper.createDTOForEntity).toHaveBeenCalledWith(dto);
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(user);
-    });
-
-    it('should publish user-created event with correct payload', async () => {
-      await controller.create(dto);
-
-      expect(messageBrokerService.send).toHaveBeenCalledWith('user-created', {
-        email: dto.email,
-        name: dto.name,
-        roles: defaultRoles,
-        username: dto.username,
-        userID: '1',
-        phonenumber: dto.phonenumber,
-      });
-    });
-
-    it('should return HttpCreatedResponse on success', async () => {
-      const response = await controller.create(dto);
-
-      expect(response).toBeInstanceOf(HttpCreatedResponse);
-      expect(response).toEqual({
-        statusCode: HttpStatus.CREATED,
-        message: 'Usuário criado com sucesso',
-      });
-    });
-
-    it('should throw if use case throws', async () => {
-      jest
-        .spyOn(createUserUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
-
-      await expect(controller.create(dto)).rejects.toThrow('Erro no use case');
-    });
   });
 
   describe('login', () => {
@@ -140,7 +76,7 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw if use case throws', async () => {
+    it('should throw error if createSessionUseCase throws error', async () => {
       jest
         .spyOn(createSessionUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
@@ -167,7 +103,7 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw if use case throws', async () => {
+    it('should throw error if getAccessTokenUseCase throws error', async () => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));

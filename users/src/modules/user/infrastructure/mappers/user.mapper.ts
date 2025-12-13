@@ -18,10 +18,8 @@ import { isEmpty } from 'class-validator';
 
 @Injectable()
 export class UserMapper {
-  createDTOForModel(dto: CreateUserDTO) {
+  createDTOForModel(dto: CreateUserDTO, userId: string) {
     const dateNow = new Date();
-    // TODO realizar pesquisa sobre a diferença de versões do uuid
-    const userId = v7();
 
     return new User({
       userId: new IDVO(userId),

@@ -1,25 +1,22 @@
-import * as bcrypt from 'bcryptjs';
-import { PasswordValidator } from './password-validator';
+import PasswordValidator from './password-validator';
 import { ValueObject } from '../value-object';
+import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 
-export default class PasswordVO extends ValueObject {
+export default class PasswordVO extends ValueObject<string> {
+  private passwordHasher: PasswordHasher;
+
   constructor(
     value: string,
     isStrongPassword: boolean,
-    hasherPassword: boolean,
+    hashPassword: boolean,
+    passwordHasher: PasswordHasher,
   ) {
-    super();
     PasswordValidator.validate(value, isStrongPassword);
-
-    this.value = hasherPassword ? this.hashPassword(value) : value;
-  }
-
-  // TODO Criar uma classe só para isso
-  private hashPassword(password: string): string {
-    return bcrypt.hashSync(password, 10);
+    super(hashPassword ? passwordHasher.hash(value) : value);
+    this.passwordHasher = passwordHasher;
   }
 
   public comparePassword(inputPassword: string) {
-    return bcrypt.compareSync(inputPassword, this.value);
+    return this.passwordHasher.compare(inputPassword, this.value);
   }
 }

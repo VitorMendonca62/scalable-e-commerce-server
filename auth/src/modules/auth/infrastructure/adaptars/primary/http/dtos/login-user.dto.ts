@@ -1,5 +1,8 @@
-import { ApiEmail } from '../decorators/docs/dtos/api-email.decorator';
-import { ApiPassword } from '../decorators/docs/dtos/api-password.decorator';
+// Docs decorator's
+import { ApiEmail } from '../../common/decorators/docs/dtos/api-email.decorator';
+import { ApiPassword } from '../../common/decorators/docs/dtos/api-password.decorator';
+
+// Validation decorator's
 import { Email } from '../decorators/dtos/email.decorator';
 import { Password } from '../decorators/dtos/password.decorator';
 

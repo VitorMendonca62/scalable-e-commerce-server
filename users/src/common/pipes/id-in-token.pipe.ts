@@ -1,4 +1,5 @@
 // TODO A validacao de token nao deveria estar aqui, da uma ajeitada!
+// Vai ter que adicionar guards no controller para isso!
 
 import { Injectable, PipeTransform } from '@nestjs/common';
 import { TokenService } from '@user/domain/ports/secondary/token-service.port';
@@ -10,7 +11,7 @@ export class IdInTokenPipe
 {
   constructor(private readonly tokenService: TokenService) {}
 
-  transform(authorizationHeader: string | undefined): string {
+  transform(authorizationHeader: string): string {
     if (authorizationHeader === undefined || authorizationHeader === null) {
       throw new WrongCredentials();
     }

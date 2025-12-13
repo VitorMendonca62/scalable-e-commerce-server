@@ -1,7 +1,7 @@
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { InMemoryUserRepository } from './inmemory-user.repository';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/tests.helper';
+import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 
 describe('InMemoryUserRepository', () => {
   let repository: InMemoryUserRepository;
@@ -16,40 +16,14 @@ describe('InMemoryUserRepository', () => {
     expect(repository.users).toHaveLength(0);
   });
 
-  describe('create', () => {
-    const user = userLikeJSON();
-
-    it('should create user', async () => {
-      const response = await repository.create(user);
-
-      expect(response).toBeUndefined();
-    });
-
-    it('should create multiple users', async () => {
-      const usersToCreate = [];
-
-      for (let i = 0; i <= 10; i++) {
-        usersToCreate.push(userLikeJSON());
-      }
-
-      for (const user of usersToCreate) {
-        repository.create(user);
-      }
-    });
-  });
-
   describe('findOne', () => {
-    const user = userLikeJSON();
+    const user = mockUserLikeJSON();
 
     beforeEach(() => {
       repository.users = [];
       repository.users.push(user);
-      repository.users.push(
-        userLikeJSON({ email: 'teste@teste.com', username: 'teste13' }),
-      );
-      repository.users.push(
-        userLikeJSON({ email: 'teste1@teste.com', username: 'teste134' }),
-      );
+      repository.users.push(mockUserLikeJSON({ email: 'teste@teste.com' }));
+      repository.users.push(mockUserLikeJSON({ email: 'teste1@teste.com' }));
     });
 
     it('should return user with one field', async () => {
@@ -63,15 +37,15 @@ describe('InMemoryUserRepository', () => {
     it('should return user with many fields', async () => {
       const response = await repository.findOne({
         email: EmailConstants.EXEMPLE,
-        username: UsernameConstants.EXEMPLE,
+        phoneNumber: PhoneNumberConstants.EXEMPLE,
       });
 
       expect(response).toBe(user);
     });
 
-    it('should return undefined when not found user with email', async () => {
+    it('should return undefined when not found user', async () => {
       const response = await repository.findOne({
-        username: 'usernotfound',
+        email: 'usernotfound@email.com',
       });
 
       expect(response).toBeUndefined();

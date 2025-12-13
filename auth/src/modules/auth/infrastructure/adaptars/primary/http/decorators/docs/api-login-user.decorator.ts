@@ -1,4 +1,4 @@
-import { HttpResponseOutbound } from '@modules/auth/domain/ports/primary/http/sucess.port';
+import { HttpResponseOutbound } from '@auth/domain/ports/primary/http/sucess.port';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,

@@ -1,43 +1,34 @@
-import { ConfigService } from '@nestjs/config';
-import { EnvironmentVariables } from 'src/config/environment/env.validation';
 import { JwtTokenService } from './jwt-token.service';
-import * as jwt from 'jsonwebtoken';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/tests.helper';
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { JwtService } from '@nestjs/jwt';
 
 describe('JwtTokenService', () => {
   let service: JwtTokenService;
-  let configService: ConfigService<EnvironmentVariables>;
-
-  let jwtSignMock: jest.SpyInstance;
-  let jwtVerifyMock: jest.SpyInstance;
+  let jwtService: JwtService;
 
   const userId = 'userId';
-  const secret = 'SECRET';
   const token = 'T0K3n';
 
-  beforeAll(() => {
-    configService = {
-      get: jest.fn().mockReturnValue(secret),
+  beforeEach(async () => {
+    jwtService = {
+      sign: jest.fn(),
+      verify: jest.fn(),
     } as any;
 
-    jwtSignMock = jest.spyOn(jwt, 'sign');
-    jwtSignMock.mockReturnValue(token);
-
-    jwtVerifyMock = jest.spyOn(jwt, 'verify');
-    jwtVerifyMock.mockReturnValue({ sub: userId });
-  });
-
-  beforeEach(async () => {
-    service = new JwtTokenService(configService);
+    service = new JwtTokenService(jwtService);
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-    expect(configService).toBeDefined();
+    expect(jwtService).toBeDefined();
   });
 
   describe('generateRefreshToken', () => {
+    beforeEach(async () => {
+      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+    });
+
     it('should call jwt sign function with correct parameters', async () => {
       service.generateRefreshToken(userId);
 
@@ -46,7 +37,7 @@ describe('JwtTokenService', () => {
         type: 'refresh',
       };
 
-      expect(jwtSignMock).toHaveBeenCalledWith(playload, secret, {
+      expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '7D',
       });
     });
@@ -60,25 +51,32 @@ describe('JwtTokenService', () => {
   });
 
   describe('generateRefreshToken', () => {
-    const user = userLikeJSON();
+    beforeEach(async () => {
+      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+    });
+
+    const userJSON = mockUserLikeJSON();
 
     it('should call jwt sign function with correct parameters', async () => {
-      service.generateAccessToken(user);
+      const props = {
+        email: userJSON.email,
+        roles: userJSON.roles,
+      };
+      service.generateAccessToken({ ...props, userID: userJSON.userID });
 
       const playload = {
-        sub: user.userID,
-        email: user.email,
-        roles: user.roles,
+        ...props,
+        sub: userJSON.userID,
         type: 'access',
       };
 
-      expect(jwtSignMock).toHaveBeenCalledWith(playload, secret, {
+      expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '1h',
       });
     });
 
     it('should return token', async () => {
-      const result = service.generateAccessToken(user);
+      const result = service.generateAccessToken(userJSON);
 
       expect(typeof result).toBe('string');
       expect(result).toBe(token);
@@ -86,10 +84,14 @@ describe('JwtTokenService', () => {
   });
 
   describe('verifyToken', () => {
+    beforeEach(async () => {
+      jest.spyOn(jwtService, 'verify').mockReturnValue({ sub: userId });
+    });
+
     it('should call jwt verify function with correct parameters', async () => {
       service.verifyToken(token);
 
-      expect(jwtVerifyMock).toHaveBeenCalledWith(token, secret);
+      expect(jwtService.verify).toHaveBeenCalledWith(token);
     });
 
     it('should return playload', async () => {
@@ -99,9 +101,9 @@ describe('JwtTokenService', () => {
       expect(result).toEqual({ sub: userId });
     });
 
-    it('should return playload', async () => {
-      jwtVerifyMock.mockImplementation(() => {
-        throw new Error('Error in verify token');
+    it('should throw error if token is invalid ou expired', async () => {
+      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
+        throw new Error('Error verifying token');
       });
 
       expect(() => service.verifyToken(token)).toThrow(

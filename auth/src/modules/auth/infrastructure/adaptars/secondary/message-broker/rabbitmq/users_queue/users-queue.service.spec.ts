@@ -1,9 +1,7 @@
 import { ClientProxy } from '@nestjs/microservices';
-import { defaultRoles } from '@modules/auth/domain/types/permissions';
-import { PhoneNumberConstants } from '@modules/auth/domain/values-objects/phone-number/phone-number-constants';
-import { EmailConstants } from '@modules/auth/domain/values-objects/email/email-constants';
-import { NameConstants } from '@modules/auth/domain/values-objects/name/name-constants';
-import { UsernameConstants } from '@modules/auth/domain/values-objects/username/username-constants';
+import { defaultRoles } from '@auth/domain/types/permissions';
+import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
+import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { UsersQueueService } from './users-queue.service';
 
 describe('UsersQueueService', () => {
@@ -29,8 +27,6 @@ describe('UsersQueueService', () => {
         userID: '1',
         roles: defaultRoles,
         email: EmailConstants.EXEMPLE,
-        name: NameConstants.EXEMPLE,
-        username: UsernameConstants.EXEMPLE,
         phonenumber: PhoneNumberConstants.EXEMPLE,
       };
       const event = 'user-created';

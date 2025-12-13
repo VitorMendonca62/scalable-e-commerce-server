@@ -1,4 +1,4 @@
-import { MessageBroker } from '@modules/auth/domain/ports/secondary/message-broker.port';
+import { MessageBroker } from '@auth/domain/ports/secondary/message-broker.port';
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 

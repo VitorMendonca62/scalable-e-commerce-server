@@ -1,65 +1,50 @@
+// Decorators
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
-import { defaultRoles } from '../../domain/types/permissions';
-import EmailVO from '../../domain/values-objects/email/email-vo';
-import NameVO from '../../domain/values-objects/name/name-vo';
-import PasswordVO from '../../domain/values-objects/password/password-vo';
-import PhoneNumberVO from '../../domain/values-objects/phone-number/phone-number-vo';
-import UsernameVO from '../../domain/values-objects/username/username-vo';
-import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
-import { User } from '@modules/auth/domain/entities/user.entity';
-import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
-import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
-import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
 
+// DTO's
+import { LoginUserDTO } from '../adaptars/primary/http/dtos/login-user.dto';
+
+// VO's
+import EmailVO from '@auth/domain/values-objects/email/email-vo';
+import IDVO from '@auth/domain/values-objects/id/id-vo';
+import PasswordVO from '@auth/domain/values-objects/password/password-vo';
+import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
+
+// Entities
+import { UserLogin } from '@auth/domain/entities/user-login.entity';
+import { User } from '@auth/domain/entities/user.entity';
+
+// Models
+import { UserModel } from '../adaptars/secondary/database/models/user.model';
+
+// Dependeces
+import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+
+// Function
 @Injectable()
 export class UserMapper {
-  createDTOForEntity(dto: CreateUserDTO): User {
-    return new User({
-      email: new EmailVO(dto.email),
-      name: new NameVO(dto.name),
-      password: new PasswordVO(dto.password, true, true),
-      phonenumber: new PhoneNumberVO(dto.phonenumber),
-      roles: defaultRoles,
-      username: new UsernameVO(dto.username),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userID: v4(),
-    });
-  }
-
+  constructor(private passwordHasher: PasswordHasher) {}
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, true, false),
+      password: new PasswordVO(dto.password, true, true, this.passwordHasher),
     });
   }
 
-  userToJSON(user: User): UserEntity {
-    return {
-      userID: user.userID,
-      name: `${user.name}`,
-      username: `${user.username}`,
-      email: `${user.email}`,
-      password: `${user.password}`,
-      phonenumber: `${user.phonenumber}`,
-      roles: user.roles,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-    };
-  }
-
-  jsonToUser(json: UserEntity): User {
+  jsonToUser(json: UserModel): User {
     return new User({
+      userID: new IDVO(json.userID),
       email: new EmailVO(json.email),
-      name: new NameVO(json.name),
-      password: new PasswordVO(json.password, true, false),
-      phonenumber: new PhoneNumberVO(json.phonenumber),
+      password: new PasswordVO(
+        json.password,
+        false,
+        false,
+        this.passwordHasher,
+      ),
+      phoneNumber: new PhoneNumberVO(json.phoneNumber),
       roles: json.roles,
-      username: new UsernameVO(json.username),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      userID: json.userID,
+      createdAt: json.createdAt,
+      updatedAt: json.updatedAt,
     });
   }
 }

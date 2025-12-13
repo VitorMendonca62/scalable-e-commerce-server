@@ -5,37 +5,30 @@ import { Permissions } from '../types/permissions';
 import EmailVO from '../values-objects/email/email-vo';
 import PasswordVO from '../values-objects/password/password-vo';
 import PhoneNumberVO from '../values-objects/phone-number/phone-number-vo';
-import NameVO from '../values-objects/name/name-vo';
-import UsernameVO from '../values-objects/username/username-vo';
+import IDVO from '../values-objects/id/id-vo';
 
 export class User {
-  userID?: string;
-  name: NameVO;
-  username: UsernameVO;
+  userID: IDVO;
   email: EmailVO;
   password: PasswordVO;
-  phonenumber: PhoneNumberVO;
+  phoneNumber: PhoneNumberVO;
   roles: Permissions[];
   createdAt: Date;
   updatedAt: Date;
 
   constructor(props: {
-    userID?: string;
-    name: NameVO;
-    username: UsernameVO;
+    userID: IDVO;
     email: EmailVO;
     password: PasswordVO;
-    phonenumber: PhoneNumberVO;
-    roles?: Permissions[];
-    createdAt?: Date;
-    updatedAt?: Date;
+    phoneNumber: PhoneNumberVO;
+    roles: Permissions[];
+    createdAt: Date;
+    updatedAt: Date;
   }) {
     this.userID = props.userID;
-    this.name = props.name;
-    this.username = props.username;
     this.email = props.email;
     this.password = props.password;
-    this.phonenumber = props.phonenumber;
+    this.phoneNumber = props.phoneNumber;
     this.roles = props.roles;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;

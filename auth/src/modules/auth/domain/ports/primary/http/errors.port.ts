@@ -6,10 +6,10 @@ class HttpError extends HttpException {
 
   constructor(
     message: string = 'Algo de errado aconteceu!',
-    status: number,
+    status: number = HttpStatus.BAD_REQUEST,
     data: any = undefined,
   ) {
-    super(message, HttpStatus.BAD_REQUEST);
+    super(message, status);
     this.data = data;
     this.statusCode = status;
   }
@@ -31,18 +31,6 @@ export class WrongCredentials extends HttpError {
   ) {
     super(message, HttpStatus.UNAUTHORIZED, data);
     this.statusCode = HttpStatus.UNAUTHORIZED;
-    this.message = message;
-    this.data = data;
-  }
-}
-
-export class FieldAlreadyExists extends HttpError {
-  constructor(
-    message: string = 'Valor já existe de outro usuário',
-    data: string,
-  ) {
-    super(message, HttpStatus.CONFLICT, data);
-    this.statusCode = HttpStatus.CONFLICT;
     this.message = message;
     this.data = data;
   }

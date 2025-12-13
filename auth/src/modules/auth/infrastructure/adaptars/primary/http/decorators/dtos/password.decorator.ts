@@ -1,4 +1,4 @@
-import { PasswordConstants } from '@modules/auth/domain/values-objects/password/password-constants';
+import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,

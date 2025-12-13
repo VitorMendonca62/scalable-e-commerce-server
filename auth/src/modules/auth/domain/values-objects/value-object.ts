@@ -1,11 +1,11 @@
-export class ValueObject {
-  protected value: any;
+export class ValueObject<T> {
+  protected value: T;
 
-  public getValue(): any {
-    return this.value;
+  constructor(value: T) {
+    this.value = value;
   }
 
-  public toString(): string {
-    return String(this.value);
+  public getValue(): T {
+    return this.value;
   }
 }

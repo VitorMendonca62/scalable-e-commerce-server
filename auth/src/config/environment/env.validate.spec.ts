@@ -9,13 +9,14 @@ describe('validateENV', () => {
     NODE_ENV: 'development',
     HOST: 'localhost',
     PORT: 8080,
-    MESSAGING_HOST: '127.0.0.1',
-    MESSAGING_USER: 'default',
-    MESSAGING_PW: '1234',
-    MESSAGING_PORT: 6379,
+    RABBITMQ_HOST: 'scalable-commerce-net',
+    RABBITMQ_DEFAULT_USER: 'default',
+    RABBITMQ_DEFAULT_PASS: '1234',
     JWT_SECRET: 'jwtsecret123',
-    API_TAG: 'test_auth',
-    MONGO_DB_URL: 'mongodb://localhost:27017/test_auth_users',
+    MONGO_INITDB_ROOT_USERNAME: 'vhmendonca_test',
+    MONGO_INITDB_ROOT_PASSWORD: '12345678',
+    MONGO_DB_HOST: 'database-auth',
+    MONGO_INITDB_DATABASE: 'database-auth',
   };
 
   const mockInstance = new EnvironmentVariables();
@@ -26,10 +27,10 @@ describe('validateENV', () => {
   mockInstance.RABBITMQ_DEFAULT_USER = 'default';
   mockInstance.RABBITMQ_DEFAULT_PASS = '1234';
   mockInstance.JWT_SECRET = 'jwtsecret123';
-  mockInstance.API_TAG = 'test_auth';
   mockInstance.MONGO_INITDB_ROOT_USERNAME = 'vhmendonca_test';
   mockInstance.MONGO_INITDB_ROOT_PASSWORD = '12345678';
   mockInstance.MONGO_DB_HOST = 'database-auth';
+  mockInstance.MONGO_INITDB_DATABASE = 'database-auth';
 
   let plainToInstanceMocked: jest.SpyInstance;
   let validateSyncMocked: jest.SpyInstance;

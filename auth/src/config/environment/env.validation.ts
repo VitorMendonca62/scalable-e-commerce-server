@@ -27,6 +27,7 @@ export class EnvironmentVariables {
   @IsNumber({}, { message: 'PORT must be a number.' })
   @Min(1, { message: 'PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'HOST cannot be empty.' })
   PORT: number;
 
   @IsString({ message: 'RABBITMQ_HOST must be a string.' })
@@ -45,10 +46,6 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'JWT_SECRET cannot be empty.' })
   JWT_SECRET: string;
 
-  @IsString({ message: 'API_TAG must be a string.' })
-  @IsNotEmpty({ message: 'API_TAG cannot be empty.' })
-  API_TAG: string;
-
   @IsString({ message: 'MONGO_INITDB_ROOT_USERNAME must be a string.' })
   @IsNotEmpty({ message: 'MONGO_INITDB_ROOT_USERNAME cannot be empty.' })
   MONGO_INITDB_ROOT_USERNAME: string;
@@ -60,4 +57,8 @@ export class EnvironmentVariables {
   @IsString({ message: 'MONGO_DB_HOST must be a string.' })
   @IsNotEmpty({ message: 'MONGO_DB_HOST cannot be empty.' })
   MONGO_DB_HOST: string;
+
+  @IsString({ message: 'MONGO_INITDB_DATABASE must be a string.' })
+  @IsNotEmpty({ message: 'MONGO_INITDB_DATABASE cannot be empty.' })
+  MONGO_INITDB_DATABASE: string;
 }

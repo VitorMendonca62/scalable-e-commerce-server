@@ -1,23 +1,13 @@
-import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
+import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { Injectable } from '@nestjs/common';
-import { v4 } from 'uuid';
-import { UserEntity } from '../entities/user.entity';
+import { UserModel } from '../models/user.model';
 
 @Injectable()
 export class InMemoryUserRepository implements UserRepository {
-  users: UserEntity[] = [];
-  readonly keysCanToLowerCase = ['username', 'name', 'email'];
+  users: UserModel[] = [];
+  readonly keysCanToLowerCase = ['email'];
 
-  async create(user: UserEntity): Promise<undefined> {
-    user.userID = v4();
-    this.keysCanToLowerCase.forEach((key) => user[key].toLowerCase());
-
-    this.users.push(user);
-  }
-
-  async findOne(
-    options: Record<string, string>,
-  ): Promise<UserEntity | undefined> {
+  async findOne(options: Partial<UserModel>): Promise<UserModel | undefined> {
     return this.users.find((user) => {
       for (const key of Object.keys(options)) {
         if (this.keysCanToLowerCase.includes(key)) {

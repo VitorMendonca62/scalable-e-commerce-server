@@ -1,4 +1,4 @@
-import { PasswordValidator } from './password-validator';
+import PasswordValidator from './password-validator';
 import { PasswordConstants } from './password-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 

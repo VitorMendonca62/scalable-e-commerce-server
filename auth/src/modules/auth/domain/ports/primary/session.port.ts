@@ -1,5 +1,4 @@
-import { UserLogin } from '@modules/auth/domain/entities/user-login.entity';
-import { UserEntity } from '@modules/auth/infrastructure/adaptars/secondary/database/entities/user.entity';
+import { UserLogin } from '@auth/domain/entities/user-login.entity';
 
 export interface CreateSessionOutbondPort {
   accessToken: string;
@@ -13,11 +12,4 @@ export abstract class CreateSessionPort {
 
 export abstract class GetAccessTokenPort {
   abstract execute(refreshToken: string): Promise<string>;
-}
-
-// TODO: Colocar isso em uma porta em secondary
-export abstract class TokenService {
-  abstract generateRefreshToken(id: string): string;
-  abstract generateAccessToken(user: UserEntity): string;
-  abstract verifyToken(token: string): Record<string, any>;
 }

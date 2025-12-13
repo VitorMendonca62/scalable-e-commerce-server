@@ -1,10 +1,9 @@
 import { ValueObject } from '../value-object';
-import { PhoneNumberValidator } from './phone-number-validator';
+import PhoneNumberValidator from './phone-number-validator';
 
-export default class PhoneNumberVO extends ValueObject {
+export default class PhoneNumberVO extends ValueObject<string> {
   constructor(value: string) {
     PhoneNumberValidator.validate(value);
-    super();
-    this.value = value;
+    super(value);
   }
 }

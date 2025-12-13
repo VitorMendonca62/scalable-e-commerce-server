@@ -1,13 +1,21 @@
-import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
-import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
+// Mocks
 import {
   mockUser,
+  mockUserLikeJSON,
   mockLoginUser,
-  userLikeJSON,
-} from '@modules/auth/infrastructure/helpers/tests/tests.helper';
+} from '@auth/infrastructure/helpers/tests/tests.helper';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+
+// Dependences
+import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
+import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
+import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
+
+// Ports
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+
+// Function
 import { CreateSessionUseCase } from './create-session.usecase';
-import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
-import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -45,19 +53,15 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser({ userID: 'USERID' });
-    const userEntity = userLikeJSON({ userID: 'USERID' });
+    const user = mockUser();
+    const userJSON = mockUserLikeJSON();
     const userLogin = mockLoginUser();
 
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userEntity);
-
+      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userJSON);
       jest.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
-
       jest.spyOn(tokenService, 'generateAccessToken').mockReturnValue('TOKEN');
-
       jest.spyOn(tokenService, 'generateRefreshToken').mockReturnValue('TOKEN');
-
       jest.spyOn(user.password, 'comparePassword').mockReturnValue(true);
     });
 
@@ -70,9 +74,15 @@ describe('CreateSessionUseCase', () => {
       expect(user.password.comparePassword).toHaveBeenCalledWith(
         userLogin.password.getValue(),
       );
-      expect(tokenService.generateAccessToken).toHaveBeenCalledWith(userEntity);
+      expect(tokenService.generateAccessToken).toHaveBeenCalledWith({
+        email: userJSON.email,
+        userID: userJSON.userID,
+        roles: userJSON.roles,
+      });
 
-      expect(tokenService.generateRefreshToken).toHaveBeenCalledWith('USERID');
+      expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+      );
       expect(response).toEqual({
         accessToken: 'Bearer TOKEN',
         refreshToken: 'Bearer TOKEN',
@@ -80,7 +90,7 @@ describe('CreateSessionUseCase', () => {
       });
     });
 
-    it('should throw bad request exception when user does not exists', async () => {
+    it('should throw WrongCredentials exception when user does not exists', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(
@@ -88,7 +98,7 @@ describe('CreateSessionUseCase', () => {
       );
     });
 
-    it('should throw bad request exception when password is incorrect', async () => {
+    it('should throw WrongCredentials if password is incorrect', async () => {
       jest.spyOn(user.password, 'comparePassword').mockReturnValue(false);
 
       await expect(useCase.execute(userLogin)).rejects.toThrow(

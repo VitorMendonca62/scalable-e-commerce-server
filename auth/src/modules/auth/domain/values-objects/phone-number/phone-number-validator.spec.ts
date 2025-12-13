@@ -1,4 +1,4 @@
-import { PhoneNumberValidator } from './phone-number-validator';
+import PhoneNumberValidator from './phone-number-validator';
 import { PhoneNumberConstants } from './phone-number-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 

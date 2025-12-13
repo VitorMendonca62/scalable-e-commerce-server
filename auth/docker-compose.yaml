@@ -1,20 +1,29 @@
-services:
+volumes:
+  mongodb_data:
+    driver: local
 
+networks:
+  rabbit_connection_net:
+    name: scalable-commerce-net
+    external: true
+  auth-api-net:
+    driver: bridge
+
+services:
   database:
     image: mongo:8.0.13-rc1
     container_name: database-auth
     restart: always
-    networks:
-      - rabbit_connection_net
     ports:
       - "27017:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_INITDB_DATABASE="auth"
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
     volumes:
       - mongodb_data:/data/db
+    networks:
+      - auth-api-net
   api:
     container_name: scalable-e-commerce-api
     build: .
@@ -25,31 +34,15 @@ services:
     restart: always
     networks:
       - rabbit_connection_net
+      - auth-api-net
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
       - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - MONGO_INITDB_DATABASE="auth"
+      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-    links:
-      - database
-    user: root
     develop:
       watch:
-        - action: sync
-          path: .
-          target: /app
-          ignore:
-            - node_modules/
         - action: rebuild
-          path: package.json
-
-volumes:
-  mongodb_data:
-    driver: local
-
-networks:
-  rabbit_connection_net:
-    name: scalable-commerce-net
-    external: true
+          path: .

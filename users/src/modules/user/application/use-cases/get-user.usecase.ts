@@ -10,6 +10,9 @@ import { UsernameValidator } from '@modules/user/domain/values-objects/user/vali
 export class GetUserUseCase {
   constructor(private readonly userRepository: UserRepository) {}
 
+
+  // TODO: Essa consulta est'a muito ruim
+  // Pois ela vai verificar todos os usuarios, seria melhor pegar apenas pelo ID
   async execute(
     identifier: string,
   ): Promise<Partial<Record<keyof UserEntity, any>>> {

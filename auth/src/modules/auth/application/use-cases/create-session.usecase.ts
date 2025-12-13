@@ -1,28 +1,35 @@
+// Decorator's
 import { Injectable } from '@nestjs/common';
+
+// Ports
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+
+// Services
+import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
+
+// Mappers
+import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
+
+// Entities
 import { UserLogin } from '../../domain/entities/user-login.entity';
-import {
-  CreateSessionPort,
-  CreateSessionOutbondPort,
-  TokenService,
-} from '@modules/auth/domain/ports/primary/session.port';
-import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
-import { UserMapper } from '@modules/auth/infrastructure/mappers/user.mapper';
+
+// Repositories
+import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 
 @Injectable()
-export class CreateSessionUseCase implements CreateSessionPort {
+export class CreateSessionUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly tokenService: TokenService,
     private readonly userMapper: UserMapper,
   ) {}
 
-  async execute(inputUser: UserLogin): Promise<CreateSessionOutbondPort> {
+  async execute(inputUser: UserLogin) {
     const userJSON = await this.userRepository.findOne({
       email: inputUser.email.getValue(),
     });
 
-    if (!userJSON) {
+    if (userJSON == undefined || userJSON == null) {
       throw new WrongCredentials();
     }
 
@@ -31,9 +38,14 @@ export class CreateSessionUseCase implements CreateSessionPort {
       throw new WrongCredentials();
     }
 
-    const accessToken = this.tokenService.generateAccessToken(userJSON);
-
-    const refreshToken = this.tokenService.generateRefreshToken(user.userID);
+    const accessToken = this.tokenService.generateAccessToken({
+      email: user.email.getValue(),
+      userID: user.userID.getValue(),
+      roles: user.roles,
+    });
+    const refreshToken = this.tokenService.generateRefreshToken(
+      user.userID.getValue(),
+    );
 
     return {
       accessToken: `Bearer ${accessToken}`,

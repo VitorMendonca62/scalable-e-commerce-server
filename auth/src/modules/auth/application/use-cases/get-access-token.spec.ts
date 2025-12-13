@@ -1,8 +1,8 @@
 import { GetAccessTokenUseCase } from './get-access-token';
-import { TokenService } from '@modules/auth/domain/ports/primary/session.port';
-import { UserRepository } from '@modules/auth/domain/ports/secondary/user-repository.port';
-import { userLikeJSON } from '@modules/auth/infrastructure/helpers/tests/tests.helper';
-import { WrongCredentials } from '@modules/auth/domain/ports/primary/http/errors.port';
+import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/tests.helper';
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;
@@ -30,9 +30,8 @@ describe('GetAccessTokenUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = userLikeJSON({ userID: 'USERID' });
-    const refreshToken = 'REFRESHTOKEN';
-    const accessToken = 'Bearer ACCESSTOKEN';
+    const user = mockUserLikeJSON();
+    const accessToken = 'ACCESSTOKEN';
 
     beforeEach(() => {
       jest
@@ -47,18 +46,19 @@ describe('GetAccessTokenUseCase', () => {
     it('should use case call with correct parameters and return token', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
-      const response = await useCase.execute(refreshToken);
+      const response = await useCase.execute(user.userID);
 
-      expect(userRepository.findOne).toHaveBeenCalledWith({ userID: user.userID });
+      expect(userRepository.findOne).toHaveBeenCalledWith({
+        userID: user.userID,
+      });
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
-      expect(tokenService.verifyToken).toHaveBeenCalledWith(refreshToken);
-      expect(response).toBe(accessToken);
+      expect(response).toBe(`Bearer ${accessToken}`);
     });
 
     it('should throw bad request exception when user does not exist', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(useCase.execute(refreshToken)).rejects.toThrow(
+      await expect(useCase.execute(user.userID)).rejects.toThrow(
         new WrongCredentials('Token inválido ou expirado'),
       );
     });

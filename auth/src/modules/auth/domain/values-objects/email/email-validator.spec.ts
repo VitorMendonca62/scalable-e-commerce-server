@@ -1,6 +1,6 @@
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 import { EmailConstants } from './email-constants';
-import { EmailValidator } from './email-validator';
+import EmailValidator from './email-validator';
 
 describe('EmailValidator', () => {
   it('should not throw if email is valid', () => {

@@ -12,9 +12,7 @@ export const addRabbitMQClient = async (
   const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
   const host = configService.get<string>('RABBITMQ_HOST');
 
-  const uri = `amqp://${user}:${password}@${host}:5672`;
-
-  logger.debug(uri);
+  const uri = `amqp://${user}:${password}@${host}`;
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
@@ -31,7 +29,7 @@ export const addRabbitMQClient = async (
 
   await app
     .startAllMicroservices()
-    .then(() => logger.debug('Message broker client is listening'))
+    .then(() => logger.debug(`Message broker client is listening in ${uri}`))
     .catch((error) => logger.error(error));
   return app;
 };
