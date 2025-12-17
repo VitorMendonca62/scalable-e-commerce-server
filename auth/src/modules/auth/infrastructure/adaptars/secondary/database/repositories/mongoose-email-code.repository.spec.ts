@@ -9,6 +9,7 @@ describe('MongooseEmailCodeRepository', () => {
 
   let mockedExecFindOne: jest.Mock;
   let mockedSavePrototype: jest.Mock;
+  let mockedExecDelete: jest.Mock;
 
   beforeEach(async () => {
     EmailCodeModel = jest.fn();
@@ -34,7 +35,9 @@ describe('MongooseEmailCodeRepository', () => {
         email: EmailConstants.EXEMPLE,
       });
 
-      expect(EmailCodeModel.findOne).toHaveBeenCalled();
+      expect(EmailCodeModel.findOne).toHaveBeenCalledWith({
+        email: EmailConstants.EXEMPLE,
+      });
       expect(mockedExecFindOne).toHaveBeenCalledWith();
       expect(response).toEqual(mockEmailCodeLikeJSON());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
@@ -78,6 +81,24 @@ describe('MongooseEmailCodeRepository', () => {
       expect(response).toBeUndefined();
       expect(EmailCodeModel).toHaveBeenCalledWith(emailCode);
       expect(mockedSavePrototype).toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteMany', () => {
+    beforeEach(() => {
+      mockedExecDelete = jest.fn();
+      EmailCodeModel.deleteMany = jest.fn().mockReturnValue({
+        exec: mockedExecDelete,
+      });
+    });
+
+    it('should return user with one field', async () => {
+      await repository.deleteMany(EmailConstants.EXEMPLE);
+
+      expect(EmailCodeModel.deleteMany).toHaveBeenCalledWith({
+        email: EmailConstants.EXEMPLE,
+      });
+      expect(mockedExecDelete).toHaveBeenCalled();
     });
   });
 });
