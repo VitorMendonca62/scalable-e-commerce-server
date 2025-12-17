@@ -1,11 +1,11 @@
-import CodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { CodeDocument, CodeModel } from '../models/code.model';
+import { EmailCodeDocument, EmailCode } from '../models/code.model';
 
-export default class MongooseCodeRepository implements CodeRepository {
+export default class MongooseEmailCodeRepository implements EmailCodeRepository {
   constructor(
-    @InjectModel(CodeModel.name) private CodeModel: Model<CodeDocument>,
+    @InjectModel(EmailCode.name) private CodeModel: Model<EmailCodeDocument>,
   ) {}
 
   async save(email: string, code: string, expiresIn: number): Promise<void> {

@@ -1,9 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
-export type CodeDocument = CodeModel & Document;
+export type EmailCodeDocument = EmailCode & Document;
 
-@Schema({ timestamps: true, collection: 'codes' })
-export class CodeModel {
+@Schema({ timestamps: true, collection: 'email-codes' })
+export class EmailCode {
   @Prop({ required: true, type: String })
   email: string;
 
@@ -14,4 +14,4 @@ export class CodeModel {
   expiresIn: Date;
 }
 
-export const CodeSchema = SchemaFactory.createForClass(CodeModel);
+export const EmailCodeSchema = SchemaFactory.createForClass(EmailCode);
