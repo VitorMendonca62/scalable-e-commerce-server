@@ -5,6 +5,7 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { Controller, Post, HttpCode, HttpStatus, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
 
 @Controller('pass')
 @ApiTags('pass')
@@ -16,9 +17,9 @@ export class ForgorPasswordController {
   @Post('/send-code')
   @HttpCode(HttpStatus.CREATED)
   async sendCode(
-    @Body() dto: { email: string },
+    @Body() dto: SendCodeForForgotPasswordDTO,
   ): Promise<HttpResponseOutbound> {
-    this.sendCodeForForgotPasswordUseCase.execute(dto.email);
-    return new HttpCreatedResponse('Usuário realizou login com sucesso');
+    await this.sendCodeForForgotPasswordUseCase.execute(dto.email);
+    return new HttpCreatedResponse('Código enviado com sucesso.');
   }
 }
