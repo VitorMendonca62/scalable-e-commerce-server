@@ -2,7 +2,7 @@ export class EmailConstants {
   static readonly DESCRIPTION =
     'O email serve como identificador único de usuário e utiliza-se para entrar no sistema';
 
-  static readonly EXEMPLE = 'vitorqueiroz325@gmail.com';
+  static readonly EXEMPLE = 'example@gmail.com';
   static readonly WRONG_EXEMPLE = 'invalid.email';
 
   // ERRORS
