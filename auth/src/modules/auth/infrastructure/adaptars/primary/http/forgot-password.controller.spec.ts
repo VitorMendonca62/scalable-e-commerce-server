@@ -2,17 +2,17 @@ import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-c
 import { HttpCreatedResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
-import { ForgorPasswordController } from './forgot-password.controller';
+import { ForgotPasswordController } from './forgot-password.controller';
 
 describe('ForgorPasswordController', () => {
-  let controller: ForgorPasswordController;
+  let controller: ForgotPasswordController;
 
   let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
 
   beforeEach(async () => {
     sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
 
-    controller = new ForgorPasswordController(sendCodeForForgotPasswordUseCase);
+    controller = new ForgotPasswordController(sendCodeForForgotPasswordUseCase);
   });
 
   it('should be defined', () => {

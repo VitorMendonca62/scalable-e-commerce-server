@@ -6,16 +6,18 @@ import {
 import { Controller, Post, HttpCode, HttpStatus, Body } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
+import { ApiSendCodeforForgotPassword } from './decorators/docs/api-send-code-for-forgot-password.decorator';
 
 @Controller('pass')
-@ApiTags('pass')
-export class ForgorPasswordController {
+@ApiTags('ForgotPasswordController')
+export class ForgotPasswordController {
   constructor(
     private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
   ) {}
 
   @Post('/send-code')
   @HttpCode(HttpStatus.CREATED)
+  @ApiSendCodeforForgotPassword()
   async sendCode(
     @Body() dto: SendCodeForForgotPasswordDTO,
   ): Promise<HttpResponseOutbound> {

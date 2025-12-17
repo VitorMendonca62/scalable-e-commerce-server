@@ -21,7 +21,7 @@ import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtModule } from '@nestjs/jwt';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
-import { ForgorPasswordController } from './infrastructure/adaptars/primary/http/forgot-password.controller';
+import { ForgotPasswordController } from './infrastructure/adaptars/primary/http/forgot-password.controller';
 import { EmailSender } from './domain/ports/secondary/mail-sender.port';
 import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
 import SendCodeForForgotPasswordUseCase from './application/use-cases/send-code-for-forgot-password.usecase';
@@ -80,7 +80,7 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
       },
     ]),
   ],
-  controllers: [AuthController, ForgorPasswordController],
+  controllers: [AuthController, ForgotPasswordController],
   providers: [
     CreateSessionUseCase,
     GetAccessTokenUseCase,

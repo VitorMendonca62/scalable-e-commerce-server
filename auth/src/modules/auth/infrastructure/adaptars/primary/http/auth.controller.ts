@@ -37,7 +37,7 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 
 @Controller('auth')
-@ApiTags('auth')
+@ApiTags('AuthController')
 export class AuthController {
   constructor(
     private readonly userMapper: UserMapper,
