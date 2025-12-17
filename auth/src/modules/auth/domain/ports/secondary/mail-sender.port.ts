@@ -5,5 +5,5 @@ export abstract class EmailSender {
     subject: string,
     template: string,
     context: { [key: string]: string },
-  );
+  ): Promise<void>;
 }

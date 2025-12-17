@@ -8,7 +8,7 @@ export default class MongooseCodeRepository implements CodeRepository {
     @InjectModel(CodeModel.name) private CodeModel: Model<CodeDocument>,
   ) {}
 
-  async save(email: string, code: string, expiresIn: number) {
+  async save(email: string, code: string, expiresIn: number): Promise<void> {
     const codeModel = new this.CodeModel({ email, code, expiresIn });
     await codeModel.save();
   }

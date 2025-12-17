@@ -43,7 +43,7 @@ describe('GetAccessTokenUseCase', () => {
         .mockReturnValue({ sub: 'USERID' });
     });
 
-    it('should use case call with correct parameters and return token', async () => {
+    it('should use case call functions with correct parameters and return token', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
       const response = await useCase.execute(user.userID);

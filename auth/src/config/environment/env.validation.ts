@@ -1,4 +1,5 @@
 import {
+  IsEmail,
   IsEnum,
   IsNotEmpty,
   IsNumber,
@@ -79,4 +80,9 @@ export class EnvironmentVariables {
   @IsString({ message: 'SMPT_USER_PASSWORD must be a string.' })
   @IsNotEmpty({ message: 'SMPT_USER_PASSWORD cannot be empty.' })
   SMPT_USER_PASSWORD: string;
+
+  @IsString({ message: 'EMAIL_FROM_FOR_FORGOT_PASSWORD must be a string.' })
+  @IsEmail({}, { message: 'EMAIL_FROM_FOR_FORGOT_PASSWORD must be a email.' })
+  @IsNotEmpty({ message: 'EMAIL_FROM_FOR_FORGOT_PASSWORD cannot be empty.' })
+  EMAIL_FROM_FOR_FORGOT_PASSWORD: string;
 }
