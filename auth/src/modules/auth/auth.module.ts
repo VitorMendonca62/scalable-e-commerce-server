@@ -26,17 +26,17 @@ import { EmailSender } from './domain/ports/secondary/mail-sender.port';
 import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
 import SendCodeForForgotPasswordUseCase from './application/use-cases/send-code-for-forgot-password.usecase';
 import {
-  EmailCode,
+  EmailCodeModel,
   EmailCodeSchema,
-} from './infrastructure/adaptars/secondary/database/models/code.model';
-import CodeRepository from './domain/ports/secondary/code-repository.port';
-import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-code.repository';
+} from './infrastructure/adaptars/secondary/database/models/email-code.model';
+import EmailCodeRepository from './domain/ports/secondary/code-repository.port';
+import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: UserModel.name, schema: UserSchema },
-      { name: EmailCode.name, schema: EmailCodeSchema },
+      { name: EmailCodeModel.name, schema: EmailCodeSchema },
     ]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
@@ -93,7 +93,7 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
       useClass: MongooseUserRepository,
     },
     {
-      provide: CodeRepository,
+      provide: EmailCodeRepository,
       useClass: MongooseEmailCodeRepository,
     },
     {

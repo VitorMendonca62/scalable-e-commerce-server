@@ -1,4 +1,4 @@
-import CodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { Injectable } from '@nestjs/common';
@@ -9,7 +9,7 @@ import * as otpGenerator from 'otp-generator';
 export default class SendCodeForForgotPasswordUseCase {
   constructor(
     private readonly emailSender: EmailSender,
-    private readonly codeRepository: CodeRepository,
+    private readonly codeRepository: EmailCodeRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
