@@ -50,7 +50,7 @@ describe('GetAccessTokenUseCase', () => {
       jest.spyOn(configService, 'get').mockReturnValue(emailFrom);
 
       jest.useFakeTimers();
-      jest.setSystemTime(new Date('2025-01-01T10:00:00z'));
+      jest.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
     });
 
     it('should call otpGenerator.generate with correct parameters', async () => {
@@ -86,11 +86,11 @@ describe('GetAccessTokenUseCase', () => {
     it('should call codeRepository.save with correct parameters', async () => {
       await useCase.execute(email);
       const expiresIn = new Date().getTime() + 1000 * 60 * 10;
-      expect(codeRepository.save).toHaveBeenCalledWith(
+      expect(codeRepository.save).toHaveBeenCalledWith({
         email,
-        OTPCode,
-        expiresIn,
-      );
+        code: OTPCode,
+        expiresIn: new Date(expiresIn),
+      });
     });
 
     it('should rethrow error if emailSender throw error', async () => {

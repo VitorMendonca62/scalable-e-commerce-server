@@ -1,23 +1,31 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
-import { mockLoginUserDTOLikeInstance } from '@auth/infrastructure/helpers/tests/user-helper';
+import { ValidateCodeForForgotPasswordDTO } from './validate-code-for-forgot-pass.dto';
+import {
+  mockValidateCodeForForgotPasswordDTOLikeInstance,
+  validateObject,
+} from '@auth/infrastructure/helpers/tests/dtos-helper';
 
-describe('LoginUserDTO', () => {
+describe('ValidateCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
-    const errors = await validateObject(mockLoginUserDTOLikeInstance());
+    const dto = new ValidateCodeForForgotPasswordDTO();
+    dto.email = EmailConstants.EXEMPLE;
+    dto.code = 'AAAAAA';
+
+    const errors = await validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
   it('should return error when any field is undefined', async () => {
     const requiredFields = {
       email: EmailConstants.ERROR_REQUIRED,
-      password: PasswordConstants.ERROR_REQUIRED,
+      code: 'O código de verificação é obrigatório.',
     };
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockLoginUserDTOLikeInstance({ [key]: undefined });
+      const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+        [key]: undefined,
+      });
 
       const errors = await validateObject(dto);
       const fieldError = errors[0];
@@ -32,12 +40,14 @@ describe('LoginUserDTO', () => {
   it('should return error when any field is not string', async () => {
     const requiredFields = {
       email: EmailConstants.ERROR_STRING,
-      password: PasswordConstants.ERROR_STRING,
+      code: 'O código deve ser uma string válida.',
     };
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockLoginUserDTOLikeInstance({ [key]: 12345 });
+      const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+        [key]: 1 as any,
+      });
 
       const errors = await validateObject(dto);
       const fieldError = errors[0];
@@ -47,20 +57,8 @@ describe('LoginUserDTO', () => {
     });
   });
 
-  it('should return error when any field is shorter than the allowed length', async () => {
-    const dto = mockLoginUserDTOLikeInstance({ password: 'a' });
-
-    const errors = await validateObject(dto);
-    const fieldError = errors[0];
-
-    expect(errors).toHaveLength(1);
-    expect(fieldError.constraints.minLength).toBe(
-      PasswordConstants.ERROR_MIN_LENGTH,
-    );
-  });
-
   it('should return error when email is invalid', async () => {
-    const dto = mockLoginUserDTOLikeInstance({
+    const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 
@@ -69,5 +67,19 @@ describe('LoginUserDTO', () => {
 
     expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isEmail).toBe(EmailConstants.ERROR_INVALID);
+  });
+
+  it('should return error when code no have 6 chars', async () => {
+    const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+      code: 'sss',
+    });
+
+    const errors = await validateObject(dto);
+    const fieldError = errors[0];
+
+    expect(errors).toHaveLength(1);
+    expect(fieldError.constraints.isLength).toBe(
+      'O código de verificação deve ter exatamente 6 caracteres.',
+    );
   });
 });

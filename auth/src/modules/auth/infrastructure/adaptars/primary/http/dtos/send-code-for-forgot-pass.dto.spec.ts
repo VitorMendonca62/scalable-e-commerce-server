@@ -1,12 +1,12 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { SendCodeForForgotPasswordDTO } from './send-code-for-forgot-pass.dto';
-import { validate } from 'class-validator';
+import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
 
 describe('SendCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = EmailConstants.EXEMPLE;
-    const errors = await validate(dto);
+    const errors = await validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
@@ -14,7 +14,7 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = undefined;
 
-    const errors = await validate(dto);
+    const errors = await validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -29,9 +29,10 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = 0 as any;
 
-    const errors = await validate(dto);
+    const errors = await validateObject(dto);
     const fieldError = errors[0];
 
+    expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isString).toBe(EmailConstants.ERROR_STRING);
   });
 
@@ -39,9 +40,10 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = EmailConstants.WRONG_EXEMPLE;
 
-    const errors = await validate(dto);
+    const errors = await validateObject(dto);
     const fieldError = errors[0];
 
+    expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isEmail).toBe(EmailConstants.ERROR_INVALID);
   });
 });

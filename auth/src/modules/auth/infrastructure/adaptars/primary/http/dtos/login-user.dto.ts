@@ -11,7 +11,7 @@ export class LoginUserDTO {
   @ApiEmail(true)
   email: string;
 
-  @Password(false)
+  @Password()
   @ApiPassword(true)
   password: string;
 }

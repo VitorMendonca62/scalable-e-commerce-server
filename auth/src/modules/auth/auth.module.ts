@@ -45,7 +45,7 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
         configService: ConfigService<EnvironmentVariables>,
       ) => {
         return {
-          secret: configService.get<string>('JWT_SECRET'),
+          secret: configService.get<string>('AUTH_JWT_SECRET'),
         };
       },
     }),

@@ -30,3 +30,8 @@ export class HttpCreatedResponse extends HttpResponseOutbound {
     super(HttpStatus.CREATED, message, data);
   }
 }
+export class HttpRedirectSeeOrtherResponse extends HttpResponseOutbound {
+  constructor(message: string = 'Redirecionado!', data: any = undefined) {
+    super(HttpStatus.SEE_OTHER, message, data);
+  }
+}

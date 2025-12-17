@@ -10,14 +10,8 @@ export class EmailCodeModel {
   @Prop({ required: true, type: String })
   code: string;
 
-  @Prop({ required: true, type: Date })
-  codeExpiresIn: Date;
-
-  @Prop({ required: true, type: Boolean, default: false })
-  canUpdatePassword: Date;
-
-  @Prop({ type: Date })
-  canUpdatePasswordExpiresIn: Date | undefined;
+  @Prop({ required: true, type: Date, expires: 0 })
+  expiresIn: Date;
 }
 
 export const EmailCodeSchema = SchemaFactory.createForClass(EmailCodeModel);

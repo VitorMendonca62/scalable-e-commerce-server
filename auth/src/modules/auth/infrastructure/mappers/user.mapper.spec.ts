@@ -5,7 +5,7 @@ mockValueObjects();
 import {
   mockLoginUserDTO,
   mockUserLikeJSON,
-} from '../helpers/tests/tests.helper';
+} from '../helpers/tests/user-helper';
 import { mockPasswordHasher } from '../helpers/tests/password-helpers';
 
 // VO's

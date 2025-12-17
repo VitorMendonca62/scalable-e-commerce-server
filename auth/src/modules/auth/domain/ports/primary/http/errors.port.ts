@@ -24,6 +24,15 @@ export class FieldInvalid extends HttpError {
   }
 }
 
+export class BusinessRuleFailure extends HttpError {
+  constructor(message: string = 'Regra de negócio quebrada.', data: any = {}) {
+    super(message, HttpStatus.BAD_REQUEST, data);
+    this.statusCode = HttpStatus.BAD_REQUEST;
+    this.message = message;
+    this.data = data;
+  }
+}
+
 export class WrongCredentials extends HttpError {
   constructor(
     message: string = 'Suas credenciais estão incorretas. Tente novamente',

@@ -33,6 +33,10 @@ export default class SendCodeForForgotPasswordUseCase {
 
     const expiresIn = new Date().getTime() + 1000 * 60 * 10;
 
-    await this.codeRepository.save(email, OTPCode, expiresIn);
+    await this.codeRepository.save({
+      email,
+      code: OTPCode,
+      expiresIn: new Date(expiresIn),
+    });
   }
 }

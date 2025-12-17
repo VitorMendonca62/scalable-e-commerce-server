@@ -3,7 +3,7 @@ import {
   mockUser,
   mockUserLikeJSON,
   mockLoginUser,
-} from '@auth/infrastructure/helpers/tests/tests.helper';
+} from '@auth/infrastructure/helpers/tests/user-helper';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 // Dependences

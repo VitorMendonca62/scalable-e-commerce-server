@@ -7,26 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Password(isStrongPassword: boolean) {
-  const decorators = [];
-
-  if (isStrongPassword) {
-    decorators.push(
-      IsStrongPassword(
-        {
-          minLowercase: 1,
-          minLength: PasswordConstants.MIN_LENGTH,
-          minSymbols: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-        },
-        {
-          message: PasswordConstants.ERROR_WEAK_PASSWORD,
-        },
-      ),
-    );
-  }
-
+export function Password() {
   return applyDecorators(
     IsNotEmpty({
       message: PasswordConstants.ERROR_REQUIRED,
@@ -35,6 +16,17 @@ export function Password(isStrongPassword: boolean) {
     MinLength(PasswordConstants.MIN_LENGTH, {
       message: PasswordConstants.ERROR_MIN_LENGTH,
     }),
-    ...decorators,
+    IsStrongPassword(
+      {
+        minLowercase: 1,
+        minLength: PasswordConstants.MIN_LENGTH,
+        minSymbols: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+      },
+      {
+        message: PasswordConstants.ERROR_WEAK_PASSWORD,
+      },
+    ),
   );
 }
