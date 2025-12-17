@@ -12,7 +12,7 @@ describe('validateENV', () => {
     RABBITMQ_HOST: 'scalable-commerce-net',
     RABBITMQ_DEFAULT_USER: 'default',
     RABBITMQ_DEFAULT_PASS: '1234',
-    JWT_SECRET: 'jwtsecret123',
+    AUTH_JWT_SECRET: 'jwtsecret123',
     MONGO_INITDB_ROOT_USERNAME: 'vhmendonca_test',
     MONGO_INITDB_ROOT_PASSWORD: '12345678',
     MONGO_DB_HOST: 'database-auth',
@@ -26,7 +26,7 @@ describe('validateENV', () => {
   mockInstance.RABBITMQ_HOST = 'scalable-commerce-net';
   mockInstance.RABBITMQ_DEFAULT_USER = 'default';
   mockInstance.RABBITMQ_DEFAULT_PASS = '1234';
-  mockInstance.JWT_SECRET = 'jwtsecret123';
+  mockInstance.AUTH_JWT_SECRET = 'jwtsecret123';
   mockInstance.MONGO_INITDB_ROOT_USERNAME = 'vhmendonca_test';
   mockInstance.MONGO_INITDB_ROOT_PASSWORD = '12345678';
   mockInstance.MONGO_DB_HOST = 'database-auth';

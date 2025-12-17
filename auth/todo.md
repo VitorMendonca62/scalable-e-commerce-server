@@ -1,10 +1,10 @@
 [X] Analisar tipos ( Criar tipos para email, senha e etc)
 [x] Criar modulo para message broker
-[] MS-USER que cria usuarios, nao auth
+[X] MS-USER que cria usuarios, nao auth
 [X] Testes em 100%
 [X] Revisar testes
 [] Seguir Principios SOLID
-[] Id privado compartilhado entre servicos
+[X] Id privado compartilhado entre servicos
 [X] Remover dependencia da entidade em DTO
 [X] ADicionar objeto de erros em domain
 [X] Ver isso:   it('should fail if password is too weak', async () => {
@@ -21,9 +21,9 @@
 
 [X] Criar classes para os VOS, uma pra const, validacao e oturos
 [] Criar Controllers de catch
-[] Implementar Guards no controller
+[X] Implementar Guards no controller
 [X] Remover o findEmail, findUsername e colocar o findOne
-[] Criar um adpter para senha
+[X] Criar um adpter para senha
 [X] Criar um pipe para verificar se refreshToken está válido
 
 [X] usar de testesDTO.md no teste de createDTO:
@@ -31,3 +31,8 @@
 
 [X] usar isso: https://www.luiztools.com.br/post/autenticacao-json-web-token-jwt-em-nestjs/
 [] Adicionar faker js
+MongoDB: Possui índices TTL que deletam documentos após um tempo determinado. ( Colocar na tabela Email-codes)
+
+
+
+https://www.reddit.com/r/webdev/comments/1bgs7bi/best_practices_for_forgot_password_flow/?tl=pt-br

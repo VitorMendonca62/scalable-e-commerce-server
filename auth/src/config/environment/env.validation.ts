@@ -43,9 +43,13 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_PASS cannot be empty.' })
   RABBITMQ_DEFAULT_PASS: string;
 
-  @IsString({ message: 'JWT_SECRET must be a string.' })
-  @IsNotEmpty({ message: 'JWT_SECRET cannot be empty.' })
-  JWT_SECRET: string;
+  @IsString({ message: 'AUTH_JWT_SECRET must be a string.' })
+  @IsNotEmpty({ message: 'AUTH_JWT_SECRET cannot be empty.' })
+  AUTH_JWT_SECRET: string;
+
+  @IsString({ message: 'RESET_PASS_SECRET must be a string.' })
+  @IsNotEmpty({ message: 'RESET_PASS_SECRET cannot be empty.' })
+  RESET_PASS_SECRET: string;
 
   @IsString({ message: 'MONGO_INITDB_ROOT_USERNAME must be a string.' })
   @IsNotEmpty({ message: 'MONGO_INITDB_ROOT_USERNAME cannot be empty.' })
