@@ -32,6 +32,7 @@ import EmailCodeRepository from './domain/ports/secondary/code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
+import { UpdatePasswordUseCase } from './application/use-cases/update-password-usecase';
 
 @Module({
   imports: [
@@ -90,6 +91,7 @@ import { ResetPasswordUseCase } from './application/use-cases/reset-password.use
     SendCodeForForgotPasswordUseCase,
     ValidateCodeForForgotPasswordUseCase,
     ResetPasswordUseCase,
+    UpdatePasswordUseCase,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,
