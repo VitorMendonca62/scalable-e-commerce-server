@@ -46,6 +46,7 @@ export class JwtTokenService implements TokenService {
     });
   }
 
+  // TODO REMOVER ISSO AQUI
   verifyResetPassToken(token: string): Record<string, any> {
     try {
       return this.jwtService.verify(token) as Record<string, any>;

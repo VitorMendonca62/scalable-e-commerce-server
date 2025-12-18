@@ -18,7 +18,6 @@ import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgo
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
-import { AuthGuard } from '@nestjs/passport';
 import {
   HttpAcceptedResponse,
   HttpResponseOutbound,
