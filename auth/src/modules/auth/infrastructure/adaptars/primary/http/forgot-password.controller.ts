@@ -45,7 +45,10 @@ export class ForgotPasswordController {
     @Res() response: Response,
   ): Promise<void> {
     await this.sendCodeForForgotPasswordUseCase.execute(dto.email);
-    response.redirect(HttpStatus.SEE_OTHER, '/auth/confirm-code');
+    response.redirect(
+      HttpStatus.SEE_OTHER,
+      'https://github.com/VitorMendonca62',
+    );
   }
 
   @Post('/validate-code')
