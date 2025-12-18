@@ -6,11 +6,12 @@ import EmailVO from '../values-objects/email/email-vo';
 import PasswordVO from '../values-objects/password/password-vo';
 import PhoneNumberVO from '../values-objects/phone-number/phone-number-vo';
 import IDVO from '../values-objects/id/id-vo';
+import PasswordHashedVO from '../values-objects/password-hashed/password-hashed-vo';
 
 export class User {
   userID: IDVO;
   email: EmailVO;
-  password: PasswordVO;
+  password: PasswordVO | PasswordHashedVO;
   phoneNumber: PhoneNumberVO;
   roles: Permissions[];
   createdAt: Date;
@@ -19,7 +20,7 @@ export class User {
   constructor(props: {
     userID: IDVO;
     email: EmailVO;
-    password: PasswordVO;
+    password: PasswordVO | PasswordHashedVO;
     phoneNumber: PhoneNumberVO;
     roles: Permissions[];
     createdAt: Date;

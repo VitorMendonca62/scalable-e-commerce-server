@@ -1,5 +1,5 @@
 import { mockValueObjects } from '../helpers/tests/values-objects-mock';
-mockValueObjects();
+mockValueObjects(['all']);
 
 // Helpers
 import {
@@ -21,6 +21,7 @@ import { UserLogin } from '@auth/domain/entities/user-login.entity';
 // Function
 import { UserMapper } from './user.mapper';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 
 // Orther
 
@@ -29,7 +30,7 @@ describe('UserMapper', () => {
   let passwordHasher: PasswordHasher;
 
   beforeEach(async () => {
-    mockValueObjects();
+    mockValueObjects(['all']);
     passwordHasher = mockPasswordHasher();
     mapper = new UserMapper(passwordHasher);
   });
@@ -45,12 +46,7 @@ describe('UserMapper', () => {
       mapper.loginDTOForEntity(dto);
 
       expect(EmailVO).toHaveBeenCalledWith(dto.email);
-      expect(PasswordVO).toHaveBeenCalledWith(
-        dto.password,
-        true,
-        true,
-        passwordHasher,
-      );
+      expect(PasswordVO).toHaveBeenCalledWith(dto.password, passwordHasher);
     });
 
     it('should return User with correct types', async () => {
@@ -90,10 +86,8 @@ describe('UserMapper', () => {
 
       expect(IDVO).toHaveBeenCalledWith(json.userID);
       expect(EmailVO).toHaveBeenCalledWith(json.email);
-      expect(PasswordVO).toHaveBeenCalledWith(
+      expect(PasswordHashedVO).toHaveBeenCalledWith(
         json.password,
-        false,
-        false,
         passwordHasher,
       );
       expect(PhoneNumberVO).toHaveBeenCalledWith(json.phoneNumber);
@@ -105,7 +99,7 @@ describe('UserMapper', () => {
       expect(user).toBeInstanceOf(User);
       expect(user.userID).toBeInstanceOf(IDVO);
       expect(user.email).toBeInstanceOf(EmailVO);
-      expect(user.password).toBeInstanceOf(PasswordVO);
+      expect(user.password).toBeInstanceOf(PasswordHashedVO);
       expect(user.phoneNumber).toBeInstanceOf(PhoneNumberVO);
       expect(Array.isArray(user.roles)).toBe(true);
       expect(user.createdAt).toBeInstanceOf(Date);
@@ -124,7 +118,7 @@ describe('UserMapper', () => {
     });
 
     it('should throw if value object throws error', () => {
-      const valuesObjects = [EmailVO, PasswordVO, PhoneNumberVO, IDVO];
+      const valuesObjects = [EmailVO, PasswordHashedVO, PhoneNumberVO, IDVO];
 
       valuesObjects.forEach((VO, index) => {
         (VO as jest.Mock).mockImplementation(() => {

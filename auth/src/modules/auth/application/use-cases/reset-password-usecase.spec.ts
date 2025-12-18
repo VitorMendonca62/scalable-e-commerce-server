@@ -1,5 +1,5 @@
 import { mockValueObjects } from '@auth/infrastructure/helpers/tests/values-objects-mock';
-mockValueObjects();
+mockValueObjects(['password']);
 
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
@@ -49,12 +49,7 @@ describe('ResetPasswordUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         email,
       });
-      expect(PasswordVO).toHaveBeenCalledWith(
-        newPassword,
-        false,
-        true,
-        passwordHasher,
-      );
+      expect(PasswordVO).toHaveBeenCalledWith(newPassword, passwordHasher);
       expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
         password: newPassword,
       });

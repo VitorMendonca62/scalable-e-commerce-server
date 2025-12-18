@@ -19,12 +19,7 @@ export class ResetPasswordUseCase {
     if (user == undefined || user == null)
       throw new WrongCredentials('Token inválido ou expirado');
 
-    const newPasswordVO = new PasswordVO(
-      newPassword,
-      false,
-      true,
-      this.passwordHasher,
-    );
+    const newPasswordVO = new PasswordVO(newPassword, this.passwordHasher);
 
     await this.userRepository.update(user.userID, {
       password: newPasswordVO.getValue(),

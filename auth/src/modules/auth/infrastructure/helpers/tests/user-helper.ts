@@ -1,5 +1,3 @@
-import { mockValueObjects } from './values-objects-mock';
-mockValueObjects();
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { User } from '@auth/domain/entities/user.entity';
 import { defaultRoles } from '@auth/domain/types/permissions';
@@ -36,12 +34,7 @@ export const mockUser = (overrides: Partial<UserModel> = {}) => {
   const user = new User({
     userID: new IDVO(userJSON.userID),
     email: new EmailVO(userJSON.email),
-    password: new PasswordVO(
-      userJSON.password,
-      false,
-      false,
-      mockPasswordHasher(),
-    ),
+    password: new PasswordVO(userJSON.password, mockPasswordHasher()),
     phoneNumber: new PhoneNumberVO(userJSON.phoneNumber),
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
@@ -66,7 +59,7 @@ export const mockLoginUser = (overrides: Partial<LoginUserDTO> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, true, false, mockPasswordHasher()),
+    password: new PasswordVO(dto.password, mockPasswordHasher()),
   });
 };
 

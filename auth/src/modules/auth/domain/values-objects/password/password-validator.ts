@@ -8,7 +8,7 @@ import { PasswordConstants } from './password-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export default class PasswordValidator {
-  static validate(value: string, isStrongPasswordClient: boolean) {
+  static validate(value: string) {
     if (!isNotEmpty(value)) {
       throw new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
     }
@@ -21,20 +21,15 @@ export default class PasswordValidator {
       throw new FieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password');
     }
 
-    if (isStrongPasswordClient) {
-      if (
-        !isStrongPassword(value, {
-          minLowercase: 1,
-          minSymbols: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-        })
-      ) {
-        throw new FieldInvalid(
-          PasswordConstants.ERROR_WEAK_PASSWORD,
-          'password',
-        );
-      }
+    if (
+      !isStrongPassword(value, {
+        minLowercase: 1,
+        minSymbols: 1,
+        minUppercase: 1,
+        minNumbers: 1,
+      })
+    ) {
+      throw new FieldInvalid(PasswordConstants.ERROR_WEAK_PASSWORD, 'password');
     }
   }
 }

@@ -19,6 +19,7 @@ import { UserModel } from '../adaptars/secondary/database/models/user.model';
 
 // Dependeces
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 
 // Function
 @Injectable()
@@ -27,7 +28,7 @@ export class UserMapper {
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, true, true, this.passwordHasher),
+      password: new PasswordVO(dto.password, this.passwordHasher),
     });
   }
 
@@ -35,12 +36,7 @@ export class UserMapper {
     return new User({
       userID: new IDVO(json.userID),
       email: new EmailVO(json.email),
-      password: new PasswordVO(
-        json.password,
-        false,
-        false,
-        this.passwordHasher,
-      ),
+      password: new PasswordHashedVO(json.password, this.passwordHasher),
       phoneNumber: new PhoneNumberVO(json.phoneNumber),
       roles: json.roles,
       createdAt: json.createdAt,

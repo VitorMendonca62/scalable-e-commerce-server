@@ -3,6 +3,7 @@ import PasswordVO from './password-vo';
 import { PasswordConstants } from './password-constants';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-helpers';
+import { PasswordHashedConstants } from '../password-hashed/password-hashed-constants';
 
 describe('PasswordVO', () => {
   let passwordHasher: PasswordHasher;
@@ -13,42 +14,21 @@ describe('PasswordVO', () => {
   });
 
   describe('Constructor', () => {
-    it('should store the value default if hashPassword is true', () => {
+    it('should store the value hashed', () => {
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-        true,
-        false,
-        passwordHasher,
-      );
-      expect(valueObject.getValue()).toBe(PasswordConstants.EXEMPLE);
-      expect(typeof valueObject.getValue()).toBe('string');
-      expect(passwordHasher.hash).not.toHaveBeenCalled();
-    });
 
-    it('should store the value hashed if hashPassword is true', () => {
-      const valueObject = new PasswordVO(
-        PasswordConstants.EXEMPLE,
-        false,
-        true,
         passwordHasher,
       );
       expect(passwordHasher.hash).toHaveBeenCalled();
-      expect(valueObject.getValue()).toBe('Hash');
+      expect(valueObject.getValue()).toBe(PasswordHashedConstants.EXEMPLE);
     });
 
     it('should call PasswordValidator.validate with value and if is strong password', () => {
-      new PasswordVO(PasswordConstants.EXEMPLE, true, false, passwordHasher);
+      new PasswordVO(PasswordConstants.EXEMPLE, passwordHasher);
 
       expect(PasswordValidator.validate).toHaveBeenCalledWith(
         PasswordConstants.EXEMPLE,
-        true,
-      );
-
-      new PasswordVO(PasswordConstants.EXEMPLE, false, false, passwordHasher);
-
-      expect(PasswordValidator.validate).toHaveBeenCalledWith(
-        PasswordConstants.EXEMPLE,
-        false,
       );
     });
 
@@ -58,18 +38,15 @@ describe('PasswordVO', () => {
       });
 
       expect(() => {
-        new PasswordVO(PasswordConstants.EXEMPLE, false, false, passwordHasher);
+        new PasswordVO(PasswordConstants.EXEMPLE, passwordHasher);
       }).toThrow('Error');
     });
   });
 
   describe('comparePassword', () => {
     it('should call passwordHasher.compare with hashed password and default password', () => {
-      // hashed password
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-        true,
-        true,
         passwordHasher,
       );
 
@@ -77,17 +54,15 @@ describe('PasswordVO', () => {
 
       expect(passwordHasher.compare).toHaveBeenCalledWith(
         PasswordConstants.EXEMPLE,
-        'Hash',
+        PasswordHashedConstants.EXEMPLE,
       );
     });
 
     it('should return passwordHasher.compare result', () => {
       (passwordHasher.compare as jest.Mock).mockReturnValue(false);
-      // hashed password
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-        true,
-        true,
+
         passwordHasher,
       );
 
@@ -96,11 +71,10 @@ describe('PasswordVO', () => {
       expect(result).toBe(false);
 
       (passwordHasher.compare as jest.Mock).mockReturnValue(true);
-      // hashed password
+
       const valueObject2 = new PasswordVO(
         PasswordConstants.EXEMPLE,
-        true,
-        true,
+
         passwordHasher,
       );
 
