@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { CreateSessionUseCase } from './application/use-cases/create-session.usecase';
-import { GetAccessTokenUseCase } from './application/use-cases/get-access-token';
+import { GetAccessTokenUseCase } from './application/use-cases/get-access-token.usecase';
 import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { AuthController } from './infrastructure/adaptars/primary/http/auth.controller';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
@@ -16,7 +16,6 @@ import {
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
-import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
 import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtModule } from '@nestjs/jwt';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
@@ -31,6 +30,8 @@ import {
 } from './infrastructure/adaptars/secondary/database/models/email-code.model';
 import EmailCodeRepository from './domain/ports/secondary/code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
+import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
+import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
 
 @Module({
   imports: [
@@ -86,8 +87,9 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
     GetAccessTokenUseCase,
     UserMapper,
     UsersQueueService,
-    IdInTokenPipe,
     SendCodeForForgotPasswordUseCase,
+    ValidateCodeForForgotPasswordUseCase,
+    ResetPasswordUseCase,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,

@@ -2,6 +2,8 @@ import { MongooseUserRepository } from './mongoose-user.repository';
 import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
+import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
@@ -9,6 +11,7 @@ describe('MongooseUserRepository', () => {
   let UserModel: any;
 
   let mockedExecFindOne: jest.Mock;
+  let mockedExecUpdateOne: jest.Mock;
 
   beforeEach(async () => {
     UserModel = jest.fn();
@@ -59,6 +62,29 @@ describe('MongooseUserRepository', () => {
       });
 
       expect(response).toBeUndefined();
+    });
+  });
+
+  describe('update', () => {
+    beforeEach(() => {
+      mockedExecUpdateOne = jest.fn();
+      UserModel.updateOne = jest.fn().mockReturnValue({
+        exec: mockedExecUpdateOne,
+      });
+    });
+
+    it('should call all functions with correct parameters and delete', async () => {
+      await repository.update(IDConstants.EXEMPLE, {
+        password: PasswordConstants.EXEMPLE,
+      });
+
+      expect(UserModel.updateOne).toHaveBeenCalledWith(
+        {
+          userID: IDConstants.EXEMPLE,
+        },
+        { $set: { password: PasswordConstants.EXEMPLE } },
+      );
+      expect(mockedExecUpdateOne).toHaveBeenCalled();
     });
   });
 });

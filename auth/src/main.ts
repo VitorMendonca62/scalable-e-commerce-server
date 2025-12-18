@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { addRabbitMQClient } from './config/message-broker/rabbitmq.config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from './config/environment/env.validation';
@@ -61,8 +60,6 @@ async function bootstrap() {
   await app
     .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))
     .catch((err) => appLogger.error(err));
-
-  // await addRabbitMQClient(app, configService);
 }
 
 bootstrap();

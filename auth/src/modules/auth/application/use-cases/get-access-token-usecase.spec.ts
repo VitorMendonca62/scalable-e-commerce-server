@@ -1,4 +1,4 @@
-import { GetAccessTokenUseCase } from './get-access-token';
+import { GetAccessTokenUseCase } from './get-access-token.usecase';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';

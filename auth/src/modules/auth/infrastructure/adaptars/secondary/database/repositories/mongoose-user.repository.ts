@@ -15,4 +15,8 @@ export class MongooseUserRepository implements UserRepository {
   ): Promise<UserModel | undefined | null> {
     return await this.UserModel.findOne(options).exec();
   }
+
+  async update(userID: string, newFields: Partial<UserModel>): Promise<void> {
+    await this.UserModel.updateOne({ userID }, { $set: newFields }).exec();
+  }
 }

@@ -92,7 +92,7 @@ describe('MongooseEmailCodeRepository', () => {
       });
     });
 
-    it('should return user with one field', async () => {
+    it('should call all functions with correct parameters and delete', async () => {
       await repository.deleteMany(EmailConstants.EXEMPLE);
 
       expect(EmailCodeModel.deleteMany).toHaveBeenCalledWith({
