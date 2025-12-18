@@ -19,14 +19,21 @@ import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/va
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import { AuthGuard } from '@nestjs/passport';
+import {
+  HttpAcceptedResponse,
+  HttpResponseOutbound,
+} from '@auth/domain/ports/primary/http/sucess.port';
+import { UpdatePasswordDTO } from './dtos/update-password.dto';
+import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 
-@Controller('pass')
+@Controller('auth/pass')
 @ApiTags('ForgotPasswordController')
 export class ForgotPasswordController {
   constructor(
     private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
     private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
+    private readonly updatePasswordUseCase: UpdatePasswordUseCase,
   ) {}
 
   @Post('/send-code')
@@ -61,6 +68,7 @@ export class ForgotPasswordController {
 
   @Patch('/reset-pass')
   @HttpCode(HttpStatus.ACCEPTED)
+  // TODO: Fazer documentacao
   @UseGuards(AuthGuard('jwt-reset-pass'))
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
@@ -71,5 +79,23 @@ export class ForgotPasswordController {
 
     await this.resetPasswordUseCase.execute(email, dto.newPassword);
     response.redirect(HttpStatus.SEE_OTHER, '/auth/login');
+  }
+
+  @Patch('/')
+  @HttpCode(HttpStatus.ACCEPTED)
+  // TODO: Fazer documentacao
+  @UseGuards(AuthGuard('jwt-auth'))
+  async updatePassword(
+    @Body() dto: UpdatePasswordDTO,
+    @Req() request: Request,
+  ): Promise<HttpResponseOutbound> {
+    const { userID } = request.user as any;
+
+    await this.updatePasswordUseCase.execute(
+      userID,
+      dto.newPassword,
+      dto.oldPassword,
+    );
+    return new HttpAcceptedResponse('A senha do usuário foi atualizada!');
   }
 }

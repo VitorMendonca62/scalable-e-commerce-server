@@ -1,4 +1,5 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
+import { addPrefix } from '@auth/infrastructure/helpers/tests/string-helper';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,
@@ -7,14 +8,14 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Password() {
+export function Password(type: 'default' | 'new' | 'old' = 'default') {
   return applyDecorators(
     IsNotEmpty({
-      message: PasswordConstants.ERROR_REQUIRED,
+      message: addPrefix(PasswordConstants.ERROR_REQUIRED, type),
     }),
-    IsString({ message: PasswordConstants.ERROR_STRING }),
+    IsString({ message: addPrefix(PasswordConstants.ERROR_STRING, type) }),
     MinLength(PasswordConstants.MIN_LENGTH, {
-      message: PasswordConstants.ERROR_MIN_LENGTH,
+      message: addPrefix(PasswordConstants.ERROR_MIN_LENGTH, type),
     }),
     IsStrongPassword(
       {
@@ -25,7 +26,7 @@ export function Password() {
         minNumbers: 1,
       },
       {
-        message: PasswordConstants.ERROR_WEAK_PASSWORD,
+        message: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, type),
       },
     ),
   );

@@ -83,7 +83,7 @@ describe('ResetPasswordUseCase', () => {
       );
     });
 
-    it('should rethrow error if userRepository.deleteMany throw error', async () => {
+    it('should rethrow error if userRepository.update throw error', async () => {
       jest
         .spyOn(userRepository, 'update')
         .mockRejectedValue(new Error('Error updating code'));

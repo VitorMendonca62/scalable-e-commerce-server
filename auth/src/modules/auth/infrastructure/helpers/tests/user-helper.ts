@@ -12,6 +12,8 @@ import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
 import { mockPasswordHasher } from './password-helpers';
+import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
+import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 
 // Common
 export const mockUserLikeJSON = (
@@ -20,7 +22,7 @@ export const mockUserLikeJSON = (
   return {
     userID: IDConstants.EXEMPLE,
     email: EmailConstants.EXEMPLE,
-    password: PasswordConstants.EXEMPLE,
+    password: PasswordHashedConstants.EXEMPLE,
     phoneNumber: PhoneNumberConstants.EXEMPLE,
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
@@ -34,7 +36,7 @@ export const mockUser = (overrides: Partial<UserModel> = {}) => {
   const user = new User({
     userID: new IDVO(userJSON.userID),
     email: new EmailVO(userJSON.email),
-    password: new PasswordVO(userJSON.password, mockPasswordHasher()),
+    password: new PasswordHashedVO(userJSON.password, mockPasswordHasher()),
     phoneNumber: new PhoneNumberVO(userJSON.phoneNumber),
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),

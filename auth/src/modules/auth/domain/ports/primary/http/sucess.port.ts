@@ -25,6 +25,12 @@ export class HttpOKResponse extends HttpResponseOutbound {
   }
 }
 
+export class HttpAcceptedResponse extends HttpResponseOutbound {
+  constructor(message: string = 'Accepted!', data: any = undefined) {
+    super(HttpStatus.ACCEPTED, message, data);
+  }
+}
+
 export class HttpCreatedResponse extends HttpResponseOutbound {
   constructor(message: string = 'Criado!', data: any = undefined) {
     super(HttpStatus.CREATED, message, data);

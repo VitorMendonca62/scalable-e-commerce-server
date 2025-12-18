@@ -6,6 +6,10 @@ import { Request, Response } from 'express';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-helper';
+import { HttpAcceptedResponse } from '@auth/domain/ports/primary/http/sucess.port';
+import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 
 describe('ForgotPasswordController', () => {
   let controller: ForgotPasswordController;
@@ -13,16 +17,19 @@ describe('ForgotPasswordController', () => {
   let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
   let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
   let resetPasswordUseCase: ResetPasswordUseCase;
+  let updatePasswordUseCase: UpdatePasswordUseCase;
 
   beforeEach(async () => {
     sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     validateCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     resetPasswordUseCase = { execute: jest.fn() } as any;
+    updatePasswordUseCase = { execute: jest.fn() } as any;
 
     controller = new ForgotPasswordController(
       sendCodeForForgotPasswordUseCase,
       validateCodeForForgotPasswordUseCase,
       resetPasswordUseCase,
+      updatePasswordUseCase,
     );
   });
 
@@ -31,6 +38,7 @@ describe('ForgotPasswordController', () => {
     expect(sendCodeForForgotPasswordUseCase).toBeDefined();
     expect(validateCodeForForgotPasswordUseCase).toBeDefined();
     expect(resetPasswordUseCase).toBeDefined();
+    expect(updatePasswordUseCase).toBeDefined();
   });
 
   describe('sendCode', () => {
@@ -140,7 +148,7 @@ describe('ForgotPasswordController', () => {
     });
   });
 
-  describe('sendCode', () => {
+  describe('resetPassword', () => {
     let response: Response;
     let request: Request;
 
@@ -188,6 +196,48 @@ describe('ForgotPasswordController', () => {
       await expect(
         controller.resetPassword(dto, request, response),
       ).rejects.toThrow('Erro no use case');
+    });
+  });
+
+  describe('updatePassword', () => {
+    let request: Request;
+    const dto = mockUpdatePasswordLikeInstance();
+
+    beforeEach(() => {
+      request = {
+        user: {
+          userID: IDConstants.EXEMPLE,
+        },
+      } as any;
+    });
+
+    it('should call updatePasswordUseCase.execute with userId and passwords', async () => {
+      await controller.updatePassword(dto, request);
+
+      expect(updatePasswordUseCase.execute).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+        dto.newPassword,
+        dto.oldPassword,
+      );
+    });
+
+    it('should return HttpOKResponse on success', async () => {
+      const response = await controller.updatePassword(dto, request);
+      expect(response).toBeInstanceOf(HttpAcceptedResponse);
+      expect(response).toEqual({
+        statusCode: HttpStatus.ACCEPTED,
+        message: 'A senha do usuário foi atualizada!',
+      });
+    });
+
+    it('should throw error if updatePasswordUseCase throws error', async () => {
+      jest
+        .spyOn(updatePasswordUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(controller.updatePassword(dto, request)).rejects.toThrow(
+        'Erro no use case',
+      );
     });
   });
 });

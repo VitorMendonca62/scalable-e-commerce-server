@@ -1,6 +1,7 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
 import { ResetPasswordDTO } from './reset-password.dto';
+import { addPrefix } from '@auth/infrastructure/helpers/tests/string-helper';
 
 describe('ResetPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
@@ -21,7 +22,7 @@ describe('ResetPasswordDTO', () => {
     expect(fieldError.value).toBeUndefined();
     expect(fieldError.property).toBe('newPassword');
     expect(fieldError.constraints.isNotEmpty).toBe(
-      PasswordConstants.ERROR_REQUIRED,
+      addPrefix(PasswordConstants.ERROR_REQUIRED, 'new'),
     );
   });
 
@@ -34,7 +35,7 @@ describe('ResetPasswordDTO', () => {
 
     expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isString).toBe(
-      PasswordConstants.ERROR_STRING,
+      addPrefix(PasswordConstants.ERROR_STRING, 'new'),
     );
   });
 
@@ -47,7 +48,7 @@ describe('ResetPasswordDTO', () => {
 
     expect(errors).toHaveLength(1);
     expect(fieldError.constraints.minLength).toBe(
-      PasswordConstants.ERROR_MIN_LENGTH,
+      addPrefix(PasswordConstants.ERROR_MIN_LENGTH, 'new'),
     );
   });
 
@@ -60,7 +61,7 @@ describe('ResetPasswordDTO', () => {
 
     expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isStrongPassword).toBe(
-      PasswordConstants.ERROR_WEAK_PASSWORD,
+      addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, 'new'),
     );
   });
 });

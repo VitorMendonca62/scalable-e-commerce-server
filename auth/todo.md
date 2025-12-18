@@ -32,8 +32,7 @@
 [X] usar isso: https://www.luiztools.com.br/post/autenticacao-json-web-token-jwt-em-nestjs/
 [] Adicionar faker js
 [] Adicionar deslogar em todos os dispositivos
-[] Adicionar mapper e entidades no forgotPassword
-[] Criar um value object para senhas hasheadas
+[X] Criar um value object para senhas hasheadas
 
 
 https://www.reddit.com/r/webdev/comments/1bgs7bi/best_practices_for_forgot_password_flow/?tl=pt-br

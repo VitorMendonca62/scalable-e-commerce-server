@@ -45,6 +45,15 @@ export class WrongCredentials extends HttpError {
   }
 }
 
+export class NotFoundUser extends HttpError {
+  constructor(message: string = 'Usuário não encontrado.', data: any = {}) {
+    super(message, HttpStatus.NOT_FOUND, data);
+    this.statusCode = HttpStatus.NOT_FOUND;
+    this.message = message;
+    this.data = data;
+  }
+}
+
 export class ExternalServiceError extends HttpError {
   constructor(
     message: string = 'Erro ao comunicar com serviço externo',

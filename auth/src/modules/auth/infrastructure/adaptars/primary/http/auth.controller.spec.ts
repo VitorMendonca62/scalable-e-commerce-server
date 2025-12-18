@@ -101,6 +101,14 @@ describe('AuthController', () => {
       } as any;
     });
 
+    it('should call getAccessToken.execute with userId', async () => {
+      await controller.getAccessToken(request);
+
+      expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+      );
+    });
+
     it('should return HttpOKResponse on success', async () => {
       const response = await controller.getAccessToken(request);
 
