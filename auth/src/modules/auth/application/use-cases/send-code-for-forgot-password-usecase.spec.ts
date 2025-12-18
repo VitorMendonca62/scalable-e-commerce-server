@@ -3,7 +3,7 @@ import SendCodeForForgotPasswordUseCase from './send-code-for-forgot-password.us
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 
 describe('GetAccessTokenUseCase', () => {

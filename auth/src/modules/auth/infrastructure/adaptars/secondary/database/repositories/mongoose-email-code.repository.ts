@@ -1,4 +1,4 @@
-import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { EmailCodeDocument, EmailCodeModel } from '../models/email-code.model';

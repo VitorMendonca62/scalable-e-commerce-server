@@ -67,7 +67,10 @@ export class ForgotPasswordController {
       maxAge: 600000,
       path: '/',
     });
-    response.redirect(HttpStatus.SEE_OTHER, '/auth/restore-password');
+    response.redirect(
+      HttpStatus.SEE_OTHER,
+      'https://github.com/VitorMendonca62',
+    );
   }
 
   @Patch('/reset-pass')
@@ -82,7 +85,10 @@ export class ForgotPasswordController {
     const { email } = request.user as any;
 
     await this.resetPasswordUseCase.execute(email, dto.newPassword);
-    response.redirect(HttpStatus.SEE_OTHER, '/auth/login');
+    response.redirect(
+      HttpStatus.SEE_OTHER,
+      'https://github.com/VitorMendonca62',
+    );
   }
 
   @Patch('/')

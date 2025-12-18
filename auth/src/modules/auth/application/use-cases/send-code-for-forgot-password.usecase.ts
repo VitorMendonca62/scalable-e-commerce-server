@@ -1,4 +1,4 @@
-import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { Injectable } from '@nestjs/common';

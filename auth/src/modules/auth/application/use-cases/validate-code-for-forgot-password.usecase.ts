@@ -1,5 +1,5 @@
 import { BusinessRuleFailure } from '@auth/domain/ports/primary/http/errors.port';
-import EmailCodeRepository from '@auth/domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { Injectable } from '@nestjs/common';
 
@@ -15,12 +15,12 @@ export default class ValidateCodeForForgotPasswordUseCase {
 
     if (emailCode == undefined || emailCode == null)
       throw new BusinessRuleFailure(
-        'Código de verificação inválido ou expirado. Tente novamente',
+        'Código de verificação inválido ou expirado. Tente novamente1',
       );
 
     if (emailCode.expiresIn < new Date())
       throw new BusinessRuleFailure(
-        'Código de verificação inválido ou expirado. Tente novamente',
+        'Código de verificação inválido ou expirado. Tente novamente2',
       );
 
     await this.emailCodeRepository.deleteMany(email);

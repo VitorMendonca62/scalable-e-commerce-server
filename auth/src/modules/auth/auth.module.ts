@@ -28,7 +28,7 @@ import {
   EmailCodeModel,
   EmailCodeSchema,
 } from './infrastructure/adaptars/secondary/database/models/email-code.model';
-import EmailCodeRepository from './domain/ports/secondary/code-repository.port';
+import EmailCodeRepository from './domain/ports/secondary/email-code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
