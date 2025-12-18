@@ -33,6 +33,8 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
 import { UpdatePasswordUseCase } from './application/use-cases/update-password-usecase';
+import { JwtAuthStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-auth.strategy';
+import { JwtResetPassStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-reset-pass.strategy';
 
 @Module({
   imports: [
@@ -84,6 +86,8 @@ import { UpdatePasswordUseCase } from './application/use-cases/update-password-u
   ],
   controllers: [AuthController, ForgotPasswordController],
   providers: [
+    JwtAuthStrategy,
+    JwtResetPassStrategy,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     UserMapper,
