@@ -17,15 +17,25 @@ describe('PasswordVO', () => {
     it('should store the value hashed', () => {
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-
+        true,
         passwordHasher,
       );
       expect(passwordHasher.hash).toHaveBeenCalled();
       expect(valueObject.getValue()).toBe(PasswordHashedConstants.EXEMPLE);
     });
 
+    it('should store the value default if canHashPassword is false', () => {
+      const valueObject = new PasswordVO(
+        PasswordConstants.EXEMPLE,
+        false,
+        passwordHasher,
+      );
+      expect(passwordHasher.hash).not.toHaveBeenCalled();
+      expect(valueObject.getValue()).toBe(PasswordConstants.EXEMPLE);
+    });
+
     it('should call PasswordValidator.validate with value and if is strong password', () => {
-      new PasswordVO(PasswordConstants.EXEMPLE, passwordHasher);
+      new PasswordVO(PasswordConstants.EXEMPLE, true, passwordHasher);
 
       expect(PasswordValidator.validate).toHaveBeenCalledWith(
         PasswordConstants.EXEMPLE,
@@ -38,7 +48,7 @@ describe('PasswordVO', () => {
       });
 
       expect(() => {
-        new PasswordVO(PasswordConstants.EXEMPLE, passwordHasher);
+        new PasswordVO(PasswordConstants.EXEMPLE, true, passwordHasher);
       }).toThrow('Error');
     });
   });
@@ -47,6 +57,7 @@ describe('PasswordVO', () => {
     it('should call passwordHasher.compare with hashed password and default password', () => {
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
+        true,
         passwordHasher,
       );
 
@@ -62,7 +73,7 @@ describe('PasswordVO', () => {
       (passwordHasher.compare as jest.Mock).mockReturnValue(false);
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-
+        true,
         passwordHasher,
       );
 
@@ -75,6 +86,7 @@ describe('PasswordVO', () => {
       const valueObject2 = new PasswordVO(
         PasswordConstants.EXEMPLE,
 
+        true,
         passwordHasher,
       );
 

@@ -61,7 +61,7 @@ export const mockLoginUser = (overrides: Partial<LoginUserDTO> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, mockPasswordHasher()),
+    password: new PasswordVO(dto.password, false, mockPasswordHasher()),
   });
 };
 

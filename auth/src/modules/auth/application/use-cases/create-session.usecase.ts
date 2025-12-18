@@ -16,7 +16,6 @@ import { UserLogin } from '../../domain/entities/user-login.entity';
 // Repositories
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
-
 @Injectable()
 export class CreateSessionUseCase {
   constructor(

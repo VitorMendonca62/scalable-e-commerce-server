@@ -33,7 +33,11 @@ export class UpdatePasswordUseCase {
       throw new WrongCredentials('A senha atual informada está incorreta.');
     }
 
-    const newPasswordVO = new PasswordVO(newPassword, this.passwordHasher);
+    const newPasswordVO = new PasswordVO(
+      newPassword,
+      true,
+      this.passwordHasher,
+    );
 
     await this.userRepository.update(user.userID, {
       password: newPasswordVO.getValue(),

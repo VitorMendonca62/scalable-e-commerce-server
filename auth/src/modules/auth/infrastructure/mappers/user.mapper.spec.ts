@@ -46,7 +46,11 @@ describe('UserMapper', () => {
       mapper.loginDTOForEntity(dto);
 
       expect(EmailVO).toHaveBeenCalledWith(dto.email);
-      expect(PasswordVO).toHaveBeenCalledWith(dto.password, passwordHasher);
+      expect(PasswordVO).toHaveBeenCalledWith(
+        dto.password,
+        false,
+        passwordHasher,
+      );
     });
 
     it('should return User with correct types', async () => {

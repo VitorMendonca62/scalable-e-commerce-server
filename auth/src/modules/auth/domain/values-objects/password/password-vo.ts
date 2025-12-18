@@ -5,9 +5,13 @@ import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.por
 export default class PasswordVO extends ValueObject<string> {
   private passwordHasher: PasswordHasher;
 
-  constructor(value: string, passwordHasher: PasswordHasher) {
+  constructor(
+    value: string,
+    canHashPassword: boolean,
+    passwordHasher: PasswordHasher,
+  ) {
     PasswordValidator.validate(value);
-    super(passwordHasher.hash(value));
+    super(canHashPassword ? passwordHasher.hash(value) : value);
     this.passwordHasher = passwordHasher;
   }
 

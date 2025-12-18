@@ -49,7 +49,11 @@ describe('ResetPasswordUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         email,
       });
-      expect(PasswordVO).toHaveBeenCalledWith(newPassword, passwordHasher);
+      expect(PasswordVO).toHaveBeenCalledWith(
+        newPassword,
+        true,
+        passwordHasher,
+      );
       expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
         password: newPassword,
       });

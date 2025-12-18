@@ -28,7 +28,7 @@ export class UserMapper {
   loginDTOForEntity(dto: LoginUserDTO): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, this.passwordHasher),
+      password: new PasswordVO(dto.password, false, this.passwordHasher),
     });
   }
 

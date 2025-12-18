@@ -71,7 +71,11 @@ describe('UpdatePasswordUseCase', () => {
       expect(PasswordHashedVO.prototype.comparePassword).toHaveBeenCalledWith(
         oldPassword,
       );
-      expect(PasswordVO).toHaveBeenCalledWith(newPassword, passwordHasher);
+      expect(PasswordVO).toHaveBeenCalledWith(
+        newPassword,
+        true,
+        passwordHasher,
+      );
       expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
         password: newPassword,
       });
