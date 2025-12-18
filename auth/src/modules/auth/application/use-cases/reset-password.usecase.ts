@@ -17,7 +17,7 @@ export class ResetPasswordUseCase {
     });
 
     if (user == undefined || user == null)
-      throw new WrongCredentials('Token inválido ou expirado');
+      throw new WrongCredentials('Token inválido ou expirado1');
 
     const newPasswordVO = new PasswordVO(
       newPassword,

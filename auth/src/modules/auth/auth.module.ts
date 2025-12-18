@@ -20,7 +20,7 @@ import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtModule } from '@nestjs/jwt';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
-import { ForgotPasswordController } from './infrastructure/adaptars/primary/http/forgot-password.controller';
+import { PasswordController } from './infrastructure/adaptars/primary/http/password.controller';
 import { EmailSender } from './domain/ports/secondary/mail-sender.port';
 import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
 import SendCodeForForgotPasswordUseCase from './application/use-cases/send-code-for-forgot-password.usecase';
@@ -33,8 +33,9 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
 import { UpdatePasswordUseCase } from './application/use-cases/update-password-usecase';
-import { JwtAuthStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-auth.strategy';
+import { JwtRefreshStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-refresh.strategy';
 import { JwtResetPassStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-reset-pass.strategy';
+import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-access.strategy';
 
 @Module({
   imports: [
@@ -84,10 +85,11 @@ import { JwtResetPassStrategy } from './infrastructure/adaptars/primary/http/str
       },
     ]),
   ],
-  controllers: [AuthController, ForgotPasswordController],
+  controllers: [AuthController, PasswordController],
   providers: [
-    JwtAuthStrategy,
+    JwtRefreshStrategy,
     JwtResetPassStrategy,
+    JwtAccessStrategy,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     UserMapper,

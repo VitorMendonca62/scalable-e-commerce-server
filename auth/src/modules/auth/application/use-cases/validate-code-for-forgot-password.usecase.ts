@@ -15,16 +15,16 @@ export default class ValidateCodeForForgotPasswordUseCase {
 
     if (emailCode == undefined || emailCode == null)
       throw new BusinessRuleFailure(
-        'Código de verificação inválido ou expirado. Tente novamente1',
+        'Código de recuperação inválido ou expirado. Tente novamente1',
       );
 
     if (emailCode.expiresIn < new Date())
       throw new BusinessRuleFailure(
-        'Código de verificação inválido ou expirado. Tente novamente2',
+        'Código de recuperação inválido ou expirado. Tente novamente2',
       );
 
     await this.emailCodeRepository.deleteMany(email);
 
-    return this.tokenService.generateResetPassToken({ email });
+    return `Bearer ${this.tokenService.generateResetPassToken({ email })}`;
   }
 }

@@ -6,32 +6,31 @@ import { EnvironmentVariables } from '@config/environment/env.validation';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 
 @Injectable()
-export class JwtResetPassStrategy extends PassportStrategy(
+export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
-  'jwt-reset-pass',
+  'jwt-refresh',
 ) {
   constructor(private configService: ConfigService<EnvironmentVariables>) {
     super({
       jwtFromRequest: (req) => {
         let token = null;
         if (req && req.cookies) {
-          token = req.cookies['reset_pass_token'];
+          token = req.cookies['refresh_token'];
         }
         return token ? token.replace(/Bearer\s+/i, '') : null;
       },
       ignoreExpiration: false,
-      secretOrKey: configService.get<string>('RESET_PASS_SECRET'),
+      secretOrKey: configService.get<string>('AUTH_JWT_SECRET'),
     });
   }
 
   async validate(payload: any) {
     if (payload == undefined || payload == null) {
-      throw new WrongCredentials(
-        'Token de recuperação de senha inválido ou expirado. Realize o processo novamente.',
-      );
+      throw new WrongCredentials('Token inválido ou expirado');
     }
+
     return {
-      email: payload.sub,
+      userID: payload.sub,
     };
   }
 }

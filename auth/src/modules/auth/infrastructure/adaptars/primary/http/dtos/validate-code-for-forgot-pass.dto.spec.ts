@@ -18,7 +18,7 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
   it('should return error when any field is undefined', async () => {
     const requiredFields = {
       email: EmailConstants.ERROR_REQUIRED,
-      code: 'O código de verificação é obrigatório.',
+      code: 'O código de recuperação é obrigatório.',
     };
 
     Object.entries(requiredFields).forEach(async (field) => {
@@ -79,7 +79,7 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
 
     expect(errors).toHaveLength(1);
     expect(fieldError.constraints.isLength).toBe(
-      'O código de verificação deve ter exatamente 6 caracteres.',
+      'O código de recuperação deve ter exatamente 6 caracteres.',
     );
   });
 });

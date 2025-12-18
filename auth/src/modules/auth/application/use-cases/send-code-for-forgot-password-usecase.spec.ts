@@ -75,7 +75,7 @@ describe('GetAccessTokenUseCase', () => {
       expect(emailSender.send).toHaveBeenCalledWith(
         email,
         emailFrom,
-        'Seu Código de Verificação',
+        'Seu Código de recuperação',
         'forgot-password-email',
         {
           code: OTPCode,

@@ -1,7 +1,7 @@
 import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
-import { ForgotPasswordController } from './forgot-password.controller';
+import { PasswordController } from './password.controller';
 import { Request, Response } from 'express';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
@@ -11,8 +11,8 @@ import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tes
 import { HttpAcceptedResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 
-describe('ForgotPasswordController', () => {
-  let controller: ForgotPasswordController;
+describe('PasswordController', () => {
+  let controller: PasswordController;
 
   let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
   let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
@@ -25,7 +25,7 @@ describe('ForgotPasswordController', () => {
     resetPasswordUseCase = { execute: jest.fn() } as any;
     updatePasswordUseCase = { execute: jest.fn() } as any;
 
-    controller = new ForgotPasswordController(
+    controller = new PasswordController(
       sendCodeForForgotPasswordUseCase,
       validateCodeForForgotPasswordUseCase,
       resetPasswordUseCase,

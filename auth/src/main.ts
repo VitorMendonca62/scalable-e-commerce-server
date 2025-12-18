@@ -5,6 +5,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
 import { EnvironmentVariables } from './config/environment/env.validation';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -56,6 +57,8 @@ async function bootstrap() {
 
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');
+
+  app.use(cookieParser());
 
   await app
     .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))

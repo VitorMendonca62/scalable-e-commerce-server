@@ -24,7 +24,7 @@ export default class SendCodeForForgotPasswordUseCase {
     await this.emailSender.send(
       email,
       this.configService.get<string>('EMAIL_FROM_FOR_FORGOT_PASSWORD'),
-      'Seu Código de Verificação',
+      'Seu Código de recuperação',
       'forgot-password-email',
       {
         code: OTPCode,

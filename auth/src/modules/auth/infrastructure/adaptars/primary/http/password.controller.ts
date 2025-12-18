@@ -19,17 +19,17 @@ import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/va
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import {
-  HttpAcceptedResponse,
+  HttpOKResponse,
   HttpResponseOutbound,
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordDTO } from './dtos/update-password.dto';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
-import { JWTAuthGuard } from './guards/jwt-auth.guard';
 import { JWTResetPassGuard } from './guards/jwt-reset-pass.guard';
+import { JWTAccessGuard } from './guards/jwt-access.guard';
 
 @Controller('auth/pass')
-@ApiTags('ForgotPasswordController')
-export class ForgotPasswordController {
+@ApiTags('PasswordController')
+export class PasswordController {
   constructor(
     private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
     private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
@@ -52,29 +52,28 @@ export class ForgotPasswordController {
   }
 
   @Post('/validate-code')
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   // TODO: Fazer documentacao
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
-    @Res() response: Response,
-  ): Promise<void> {
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<HttpResponseOutbound> {
     const token = await this.validateCodeForForgotPasswordUseCase.execute(
       dto.code,
       dto.email,
     );
-    response.cookie('reset_token', token, {
+    response.cookie('reset_pass_token', token, {
       httpOnly: true,
-      maxAge: 600000,
+      maxAge: 1000 * 60 * 10,
       path: '/',
     });
-    response.redirect(
-      HttpStatus.SEE_OTHER,
-      'https://github.com/VitorMendonca62',
+    return new HttpOKResponse(
+      'Seu código de recuperação de senha foi validado com sucesso.',
     );
   }
 
   @Patch('/reset-pass')
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.SEE_OTHER)
   // TODO: Fazer documentacao
   @UseGuards(JWTResetPassGuard)
   async resetPassword(
@@ -92,9 +91,9 @@ export class ForgotPasswordController {
   }
 
   @Patch('/')
-  @HttpCode(HttpStatus.ACCEPTED)
+  @HttpCode(HttpStatus.OK)
   // TODO: Fazer documentacao
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(JWTAccessGuard)
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,
     @Req() request: Request,
@@ -106,6 +105,6 @@ export class ForgotPasswordController {
       dto.newPassword,
       dto.oldPassword,
     );
-    return new HttpAcceptedResponse('A senha do usuário foi atualizada!');
+    return new HttpOKResponse('A senha do usuário foi atualizada!');
   }
 }

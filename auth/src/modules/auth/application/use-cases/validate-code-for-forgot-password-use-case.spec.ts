@@ -69,7 +69,7 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
 
       expect(useCase.execute(code, email)).rejects.toThrow(
         new BusinessRuleFailure(
-          'Código de verificação inválido ou expirado. Tente novamente',
+          'Código de recuperação inválido ou expirado. Tente novamente',
         ),
       );
     });
@@ -83,7 +83,7 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
 
       expect(useCase.execute(code, email)).rejects.toThrow(
         new BusinessRuleFailure(
-          'Código de verificação inválido ou expirado. Tente novamente',
+          'Código de recuperação inválido ou expirado. Tente novamente',
         ),
       );
     });

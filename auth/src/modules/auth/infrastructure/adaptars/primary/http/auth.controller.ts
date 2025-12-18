@@ -8,13 +8,14 @@ import {
   Get,
   UseGuards,
   Req,
+  Res,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 
 // Guards
-import { JWTAuthGuard } from './guards/jwt-auth.guard';
+import { JWTRefreshGuard } from './guards/jwt-refresh.guard';
 
 // DTO's
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -32,7 +33,7 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -46,25 +47,45 @@ export class AuthController {
   @Post('/login')
   @HttpCode(HttpStatus.CREATED)
   @ApiLoginUser()
-  async login(@Body() dto: LoginUserDTO): Promise<HttpResponseOutbound> {
-    return new HttpCreatedResponse(
-      'Usuário realizou login com sucesso',
-      await this.createSessionUseCase.execute(
-        this.userMapper.loginDTOForEntity(dto),
-      ),
+  async login(
+    @Body() dto: LoginUserDTO,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<HttpResponseOutbound> {
+    const token = await this.createSessionUseCase.execute(
+      this.userMapper.loginDTOForEntity(dto),
     );
+    const { accessToken, refreshToken } = token;
+    response.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7,
+      path: '/',
+    });
+
+    response.cookie('access_token', accessToken, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60,
+      path: '/',
+    });
+
+    return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
 
   @Get('/token')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTAuthGuard)
+  @UseGuards(JWTRefreshGuard)
   @ApiGetAccessToken()
-  async getAccessToken(@Req() request: Request): Promise<HttpResponseOutbound> {
+  async getAccessToken(
+    @Req() request: Request,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<HttpResponseOutbound> {
     const { userID } = request.user as any;
 
-    return new HttpOKResponse(
-      'Aqui está seu token de acesso',
-      await this.getAccessTokenUseCase.execute(userID),
-    );
+    const token = await this.getAccessTokenUseCase.execute(userID);
+    response.cookie('access_token', token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60,
+      path: '/',
+    });
+    return new HttpOKResponse('Seu token de acesso foi renovado');
   }
 }

@@ -25,6 +25,12 @@ export class HttpOKResponse extends HttpResponseOutbound {
   }
 }
 
+export class HttpNoContentResponse extends HttpResponseOutbound {
+  constructor() {
+    super(HttpStatus.NO_CONTENT, undefined, undefined);
+  }
+}
+
 export class HttpAcceptedResponse extends HttpResponseOutbound {
   constructor(message: string = 'Accepted!', data: any = undefined) {
     super(HttpStatus.ACCEPTED, message, data);
