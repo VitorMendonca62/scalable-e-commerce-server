@@ -14,7 +14,7 @@ import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.d
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 
 // Guards
-import { AuthGuard } from '@nestjs/passport';
+import { JWTAuthGuard } from './guards/jwt-auth.guard';
 
 // DTO's
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -57,7 +57,7 @@ export class AuthController {
 
   @Get('/token')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard('jwt-auth'))
+  @UseGuards(JWTAuthGuard)
   @ApiGetAccessToken()
   async getAccessToken(@Req() request: Request): Promise<HttpResponseOutbound> {
     const { userID } = request.user as any;

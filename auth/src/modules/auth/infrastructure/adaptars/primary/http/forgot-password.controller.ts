@@ -25,6 +25,8 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordDTO } from './dtos/update-password.dto';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
+import { JWTAuthGuard } from './guards/jwt-auth.guard';
+import { JWTResetPassGuard } from './guards/jwt-reset-pass.guard';
 
 @Controller('auth/pass')
 @ApiTags('ForgotPasswordController')
@@ -69,7 +71,7 @@ export class ForgotPasswordController {
   @Patch('/reset-pass')
   @HttpCode(HttpStatus.ACCEPTED)
   // TODO: Fazer documentacao
-  @UseGuards(AuthGuard('jwt-reset-pass'))
+  @UseGuards(JWTResetPassGuard)
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
     @Req() request: Request,
@@ -84,7 +86,7 @@ export class ForgotPasswordController {
   @Patch('/')
   @HttpCode(HttpStatus.ACCEPTED)
   // TODO: Fazer documentacao
-  @UseGuards(AuthGuard('jwt-auth'))
+  @UseGuards(JWTAuthGuard)
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,
     @Req() request: Request,

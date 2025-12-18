@@ -16,12 +16,12 @@ export class JwtAuthStrategy extends PassportStrategy(Strategy, 'jwt-auth') {
   }
 
   async validate(payload: any) {
-    if (!payload) {
+    if (payload == undefined || payload == null) {
       throw new WrongCredentials('Token inválido ou expirado');
     }
 
     return {
-      userID: payload.userID,
+      userID: payload.sub,
     };
   }
 }

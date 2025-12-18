@@ -19,7 +19,7 @@ export class JwtResetPassStrategy extends PassportStrategy(
   }
 
   async validate(payload: any) {
-    if (!payload) {
+    if (payload == undefined || payload == null) {
       throw new WrongCredentials('Token inválido ou expirado');
     }
 
