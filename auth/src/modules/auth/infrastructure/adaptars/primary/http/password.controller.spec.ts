@@ -8,7 +8,7 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-helper';
-import { HttpAcceptedResponse } from '@auth/domain/ports/primary/http/sucess.port';
+import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 
 describe('PasswordController', () => {
@@ -67,7 +67,7 @@ describe('PasswordController', () => {
 
       expect(expressResponse.redirect).toHaveBeenCalledWith(
         HttpStatus.SEE_OTHER,
-        '/auth/confirm-code',
+        'https://github.com/VitorMendonca62',
       );
     });
 
@@ -114,7 +114,7 @@ describe('PasswordController', () => {
       await controller.validateCode(dto, expressResponse);
 
       expect(expressResponse.cookie).toHaveBeenCalledWith(
-        'reset_token',
+        'reset_pass_token',
         'token',
         {
           httpOnly: true,
@@ -129,12 +129,13 @@ describe('PasswordController', () => {
         .spyOn(validateCodeForForgotPasswordUseCase, 'execute')
         .mockResolvedValue('token');
 
-      await controller.validateCode(dto, expressResponse);
+      const result = await controller.validateCode(dto, expressResponse);
 
-      expect(expressResponse.redirect).toHaveBeenCalledWith(
-        HttpStatus.SEE_OTHER,
-        '/auth/restore-password',
-      );
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Seu código de recuperação de senha foi validado com sucesso.',
+      });
     });
 
     it('should throw error if validateCodeForForgotPasswordUseCase throws error', async () => {
@@ -184,7 +185,7 @@ describe('PasswordController', () => {
 
       expect(response.redirect).toHaveBeenCalledWith(
         HttpStatus.SEE_OTHER,
-        '/auth/login',
+        'https://github.com/VitorMendonca62',
       );
     });
 
@@ -223,9 +224,9 @@ describe('PasswordController', () => {
 
     it('should return HttpOKResponse on success', async () => {
       const response = await controller.updatePassword(dto, request);
-      expect(response).toBeInstanceOf(HttpAcceptedResponse);
+      expect(response).toBeInstanceOf(HttpOKResponse);
       expect(response).toEqual({
-        statusCode: HttpStatus.ACCEPTED,
+        statusCode: HttpStatus.OK,
         message: 'A senha do usuário foi atualizada!',
       });
     });

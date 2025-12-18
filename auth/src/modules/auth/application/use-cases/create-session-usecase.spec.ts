@@ -86,7 +86,6 @@ describe('CreateSessionUseCase', () => {
       expect(response).toEqual({
         accessToken: 'Bearer TOKEN',
         refreshToken: 'Bearer TOKEN',
-        type: 'Bearer',
       });
     });
 

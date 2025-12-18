@@ -15,12 +15,12 @@ export default class ValidateCodeForForgotPasswordUseCase {
 
     if (emailCode == undefined || emailCode == null)
       throw new BusinessRuleFailure(
-        'Código de recuperação inválido ou expirado. Tente novamente1',
+        'Código de recuperação inválido ou expirado. Tente novamente',
       );
 
     if (emailCode.expiresIn < new Date())
       throw new BusinessRuleFailure(
-        'Código de recuperação inválido ou expirado. Tente novamente2',
+        'Código de recuperação inválido ou expirado. Tente novamente',
       );
 
     await this.emailCodeRepository.deleteMany(email);

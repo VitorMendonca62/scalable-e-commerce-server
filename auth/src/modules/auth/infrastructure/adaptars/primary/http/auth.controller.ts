@@ -57,13 +57,13 @@ export class AuthController {
     const { accessToken, refreshToken } = token;
     response.cookie('refresh_token', refreshToken, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24 * 7,
+      maxAge: 604800000, // 7D,
       path: '/',
     });
 
     response.cookie('access_token', accessToken, {
       httpOnly: true,
-      maxAge: 1000 * 60 * 60,
+      maxAge: 3600000, // 1h,
       path: '/',
     });
 

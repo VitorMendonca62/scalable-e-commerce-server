@@ -10,7 +10,7 @@ export class GetAccessTokenUseCase {
     private readonly tokenService: TokenService,
   ) {}
 
-  async execute(userID: string): Promise<string> {
+  async execute(userID: string): Promise<`Bearer ${string}`> {
     const user = await this.userRepository.findOne({ userID });
 
     if (user == undefined || user == null) {

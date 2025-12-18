@@ -11,7 +11,7 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('AuthController', () => {
@@ -21,6 +21,8 @@ describe('AuthController', () => {
   let getAccessTokenUseCase: GetAccessTokenUseCase;
 
   let userMapper: UserMapper;
+
+  let response: Response;
 
   beforeEach(async () => {
     userMapper = {
@@ -34,6 +36,10 @@ describe('AuthController', () => {
       createSessionUseCase,
       getAccessTokenUseCase,
     );
+
+    response = {
+      cookie: jest.fn(),
+    } as any;
   });
 
   it('should be defined', () => {
@@ -48,33 +54,52 @@ describe('AuthController', () => {
     const dto = mockLoginUserDTO();
 
     beforeEach(() => {
-      jest.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        accessToken: `Bearer <accessToken>>`,
-        refreshToken: `Bearer <refreshToken>`,
-        type: 'Bearer',
-      });
       jest.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
+
+      jest.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+        accessToken: `Bearer <accessToken>`,
+        refreshToken: `Bearer <refreshToken>`,
+      });
     });
 
     it('should call createSessionUseCase.execute with mapped DTO', async () => {
-      await controller.login(dto);
+      await controller.login(dto, response);
 
       expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
       expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
     });
 
-    it('should return HttpCreatedResponse on success', async () => {
-      const response = await controller.login(dto);
+    it('should set access token and refresh token on cookies', async () => {
+      await controller.login(dto, response);
 
-      expect(response).toBeInstanceOf(HttpCreatedResponse);
-      expect(response).toEqual({
+      expect(response.cookie).toHaveBeenNthCalledWith(
+        1,
+        'refresh_token',
+        'Bearer <refreshToken>',
+        {
+          httpOnly: true,
+          maxAge: 604800000,
+          path: '/',
+        },
+      );
+      expect(response.cookie).toHaveBeenLastCalledWith(
+        'access_token',
+        'Bearer <accessToken>',
+        {
+          httpOnly: true,
+          maxAge: 3600000,
+          path: '/',
+        },
+      );
+    });
+
+    it('should return HttpCreatedResponse on success', async () => {
+      const result = await controller.login(dto, response);
+
+      expect(result).toBeInstanceOf(HttpCreatedResponse);
+      expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
         message: 'Usuário realizou login com sucesso',
-        data: {
-          accessToken: `Bearer <accessToken>>`,
-          refreshToken: `Bearer <refreshToken>`,
-          type: 'Bearer',
-        },
       });
     });
 
@@ -83,7 +108,9 @@ describe('AuthController', () => {
         .spyOn(createSessionUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.login(dto)).rejects.toThrow('Erro no use case');
+      await expect(controller.login(dto, response)).rejects.toThrow(
+        'Erro no use case',
+      );
     });
   });
 
@@ -93,7 +120,7 @@ describe('AuthController', () => {
     beforeEach(() => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
-        .mockResolvedValue('Bearer refreshToken');
+        .mockResolvedValue('Bearer <accessToken>');
       request = {
         user: {
           userID: IDConstants.EXEMPLE,
@@ -102,21 +129,34 @@ describe('AuthController', () => {
     });
 
     it('should call getAccessToken.execute with userId', async () => {
-      await controller.getAccessToken(request);
+      await controller.getAccessToken(request, response);
 
       expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
         IDConstants.EXEMPLE,
       );
     });
 
-    it('should return HttpOKResponse on success', async () => {
-      const response = await controller.getAccessToken(request);
+    it('should set access token on cookies', async () => {
+      await controller.getAccessToken(request, response);
 
-      expect(response).toBeInstanceOf(HttpOKResponse);
-      expect(response).toEqual({
+      expect(response.cookie).toHaveBeenCalledWith(
+        'access_token',
+        'Bearer <accessToken>',
+        {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60,
+          path: '/',
+        },
+      );
+    });
+
+    it('should return HttpOKResponse on success', async () => {
+      const result = await controller.getAccessToken(request, response);
+
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
         statusCode: HttpStatus.OK,
-        message: 'Aqui está seu token de acesso',
-        data: 'Bearer refreshToken',
+        message: 'Seu token de acesso foi renovado',
       });
     });
 
@@ -125,9 +165,9 @@ describe('AuthController', () => {
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.getAccessToken(request)).rejects.toThrow(
-        'Erro no use case',
-      );
+      await expect(
+        controller.getAccessToken(request, response),
+      ).rejects.toThrow('Erro no use case');
     });
   });
 });
