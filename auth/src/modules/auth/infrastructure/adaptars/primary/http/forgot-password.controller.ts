@@ -6,13 +6,19 @@ import {
   HttpStatus,
   Body,
   Res,
+  Patch,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
 import { ApiSendCodeforForgotPassword } from './decorators/docs/api-send-code-for-forgot-password.decorator';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgot-pass.dto';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
+import { ResetPasswordDTO } from './dtos/reset-password.dto';
+import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('pass')
 @ApiTags('ForgotPasswordController')
@@ -20,6 +26,7 @@ export class ForgotPasswordController {
   constructor(
     private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
     private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
+    private readonly resetPasswordUseCase: ResetPasswordUseCase,
   ) {}
 
   @Post('/send-code')
@@ -35,6 +42,7 @@ export class ForgotPasswordController {
 
   @Post('/validate-code')
   @HttpCode(HttpStatus.CREATED)
+  // TODO: Fazer documentacao
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
     @Res() response: Response,
@@ -49,5 +57,19 @@ export class ForgotPasswordController {
       path: '/',
     });
     response.redirect(HttpStatus.SEE_OTHER, '/auth/restore-password');
+  }
+
+  @Patch('/reset-pass')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @UseGuards(AuthGuard('jwt-reset-pass'))
+  async resetPassword(
+    @Body() dto: ResetPasswordDTO,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const { email } = request.user as any;
+
+    await this.resetPasswordUseCase.execute(email, dto.newPassword);
+    response.redirect(HttpStatus.SEE_OTHER, '/auth/login');
   }
 }

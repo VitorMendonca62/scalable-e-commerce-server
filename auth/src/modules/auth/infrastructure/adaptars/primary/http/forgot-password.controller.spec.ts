@@ -2,22 +2,27 @@ import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-c
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
 import { ForgotPasswordController } from './forgot-password.controller';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
+import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
+import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 
 describe('ForgotPasswordController', () => {
   let controller: ForgotPasswordController;
 
   let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
   let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
+  let resetPasswordUseCase: ResetPasswordUseCase;
 
   beforeEach(async () => {
     sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     validateCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
+    resetPasswordUseCase = { execute: jest.fn() } as any;
 
     controller = new ForgotPasswordController(
       sendCodeForForgotPasswordUseCase,
       validateCodeForForgotPasswordUseCase,
+      resetPasswordUseCase,
     );
   });
 
@@ -25,6 +30,7 @@ describe('ForgotPasswordController', () => {
     expect(controller).toBeDefined();
     expect(sendCodeForForgotPasswordUseCase).toBeDefined();
     expect(validateCodeForForgotPasswordUseCase).toBeDefined();
+    expect(resetPasswordUseCase).toBeDefined();
   });
 
   describe('sendCode', () => {
@@ -130,6 +136,57 @@ describe('ForgotPasswordController', () => {
 
       await expect(
         controller.validateCode(dto, expressResponse),
+      ).rejects.toThrow('Erro no use case');
+    });
+  });
+
+  describe('sendCode', () => {
+    let response: Response;
+    let request: Request;
+
+    const email = EmailConstants.EXEMPLE;
+    const newPassword = PasswordConstants.EXEMPLE;
+    const dto = { newPassword };
+
+    beforeEach(() => {
+      response = {
+        redirect: jest.fn(),
+      } as any;
+
+      request = {
+        user: {
+          email: EmailConstants.EXEMPLE,
+        },
+      } as any;
+
+      jest.spyOn(response, 'redirect').mockReturnValue(undefined);
+    });
+
+    it('should call resetPasswordUseCase.execute with email and new password', async () => {
+      await controller.resetPassword(dto, request, response);
+
+      expect(resetPasswordUseCase.execute).toHaveBeenCalledWith(
+        email,
+        newPassword,
+      );
+    });
+
+    it('should redirect on success', async () => {
+      await controller.resetPassword(dto, request, response);
+
+      expect(response.redirect).toHaveBeenCalledWith(
+        HttpStatus.SEE_OTHER,
+        '/auth/login',
+      );
+    });
+
+    it('should throw error if resetPasswordUseCase throws error', async () => {
+      jest
+        .spyOn(resetPasswordUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(
+        controller.resetPassword(dto, request, response),
       ).rejects.toThrow('Erro no use case');
     });
   });

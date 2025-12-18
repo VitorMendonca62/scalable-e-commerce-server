@@ -1,7 +1,7 @@
 import { HttpStatus } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
-import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token';
+import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token.usecase';
 import {
   mockLoginUser,
   mockLoginUserDTO,
@@ -11,6 +11,8 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
+import { Request } from 'express';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -86,14 +88,21 @@ describe('AuthController', () => {
   });
 
   describe('getAccessToken', () => {
+    let request: Request;
+
     beforeEach(() => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockResolvedValue('Bearer refreshToken');
+      request = {
+        user: {
+          userID: IDConstants.EXEMPLE,
+        },
+      } as any;
     });
 
     it('should return HttpOKResponse on success', async () => {
-      const response = await controller.getAccessToken('Bearer refreshToken');
+      const response = await controller.getAccessToken(request);
 
       expect(response).toBeInstanceOf(HttpOKResponse);
       expect(response).toEqual({
@@ -108,9 +117,9 @@ describe('AuthController', () => {
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(
-        controller.getAccessToken('Bearer refreshToken'),
-      ).rejects.toThrow('Erro no use case');
+      await expect(controller.getAccessToken(request)).rejects.toThrow(
+        'Erro no use case',
+      );
     });
   });
 });

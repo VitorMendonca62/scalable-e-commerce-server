@@ -7,17 +7,14 @@ import {
   Body,
   Get,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
-import { AuthorizationToken } from './decorators/get-value/authorization-token.decorator';
 
 // Guards
-import { AuthGuard } from './guards/auth.guard';
-
-// Pipes
-import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
+import { AuthGuard } from '@nestjs/passport';
 
 // DTO's
 import { LoginUserDTO } from './dtos/login-user.dto';
@@ -27,7 +24,7 @@ import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 
 // Use Cases
 import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
-import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token';
+import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token.usecase';
 
 // Ports
 import {
@@ -35,6 +32,7 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
+import { Request } from 'express';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -59,12 +57,11 @@ export class AuthController {
 
   @Get('/token')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard('jwt-auth'))
   @ApiGetAccessToken()
-  async getAccessToken(
-    @AuthorizationToken('authorization', IdInTokenPipe)
-    userID: string,
-  ): Promise<HttpResponseOutbound> {
+  async getAccessToken(@Req() request: Request): Promise<HttpResponseOutbound> {
+    const { userID } = request.user as any;
+
     return new HttpOKResponse(
       'Aqui está seu token de acesso',
       await this.getAccessTokenUseCase.execute(userID),
