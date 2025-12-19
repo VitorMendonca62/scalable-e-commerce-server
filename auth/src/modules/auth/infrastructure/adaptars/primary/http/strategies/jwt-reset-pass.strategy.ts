@@ -27,7 +27,7 @@ export class JwtResetPassStrategy extends PassportStrategy(
   async validate(payload: any) {
     if (payload == undefined || payload == null) {
       throw new WrongCredentials(
-        'Token de recuperação de senha inválido ou expirado. Realize o processo novamente.',
+        'Sessão inválida. Realize o processo de recupeção de senha novamente.',
       );
     }
     return {

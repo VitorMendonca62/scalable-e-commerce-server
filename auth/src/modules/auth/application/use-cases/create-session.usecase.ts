@@ -16,10 +16,12 @@ import { UserLogin } from '../../domain/entities/user-login.entity';
 // Repositories
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 @Injectable()
 export class CreateSessionUseCase {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly tokenRepository: TokenRepository,
     private readonly tokenService: TokenService,
     private readonly userMapper: UserMapper,
   ) {}
@@ -47,8 +49,14 @@ export class CreateSessionUseCase {
       userID: user.userID.getValue(),
       roles: user.roles,
     });
-    const refreshToken = this.tokenService.generateRefreshToken(
+    const { refreshToken, tokenID } = this.tokenService.generateRefreshToken(
       user.userID.getValue(),
+    );
+
+    await this.tokenRepository.saveSession(
+      tokenID,
+      userJSON.userID,
+      inputUser.ip,
     );
 
     return {

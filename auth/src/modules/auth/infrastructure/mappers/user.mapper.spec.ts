@@ -41,9 +41,10 @@ describe('UserMapper', () => {
 
   describe('loginDTOForEntity', () => {
     const dto = mockLoginUserDTO();
+    const ip = '120.0.0.0';
 
     it('should call VOs with correct parameters', async () => {
-      mapper.loginDTOForEntity(dto);
+      mapper.loginDTOForEntity(dto, ip);
 
       expect(EmailVO).toHaveBeenCalledWith(dto.email);
       expect(PasswordVO).toHaveBeenCalledWith(
@@ -54,14 +55,14 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct types', async () => {
-      const user = mapper.loginDTOForEntity(dto);
+      const user = mapper.loginDTOForEntity(dto, ip);
 
       expect(user).toBeInstanceOf(UserLogin);
       expect(user.password).toBeInstanceOf(PasswordVO);
     });
 
     it('should return User with correct fields', async () => {
-      const user = mapper.loginDTOForEntity(dto);
+      const user = mapper.loginDTOForEntity(dto, ip);
 
       expect(user.email.getValue()).toBe(dto.email);
     });
@@ -74,7 +75,7 @@ describe('UserMapper', () => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
-        expect(() => mapper.loginDTOForEntity(dto)).toThrow(
+        expect(() => mapper.loginDTOForEntity(dto, ip)).toThrow(
           `Campo inválido - ${index}`,
         );
         (VO as jest.Mock).mockRestore();

@@ -8,6 +8,8 @@ import { validateENV } from '@config/environment/env.validate';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { configMongoDB } from '@config/database/mongo.config';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
+import { configRedisdDB } from '@config/database/redis.config';
+import { RedisModule } from '@nestjs-modules/ioredis';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -18,6 +20,12 @@ import { configNodeMailer } from '@config/smtp/nodemailer.config';
     MongooseModule.forRootAsync({
       useFactory: (configService: ConfigService<EnvironmentVariables>) => {
         return configMongoDB(configService);
+      },
+      inject: [ConfigService],
+    }),
+    RedisModule.forRootAsync({
+      useFactory: (configService: ConfigService<EnvironmentVariables>) => {
+        return configRedisdDB(configService);
       },
       inject: [ConfigService],
     }),

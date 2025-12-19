@@ -3,6 +3,7 @@ import {
   WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
@@ -13,7 +14,9 @@ export class UpdatePasswordUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
+    private readonly tokenRepository: TokenRepository,
   ) {}
+
   async execute(
     userID: string,
     newPassword: string,
@@ -42,5 +45,7 @@ export class UpdatePasswordUseCase {
     await this.userRepository.update(user.userID, {
       password: newPasswordVO.getValue(),
     });
+
+    this.tokenRepository.revokeAllSessions(user.userID);
   }
 }

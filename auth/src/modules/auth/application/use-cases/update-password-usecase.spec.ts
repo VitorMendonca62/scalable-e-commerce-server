@@ -13,12 +13,14 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { UpdatePasswordUseCase } from './update-password-usecase';
 import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 describe('UpdatePasswordUseCase', () => {
   let useCase: UpdatePasswordUseCase;
 
   let userRepository: UserRepository;
   let passwordHasher: PasswordHasher;
+  let tokenRepository: TokenRepository;
 
   beforeEach(async () => {
     userRepository = {
@@ -27,14 +29,22 @@ describe('UpdatePasswordUseCase', () => {
     } as any;
 
     passwordHasher = {} as any;
+    tokenRepository = {
+      revokeAllSessions: jest.fn(),
+    } as any;
 
-    useCase = new UpdatePasswordUseCase(userRepository, passwordHasher);
+    useCase = new UpdatePasswordUseCase(
+      userRepository,
+      passwordHasher,
+      tokenRepository,
+    );
   });
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
     expect(passwordHasher).toBeDefined();
+    expect(tokenRepository).toBeDefined();
   });
 
   describe('execute', () => {
@@ -79,6 +89,10 @@ describe('UpdatePasswordUseCase', () => {
       expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
         password: newPassword,
       });
+
+      expect(tokenRepository.revokeAllSessions).toHaveBeenCalledWith(
+        user.userID,
+      );
     });
 
     it('should throw NotFoundUser when user does not exist', async () => {

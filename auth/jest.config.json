@@ -13,7 +13,8 @@
     "!src/**/*.config.ts",
     "!src/**/env.validation.ts",
     "!src/**/*.port.ts",
-    "!src/config/environment/utils.ts"
+    "!src/config/environment/utils.ts",
+    "!src/**/database/models/*.ts"
   ],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",

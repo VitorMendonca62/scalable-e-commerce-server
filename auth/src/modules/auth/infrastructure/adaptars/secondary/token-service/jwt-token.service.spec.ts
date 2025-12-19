@@ -4,6 +4,12 @@ import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
 
+jest.mock('uuid', () => {
+  return { __esModule: true, v7: jest.fn() };
+});
+import { v7 } from 'uuid';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+
 describe('JwtTokenService', () => {
   let service: JwtTokenService;
   let jwtService: JwtService;
@@ -35,6 +41,8 @@ describe('JwtTokenService', () => {
 
   describe('generateRefreshToken', () => {
     beforeEach(async () => {
+      (v7 as jest.Mock).mockReturnValue(IDConstants.EXEMPLE);
+
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
     });
 
@@ -43,6 +51,7 @@ describe('JwtTokenService', () => {
 
       const playload = {
         sub: userId,
+        jti: IDConstants.EXEMPLE,
         type: 'refresh',
       };
 
@@ -51,11 +60,14 @@ describe('JwtTokenService', () => {
       });
     });
 
-    it('should return token', async () => {
+    it('should return token and tokenID', async () => {
       const result = service.generateRefreshToken(userId);
 
-      expect(typeof result).toBe('string');
-      expect(result).toBe(token);
+      expect(typeof result).toBe('object');
+      expect(result).toEqual({
+        refreshToken: token,
+        tokenID: IDConstants.EXEMPLE,
+      });
     });
   });
 

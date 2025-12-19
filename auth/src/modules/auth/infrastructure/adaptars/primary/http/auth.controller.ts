@@ -83,9 +83,9 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<HttpResponseOutbound> {
-    const { userID } = request.user as any;
+    const { userID, tokenID } = request.user as any;
 
-    const token = await this.getAccessTokenUseCase.execute(userID);
+    const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
     response.cookie('access_token', token, {
       httpOnly: true,
       maxAge: 1000 * 60 * 60,
@@ -106,6 +106,7 @@ export class AuthController {
 
     await this.finishSessionUseCase.execute(tokenID, userID);
     response.clearCookie('refresh_token');
+    response.clearCookie('access_token');
 
     return new HttpNoContentResponse();
   }

@@ -1,5 +1,6 @@
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { Injectable } from '@nestjs/common';
@@ -9,6 +10,7 @@ export class ResetPasswordUseCase {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
+    private readonly tokenRepository: TokenRepository,
   ) {}
 
   async execute(email: string, newPassword: string): Promise<void> {
@@ -28,5 +30,7 @@ export class ResetPasswordUseCase {
     await this.userRepository.update(user.userID, {
       password: newPasswordVO.getValue(),
     });
+
+    this.tokenRepository.revokeAllSessions(user.userID);
   }
 }

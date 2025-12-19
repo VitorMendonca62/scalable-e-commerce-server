@@ -22,43 +22,56 @@ describe('JwtAccessStrategy', () => {
     expect(configService).toBeDefined();
   });
 
-  it('should validate payload and return userID', async () => {
-    const payload = { sub: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
+  describe('validate', () => {
+    it('should validate payload and return userID', async () => {
+      const payload = {
+        sub: IDConstants.EXEMPLE,
+        email: EmailConstants.EXEMPLE,
+      };
 
-    const result = await strategy.validate(payload);
+      const result = await strategy.validate(payload);
 
-    expect(result).toEqual({ userID: IDConstants.EXEMPLE });
+      expect(result).toEqual({ userID: IDConstants.EXEMPLE });
+    });
+
+    it('should throw WrongCredentials if payload is undefined ', async () => {
+      await expect(strategy.validate(undefined)).rejects.toThrow(
+        new WrongCredentials('Token inválido ou expirado'),
+      );
+    });
+
+    it('should throw WrongCredentials if payload is null ', async () => {
+      await expect(strategy.validate(null)).rejects.toThrow(
+        new WrongCredentials('Token inválido ou expirado'),
+      );
+    });
   });
 
-  it('should throw WrongCredentials if payload is undefined or null ', async () => {
-    await expect(strategy.validate(null)).rejects.toThrow(
-      new WrongCredentials('Token inválido ou expirado'),
-    );
-  });
+  describe('jwtFromRequest', () => {
+    it('should extract access token in cookies', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-  it('should extract access token in cookies', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
+      const mockRequest = {
+        cookies: {
+          access_token: 'Bearer token-value',
+        },
+      } as any;
 
-    const mockRequest = {
-      cookies: {
-        access_token: 'Bearer token-value',
-      },
-    } as any;
+      const token = extractFunction(mockRequest);
 
-    const token = extractFunction(mockRequest);
+      expect(token).toBe('token-value');
+    });
 
-    expect(token).toBe('token-value');
-  });
+    it('should return null when extract failure access token in cookies ', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-  it('should return null when extract failure access token in cookies ', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
+      const mockRequest = {
+        cookies: undefined,
+      } as any;
 
-    const mockRequest = {
-      cookies: undefined,
-    } as any;
+      const token = extractFunction(mockRequest);
 
-    const token = extractFunction(mockRequest);
-
-    expect(token).toBeNull();
+      expect(token).toBeNull();
+    });
   });
 });

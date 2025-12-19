@@ -16,6 +16,7 @@ import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 
 // Function
 import { CreateSessionUseCase } from './create-session.usecase';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -23,6 +24,7 @@ describe('CreateSessionUseCase', () => {
   let userRepository: UserRepository;
   let tokenService: TokenService;
   let userMapper: UserMapper;
+  let tokenRepository: TokenRepository;
 
   beforeEach(async () => {
     userRepository = {
@@ -38,8 +40,13 @@ describe('CreateSessionUseCase', () => {
       jsonToUser: jest.fn(),
     } as any;
 
+    tokenRepository = {
+      saveSession: jest.fn(),
+    } as any;
+
     useCase = new CreateSessionUseCase(
       userRepository,
+      tokenRepository,
       tokenService,
       userMapper,
     );
@@ -48,6 +55,7 @@ describe('CreateSessionUseCase', () => {
   it('should be defined', () => {
     expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
+    expect(tokenRepository).toBeDefined();
     expect(tokenService).toBeDefined();
     expect(userMapper).toBeDefined();
   });
@@ -61,7 +69,10 @@ describe('CreateSessionUseCase', () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(userJSON);
       jest.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
       jest.spyOn(tokenService, 'generateAccessToken').mockReturnValue('TOKEN');
-      jest.spyOn(tokenService, 'generateRefreshToken').mockReturnValue('TOKEN');
+      jest.spyOn(tokenService, 'generateRefreshToken').mockReturnValue({
+        refreshToken: 'TOKEN',
+        tokenID: IDConstants.EXEMPLE,
+      });
       jest.spyOn(user.password, 'comparePassword').mockReturnValue(true);
     });
 
@@ -87,6 +98,11 @@ describe('CreateSessionUseCase', () => {
         accessToken: 'Bearer TOKEN',
         refreshToken: 'Bearer TOKEN',
       });
+      expect(tokenRepository.saveSession).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+        IDConstants.EXEMPLE,
+        '122.0.0.0',
+      );
     });
 
     it('should throw WrongCredentials exception when user does not exists', async () => {

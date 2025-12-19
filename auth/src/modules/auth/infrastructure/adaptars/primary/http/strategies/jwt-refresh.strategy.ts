@@ -4,13 +4,17 @@ import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor(private configService: ConfigService<EnvironmentVariables>) {
+  constructor(
+    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly tokenRepository: TokenRepository,
+  ) {
     super({
       jwtFromRequest: (req) => {
         let token = null;
@@ -26,11 +30,17 @@ export class JwtRefreshStrategy extends PassportStrategy(
 
   async validate(payload: any) {
     if (payload == undefined || payload == null) {
-      throw new WrongCredentials('Token inválido ou expirado');
+      throw new WrongCredentials('Sessão inválida. Faça login novamente.');
+    }
+    const isRevoked = await this.tokenRepository.isRevoked(payload.jti);
+
+    if (isRevoked) {
+      throw new WrongCredentials('Sessão inválida. Faça login novamente.');
     }
 
     return {
       userID: payload.sub,
+      tokenID: payload.jti,
     };
   }
 }

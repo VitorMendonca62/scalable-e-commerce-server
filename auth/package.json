@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "^9.9.0",
+    "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^10.4.20",
     "@nestjs/config": "^4.0.2",
@@ -38,6 +39,7 @@
     "class-validator": "^0.14.3",
     "cookie-parser": "^1.4.7",
     "handlebars": "^4.7.8",
+    "ioredis": "^5.8.2",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^7.0.11",
     "otp-generator": "^4.0.1",

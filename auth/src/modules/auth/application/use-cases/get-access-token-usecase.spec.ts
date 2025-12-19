@@ -3,12 +3,15 @@ import { UserRepository } from '@auth/domain/ports/secondary/user-repository.por
 import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;
 
   let userRepository: UserRepository;
   let tokenService: TokenService;
+  let tokenRepository: TokenRepository;
 
   beforeEach(async () => {
     userRepository = {
@@ -20,7 +23,15 @@ describe('GetAccessTokenUseCase', () => {
       generateAccessToken: jest.fn(),
     } as any;
 
-    useCase = new GetAccessTokenUseCase(userRepository, tokenService);
+    tokenRepository = {
+      updateLastAcess: jest.fn(),
+    } as any;
+
+    useCase = new GetAccessTokenUseCase(
+      userRepository,
+      tokenService,
+      tokenRepository,
+    );
   });
 
   it('should be defined', () => {
@@ -32,6 +43,7 @@ describe('GetAccessTokenUseCase', () => {
   describe('execute', () => {
     const user = mockUserLikeJSON();
     const accessToken = 'ACCESSTOKEN';
+    const tokenID = IDConstants.EXEMPLE;
 
     beforeEach(() => {
       jest
@@ -42,11 +54,12 @@ describe('GetAccessTokenUseCase', () => {
     it('should use case call functions with correct parameters and return token', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
-      const response = await useCase.execute(user.userID);
+      const response = await useCase.execute(user.userID, tokenID);
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
         userID: user.userID,
       });
+      expect(tokenRepository.updateLastAcess).toHaveBeenCalledWith(tokenID);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
       expect(response).toBe(`Bearer ${accessToken}`);
     });
@@ -54,7 +67,7 @@ describe('GetAccessTokenUseCase', () => {
     it('should throw bad request exception when user does not exist', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(useCase.execute(user.userID)).rejects.toThrow(
+      await expect(useCase.execute(user.userID, tokenID)).rejects.toThrow(
         new WrongCredentials('Token inválido ou expirado'),
       );
     });

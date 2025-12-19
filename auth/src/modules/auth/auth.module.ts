@@ -36,6 +36,9 @@ import { UpdatePasswordUseCase } from './application/use-cases/update-password-u
 import { JwtRefreshStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-refresh.strategy';
 import { JwtResetPassStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-reset-pass.strategy';
 import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-access.strategy';
+import { TokenRepository } from './domain/ports/secondary/token-repository.port';
+import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
+import { FinishSessionUseCase } from './application/use-cases/finish-session.usecase';
 
 @Module({
   imports: [
@@ -92,6 +95,7 @@ import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strate
     JwtAccessStrategy,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
+    FinishSessionUseCase,
     UserMapper,
     UsersQueueService,
     SendCodeForForgotPasswordUseCase,
@@ -105,6 +109,10 @@ import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strate
     {
       provide: EmailCodeRepository,
       useClass: MongooseEmailCodeRepository,
+    },
+    {
+      provide: TokenRepository,
+      useClass: RedisTokenRepository,
     },
     {
       provide: TokenService,

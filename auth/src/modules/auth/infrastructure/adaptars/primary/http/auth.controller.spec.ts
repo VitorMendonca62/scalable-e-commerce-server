@@ -9,16 +9,19 @@ import {
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import {
   HttpCreatedResponse,
+  HttpNoContentResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { Request, Response } from 'express';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 
 describe('AuthController', () => {
   let controller: AuthController;
 
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
+  let finishSessionUseCase: FinishSessionUseCase;
 
   let userMapper: UserMapper;
 
@@ -30,15 +33,18 @@ describe('AuthController', () => {
     } as any;
     createSessionUseCase = { execute: jest.fn() } as any;
     getAccessTokenUseCase = { execute: jest.fn() } as any;
+    finishSessionUseCase = { execute: jest.fn() } as any;
 
     controller = new AuthController(
       userMapper,
       createSessionUseCase,
       getAccessTokenUseCase,
+      finishSessionUseCase,
     );
 
     response = {
       cookie: jest.fn(),
+      clearCookie: jest.fn(),
     } as any;
   });
 
@@ -47,11 +53,13 @@ describe('AuthController', () => {
     expect(createSessionUseCase).toBeDefined();
     expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
+    expect(finishSessionUseCase).toBeDefined();
   });
 
   describe('login', () => {
     const user = mockLoginUser();
     const dto = mockLoginUserDTO();
+    const ip = '120.0.0.0';
 
     beforeEach(() => {
       jest.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
@@ -63,14 +71,14 @@ describe('AuthController', () => {
     });
 
     it('should call createSessionUseCase.execute with mapped DTO', async () => {
-      await controller.login(dto, response);
+      await controller.login(dto, response, ip);
 
-      expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto);
+      expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto, ip);
       expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
     });
 
     it('should set access token and refresh token on cookies', async () => {
-      await controller.login(dto, response);
+      await controller.login(dto, response, ip);
 
       expect(response.cookie).toHaveBeenNthCalledWith(
         1,
@@ -94,7 +102,7 @@ describe('AuthController', () => {
     });
 
     it('should return HttpCreatedResponse on success', async () => {
-      const result = await controller.login(dto, response);
+      const result = await controller.login(dto, response, ip);
 
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
@@ -108,8 +116,18 @@ describe('AuthController', () => {
         .spyOn(createSessionUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.login(dto, response)).rejects.toThrow(
+      await expect(controller.login(dto, response, ip)).rejects.toThrow(
         'Erro no use case',
+      );
+    });
+
+    it('should throw error if userMapper.loginDTOForEntity throws error', async () => {
+      jest.spyOn(userMapper, 'loginDTOForEntity').mockImplementation(() => {
+        throw new Error('Erro no mapper');
+      });
+
+      await expect(controller.login(dto, response, ip)).rejects.toThrow(
+        'Erro no mapper',
       );
     });
   });
@@ -124,14 +142,16 @@ describe('AuthController', () => {
       request = {
         user: {
           userID: IDConstants.EXEMPLE,
+          tokenID: IDConstants.EXEMPLE,
         },
       } as any;
     });
 
-    it('should call getAccessToken.execute with userId', async () => {
+    it('should call getAccessToken.execute with userId and tokenid', async () => {
       await controller.getAccessToken(request, response);
 
       expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
         IDConstants.EXEMPLE,
       );
     });
@@ -168,6 +188,51 @@ describe('AuthController', () => {
       await expect(
         controller.getAccessToken(request, response),
       ).rejects.toThrow('Erro no use case');
+    });
+  });
+
+  describe('logout', () => {
+    let request: Request;
+
+    beforeEach(() => {
+      request = {
+        user: {
+          userID: IDConstants.EXEMPLE,
+          tokenID: IDConstants.EXEMPLE,
+        },
+      } as any;
+    });
+
+    it('should call finishSessionUseCase.execute with userId and tokenid', async () => {
+      await controller.logout(request, response);
+
+      expect(finishSessionUseCase.execute).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+        IDConstants.EXEMPLE,
+      );
+    });
+
+    it('should clear access token and refresh_token on cookies', async () => {
+      await controller.logout(request, response);
+
+      expect(response.clearCookie).toHaveBeenNthCalledWith(1, 'refresh_token');
+      expect(response.clearCookie).toHaveBeenNthCalledWith(2, 'access_token');
+    });
+
+    it('should return HttpNoContentResponse on success', async () => {
+      const result = await controller.logout(request, response);
+
+      expect(result).toBeInstanceOf(HttpNoContentResponse);
+    });
+
+    it('should throw error if finishSessionUseCase throws error', async () => {
+      jest
+        .spyOn(finishSessionUseCase, 'execute')
+        .mockRejectedValue(new Error('Erro no use case'));
+
+      await expect(controller.logout(request, response)).rejects.toThrow(
+        'Erro no use case',
+      );
     });
   });
 });

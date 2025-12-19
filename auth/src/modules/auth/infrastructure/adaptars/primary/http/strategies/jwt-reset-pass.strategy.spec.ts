@@ -21,47 +21,59 @@ describe('JwtResetPassStrategy', () => {
     expect(configService).toBeDefined();
   });
 
-  it('should validate payload and return userID', async () => {
-    const payload = {
-      sub: EmailConstants.EXEMPLE,
-    };
+  describe('validate', () => {
+    it('should validate payload and return userID', async () => {
+      const payload = {
+        sub: EmailConstants.EXEMPLE,
+      };
 
-    const result = await strategy.validate(payload);
+      const result = await strategy.validate(payload);
 
-    expect(result).toEqual({ email: EmailConstants.EXEMPLE });
+      expect(result).toEqual({ email: EmailConstants.EXEMPLE });
+    });
+
+    it('should throw WrongCredentials if payload is undefined ', async () => {
+      await expect(strategy.validate(undefined)).rejects.toThrow(
+        new WrongCredentials(
+          'Sessão inválida. Realize o processo de recupeção de senha novamente.',
+        ),
+      );
+    });
+
+    it('should throw WrongCredentials if payload is null ', async () => {
+      await expect(strategy.validate(null)).rejects.toThrow(
+        new WrongCredentials(
+          'Sessão inválida. Realize o processo de recupeção de senha novamente.',
+        ),
+      );
+    });
   });
 
-  it('should throw WrongCredentials if payload is undefined or null ', async () => {
-    await expect(strategy.validate(null)).rejects.toThrow(
-      new WrongCredentials(
-        'Token de recuperação de senha inválido ou expirado. Realize o processo novamente.',
-      ),
-    );
-  });
+  describe('jwtFromRequest', () => {
+    it('should extract refresh token in cookies', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-  it('should extract refresh token in cookies', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
+      const mockRequest = {
+        cookies: {
+          reset_pass_token: 'Bearer token-value',
+        },
+      } as any;
 
-    const mockRequest = {
-      cookies: {
-        reset_pass_token: 'Bearer token-value',
-      },
-    } as any;
+      const token = extractFunction(mockRequest);
 
-    const token = extractFunction(mockRequest);
+      expect(token).toBe('token-value');
+    });
 
-    expect(token).toBe('token-value');
-  });
+    it('should return null when extract failure refresh token in cookies ', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-  it('should return null when extract failure refresh token in cookies ', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
+      const mockRequest = {
+        cookies: undefined,
+      } as any;
 
-    const mockRequest = {
-      cookies: undefined,
-    } as any;
+      const token = extractFunction(mockRequest);
 
-    const token = extractFunction(mockRequest);
-
-    expect(token).toBeNull();
+      expect(token).toBeNull();
+    });
   });
 });

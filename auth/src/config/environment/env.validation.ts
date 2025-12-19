@@ -67,6 +67,14 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'MONGO_INITDB_DATABASE cannot be empty.' })
   MONGO_INITDB_DATABASE: string;
 
+  @IsString({ message: 'REDIS_HOST must be a string.' })
+  @IsNotEmpty({ message: 'REDIS_HOST cannot be empty.' })
+  REDIS_HOST: string;
+
+  @IsString({ message: 'REDIS_PASSWORD must be a string.' })
+  @IsNotEmpty({ message: 'REDIS_PASSWORD cannot be empty.' })
+  REDIS_PASSWORD: string;
+
   @IsString({ message: 'SMTP_HOST must be a string.' })
   @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
   SMTP_HOST: string;

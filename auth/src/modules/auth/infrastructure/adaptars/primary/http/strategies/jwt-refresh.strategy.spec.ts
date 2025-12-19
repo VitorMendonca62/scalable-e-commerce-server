@@ -2,19 +2,24 @@ import { ConfigService } from '@nestjs/config';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
   let configService: ConfigService<EnvironmentVariables>;
+  let tokenRepository: TokenRepository;
 
   beforeEach(async () => {
     configService = {
       get: jest.fn().mockReturnValue('secret-test-key'),
     } as any;
 
-    strategy = new JwtRefreshStrategy(configService);
+    tokenRepository = {
+      isRevoked: jest.fn(),
+    } as any;
+
+    strategy = new JwtRefreshStrategy(configService, tokenRepository);
   });
 
   it('should be defined', () => {
@@ -22,43 +27,68 @@ describe('JwtRefreshStrategy', () => {
     expect(configService).toBeDefined();
   });
 
-  it('should validate payload and return userID', async () => {
-    const payload = { sub: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
+  describe('validate', () => {
+    const payload = {
+      sub: IDConstants.EXEMPLE,
+      jti: IDConstants.EXEMPLE,
+    };
+    beforeEach(() => {
+      jest.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(false);
+    });
 
-    const result = await strategy.validate(payload);
+    it('should validate payload and return userID and tokenID', async () => {
+      const result = await strategy.validate(payload);
 
-    expect(result).toEqual({ userID: IDConstants.EXEMPLE });
+      expect(result).toEqual({
+        userID: IDConstants.EXEMPLE,
+        tokenID: IDConstants.EXEMPLE,
+      });
+    });
+
+    it('should throw WrongCredentials if payload is undefined ', async () => {
+      await expect(strategy.validate(undefined)).rejects.toThrow(
+        new WrongCredentials('Sessão inválida. Faça login novamente.'),
+      );
+    });
+
+    it('should throw WrongCredentials if payload is null ', async () => {
+      await expect(strategy.validate(null)).rejects.toThrow(
+        new WrongCredentials('Sessão inválida. Faça login novamente.'),
+      );
+    });
+
+    it('should throw WrongCredentials if token is revoked ', async () => {
+      jest.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(true);
+
+      await expect(strategy.validate(payload)).rejects.toThrow(
+        new WrongCredentials('Sessão inválida. Faça login novamente.'),
+      );
+    });
   });
 
-  it('should throw WrongCredentials if payload is undefined or null ', async () => {
-    await expect(strategy.validate(null)).rejects.toThrow(
-      new WrongCredentials('Token inválido ou expirado'),
-    );
-  });
+  describe('jwtFromRequest', () => {
+    it('should extract refresh token in cookies', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-  it('should extract refresh token in cookies', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
+      const token = extractFunction({
+        cookies: {
+          refresh_token: 'Bearer token-value',
+        },
+      });
 
-    const mockRequest = {
-      cookies: {
-        refresh_token: 'Bearer token-value',
-      },
-    } as any;
+      expect(token).toBe('token-value');
+    });
 
-    const token = extractFunction(mockRequest);
+    it('should return null when extract failure refresh token in cookies ', () => {
+      const extractFunction = (strategy as any)._jwtFromRequest;
 
-    expect(token).toBe('token-value');
-  });
+      const token = extractFunction({
+        cookies: {
+          refresh_token: undefined,
+        },
+      });
 
-  it('should return null when extract failure refresh token in cookies ', () => {
-    const extractFunction = (strategy as any)._jwtFromRequest;
-
-    const mockRequest = {
-      cookies: undefined,
-    } as any;
-
-    const token = extractFunction(mockRequest);
-
-    expect(token).toBeNull();
+      expect(token).toBeNull();
+    });
   });
 });

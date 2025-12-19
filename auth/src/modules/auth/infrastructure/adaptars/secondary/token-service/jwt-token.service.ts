@@ -4,6 +4,7 @@ import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { Permissions } from '@auth/domain/types/permissions';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
+import { v7 } from 'uuid';
 
 @Injectable()
 export class JwtTokenService implements TokenService {
@@ -12,12 +13,18 @@ export class JwtTokenService implements TokenService {
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  generateRefreshToken(id: string): string {
+  generateRefreshToken(id: string): { refreshToken: string; tokenID: string } {
+    const jti = v7();
+
     const payload = {
       sub: id,
+      jti,
       type: 'refresh' as const,
     };
-    return this.jwtService.sign(payload, { expiresIn: '7D' });
+    return {
+      refreshToken: this.jwtService.sign(payload, { expiresIn: '7D' }),
+      tokenID: jti,
+    };
   }
 
   generateAccessToken(props: {
