@@ -45,25 +45,4 @@ export class JwtTokenService implements TokenService {
       secret: this.configService.get<string>('RESET_PASS_SECRET'),
     });
   }
-
-  // TODO REMOVER ISSO AQUI
-  verifyResetPassToken(token: string): Record<string, any> {
-    try {
-      return this.jwtService.verify(token) as Record<string, any>;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
-      throw new WrongCredentials(
-        'Token de recuperação de senha inválido ou expirado. Realize o processo novamente.',
-      );
-    }
-  }
-
-  verifyToken(token: string): Record<string, any> {
-    try {
-      return this.jwtService.verify(token) as Record<string, any>;
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
-      throw new WrongCredentials('Token inválido ou expirado');
-    }
-  }
 }
