@@ -1,6 +1,5 @@
 import { JwtTokenService } from './jwt-token.service';
 import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
@@ -124,66 +123,6 @@ describe('JwtTokenService', () => {
 
       expect(typeof result).toBe('string');
       expect(result).toBe(token);
-    });
-  });
-
-  describe('verifyResetPassToken', () => {
-    beforeEach(async () => {
-      jest.spyOn(jwtService, 'verify').mockReturnValue({ sub: userId });
-    });
-
-    it('should call jwt verify function with correct parameters', async () => {
-      service.verifyResetPassToken(token);
-
-      expect(jwtService.verify).toHaveBeenCalledWith(token);
-    });
-
-    it('should return playload', async () => {
-      const result = service.verifyResetPassToken(token);
-
-      expect(typeof result).toBe('object');
-      expect(result).toEqual({ sub: userId });
-    });
-
-    it('should throw error if token is invalid ou expired', async () => {
-      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
-        throw new Error('Error verifying token');
-      });
-
-      expect(() => service.verifyResetPassToken(token)).toThrow(
-        new WrongCredentials(
-          'Token de recuperação de senha inválido ou expirado. Realize o processo novamente.',
-        ),
-      );
-    });
-  });
-
-  describe('verifyToken', () => {
-    beforeEach(async () => {
-      jest.spyOn(jwtService, 'verify').mockReturnValue({ sub: userId });
-    });
-
-    it('should call jwt verify function with correct parameters', async () => {
-      service.verifyToken(token);
-
-      expect(jwtService.verify).toHaveBeenCalledWith(token);
-    });
-
-    it('should return playload', async () => {
-      const result = service.verifyToken(token);
-
-      expect(typeof result).toBe('object');
-      expect(result).toEqual({ sub: userId });
-    });
-
-    it('should throw error if token is invalid ou expired', async () => {
-      jest.spyOn(jwtService, 'verify').mockImplementation(() => {
-        throw new Error('Error verifying token');
-      });
-
-      expect(() => service.verifyToken(token)).toThrow(
-        new WrongCredentials('Token inválido ou expirado'),
-      );
     });
   });
 });

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { Permissions } from '@auth/domain/types/permissions';
 import { ConfigService } from '@nestjs/config';

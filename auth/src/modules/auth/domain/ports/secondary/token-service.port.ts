@@ -8,6 +8,4 @@ export abstract class TokenService {
     roles: Permissions[];
   }): string;
   abstract generateResetPassToken(props: { email: string }): string;
-  abstract verifyResetPassToken(token: string): Record<string, any>;
-  abstract verifyToken(token: string): Record<string, any>;
 }

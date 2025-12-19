@@ -37,10 +37,6 @@ describe('GetAccessTokenUseCase', () => {
       jest
         .spyOn(tokenService, 'generateAccessToken')
         .mockReturnValue(accessToken);
-
-      jest
-        .spyOn(tokenService, 'verifyToken')
-        .mockReturnValue({ sub: 'USERID' });
     });
 
     it('should use case call functions with correct parameters and return token', async () => {
