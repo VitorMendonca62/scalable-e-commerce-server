@@ -62,6 +62,7 @@ export const mockLoginUser = (overrides: Partial<LoginUserDTO> = {}) => {
   return new UserLogin({
     email: new EmailVO(dto.email),
     password: new PasswordVO(dto.password, false, mockPasswordHasher()),
+    ip: '122.0.0.0',
   });
 };
 

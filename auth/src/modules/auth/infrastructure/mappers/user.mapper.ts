@@ -25,10 +25,11 @@ import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/passwo
 @Injectable()
 export class UserMapper {
   constructor(private passwordHasher: PasswordHasher) {}
-  loginDTOForEntity(dto: LoginUserDTO): UserLogin {
+  loginDTOForEntity(dto: LoginUserDTO, ip: string): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
       password: new PasswordVO(dto.password, false, this.passwordHasher),
+      ip,
     });
   }
 
