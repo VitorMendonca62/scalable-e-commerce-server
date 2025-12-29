@@ -37,6 +37,7 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { Request, Response } from 'express';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
+import { ApiLogout } from './decorators/docs/api-logout.decorator';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -97,7 +98,7 @@ export class AuthController {
   @Post('/logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTRefreshGuard)
-  // TODO Fazer docs
+  @ApiLogout()
   async logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
