@@ -31,7 +31,7 @@
 
 [X] usar isso: https://www.luiztools.com.br/post/autenticacao-json-web-token-jwt-em-nestjs/
 [] Adicionar faker js
-[] Adicionar deslogar em todos os dispositivos
+[X] Adicionar deslogar em todos os dispositivos
 [X] Criar um value object para senhas hasheadas
 [] Rotacao de refresh token
 

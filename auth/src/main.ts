@@ -15,7 +15,6 @@ async function bootstrap() {
     .setTitle('Auth System')
     .setDescription('The auth system for a e-commerce store')
     .setVersion('1.0')
-    .addTag('auth')
     .addBearerAuth(
       {
         type: 'http',

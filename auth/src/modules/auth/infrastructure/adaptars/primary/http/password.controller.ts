@@ -27,6 +27,8 @@ import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-passwo
 import { JWTResetPassGuard } from './guards/jwt-reset-pass.guard';
 import { JWTAccessGuard } from './guards/jwt-access.guard';
 import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
+import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator';
+import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
 
 @Controller('auth/pass')
 @ApiTags('PasswordController')
@@ -54,7 +56,7 @@ export class PasswordController {
 
   @Post('/validate-code')
   @HttpCode(HttpStatus.OK)
-  // TODO: Fazer documentacao
+  @ApiValidateCodeForForgotPassword()
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
     @Res({ passthrough: true }) response: Response,
@@ -73,9 +75,9 @@ export class PasswordController {
     );
   }
 
-  @Patch('/reset-pass')
+  @Patch('/reset')
   @HttpCode(HttpStatus.SEE_OTHER)
-  // TODO: Fazer documentacao
+  @ApiResetPassword()
   @UseGuards(JWTResetPassGuard)
   async resetPassword(
     @Body() dto: ResetPasswordDTO,

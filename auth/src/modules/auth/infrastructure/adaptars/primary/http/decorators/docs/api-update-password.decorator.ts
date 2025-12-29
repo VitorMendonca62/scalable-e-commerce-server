@@ -22,7 +22,8 @@ export function ApiUpdatePassword() {
       type: HttpResponseOutbound,
     }),
     ApiBadRequestResponse({
-      description: 'A senha antiga do usuário está diferente a armazenada.',
+      description:
+        'A senha antiga do usuário está diferente a armazenada ou algum campo está inválido',
       example: {
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'A senha atual informada está incorreta.',
