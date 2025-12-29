@@ -25,7 +25,7 @@ describe('IDValidator', () => {
       IDValidator.validate(nonStringValue);
       fail('Should have thrown an error');
     } catch (error: any) {
-      expect(error).toBeInstanceOf(Error);
+      expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(IDConstants.ERROR_STRING);
       expect(error.data).toBe('id');
     }
