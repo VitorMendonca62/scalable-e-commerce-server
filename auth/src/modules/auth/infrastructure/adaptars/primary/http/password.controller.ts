@@ -77,8 +77,8 @@ export class PasswordController {
 
   @Patch('/reset')
   @HttpCode(HttpStatus.SEE_OTHER)
-  @ApiResetPassword()
   @UseGuards(JWTResetPassGuard)
+  @ApiResetPassword()
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
     @Req() request: Request,
@@ -95,8 +95,8 @@ export class PasswordController {
 
   @Patch('/')
   @HttpCode(HttpStatus.OK)
-  @ApiUpdatePassword()
   @UseGuards(JWTAccessGuard)
+  @ApiUpdatePassword()
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,
     @Req() request: Request,

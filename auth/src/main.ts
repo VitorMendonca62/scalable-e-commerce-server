@@ -11,27 +11,61 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const appLogger = new Logger('API');
 
+  const configService =
+    app.get<ConfigService<EnvironmentVariables>>(ConfigService);
+
+  const PORT = configService.get<number>('PORT') ?? 3333;
+  const HOST = configService.get<string>('HOST');
+
+  app.enableCors({
+    origin: `http://localhost:${PORT}`,
+    credentials: true,
+  });
+
+  app.use(cookieParser());
+
   const config = new DocumentBuilder()
     .setTitle('Auth System')
     .setDescription('The auth system for a e-commerce store')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'Authorization',
-        in: 'header',
-      },
+    .addCookieAuth(
       'refresh_token',
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'refresh_token',
+      },
+      'cookie_refresh',
+    )
+    .addCookieAuth(
+      'access_token',
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'access_token',
+      },
+      'cookie_access',
+    )
+    .addCookieAuth(
+      'reset_pass_token',
+      {
+        type: 'apiKey',
+        in: 'cookie',
+        name: 'reset_pass_token',
+      },
+      'cookie_reset_pass',
     )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
-
-  const configService =
-    app.get<ConfigService<EnvironmentVariables>>(ConfigService);
+  SwaggerModule.setup('docs', app, document, {
+    swaggerOptions: {
+      requestInterceptor: (req) => {
+        req.credentials = 'include';
+        return req;
+      },
+    },
+  });
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -53,11 +87,6 @@ async function bootstrap() {
       },
     }),
   );
-
-  const PORT = configService.get<number>('PORT') ?? 3333;
-  const HOST = configService.get<string>('HOST');
-
-  app.use(cookieParser());
 
   await app
     .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))

@@ -3,6 +3,7 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiCookieAuth,
   ApiOperation,
   ApiSeeOtherResponse,
   ApiUnauthorizedResponse,
@@ -13,6 +14,7 @@ export function ApiResetPassword() {
     ApiOperation({
       summary: 'Resetar senha do usuário',
     }),
+    ApiCookieAuth('cookie_reset_pass'),
     ApiSeeOtherResponse({
       description:
         'Usuário conseguiu resetar a senha e será direcionado para tela de login',

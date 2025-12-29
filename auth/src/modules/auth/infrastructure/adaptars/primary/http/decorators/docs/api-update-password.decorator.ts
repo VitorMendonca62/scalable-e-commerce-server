@@ -2,6 +2,7 @@ import { HttpResponseOutbound } from '@auth/domain/ports/primary/http/sucess.por
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiCookieAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -13,6 +14,7 @@ export function ApiUpdatePassword() {
     ApiOperation({
       summary: 'Atualizar senha do usuário',
     }),
+    ApiCookieAuth('cookie_access'),
     ApiOkResponse({
       description: 'A senha do usuário foi atualizada com sucesso',
       example: {
