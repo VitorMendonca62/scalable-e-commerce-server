@@ -116,9 +116,14 @@ describe('AuthController', () => {
         .spyOn(createSessionUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.login(dto, response, ip)).rejects.toThrow(
-        'Erro no use case',
-      );
+      try {
+        await controller.login(dto, response, ip);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw error if userMapper.loginDTOForEntity throws error', async () => {
@@ -126,9 +131,14 @@ describe('AuthController', () => {
         throw new Error('Erro no mapper');
       });
 
-      await expect(controller.login(dto, response, ip)).rejects.toThrow(
-        'Erro no mapper',
-      );
+      try {
+        await controller.login(dto, response, ip);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no mapper');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 
@@ -185,9 +195,14 @@ describe('AuthController', () => {
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(
-        controller.getAccessToken(request, response),
-      ).rejects.toThrow('Erro no use case');
+      try {
+        await await controller.getAccessToken(request, response);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 
@@ -230,9 +245,14 @@ describe('AuthController', () => {
         .spyOn(finishSessionUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.logout(request, response)).rejects.toThrow(
-        'Erro no use case',
-      );
+      try {
+        await controller.logout(request, response);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

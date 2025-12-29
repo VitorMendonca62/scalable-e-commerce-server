@@ -18,7 +18,6 @@ describe('JWTRefreshGuard', () => {
   it('should return the user if authentication is successful', () => {
     const mockUser = { id: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
 
-    // handleRequest(err, user, info, context)
     const result = guard.handleRequest(
       null,
       mockUser,
@@ -30,28 +29,48 @@ describe('JWTRefreshGuard', () => {
   });
 
   it('should throw WrongCredentials if user is null', () => {
-    expect(() => {
+    try {
       guard.handleRequest(null, null, null, {} as ExecutionContext);
-    }).toThrow(new WrongCredentials('Token inválido ou expirado'));
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(WrongCredentials);
+      expect(error.message).toBe('Token inválido ou expirado');
+      expect(error.data).toBeUndefined();
+    }
   });
 
   it('should throw WrongCredentials if user is false', () => {
-    expect(() => {
+    try {
       guard.handleRequest(null, false, null, {} as ExecutionContext);
-    }).toThrow(new WrongCredentials('Token inválido ou expirado'));
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(WrongCredentials);
+      expect(error.message).toBe('Token inválido ou expirado');
+      expect(error.data).toBeUndefined();
+    }
   });
 
   it('should throw the specific error if an error object is provided', () => {
     const customError = new Error('Database connection failed');
 
-    expect(() => {
+    try {
       guard.handleRequest(customError, null, null, {} as ExecutionContext);
-    }).toThrow(new Error('Database connection failed'));
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('Database connection failed');
+      expect(error.data).toBeUndefined();
+    }
   });
 
   it('should throw WrongCredentials if user is undefined', () => {
-    expect(() => {
+    try {
       guard.handleRequest(null, undefined, null, {} as ExecutionContext);
-    }).toThrow(new WrongCredentials('Token inválido ou expirado'));
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(WrongCredentials);
+      expect(error.message).toBe('Token inválido ou expirado');
+      expect(error.data).toBeUndefined();
+    }
   });
 });

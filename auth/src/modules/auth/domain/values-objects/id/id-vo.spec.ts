@@ -24,8 +24,13 @@ describe('IDVO', () => {
       throw new Error('Error');
     });
 
-    expect(() => {
+    try {
       new IDVO(IDConstants.EXEMPLE);
-    }).toThrow('Error');
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(Error);
+      expect(error.message).toBe('Error');
+      expect(error.data).toBeUndefined();
+    }
   });
 });

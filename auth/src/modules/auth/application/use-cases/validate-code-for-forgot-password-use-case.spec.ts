@@ -67,11 +67,16 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
     it('should throw BusinessRuleFailure when no have document with code and email', async () => {
       jest.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(undefined);
 
-      expect(useCase.execute(code, email)).rejects.toThrow(
-        new BusinessRuleFailure(
+      try {
+        await useCase.execute(code, email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(BusinessRuleFailure);
+        expect(error.message).toBe(
           'Código de recuperação inválido ou expirado. Tente novamente',
-        ),
-      );
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw BusinessRuleFailure when the code expired', async () => {
@@ -81,11 +86,16 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
         }),
       );
 
-      expect(useCase.execute(code, email)).rejects.toThrow(
-        new BusinessRuleFailure(
+      try {
+        await useCase.execute(code, email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(BusinessRuleFailure);
+        expect(error.message).toBe(
           'Código de recuperação inválido ou expirado. Tente novamente',
-        ),
-      );
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should call emailCodeRepository.deleteMany with correct parameters', async () => {
@@ -107,9 +117,14 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
         .spyOn(emailCodeRepository, 'findOne')
         .mockRejectedValue(new Error('Error finding email code row'));
 
-      expect(useCase.execute(code, email)).rejects.toThrow(
-        new Error('Error finding email code row'),
-      );
+      try {
+        await useCase.execute(code, email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error finding email code row');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if codeRepository.deleteMany throw error', async () => {
@@ -117,21 +132,31 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
         .spyOn(emailCodeRepository, 'deleteMany')
         .mockRejectedValue(new Error('Error deleting code'));
 
-      expect(useCase.execute(code, email)).rejects.toThrow(
-        new Error('Error deleting code'),
-      );
+      try {
+        await useCase.execute(code, email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error deleting code');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if tokenService throw error', async () => {
       jest
         .spyOn(tokenService, 'generateResetPassToken')
         .mockImplementation(() => {
-          throw new Error('Error finding email code row');
+          throw new Error('Error generate reset pass token');
         });
 
-      await expect(useCase.execute(code, email)).rejects.toThrow(
-        new Error('Error finding email code row'),
-      );
+      try {
+        await useCase.execute(code, email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error generate reset pass token');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

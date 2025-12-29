@@ -108,17 +108,31 @@ describe('CreateSessionUseCase', () => {
     it('should throw WrongCredentials exception when user does not exists', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(useCase.execute(userLogin)).rejects.toThrow(
-        new WrongCredentials(),
-      );
+      try {
+        await useCase.execute(userLogin);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe(
+          'Suas credenciais estão incorretas. Tente novamente',
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw WrongCredentials if password is incorrect', async () => {
       jest.spyOn(user.password, 'comparePassword').mockReturnValue(false);
 
-      await expect(useCase.execute(userLogin)).rejects.toThrow(
-        new WrongCredentials(),
-      );
+      try {
+        await useCase.execute(userLogin);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe(
+          'Suas credenciais estão incorretas. Tente novamente',
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

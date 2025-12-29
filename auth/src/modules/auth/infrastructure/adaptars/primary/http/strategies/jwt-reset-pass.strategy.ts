@@ -24,7 +24,7 @@ export class JwtResetPassStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  validate(payload: any) {
     if (payload == undefined || payload == null) {
       throw new WrongCredentials(
         'Sessão inválida. Realize o processo de recupeção de senha novamente.',

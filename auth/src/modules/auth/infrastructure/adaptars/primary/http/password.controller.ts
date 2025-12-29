@@ -26,6 +26,7 @@ import { UpdatePasswordDTO } from './dtos/update-password.dto';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 import { JWTResetPassGuard } from './guards/jwt-reset-pass.guard';
 import { JWTAccessGuard } from './guards/jwt-access.guard';
+import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
 
 @Controller('auth/pass')
 @ApiTags('PasswordController')
@@ -92,7 +93,7 @@ export class PasswordController {
 
   @Patch('/')
   @HttpCode(HttpStatus.OK)
-  // TODO: Fazer documentacao
+  @ApiUpdatePassword()
   @UseGuards(JWTAccessGuard)
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,

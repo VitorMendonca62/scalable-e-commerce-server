@@ -75,9 +75,14 @@ describe('UserMapper', () => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
-        expect(() => mapper.loginDTOForEntity(dto, ip)).toThrow(
-          `Campo inválido - ${index}`,
-        );
+        try {
+          mapper.loginDTOForEntity(dto, ip);
+          fail('Should have thrown an error');
+        } catch (error: any) {
+          expect(error).toBeInstanceOf(Error);
+          expect(error.message).toBe(`Campo inválido - ${index}`);
+          expect(error.data).toBeUndefined();
+        }
         (VO as jest.Mock).mockRestore();
       });
     });

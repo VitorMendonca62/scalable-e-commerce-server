@@ -77,9 +77,14 @@ describe('ResetPasswordUseCase', () => {
     it('should throw bad request exception when user does not exist', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(useCase.execute(email, newPassword)).rejects.toThrow(
-        new WrongCredentials('Token inválido ou expirado'),
-      );
+      try {
+        await useCase.execute(email, newPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe('Token inválido ou expirado');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if PasswordVO throw error', async () => {
@@ -87,19 +92,28 @@ describe('ResetPasswordUseCase', () => {
         throw new Error('Error PasswordVO');
       });
 
-      expect(useCase.execute(email, newPassword)).rejects.toThrow(
-        new Error('Error PasswordVO'),
-      );
+      try {
+        await useCase.execute(email, newPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error PasswordVO');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if userRepository.find throw error', async () => {
       jest
         .spyOn(userRepository, 'findOne')
         .mockRejectedValue(new Error('Error finding code row'));
-
-      expect(useCase.execute(email, newPassword)).rejects.toThrow(
-        new Error('Error finding code row'),
-      );
+      try {
+        await useCase.execute(email, newPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error finding code row');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if userRepository.update throw error', async () => {
@@ -107,9 +121,14 @@ describe('ResetPasswordUseCase', () => {
         .spyOn(userRepository, 'update')
         .mockRejectedValue(new Error('Error updating code'));
 
-      expect(useCase.execute(email, newPassword)).rejects.toThrow(
-        new Error('Error updating code'),
-      );
+      try {
+        await useCase.execute(email, newPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error updating code');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

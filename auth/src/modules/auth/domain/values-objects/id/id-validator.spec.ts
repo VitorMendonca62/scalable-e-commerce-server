@@ -8,21 +8,37 @@ describe('IDValidator', () => {
   });
 
   it('should throw an error if the value is empty', () => {
-    expect(() => IDValidator.validate('')).toThrow(
-      new FieldInvalid(IDConstants.ERROR_REQUIRED, 'id'),
-    );
+    try {
+      IDValidator.validate('');
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(IDConstants.ERROR_REQUIRED);
+      expect(error.data).toBe('id');
+    }
   });
 
   it('should throw an error if the value is not a string', () => {
     const nonStringValue = 12345 as any;
-    expect(() => IDValidator.validate(nonStringValue)).toThrow(
-      new FieldInvalid(IDConstants.ERROR_STRING, 'id'),
-    );
+
+    try {
+      IDValidator.validate(nonStringValue);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(IDConstants.ERROR_STRING);
+      expect(error.data).toBe('id');
+    }
   });
 
   it('should throw an error if the value is not a valid UUID', () => {
-    expect(() =>
-      IDValidator.validate(IDConstants.ERROR_INVALID_EXEMPLE),
-    ).toThrow(new FieldInvalid(IDConstants.ERROR_INVALID, 'id'));
+    try {
+      IDValidator.validate(IDConstants.ERROR_INVALID_EXEMPLE);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(IDConstants.ERROR_INVALID);
+      expect(error.data).toBe('id');
+    }
   });
 });

@@ -10,16 +10,26 @@ describe('EmailValidator', () => {
   });
 
   it('should throw if email is empty', () => {
-    expect(() => EmailValidator.validate('')).toThrow(
-      new FieldInvalid(EmailConstants.ERROR_REQUIRED, 'email'),
-    );
+    try {
+      EmailValidator.validate('');
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(EmailConstants.ERROR_REQUIRED);
+      expect(error.data).toBe('email');
+    }
   });
 
   it('should throw if email is invalid', () => {
     const invalidEmail = EmailConstants.WRONG_EXEMPLE;
 
-    expect(() => EmailValidator.validate(invalidEmail)).toThrow(
-      new FieldInvalid(EmailConstants.ERROR_INVALID, 'email'),
-    );
+    try {
+      EmailValidator.validate(invalidEmail);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(EmailConstants.ERROR_INVALID);
+      expect(error.data).toBe('email');
+    }
   });
 });

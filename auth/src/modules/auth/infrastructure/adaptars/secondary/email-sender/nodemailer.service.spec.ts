@@ -50,8 +50,8 @@ describe('NodemailerEmailSender', () => {
         throw new Error('Error finding email');
       });
 
-      await expect(
-        service.send(
+      try {
+        await service.send(
           EmailConstants.EXEMPLE,
           `test.${EmailConstants.EXEMPLE}`,
           'test',
@@ -59,12 +59,15 @@ describe('NodemailerEmailSender', () => {
           {
             any: 'any',
           },
-        ),
-      ).rejects.toThrow(
-        new ExternalServiceError(
+        );
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(ExternalServiceError);
+        expect(error.message).toBe(
           'Erro ao comunicar com serviço de email. Tente novamente mais tarde',
-        ),
-      );
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

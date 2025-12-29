@@ -1,8 +1,8 @@
 import { mockValueObjects } from '@auth/infrastructure/helpers/tests/values-objects-mock';
 mockValueObjects(['hashedPassword', 'password']);
 import {
+  FieldInvalid,
   NotFoundUser,
-  WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
@@ -98,9 +98,14 @@ describe('UpdatePasswordUseCase', () => {
     it('should throw NotFoundUser when user does not exist', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(
-        useCase.execute(userID, newPassword, oldPassword),
-      ).rejects.toThrow(new NotFoundUser());
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(NotFoundUser);
+        expect(error.message).toBe('Usuário não encontrado.');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if PasswordHashedVO throw error', async () => {
@@ -108,9 +113,14 @@ describe('UpdatePasswordUseCase', () => {
         throw new Error('Error PasswordHashedVO');
       });
 
-      expect(useCase.execute(userID, newPassword, oldPassword)).rejects.toThrow(
-        new Error('Error PasswordHashedVO'),
-      );
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error PasswordHashedVO');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw WrongCredentials if oldPassword is incorrect', async () => {
@@ -118,9 +128,14 @@ describe('UpdatePasswordUseCase', () => {
         .spyOn(PasswordHashedVO.prototype, 'comparePassword')
         .mockReturnValue(false);
 
-      expect(useCase.execute(userID, newPassword, oldPassword)).rejects.toThrow(
-        new WrongCredentials('A senha atual informada está incorreta.'),
-      );
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(FieldInvalid);
+        expect(error.message).toBe('A senha atual informada está incorreta.');
+        expect(error.data).toBe('oldPassword');
+      }
     });
 
     it('should rethrow error if PasswordVO throw error', async () => {
@@ -128,9 +143,14 @@ describe('UpdatePasswordUseCase', () => {
         throw new Error('Error PasswordVO');
       });
 
-      expect(useCase.execute(userID, newPassword, oldPassword)).rejects.toThrow(
-        new Error('Error PasswordVO'),
-      );
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error PasswordVO');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if userRepository.find throw error', async () => {
@@ -138,9 +158,14 @@ describe('UpdatePasswordUseCase', () => {
         .spyOn(userRepository, 'findOne')
         .mockRejectedValue(new Error('Error finding code row'));
 
-      expect(useCase.execute(userID, newPassword, oldPassword)).rejects.toThrow(
-        new Error('Error finding code row'),
-      );
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error finding code row');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if userRepository.update throw error', async () => {
@@ -148,9 +173,14 @@ describe('UpdatePasswordUseCase', () => {
         .spyOn(userRepository, 'update')
         .mockRejectedValue(new Error('Error updating code'));
 
-      expect(useCase.execute(userID, newPassword, oldPassword)).rejects.toThrow(
-        new Error('Error updating code'),
-      );
+      try {
+        await useCase.execute(userID, newPassword, oldPassword);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error updating code');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

@@ -67,9 +67,14 @@ describe('GetAccessTokenUseCase', () => {
     it('should throw bad request exception when user does not exist', async () => {
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      await expect(useCase.execute(user.userID, tokenID)).rejects.toThrow(
-        new WrongCredentials('Token inválido ou expirado'),
-      );
+      try {
+        await useCase.execute(user.userID, tokenID);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe('Token inválido ou expirado');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

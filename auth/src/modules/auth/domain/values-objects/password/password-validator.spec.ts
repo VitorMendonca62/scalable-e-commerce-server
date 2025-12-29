@@ -10,30 +10,51 @@ describe('PasswordValidator', () => {
   });
 
   it('should throw if password is empty', () => {
-    expect(() => PasswordValidator.validate('')).toThrow(
-      new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password'),
-    );
+    try {
+      PasswordValidator.validate('');
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PasswordConstants.ERROR_REQUIRED);
+      expect(error.data).toBe('password');
+    }
   });
 
   it('should throw if password is not a string', () => {
-    expect(() => PasswordValidator.validate(12345678 as any)).toThrow(
-      new FieldInvalid(PasswordConstants.ERROR_STRING, 'password'),
-    );
+    try {
+      PasswordValidator.validate(12345678 as any);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PasswordConstants.ERROR_STRING);
+      expect(error.data).toBe('password');
+    }
   });
 
   it('should throw if password is too short', () => {
     const shortPassword = 'aB1@';
 
-    expect(() => PasswordValidator.validate(shortPassword)).toThrow(
-      new FieldInvalid(PasswordConstants.ERROR_MIN_LENGTH, 'password'),
-    );
+    try {
+      PasswordValidator.validate(shortPassword);
+
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PasswordConstants.ERROR_MIN_LENGTH);
+      expect(error.data).toBe('password');
+    }
   });
 
   it('should throw if password is weak and strong check is enabled', () => {
     const weakPassword = PasswordConstants.WEAK_EXEMPLE;
 
-    expect(() => PasswordValidator.validate(weakPassword)).toThrow(
-      new FieldInvalid(PasswordConstants.ERROR_WEAK_PASSWORD, 'password'),
-    );
+    try {
+      PasswordValidator.validate(weakPassword);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PasswordConstants.ERROR_WEAK_PASSWORD);
+      expect(error.data).toBe('password');
+    }
   });
 });

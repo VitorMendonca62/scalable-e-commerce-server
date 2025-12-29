@@ -98,9 +98,14 @@ describe('GetAccessTokenUseCase', () => {
         .spyOn(emailSender, 'send')
         .mockRejectedValue(new Error('Error sending email'));
 
-      await expect(() => useCase.execute(email)).rejects.toThrow(
-        'Error sending email',
-      );
+      try {
+        await useCase.execute(email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error sending email');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should rethrow error if codeRepository throw error', async () => {
@@ -108,9 +113,14 @@ describe('GetAccessTokenUseCase', () => {
         .spyOn(codeRepository, 'save')
         .mockRejectedValue(new Error('Error saving code'));
 
-      await expect(() => useCase.execute(email)).rejects.toThrow(
-        'Error saving code',
-      );
+      try {
+        await useCase.execute(email);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error saving code');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

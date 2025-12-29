@@ -7,22 +7,22 @@ export default class PhoneNumberValidator {
     if (!isNotEmpty(value)) {
       throw new FieldInvalid(
         PhoneNumberConstants.ERROR_REQUIRED,
-        'phonenumber',
+        'phoneNumber',
       );
     }
 
     if (!isString(value)) {
-      throw new FieldInvalid(PhoneNumberConstants.ERROR_STRING, 'phonenumber');
+      throw new FieldInvalid(PhoneNumberConstants.ERROR_STRING, 'phoneNumber');
     }
 
     if (
       !length(value, PhoneNumberConstants.LENGTH, PhoneNumberConstants.LENGTH)
     ) {
-      throw new FieldInvalid(PhoneNumberConstants.ERROR_LENGTH, 'phonenumber');
+      throw new FieldInvalid(PhoneNumberConstants.ERROR_LENGTH, 'phoneNumber');
     }
 
     if (!isPhoneNumber(value, 'BR')) {
-      throw new FieldInvalid(PhoneNumberConstants.ERROR_INVALID, 'phonenumber');
+      throw new FieldInvalid(PhoneNumberConstants.ERROR_INVALID, 'phoneNumber');
     }
   }
 }

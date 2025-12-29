@@ -1,6 +1,6 @@
 import {
+  FieldInvalid,
   NotFoundUser,
-  WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
@@ -33,7 +33,10 @@ export class UpdatePasswordUseCase {
       this.passwordHasher,
     );
     if (!oldPasswordVO.comparePassword(oldPassword)) {
-      throw new WrongCredentials('A senha atual informada está incorreta.');
+      throw new FieldInvalid(
+        'A senha atual informada está incorreta.',
+        'oldPassword',
+      );
     }
 
     const newPasswordVO = new PasswordVO(
@@ -46,6 +49,6 @@ export class UpdatePasswordUseCase {
       password: newPasswordVO.getValue(),
     });
 
-    this.tokenRepository.revokeAllSessions(user.userID);
+    await this.tokenRepository.revokeAllSessions(user.userID);
   }
 }

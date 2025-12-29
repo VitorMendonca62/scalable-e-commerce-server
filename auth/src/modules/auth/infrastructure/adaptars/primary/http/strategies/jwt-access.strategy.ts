@@ -24,7 +24,7 @@ export class JwtAccessStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  validate(payload: any) {
     if (payload == undefined || payload == null) {
       throw new WrongCredentials('Token inválido ou expirado');
     }

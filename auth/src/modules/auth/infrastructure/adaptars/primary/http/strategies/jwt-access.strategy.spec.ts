@@ -35,15 +35,25 @@ describe('JwtAccessStrategy', () => {
     });
 
     it('should throw WrongCredentials if payload is undefined ', async () => {
-      await expect(strategy.validate(undefined)).rejects.toThrow(
-        new WrongCredentials('Token inválido ou expirado'),
-      );
+      try {
+        strategy.validate(undefined);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe('Token inválido ou expirado');
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw WrongCredentials if payload is null ', async () => {
-      await expect(strategy.validate(null)).rejects.toThrow(
-        new WrongCredentials('Token inválido ou expirado'),
-      );
+      try {
+        strategy.validate(null);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe('Token inválido ou expirado');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 

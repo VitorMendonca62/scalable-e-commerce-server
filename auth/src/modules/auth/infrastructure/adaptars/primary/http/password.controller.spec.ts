@@ -76,9 +76,14 @@ describe('PasswordController', () => {
         .spyOn(sendCodeForForgotPasswordUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.sendCode(dto, expressResponse)).rejects.toThrow(
-        'Erro no use case',
-      );
+      try {
+        await controller.sendCode(dto, expressResponse);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 
@@ -143,9 +148,14 @@ describe('PasswordController', () => {
         .spyOn(validateCodeForForgotPasswordUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(
-        controller.validateCode(dto, expressResponse),
-      ).rejects.toThrow('Erro no use case');
+      try {
+        await controller.validateCode(dto, expressResponse);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 
@@ -194,9 +204,14 @@ describe('PasswordController', () => {
         .spyOn(resetPasswordUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(
-        controller.resetPassword(dto, request, response),
-      ).rejects.toThrow('Erro no use case');
+      try {
+        await controller.resetPassword(dto, request, response);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 
@@ -236,9 +251,14 @@ describe('PasswordController', () => {
         .spyOn(updatePasswordUseCase, 'execute')
         .mockRejectedValue(new Error('Erro no use case'));
 
-      await expect(controller.updatePassword(dto, request)).rejects.toThrow(
-        'Erro no use case',
-      );
+      try {
+        await controller.updatePassword(dto, request);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 });

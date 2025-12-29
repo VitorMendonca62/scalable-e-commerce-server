@@ -33,19 +33,29 @@ describe('JwtResetPassStrategy', () => {
     });
 
     it('should throw WrongCredentials if payload is undefined ', async () => {
-      await expect(strategy.validate(undefined)).rejects.toThrow(
-        new WrongCredentials(
+      try {
+        strategy.validate(undefined);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe(
           'Sessão inválida. Realize o processo de recupeção de senha novamente.',
-        ),
-      );
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
 
     it('should throw WrongCredentials if payload is null ', async () => {
-      await expect(strategy.validate(null)).rejects.toThrow(
-        new WrongCredentials(
+      try {
+        strategy.validate(null);
+        fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe(
           'Sessão inválida. Realize o processo de recupeção de senha novamente.',
-        ),
-      );
+        );
+        expect(error.data).toBeUndefined();
+      }
     });
   });
 

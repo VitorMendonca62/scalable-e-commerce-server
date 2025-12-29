@@ -10,30 +10,50 @@ describe('PhoneNumberValidator', () => {
   });
 
   it('should throw if phone number is empty', () => {
-    expect(() => PhoneNumberValidator.validate('')).toThrow(
-      new FieldInvalid(PhoneNumberConstants.ERROR_REQUIRED, 'phonenumber'),
-    );
+    try {
+      PhoneNumberValidator.validate('');
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PhoneNumberConstants.ERROR_REQUIRED);
+      expect(error.data).toBe('phoneNumber');
+    }
   });
 
   it('should throw if phone number is not a string', () => {
-    expect(() => PhoneNumberValidator.validate(12345678901 as any)).toThrow(
-      new FieldInvalid(PhoneNumberConstants.ERROR_STRING, 'phonenumber'),
-    );
+    try {
+      PhoneNumberValidator.validate(12345678901 as any);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PhoneNumberConstants.ERROR_STRING);
+      expect(error.data).toBe('phoneNumber');
+    }
   });
 
   it('should throw if phone number length is not equal to 11', () => {
     const wrongLengthPhone = '119999999';
 
-    expect(() => PhoneNumberValidator.validate(wrongLengthPhone)).toThrow(
-      new FieldInvalid(PhoneNumberConstants.ERROR_LENGTH, 'phonenumber'),
-    );
+    try {
+      PhoneNumberValidator.validate(wrongLengthPhone);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PhoneNumberConstants.ERROR_LENGTH);
+      expect(error.data).toBe('phoneNumber');
+    }
   });
 
   it('should throw if phone number is not a valid BR phone', () => {
     const invalidBRPhone = '11111111111111';
 
-    expect(() => PhoneNumberValidator.validate(invalidBRPhone)).toThrow(
-      new FieldInvalid(PhoneNumberConstants.ERROR_INVALID, 'phonenumber'),
-    );
+    try {
+      PhoneNumberValidator.validate(invalidBRPhone);
+      fail('Should have thrown an error');
+    } catch (error: any) {
+      expect(error).toBeInstanceOf(FieldInvalid);
+      expect(error.message).toBe(PhoneNumberConstants.ERROR_INVALID);
+      expect(error.data).toBe('phoneNumber');
+    }
   });
 });

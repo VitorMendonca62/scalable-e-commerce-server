@@ -25,7 +25,10 @@ export class FieldInvalid extends HttpError {
 }
 
 export class BusinessRuleFailure extends HttpError {
-  constructor(message: string = 'Regra de negócio quebrada.', data: any = {}) {
+  constructor(
+    message: string = 'Regra de negócio quebrada.',
+    data: any = undefined,
+  ) {
     super(message, HttpStatus.BAD_REQUEST, data);
     this.statusCode = HttpStatus.BAD_REQUEST;
     this.message = message;
@@ -36,7 +39,7 @@ export class BusinessRuleFailure extends HttpError {
 export class WrongCredentials extends HttpError {
   constructor(
     message: string = 'Suas credenciais estão incorretas. Tente novamente',
-    data: any = {},
+    data: any = undefined,
   ) {
     super(message, HttpStatus.UNAUTHORIZED, data);
     this.statusCode = HttpStatus.UNAUTHORIZED;
@@ -46,7 +49,10 @@ export class WrongCredentials extends HttpError {
 }
 
 export class NotFoundUser extends HttpError {
-  constructor(message: string = 'Usuário não encontrado.', data: any = {}) {
+  constructor(
+    message: string = 'Usuário não encontrado.',
+    data: any = undefined,
+  ) {
     super(message, HttpStatus.NOT_FOUND, data);
     this.statusCode = HttpStatus.NOT_FOUND;
     this.message = message;
@@ -57,7 +63,7 @@ export class NotFoundUser extends HttpError {
 export class ExternalServiceError extends HttpError {
   constructor(
     message: string = 'Erro ao comunicar com serviço externo',
-    data: any = {},
+    data: any = undefined,
   ) {
     super(message, HttpStatus.SERVICE_UNAVAILABLE, data);
     this.statusCode = HttpStatus.SERVICE_UNAVAILABLE;
