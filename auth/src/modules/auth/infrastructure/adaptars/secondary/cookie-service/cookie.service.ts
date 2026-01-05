@@ -1,10 +1,11 @@
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 import {
   EnvironmentVariables,
   NodeEnv,
 } from '@config/environment/env.validation';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 
 @Injectable()
 export default class CookieService {
@@ -20,5 +21,18 @@ export default class CookieService {
       maxAge: age,
       path: '/',
     });
+  }
+
+  extractFromRequest(request: Request, cookieName: Cookies): string | null {
+    if (request?.cookies === undefined || request?.cookies === null) {
+      return null;
+    }
+
+    const token = request.cookies[cookieName];
+    if (token === undefined || token === null) {
+      return null;
+    }
+
+    return token.replace(/^Bearer\s+/i, '');
   }
 }

@@ -26,7 +26,7 @@ export class UpdatePasswordUseCase {
       userID,
     });
 
-    if (user == undefined || user == null) throw new NotFoundUser();
+    if (user === undefined || user === null) throw new NotFoundUser();
 
     const oldPasswordVO = new PasswordHashedVO(
       user.password,

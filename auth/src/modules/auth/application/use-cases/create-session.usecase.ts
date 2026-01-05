@@ -31,7 +31,7 @@ export class CreateSessionUseCase {
       email: inputUser.email.getValue(),
     });
 
-    if (userJSON == undefined || userJSON == null) {
+    if (userJSON === undefined || userJSON === null) {
       throw new WrongCredentials();
     }
 

@@ -4,22 +4,30 @@ import { EmailConstants } from '@auth/domain/values-objects/email/email-constant
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { JwtResetPassStrategy } from './jwt-reset-pass.strategy';
 import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
+import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 
 describe('JwtResetPassStrategy', () => {
   let strategy: JwtResetPassStrategy;
   let configService: ConfigService<EnvironmentVariables>;
+  let cookieService: CookieService;
 
   beforeEach(async () => {
     configService = {
       get: jest.fn().mockReturnValue('secret-test-key'),
     } as any;
 
-    strategy = new JwtResetPassStrategy(configService);
+    cookieService = {
+      extractFromRequest: jest.fn(),
+    } as any;
+
+    strategy = new JwtResetPassStrategy(configService, cookieService);
   });
 
   it('should be defined', () => {
     expect(strategy).toBeDefined();
     expect(configService).toBeDefined();
+    expect(cookieService).toBeDefined();
   });
 
   describe('validate', () => {
@@ -64,30 +72,21 @@ describe('JwtResetPassStrategy', () => {
   });
 
   describe('jwtFromRequest', () => {
-    it('should extract refresh token in cookies', () => {
+    const request: Request = {
+      cookies: {
+        refresh_token: 'Bearer token-value',
+      },
+    } as any;
+
+    it('should call cookieService.extractFromRequest with Request and Cookie name', () => {
       const extractFunction = (strategy as any)._jwtFromRequest;
 
-      const mockRequest = {
-        cookies: {
-          reset_pass_token: 'Bearer token-value',
-        },
-      };
+      extractFunction(request);
 
-      const token = extractFunction(mockRequest);
-
-      expect(token).toBe('token-value');
-    });
-
-    it('should return null when extract failure refresh token in cookies ', () => {
-      const extractFunction = (strategy as any)._jwtFromRequest;
-
-      const mockRequest = {
-        cookies: undefined,
-      };
-
-      const token = extractFunction(mockRequest);
-
-      expect(token).toBeNull();
+      expect(cookieService.extractFromRequest).toHaveBeenCalledWith(
+        request,
+        Cookies.ResetPassToken,
+      );
     });
   });
 });

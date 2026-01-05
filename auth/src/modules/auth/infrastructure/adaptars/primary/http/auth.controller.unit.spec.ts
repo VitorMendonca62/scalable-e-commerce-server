@@ -48,7 +48,6 @@ describe('AuthController', () => {
     );
 
     response = {
-      cookie: jest.fn(),
       clearCookie: jest.fn(),
     } as any;
   });

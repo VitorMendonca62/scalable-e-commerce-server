@@ -1,7 +1,7 @@
 import { JWTAccessGuard } from './jwt-access.guard';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { UserInAcessToken } from '@auth/domain/types/user';
 
 describe('JWTAccessGuard', () => {
   let guard: JWTAccessGuard;
@@ -15,7 +15,9 @@ describe('JWTAccessGuard', () => {
   });
 
   it('should return the user if authentication is successful', () => {
-    const mockUser = { id: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
+    const mockUser: UserInAcessToken = {
+      userID: IDConstants.EXEMPLE,
+    };
 
     const result = guard.handleRequest(null, mockUser);
 

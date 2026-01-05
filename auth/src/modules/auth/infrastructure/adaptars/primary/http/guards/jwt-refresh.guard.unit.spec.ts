@@ -1,7 +1,7 @@
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { JWTRefreshGuard } from './jwt-refresh.guard';
+import { UserInRefreshToken } from '@auth/domain/types/user';
+import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('JWTRefreshGuard', () => {
   let guard: JWTRefreshGuard;
@@ -15,7 +15,10 @@ describe('JWTRefreshGuard', () => {
   });
 
   it('should return the user if authentication is successful', () => {
-    const mockUser = { id: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
+    const mockUser: UserInRefreshToken = {
+      tokenID: `token-${IDConstants.EXEMPLE}`,
+      userID: IDConstants.EXEMPLE,
+    };
 
     const result = guard.handleRequest(null, mockUser);
 

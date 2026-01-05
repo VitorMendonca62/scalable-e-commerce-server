@@ -5,11 +5,14 @@ import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { JWTRefreshTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
+import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
   let configService: ConfigService<EnvironmentVariables>;
   let tokenRepository: TokenRepository;
+  let cookieService: CookieService;
 
   beforeEach(async () => {
     configService = {
@@ -20,12 +23,21 @@ describe('JwtRefreshStrategy', () => {
       isRevoked: jest.fn(),
     } as any;
 
-    strategy = new JwtRefreshStrategy(configService, tokenRepository);
+    cookieService = {
+      extractFromRequest: jest.fn(),
+    } as any;
+
+    strategy = new JwtRefreshStrategy(
+      configService,
+      tokenRepository,
+      cookieService,
+    );
   });
 
   it('should be defined', () => {
     expect(strategy).toBeDefined();
     expect(configService).toBeDefined();
+    expect(cookieService).toBeDefined();
   });
 
   describe('validate', () => {
@@ -86,28 +98,21 @@ describe('JwtRefreshStrategy', () => {
   });
 
   describe('jwtFromRequest', () => {
-    it('should extract refresh token in cookies', () => {
+    const request: Request = {
+      cookies: {
+        refresh_token: 'Bearer token-value',
+      },
+    } as any;
+
+    it('should call cookieService.extractFromRequest with Request and Cookie name', () => {
       const extractFunction = (strategy as any)._jwtFromRequest;
 
-      const token = extractFunction({
-        cookies: {
-          refresh_token: 'Bearer token-value',
-        },
-      });
+      extractFunction(request);
 
-      expect(token).toBe('token-value');
-    });
-
-    it('should return null when extract failure refresh token in cookies ', () => {
-      const extractFunction = (strategy as any)._jwtFromRequest;
-
-      const token = extractFunction({
-        cookies: {
-          refresh_token: undefined,
-        },
-      });
-
-      expect(token).toBeNull();
+      expect(cookieService.extractFromRequest).toHaveBeenCalledWith(
+        request,
+        Cookies.RefreshToken,
+      );
     });
   });
 });

@@ -13,7 +13,7 @@ export default class ValidateCodeForForgotPasswordUseCase {
   async execute(code: string, email: string): Promise<string> {
     const emailCode = await this.emailCodeRepository.findOne({ code, email });
 
-    if (emailCode == undefined || emailCode == null)
+    if (emailCode === undefined || emailCode === null)
       throw new BusinessRuleFailure(
         'Código de recuperação inválido ou expirado. Tente novamente',
       );

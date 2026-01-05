@@ -15,7 +15,7 @@ export class GetAccessTokenUseCase {
   async execute(userID: string, tokenID: string): Promise<`Bearer ${string}`> {
     const user = await this.userRepository.findOne({ userID });
 
-    if (user == undefined || user == null) {
+    if (user === undefined || user === null) {
       throw new WrongCredentials('Token inválido ou expirado');
     }
 
