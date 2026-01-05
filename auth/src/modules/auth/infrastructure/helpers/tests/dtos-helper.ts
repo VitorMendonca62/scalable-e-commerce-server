@@ -4,7 +4,9 @@ import { UpdatePasswordDTO } from '@auth/infrastructure/adaptars/primary/http/dt
 import { ValidateCodeForForgotPasswordDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/validate-code-for-forgot-pass.dto';
 import { ValidationError, validate } from 'class-validator';
 
-export const validateObject = async (dto: any): Promise<ValidationError[]> => {
+export const validateObject = async (
+  dto: object,
+): Promise<ValidationError[]> => {
   return await validate(dto, {
     whitelist: true,
     forbidNonWhitelisted: true,

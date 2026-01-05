@@ -6,7 +6,7 @@ import { ClientProxy } from '@nestjs/microservices';
 export class UsersQueueService implements MessageBroker {
   constructor(@Inject('USERS_BROKER_SERVICE') private client: ClientProxy) {}
 
-  async send(event: string, payload: any) {
+  async send(event: string, payload: object) {
     this.client.emit(event, payload);
   }
 }

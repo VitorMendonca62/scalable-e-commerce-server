@@ -40,7 +40,8 @@ import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { Throttle } from '@nestjs/throttler';
+import { SkipThrottle, Throttle } from '@nestjs/throttler';
+import { UserInRefreshToken } from '@auth/domain/types/user';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -87,11 +88,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTRefreshGuard)
   @ApiGetAccessToken()
+  @SkipThrottle()
   async getAccessToken(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<HttpResponseOutbound> {
-    const { userID, tokenID } = request.user as any;
+    const { userID, tokenID } = request.user as UserInRefreshToken;
 
     const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
     this.cookieService.setCookie(Cookies.AccessToken, token, 3600000, response);
@@ -103,11 +105,12 @@ export class AuthController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTRefreshGuard)
   @ApiLogout()
+  @SkipThrottle()
   async logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ): Promise<HttpResponseOutbound> {
-    const { userID, tokenID } = request.user as any;
+    const { userID, tokenID } = request.user as UserInRefreshToken;
 
     await this.finishSessionUseCase.execute(tokenID, userID);
     response.clearCookie(Cookies.RefreshToken);

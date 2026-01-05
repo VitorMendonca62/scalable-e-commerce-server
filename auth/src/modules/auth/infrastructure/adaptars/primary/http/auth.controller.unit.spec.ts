@@ -194,7 +194,7 @@ describe('AuthController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
-        await await controller.getAccessToken(request, response);
+        await controller.getAccessToken(request, response);
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

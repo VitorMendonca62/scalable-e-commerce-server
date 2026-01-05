@@ -1,7 +1,7 @@
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiData(example: any = {}) {
+export function ApiData(example: object = {}) {
   return applyDecorators(
     ApiProperty({
       description:

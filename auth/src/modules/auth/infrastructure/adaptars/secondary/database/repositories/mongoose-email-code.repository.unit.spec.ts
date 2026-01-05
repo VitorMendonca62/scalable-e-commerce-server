@@ -1,18 +1,20 @@
 import { mockEmailCodeLikeJSONWithoutValidCode as mockEmailCodeLikeJSON } from '@auth/infrastructure/helpers/tests/email-code-helper';
 import MongooseEmailCodeRepository from './mongoose-email-code.repository';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailCodeDocument } from '../models/email-code.model';
+import { Model } from 'mongoose';
 
 describe('MongooseEmailCodeRepository', () => {
   let repository: MongooseEmailCodeRepository;
 
-  let EmailCodeModel: any;
+  let EmailCodeModel: Model<EmailCodeDocument>;
 
   let mockedExecFindOne: jest.Mock;
   let mockedSavePrototype: jest.Mock;
   let mockedExecDelete: jest.Mock;
 
   beforeEach(async () => {
-    EmailCodeModel = jest.fn();
+    EmailCodeModel = jest.fn() as any;
 
     repository = new MongooseEmailCodeRepository(EmailCodeModel);
   });

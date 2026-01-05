@@ -32,6 +32,10 @@ import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { Throttle } from '@nestjs/throttler';
+import {
+  UserInAcessToken,
+  UserInResetPassToken,
+} from '@auth/domain/types/user';
 
 @Controller('auth/pass')
 @ApiTags('PasswordController')
@@ -92,7 +96,7 @@ export class PasswordController {
     @Req() request: Request,
     @Res() response: Response,
   ): Promise<void> {
-    const { email } = request.user as any;
+    const { email } = request.user as UserInResetPassToken;
 
     await this.resetPasswordUseCase.execute(email, dto.newPassword);
     response.redirect(
@@ -110,7 +114,7 @@ export class PasswordController {
     @Body() dto: UpdatePasswordDTO,
     @Req() request: Request,
   ): Promise<HttpResponseOutbound> {
-    const { userID } = request.user as any;
+    const { userID } = request.user as UserInAcessToken;
 
     await this.updatePasswordUseCase.execute(
       userID,

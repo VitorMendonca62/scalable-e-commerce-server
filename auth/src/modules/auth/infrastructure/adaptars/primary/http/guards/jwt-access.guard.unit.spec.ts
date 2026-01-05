@@ -1,5 +1,4 @@
 import { JWTAccessGuard } from './jwt-access.guard';
-import { ExecutionContext } from '@nestjs/common';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
@@ -18,19 +17,14 @@ describe('JWTAccessGuard', () => {
   it('should return the user if authentication is successful', () => {
     const mockUser = { id: IDConstants.EXEMPLE, email: EmailConstants.EXEMPLE };
 
-    const result = guard.handleRequest(
-      null,
-      mockUser,
-      null,
-      {} as ExecutionContext,
-    );
+    const result = guard.handleRequest(null, mockUser);
 
     expect(result).toEqual(mockUser);
   });
 
   it('should throw WrongCredentials if user is null', () => {
     try {
-      guard.handleRequest(null, null, null, {} as ExecutionContext);
+      guard.handleRequest(null, null);
       fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(WrongCredentials);
@@ -41,7 +35,7 @@ describe('JWTAccessGuard', () => {
 
   it('should throw WrongCredentials if user is false', () => {
     try {
-      guard.handleRequest(null, false, null, {} as ExecutionContext);
+      guard.handleRequest(null, false);
       fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(WrongCredentials);
@@ -54,7 +48,7 @@ describe('JWTAccessGuard', () => {
     const customError = new Error('Database connection failed');
 
     try {
-      guard.handleRequest(customError, null, null, {} as ExecutionContext);
+      guard.handleRequest(customError, null);
       fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(Error);
@@ -65,7 +59,7 @@ describe('JWTAccessGuard', () => {
 
   it('should throw WrongCredentials if user is undefined', () => {
     try {
-      guard.handleRequest(null, undefined, null, {} as ExecutionContext);
+      guard.handleRequest(null, undefined);
       fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(WrongCredentials);

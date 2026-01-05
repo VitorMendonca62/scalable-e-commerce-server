@@ -11,16 +11,23 @@ export abstract class HttpResponseOutbound {
   message: string;
 
   @ApiData()
-  data: any;
+  data: object | string | undefined;
 
-  constructor(status: number, message: string, data: any = undefined) {
+  constructor(
+    status: number,
+    message: string,
+    data: object | string | undefined = undefined,
+  ) {
     this.statusCode = status;
     this.message = message;
     this.data = data;
   }
 }
 export class HttpOKResponse extends HttpResponseOutbound {
-  constructor(message: string = 'OK!', data: any = undefined) {
+  constructor(
+    message: string = 'OK!',
+    data: object | string | undefined = undefined,
+  ) {
     super(HttpStatus.OK, message, data);
   }
 }
@@ -32,18 +39,27 @@ export class HttpNoContentResponse extends HttpResponseOutbound {
 }
 
 export class HttpAcceptedResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Accepted!', data: any = undefined) {
+  constructor(
+    message: string = 'Accepted!',
+    data: object | string | undefined = undefined,
+  ) {
     super(HttpStatus.ACCEPTED, message, data);
   }
 }
 
 export class HttpCreatedResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Criado!', data: any = undefined) {
+  constructor(
+    message: string = 'Criado!',
+    data: object | string | undefined = undefined,
+  ) {
     super(HttpStatus.CREATED, message, data);
   }
 }
 export class HttpRedirectSeeOrtherResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Redirecionado!', data: any = undefined) {
+  constructor(
+    message: string = 'Redirecionado!',
+    data: object | string | undefined = undefined,
+  ) {
     super(HttpStatus.SEE_OTHER, message, data);
   }
 }

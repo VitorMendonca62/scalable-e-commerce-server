@@ -1,14 +1,16 @@
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-import { ExecutionContext } from '@nestjs/common';
+import { UserInAcessToken } from '@auth/domain/types/user';
 import { AuthGuard } from '@nestjs/passport';
 
 export class JWTAccessGuard extends AuthGuard('jwt-access') {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleRequest(err: any, user: any, _info: any, _context: ExecutionContext) {
-    if (err || user == undefined || user == null || user == false) {
+  handleRequest<TUser = UserInAcessToken>(
+    err: Error | null,
+    user: UserInAcessToken | false | undefined,
+  ): TUser {
+    if (err || !user) {
       throw err || new WrongCredentials('Token inválido ou expirado');
     }
 
-    return user;
+    return user as TUser;
   }
 }

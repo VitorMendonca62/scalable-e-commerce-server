@@ -1,11 +1,13 @@
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-import { ExecutionContext } from '@nestjs/common';
+import { UserInResetPassToken } from '@auth/domain/types/user';
 import { AuthGuard } from '@nestjs/passport';
 
 export class JWTResetPassGuard extends AuthGuard('jwt-reset-pass') {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  handleRequest(err: any, user: any, _info: any, _context: ExecutionContext) {
-    if (err || user == undefined || user == null || user == false) {
+  handleRequest<TUser = UserInResetPassToken>(
+    err: Error | null,
+    user: UserInResetPassToken | false | undefined,
+  ) {
+    if (err || !user) {
       throw (
         err ||
         new WrongCredentials(
@@ -14,6 +16,6 @@ export class JWTResetPassGuard extends AuthGuard('jwt-reset-pass') {
       );
     }
 
-    return user;
+    return user as TUser;
   }
 }

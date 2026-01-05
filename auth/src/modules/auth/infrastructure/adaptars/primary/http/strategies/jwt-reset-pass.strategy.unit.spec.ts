@@ -71,7 +71,7 @@ describe('JwtResetPassStrategy', () => {
         cookies: {
           reset_pass_token: 'Bearer token-value',
         },
-      } as any;
+      };
 
       const token = extractFunction(mockRequest);
 
@@ -83,7 +83,7 @@ describe('JwtResetPassStrategy', () => {
 
       const mockRequest = {
         cookies: undefined,
-      } as any;
+      };
 
       const token = extractFunction(mockRequest);
 

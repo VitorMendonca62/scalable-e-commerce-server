@@ -39,6 +39,7 @@ import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strate
 import { TokenRepository } from './domain/ports/secondary/token-repository.port';
 import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
 import { FinishSessionUseCase } from './application/use-cases/finish-session.usecase';
+import CookieService from './infrastructure/adaptars/secondary/cookie-service/cookie.service';
 
 @Module({
   imports: [
@@ -98,6 +99,7 @@ import { FinishSessionUseCase } from './application/use-cases/finish-session.use
     FinishSessionUseCase,
     UserMapper,
     UsersQueueService,
+    CookieService,
     SendCodeForForgotPasswordUseCase,
     ValidateCodeForForgotPasswordUseCase,
     ResetPasswordUseCase,
