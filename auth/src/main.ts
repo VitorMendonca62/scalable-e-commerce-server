@@ -4,7 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
-import { EnvironmentVariables } from './config/environment/env.validation';
+import {
+  EnvironmentVariables,
+  NodeEnv,
+} from './config/environment/env.validation';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
@@ -17,9 +20,15 @@ async function bootstrap() {
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');
 
+  // TODO: Configurar os hosts dps
   app.enableCors({
-    origin: `http://localhost:${PORT}`,
+    origin:
+      configService.get('NODE_ENV') === NodeEnv.Production
+        ? `http://localhost:${PORT}`
+        : [`http://localhost:${PORT}`],
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   app.use(cookieParser());
@@ -58,14 +67,17 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      requestInterceptor: (req) => {
-        req.credentials = 'include';
-        return req;
+
+  if (configService.get('NODE_ENV') !== NodeEnv.Production) {
+    SwaggerModule.setup('docs', app, document, {
+      swaggerOptions: {
+        requestInterceptor: (req) => {
+          req.credentials = 'include';
+          return req;
+        },
       },
-    },
-  });
+    });
+  }
 
   app.useGlobalPipes(
     new ValidationPipe({
