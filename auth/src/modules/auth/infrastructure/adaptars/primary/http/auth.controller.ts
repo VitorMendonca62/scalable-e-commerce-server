@@ -42,6 +42,7 @@ import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-servic
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { UserInRefreshToken } from '@auth/domain/types/user';
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -71,13 +72,13 @@ export class AuthController {
     this.cookieService.setCookie(
       Cookies.RefreshToken,
       refreshToken,
-      604800000,
+      TokenExpirationConstants.REFRESH_TOKEN_MS,
       response,
     );
     this.cookieService.setCookie(
       Cookies.AccessToken,
       accessToken,
-      3600000,
+      TokenExpirationConstants.ACCESS_TOKEN_MS,
       response,
     );
 
@@ -96,7 +97,12 @@ export class AuthController {
     const { userID, tokenID } = request.user as UserInRefreshToken;
 
     const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
-    this.cookieService.setCookie(Cookies.AccessToken, token, 3600000, response);
+    this.cookieService.setCookie(
+      Cookies.AccessToken,
+      token,
+      TokenExpirationConstants.ACCESS_TOKEN_MS,
+      response,
+    );
 
     return new HttpOKResponse('Seu token de acesso foi renovado');
   }

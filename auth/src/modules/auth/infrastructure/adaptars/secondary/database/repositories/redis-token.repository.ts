@@ -1,3 +1,4 @@
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { InjectRedis } from '@nestjs-modules/ioredis';
 import Redis from 'ioredis';
@@ -20,7 +21,10 @@ export class RedisTokenRepository implements TokenRepository {
     });
 
     await this.redis.sadd(`session:${userID}`, tokenKey);
-    await this.redis.expire(tokenKey, 604800); // 7D
+    await this.redis.expire(
+      tokenKey,
+      TokenExpirationConstants.REFRESH_TOKEN_SECONDS,
+    ); // 7D
   }
 
   async revokeOneSession(tokenID: string, userID: string): Promise<void> {

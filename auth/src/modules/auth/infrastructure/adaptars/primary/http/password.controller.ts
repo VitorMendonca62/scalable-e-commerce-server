@@ -36,6 +36,7 @@ import {
   UserInAcessToken,
   UserInResetPassToken,
 } from '@auth/domain/types/user';
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 
 @Controller('auth/pass')
 @ApiTags('PasswordController')
@@ -78,7 +79,7 @@ export class PasswordController {
     this.cookieService.setCookie(
       Cookies.ResetPassToken,
       token,
-      600000,
+      TokenExpirationConstants.RESET_PASS_TOKEN_MS,
       response,
     );
 
