@@ -9,6 +9,8 @@ import {
   NodeEnv,
 } from './config/environment/env.validation';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -38,29 +40,29 @@ async function bootstrap() {
     .setDescription('The auth system for a e-commerce store')
     .setVersion('1.0')
     .addCookieAuth(
-      'refresh_token',
+      Cookies.RefreshToken,
       {
         type: 'apiKey',
         in: 'cookie',
-        name: 'refresh_token',
+        name: Cookies.RefreshToken,
       },
       'cookie_refresh',
     )
     .addCookieAuth(
-      'access_token',
+      Cookies.AccessToken,
       {
         type: 'apiKey',
         in: 'cookie',
-        name: 'access_token',
+        name: Cookies.AccessToken,
       },
       'cookie_access',
     )
     .addCookieAuth(
-      'reset_pass_token',
+      Cookies.ResetPassToken,
       {
         type: 'apiKey',
         in: 'cookie',
-        name: 'reset_pass_token',
+        name: Cookies.ResetPassToken,
       },
       'cookie_reset_pass',
     )
@@ -99,6 +101,9 @@ async function bootstrap() {
       },
     }),
   );
+
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
   await app
     .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))

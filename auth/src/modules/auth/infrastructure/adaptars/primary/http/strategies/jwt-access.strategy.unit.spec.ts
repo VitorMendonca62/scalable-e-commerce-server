@@ -4,6 +4,8 @@ import { JwtAccessStrategy } from './jwt-access.strategy';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
+import { JWTAccessTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
+import { defaultRoles } from '@auth/domain/types/permissions';
 
 describe('JwtAccessStrategy', () => {
   let strategy: JwtAccessStrategy;
@@ -24,9 +26,13 @@ describe('JwtAccessStrategy', () => {
 
   describe('validate', () => {
     it('should validate payload and return userID', async () => {
-      const payload = {
+      const payload: JWTAccessTokenPayLoad = {
         sub: IDConstants.EXEMPLE,
         email: EmailConstants.EXEMPLE,
+        exp: 1000,
+        iat: 1000,
+        roles: defaultRoles,
+        type: 'access',
       };
 
       const result = await strategy.validate(payload);

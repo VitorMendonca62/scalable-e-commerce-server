@@ -3,6 +3,7 @@ import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { JwtResetPassStrategy } from './jwt-reset-pass.strategy';
+import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 
 describe('JwtResetPassStrategy', () => {
   let strategy: JwtResetPassStrategy;
@@ -23,8 +24,11 @@ describe('JwtResetPassStrategy', () => {
 
   describe('validate', () => {
     it('should validate payload and return userID', async () => {
-      const payload = {
+      const payload: JWTResetPassTokenPayLoad = {
         sub: EmailConstants.EXEMPLE,
+        exp: 1000,
+        iat: 1000,
+        type: 'reset-pass',
       };
 
       const result = await strategy.validate(payload);

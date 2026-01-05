@@ -4,6 +4,7 @@ import { JwtRefreshStrategy } from './jwt-refresh.strategy';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import { JWTRefreshTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
@@ -28,9 +29,12 @@ describe('JwtRefreshStrategy', () => {
   });
 
   describe('validate', () => {
-    const payload = {
+    const payload: JWTRefreshTokenPayLoad = {
       sub: IDConstants.EXEMPLE,
       jti: IDConstants.EXEMPLE,
+      exp: 11111,
+      iat: 11111,
+      type: 'refresh',
     };
     beforeEach(() => {
       jest.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(false);

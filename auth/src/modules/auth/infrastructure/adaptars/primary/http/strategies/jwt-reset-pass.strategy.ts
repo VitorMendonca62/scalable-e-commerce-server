@@ -4,6 +4,7 @@ import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 
 @Injectable()
 export class JwtResetPassStrategy extends PassportStrategy(
@@ -24,7 +25,7 @@ export class JwtResetPassStrategy extends PassportStrategy(
     });
   }
 
-  validate(payload: any) {
+  validate(payload: JWTResetPassTokenPayLoad) {
     if (payload == undefined || payload == null) {
       throw new WrongCredentials(
         'Sessão inválida. Realize o processo de recupeção de senha novamente.',

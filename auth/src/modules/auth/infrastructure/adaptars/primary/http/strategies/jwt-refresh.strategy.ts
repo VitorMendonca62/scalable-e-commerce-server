@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import { JWTRefreshTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -28,7 +29,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JWTRefreshTokenPayLoad) {
     if (payload == undefined || payload == null) {
       throw new WrongCredentials('Sessão inválida. Faça login novamente.');
     }
