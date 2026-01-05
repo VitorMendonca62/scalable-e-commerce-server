@@ -40,6 +40,7 @@ import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
+import { Throttle } from '@nestjs/throttler';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -55,6 +56,7 @@ export class AuthController {
   @Post('/login')
   @HttpCode(HttpStatus.CREATED)
   @ApiLoginUser()
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
   async login(
     @Body() dto: LoginUserDTO,
     @Res({ passthrough: true }) response: Response,

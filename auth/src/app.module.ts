@@ -10,8 +10,18 @@ import { configMongoDB } from '@config/database/mongo.config';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { configRedisdDB } from '@config/database/redis.config';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 15,
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: [getCurrentNodeENV()],
@@ -38,5 +48,11 @@ import { RedisModule } from '@nestjs-modules/ioredis';
     AuthModule,
   ],
   controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
