@@ -29,6 +29,8 @@ import { JWTAccessGuard } from './guards/jwt-access.guard';
 import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
 import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator';
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
+import CookieService from '../../secondary/cookie-service/cookie.service';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 
 @Controller('auth/pass')
 @ApiTags('PasswordController')
@@ -38,6 +40,7 @@ export class PasswordController {
     private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
     private readonly resetPasswordUseCase: ResetPasswordUseCase,
     private readonly updatePasswordUseCase: UpdatePasswordUseCase,
+    private readonly cookieService: CookieService,
   ) {}
 
   @Post('/send-code')
@@ -65,11 +68,14 @@ export class PasswordController {
       dto.code,
       dto.email,
     );
-    response.cookie('reset_pass_token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 10,
-      path: '/',
-    });
+
+    this.cookieService.setCookie(
+      Cookies.ResetPassToken,
+      token,
+      600000,
+      response,
+    );
+
     return new HttpOKResponse(
       'Seu código de recuperação de senha foi validado com sucesso.',
     );

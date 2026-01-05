@@ -38,6 +38,8 @@ import {
 import { Request, Response } from 'express';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
+import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -47,6 +49,7 @@ export class AuthController {
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
     private readonly finishSessionUseCase: FinishSessionUseCase,
+    private readonly cookieService: CookieService,
   ) {}
 
   @Post('/login')
@@ -61,17 +64,19 @@ export class AuthController {
       this.userMapper.loginDTOForEntity(dto, ip),
     );
     const { accessToken, refreshToken } = token;
-    response.cookie('refresh_token', refreshToken, {
-      httpOnly: true,
-      maxAge: 604800000, // 7D,
-      path: '/',
-    });
 
-    response.cookie('access_token', accessToken, {
-      httpOnly: true,
-      maxAge: 3600000, // 1h,
-      path: '/',
-    });
+    this.cookieService.setCookie(
+      Cookies.RefreshToken,
+      refreshToken,
+      604800000,
+      response,
+    );
+    this.cookieService.setCookie(
+      Cookies.AccessToken,
+      accessToken,
+      3600000,
+      response,
+    );
 
     return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
@@ -87,11 +92,8 @@ export class AuthController {
     const { userID, tokenID } = request.user as any;
 
     const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
-    response.cookie('access_token', token, {
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60,
-      path: '/',
-    });
+    this.cookieService.setCookie(Cookies.AccessToken, token, 3600000, response);
+
     return new HttpOKResponse('Seu token de acesso foi renovado');
   }
 
@@ -106,8 +108,8 @@ export class AuthController {
     const { userID, tokenID } = request.user as any;
 
     await this.finishSessionUseCase.execute(tokenID, userID);
-    response.clearCookie('refresh_token');
-    response.clearCookie('access_token');
+    response.clearCookie(Cookies.RefreshToken);
+    response.clearCookie(Cookies.AccessToken);
 
     return new HttpNoContentResponse();
   }

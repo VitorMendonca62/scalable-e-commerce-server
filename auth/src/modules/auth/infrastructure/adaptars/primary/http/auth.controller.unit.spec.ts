@@ -15,6 +15,8 @@ import {
 import { Request, Response } from 'express';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
+import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -22,6 +24,7 @@ describe('AuthController', () => {
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
   let finishSessionUseCase: FinishSessionUseCase;
+  let cookieService: CookieService;
 
   let userMapper: UserMapper;
 
@@ -34,12 +37,14 @@ describe('AuthController', () => {
     createSessionUseCase = { execute: jest.fn() } as any;
     getAccessTokenUseCase = { execute: jest.fn() } as any;
     finishSessionUseCase = { execute: jest.fn() } as any;
+    cookieService = { setCookie: jest.fn() } as any;
 
     controller = new AuthController(
       userMapper,
       createSessionUseCase,
       getAccessTokenUseCase,
       finishSessionUseCase,
+      cookieService,
     );
 
     response = {
@@ -54,6 +59,7 @@ describe('AuthController', () => {
     expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
     expect(finishSessionUseCase).toBeDefined();
+    expect(cookieService).toBeDefined();
   });
 
   describe('login', () => {
@@ -80,24 +86,19 @@ describe('AuthController', () => {
     it('should set access token and refresh token on cookies', async () => {
       await controller.login(dto, response, ip);
 
-      expect(response.cookie).toHaveBeenNthCalledWith(
+      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
         1,
-        'refresh_token',
+        Cookies.RefreshToken,
         'Bearer <refreshToken>',
-        {
-          httpOnly: true,
-          maxAge: 604800000,
-          path: '/',
-        },
+        604800000,
+        response,
       );
-      expect(response.cookie).toHaveBeenLastCalledWith(
-        'access_token',
+      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
+        2,
+        Cookies.AccessToken,
         'Bearer <accessToken>',
-        {
-          httpOnly: true,
-          maxAge: 3600000,
-          path: '/',
-        },
+        3600000,
+        response,
       );
     });
 
@@ -169,14 +170,11 @@ describe('AuthController', () => {
     it('should set access token on cookies', async () => {
       await controller.getAccessToken(request, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(
-        'access_token',
+      expect(cookieService.setCookie).toHaveBeenCalledWith(
+        Cookies.AccessToken,
         'Bearer <accessToken>',
-        {
-          httpOnly: true,
-          maxAge: 1000 * 60 * 60,
-          path: '/',
-        },
+        3600000,
+        response,
       );
     });
 

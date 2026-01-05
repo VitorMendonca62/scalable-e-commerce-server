@@ -10,6 +10,8 @@ import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-helper';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
+import CookieService from '../../secondary/cookie-service/cookie.service';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 
 describe('PasswordController', () => {
   let controller: PasswordController;
@@ -18,18 +20,21 @@ describe('PasswordController', () => {
   let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
   let resetPasswordUseCase: ResetPasswordUseCase;
   let updatePasswordUseCase: UpdatePasswordUseCase;
+  let cookiesService: CookieService;
 
   beforeEach(async () => {
     sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     validateCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     resetPasswordUseCase = { execute: jest.fn() } as any;
     updatePasswordUseCase = { execute: jest.fn() } as any;
+    cookiesService = { setCookie: jest.fn() } as any;
 
     controller = new PasswordController(
       sendCodeForForgotPasswordUseCase,
       validateCodeForForgotPasswordUseCase,
       resetPasswordUseCase,
       updatePasswordUseCase,
+      cookiesService,
     );
   });
 
@@ -39,6 +44,7 @@ describe('PasswordController', () => {
     expect(validateCodeForForgotPasswordUseCase).toBeDefined();
     expect(resetPasswordUseCase).toBeDefined();
     expect(updatePasswordUseCase).toBeDefined();
+    expect(cookiesService).toBeDefined();
   });
 
   describe('sendCode', () => {
@@ -118,14 +124,11 @@ describe('PasswordController', () => {
 
       await controller.validateCode(dto, expressResponse);
 
-      expect(expressResponse.cookie).toHaveBeenCalledWith(
-        'reset_pass_token',
+      expect(cookiesService.setCookie).toHaveBeenCalledWith(
+        Cookies.ResetPassToken,
         'token',
-        {
-          httpOnly: true,
-          maxAge: 600000,
-          path: '/',
-        },
+        600000,
+        expressResponse,
       );
     });
 
