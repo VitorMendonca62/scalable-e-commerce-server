@@ -27,9 +27,6 @@ export const addRabbitMQClient = async (
     },
   });
 
-  await app
-    .startAllMicroservices()
-    .then(() => logger.debug(`Message broker client is listening in ${uri}`))
-    .catch((error) => logger.error(error));
+  await app.startAllMicroservices().catch((error) => logger.error(error));
   return app;
 };
