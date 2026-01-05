@@ -1,6 +1,6 @@
 import PasswordHashedVO from './password-hashed-vo';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-helpers';
+import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-mocks';
 import { PasswordHashedConstants } from './password-hashed-constants';
 import { PasswordConstants } from '../password/password-constants';
 

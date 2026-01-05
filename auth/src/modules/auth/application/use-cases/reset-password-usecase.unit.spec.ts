@@ -4,7 +4,7 @@ mockValueObjects(['password']);
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';

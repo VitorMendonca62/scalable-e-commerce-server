@@ -1,5 +1,5 @@
 import { JwtTokenService } from './jwt-token.service';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';

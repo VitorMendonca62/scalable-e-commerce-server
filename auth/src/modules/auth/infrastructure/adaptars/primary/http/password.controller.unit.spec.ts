@@ -7,7 +7,7 @@ import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/va
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
-import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-helper';
+import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
 import CookieService from '../../secondary/cookie-service/cookie.service';

@@ -1,6 +1,6 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { SendCodeForForgotPasswordDTO } from './send-code-for-forgot-pass.dto';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
+import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('SendCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

@@ -3,7 +3,7 @@ import { ValidateCodeForForgotPasswordDTO } from './validate-code-for-forgot-pas
 import {
   mockValidateCodeForForgotPasswordDTOLikeInstance,
   validateObject,
-} from '@auth/infrastructure/helpers/tests/dtos-helper';
+} from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('ValidateCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

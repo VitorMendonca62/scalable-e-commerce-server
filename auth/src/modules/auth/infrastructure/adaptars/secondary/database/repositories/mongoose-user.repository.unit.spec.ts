@@ -1,5 +1,5 @@
 import { MongooseUserRepository } from './mongoose-user.repository';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';

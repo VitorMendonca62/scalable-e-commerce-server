@@ -5,8 +5,8 @@ mockValueObjects(['all']);
 import {
   mockLoginUserDTO,
   mockUserLikeJSON,
-} from '../helpers/tests/user-helper';
-import { mockPasswordHasher } from '../helpers/tests/password-helpers';
+} from '../helpers/tests/user-mocks';
+import { mockPasswordHasher } from '../helpers/tests/password-mocks';
 
 // VO's
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';

@@ -1,7 +1,7 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
+import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { ResetPasswordDTO } from './reset-password.dto';
-import { addPrefix } from '@auth/infrastructure/helpers/tests/string-helper';
+import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 
 describe('ResetPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

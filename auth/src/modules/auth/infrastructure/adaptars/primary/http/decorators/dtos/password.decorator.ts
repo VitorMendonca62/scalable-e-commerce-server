@@ -1,5 +1,5 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { addPrefix } from '@auth/infrastructure/helpers/tests/string-helper';
+import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 import { applyDecorators } from '@nestjs/common';
 import {
   IsNotEmpty,

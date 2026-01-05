@@ -1,7 +1,7 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-helper';
-import { mockLoginUserDTOLikeInstance } from '@auth/infrastructure/helpers/tests/user-helper';
+import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { mockLoginUserDTOLikeInstance } from '@auth/infrastructure/helpers/tests/user-mocks';
 
 describe('LoginUserDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

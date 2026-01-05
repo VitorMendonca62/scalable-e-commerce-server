@@ -11,7 +11,7 @@ import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/p
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
-import { mockPasswordHasher } from './password-helpers';
+import { mockPasswordHasher } from './password-mocks';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 

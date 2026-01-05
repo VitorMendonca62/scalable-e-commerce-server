@@ -1,4 +1,4 @@
-import { mockEmailCodeLikeJSONWithoutValidCode as mockEmailCodeLikeJSON } from '@auth/infrastructure/helpers/tests/email-code-helper';
+import { mockEmailCodeLikeJSONWithoutValidCode as mockEmailCodeLikeJSON } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 import MongooseEmailCodeRepository from './mongoose-email-code.repository';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EmailCodeDocument } from '../models/email-code.model';

@@ -12,7 +12,7 @@ import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/passwo
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { UpdatePasswordUseCase } from './update-password-usecase';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-helper';
+import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 describe('UpdatePasswordUseCase', () => {

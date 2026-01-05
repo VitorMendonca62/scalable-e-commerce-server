@@ -2,8 +2,8 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import {
   mockUpdatePasswordLikeInstance,
   validateObject,
-} from '@auth/infrastructure/helpers/tests/dtos-helper';
-import { addPrefix } from '@auth/infrastructure/helpers/tests/string-helper';
+} from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 
 describe('UpdatePasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

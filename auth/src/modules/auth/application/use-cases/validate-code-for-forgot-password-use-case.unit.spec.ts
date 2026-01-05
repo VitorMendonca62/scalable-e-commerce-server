@@ -1,5 +1,5 @@
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
-import { mockEmailCodeLikeJSONWithoutValidCode } from '@auth/infrastructure/helpers/tests/email-code-helper';
+import { mockEmailCodeLikeJSONWithoutValidCode } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 import ValidateCodeForForgotPasswordUseCase from './validate-code-for-forgot-password.usecase';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { BusinessRuleFailure } from '@auth/domain/ports/primary/http/errors.port';

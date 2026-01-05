@@ -5,7 +5,7 @@ import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-to
 import {
   mockLoginUser,
   mockLoginUserDTO,
-} from '@auth/infrastructure/helpers/tests/user-helper';
+} from '@auth/infrastructure/helpers/tests/user-mocks';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import {
   HttpCreatedResponse,
