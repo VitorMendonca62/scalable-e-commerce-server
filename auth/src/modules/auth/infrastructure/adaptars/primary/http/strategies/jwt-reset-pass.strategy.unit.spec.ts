@@ -1,11 +1,11 @@
 import { ConfigService } from '@nestjs/config';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { JwtResetPassStrategy } from './jwt-reset-pass.strategy';
 import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 describe('JwtResetPassStrategy', () => {
   let strategy: JwtResetPassStrategy;
@@ -22,6 +22,8 @@ describe('JwtResetPassStrategy', () => {
     } as any;
 
     strategy = new JwtResetPassStrategy(configService, cookieService);
+
+    jest.spyOn(JwtPayloadValidator, 'validate').mockReturnValue(undefined);
   });
 
   it('should be defined', () => {
@@ -31,42 +33,39 @@ describe('JwtResetPassStrategy', () => {
   });
 
   describe('validate', () => {
-    it('should validate payload and return userID', async () => {
-      const payload: JWTResetPassTokenPayLoad = {
-        sub: EmailConstants.EXEMPLE,
-        exp: 1000,
-        iat: 1000,
-        type: 'reset-pass',
-      };
+    const payload: JWTResetPassTokenPayLoad = {
+      sub: EmailConstants.EXEMPLE,
+      exp: 1000,
+      iat: 1000,
+      type: 'reset-pass',
+    };
 
-      const result = await strategy.validate(payload);
+    it('should validate payload and return userID', async () => {
+      const result = strategy.validate(payload);
 
       expect(result).toEqual({ email: EmailConstants.EXEMPLE });
     });
 
-    it('should throw WrongCredentials if payload is undefined ', async () => {
+    it('should call JwtPayloadValidator.validate with correct parameters', async () => {
+      strategy.validate(payload);
+      expect(JwtPayloadValidator.validate).toHaveBeenCalledWith(
+        payload,
+        'Sessão inválida. Realize o processo de recupeção de senha novamente.',
+        'reset-pass',
+      );
+    });
+
+    it('should rethrow error if JwtPayloadValidator.validate throw any error ', async () => {
+      jest.spyOn(JwtPayloadValidator, 'validate').mockImplementation(() => {
+        throw Error('Error');
+      });
+
       try {
         strategy.validate(undefined);
         fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe(
-          'Sessão inválida. Realize o processo de recupeção de senha novamente.',
-        );
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should throw WrongCredentials if payload is null ', async () => {
-      try {
-        strategy.validate(null);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe(
-          'Sessão inválida. Realize o processo de recupeção de senha novamente.',
-        );
-        expect(error.data).toBeUndefined();
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error');
       }
     });
   });

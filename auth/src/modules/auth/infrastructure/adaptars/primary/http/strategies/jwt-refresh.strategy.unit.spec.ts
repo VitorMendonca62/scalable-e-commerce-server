@@ -7,6 +7,7 @@ import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.p
 import { JWTRefreshTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 describe('JwtRefreshStrategy', () => {
   let strategy: JwtRefreshStrategy;
@@ -50,6 +51,7 @@ describe('JwtRefreshStrategy', () => {
     };
     beforeEach(() => {
       jest.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(false);
+      jest.spyOn(JwtPayloadValidator, 'validate').mockReturnValue(undefined);
     });
 
     it('should validate payload and return userID and tokenID', async () => {
@@ -61,25 +63,26 @@ describe('JwtRefreshStrategy', () => {
       });
     });
 
-    it('should throw WrongCredentials if payload is undefined ', async () => {
+    it('should call JwtPayloadValidator.validate with correct parameters', async () => {
+      await strategy.validate(payload);
+      expect(JwtPayloadValidator.validate).toHaveBeenCalledWith(
+        payload,
+        'Sessão inválida. Faça login novamente.',
+        'refresh',
+      );
+    });
+
+    it('should rethrow error if JwtPayloadValidator.validate throw any error ', async () => {
+      jest.spyOn(JwtPayloadValidator, 'validate').mockImplementation(() => {
+        throw new Error('Error');
+      });
+
       try {
         await strategy.validate(undefined);
         fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Sessão inválida. Faça login novamente.');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should throw WrongCredentials if payload is null ', async () => {
-      try {
-        await strategy.validate(null);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Sessão inválida. Faça login novamente.');
-        expect(error.data).toBeUndefined();
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error');
       }
     });
 

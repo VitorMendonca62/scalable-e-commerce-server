@@ -3,10 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { JWTAccessTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 @Injectable()
 export class JwtAccessStrategy extends PassportStrategy(
@@ -14,8 +14,8 @@ export class JwtAccessStrategy extends PassportStrategy(
   'jwt-access',
 ) {
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
-    private readonly cookieService: CookieService,
+    readonly configService: ConfigService<EnvironmentVariables>,
+    readonly cookieService: CookieService,
   ) {
     super({
       jwtFromRequest: (request) =>
@@ -26,9 +26,11 @@ export class JwtAccessStrategy extends PassportStrategy(
   }
 
   validate(payload: JWTAccessTokenPayLoad) {
-    if (payload === undefined || payload === null) {
-      throw new WrongCredentials('Token inválido ou expirado');
-    }
+    JwtPayloadValidator.validate(
+      payload,
+      'Token inválido ou expirado',
+      'access',
+    );
 
     return {
       userID: payload.sub,

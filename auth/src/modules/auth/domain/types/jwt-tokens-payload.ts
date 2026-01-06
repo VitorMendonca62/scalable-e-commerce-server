@@ -1,5 +1,7 @@
 import { Permissions } from './permissions';
 
+export type JWTTokensTypes = 'refresh' | 'access' | 'reset-pass';
+
 interface JWTBasicPayload {
   sub: string;
   iat: number;

@@ -3,10 +3,10 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 @Injectable()
 export class JwtResetPassStrategy extends PassportStrategy(
@@ -14,8 +14,8 @@ export class JwtResetPassStrategy extends PassportStrategy(
   'jwt-reset-pass',
 ) {
   constructor(
-    private configService: ConfigService<EnvironmentVariables>,
-    private readonly cookieService: CookieService,
+    readonly configService: ConfigService<EnvironmentVariables>,
+    readonly cookieService: CookieService,
   ) {
     super({
       jwtFromRequest: (req) =>
@@ -26,11 +26,12 @@ export class JwtResetPassStrategy extends PassportStrategy(
   }
 
   validate(payload: JWTResetPassTokenPayLoad) {
-    if (payload === undefined || payload === null) {
-      throw new WrongCredentials(
-        'Sessão inválida. Realize o processo de recupeção de senha novamente.',
-      );
-    }
+    JwtPayloadValidator.validate(
+      payload,
+      'Sessão inválida. Realize o processo de recupeção de senha novamente.',
+      'reset-pass',
+    );
+
     return {
       email: payload.sub,
     };

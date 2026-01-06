@@ -1,13 +1,13 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-class HttpError extends HttpException {
-  data: object | string | undefined;
+class HttpError<T = unknown> extends HttpException {
+  data: T;
   statusCode: number;
 
   constructor(
     message: string = 'Algo de errado aconteceu!',
     status: number = HttpStatus.BAD_REQUEST,
-    data: object | string | undefined = undefined,
+    data: T = undefined as T,
   ) {
     super(message, status);
     this.data = data;
@@ -24,10 +24,10 @@ export class FieldInvalid extends HttpError {
   }
 }
 
-export class BusinessRuleFailure extends HttpError {
+export class BusinessRuleFailure<T = unknown> extends HttpError {
   constructor(
     message: string = 'Regra de negócio quebrada.',
-    data: object | string | undefined = undefined,
+    data: T = undefined as T,
   ) {
     super(message, HttpStatus.BAD_REQUEST, data);
     this.statusCode = HttpStatus.BAD_REQUEST;
@@ -36,10 +36,10 @@ export class BusinessRuleFailure extends HttpError {
   }
 }
 
-export class WrongCredentials extends HttpError {
+export class WrongCredentials<T = unknown> extends HttpError {
   constructor(
     message: string = 'Suas credenciais estão incorretas. Tente novamente',
-    data: object | string | undefined = undefined,
+    data: T = undefined as T,
   ) {
     super(message, HttpStatus.UNAUTHORIZED, data);
     this.statusCode = HttpStatus.UNAUTHORIZED;
@@ -48,10 +48,10 @@ export class WrongCredentials extends HttpError {
   }
 }
 
-export class NotFoundUser extends HttpError {
+export class NotFoundUser<T = unknown> extends HttpError {
   constructor(
     message: string = 'Usuário não encontrado.',
-    data: object | string | undefined = undefined,
+    data: T = undefined as T,
   ) {
     super(message, HttpStatus.NOT_FOUND, data);
     this.statusCode = HttpStatus.NOT_FOUND;
@@ -60,10 +60,10 @@ export class NotFoundUser extends HttpError {
   }
 }
 
-export class ExternalServiceError extends HttpError {
+export class ExternalServiceError<T = unknown> extends HttpError {
   constructor(
     message: string = 'Erro ao comunicar com serviço externo',
-    data: object | string | undefined = undefined,
+    data: T = undefined as T,
   ) {
     super(message, HttpStatus.SERVICE_UNAVAILABLE, data);
     this.statusCode = HttpStatus.SERVICE_UNAVAILABLE;

@@ -1,5 +1,4 @@
 import { ConfigService } from '@nestjs/config';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { JwtAccessStrategy } from './jwt-access.strategy';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
@@ -9,6 +8,7 @@ import { defaultRoles } from '@auth/domain/types/permissions';
 import { Request } from 'express';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 describe('JwtAccessStrategy', () => {
   let strategy: JwtAccessStrategy;
@@ -24,6 +24,8 @@ describe('JwtAccessStrategy', () => {
       extractFromRequest: jest.fn(),
     } as any;
 
+    jest.spyOn(JwtPayloadValidator, 'validate').mockReturnValue(undefined);
+
     strategy = new JwtAccessStrategy(configService, cookieService);
   });
 
@@ -34,40 +36,41 @@ describe('JwtAccessStrategy', () => {
   });
 
   describe('validate', () => {
-    it('should validate payload and return userID', async () => {
-      const payload: JWTAccessTokenPayLoad = {
-        sub: IDConstants.EXEMPLE,
-        email: EmailConstants.EXEMPLE,
-        exp: 1000,
-        iat: 1000,
-        roles: defaultRoles,
-        type: 'access',
-      };
+    const payload: JWTAccessTokenPayLoad = {
+      sub: IDConstants.EXEMPLE,
+      email: EmailConstants.EXEMPLE,
+      exp: 1000,
+      iat: 1000,
+      roles: defaultRoles,
+      type: 'access',
+    };
 
+    it('should validate payload and return userID', async () => {
       const result = strategy.validate(payload);
 
       expect(result).toEqual({ userID: IDConstants.EXEMPLE });
     });
 
-    it('should throw WrongCredentials if payload is undefined ', async () => {
+    it('should call JwtPayloadValidator.validate with correct parameters', async () => {
+      strategy.validate(payload);
+      expect(JwtPayloadValidator.validate).toHaveBeenCalledWith(
+        payload,
+        'Token inválido ou expirado',
+        'access',
+      );
+    });
+
+    it('should rethrow error if JwtPayloadValidator.validate throw any error ', async () => {
+      jest.spyOn(JwtPayloadValidator, 'validate').mockImplementation(() => {
+        throw new Error('Error');
+      });
+
       try {
         strategy.validate(undefined);
         fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Token inválido ou expirado');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should throw WrongCredentials if payload is null ', async () => {
-      try {
-        strategy.validate(null);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Token inválido ou expirado');
-        expect(error.data).toBeUndefined();
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error');
       }
     });
   });

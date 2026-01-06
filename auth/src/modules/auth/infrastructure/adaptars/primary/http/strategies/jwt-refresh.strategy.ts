@@ -8,6 +8,7 @@ import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.p
 import { JWTRefreshTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
+import { JwtPayloadValidator } from '@auth/infrastructure/validators/jwt-payload.validator';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -15,9 +16,9 @@ export class JwtRefreshStrategy extends PassportStrategy(
   'jwt-refresh',
 ) {
   constructor(
-    private readonly configService: ConfigService<EnvironmentVariables>,
+    readonly configService: ConfigService<EnvironmentVariables>,
     private readonly tokenRepository: TokenRepository,
-    private readonly cookieService: CookieService,
+    readonly cookieService: CookieService,
   ) {
     super({
       jwtFromRequest: (request) =>
@@ -28,9 +29,12 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   async validate(payload: JWTRefreshTokenPayLoad) {
-    if (payload === undefined || payload === null) {
-      throw new WrongCredentials('Sessão inválida. Faça login novamente.');
-    }
+    JwtPayloadValidator.validate(
+      payload,
+      'Sessão inválida. Faça login novamente.',
+      'refresh',
+    );
+
     const isRevoked = await this.tokenRepository.isRevoked(payload.jti);
 
     if (isRevoked) {

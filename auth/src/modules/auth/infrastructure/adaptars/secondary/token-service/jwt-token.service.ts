@@ -5,6 +5,11 @@ import { Permissions } from '@auth/domain/types/permissions';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { v7 } from 'uuid';
+import {
+  JWTAccessTokenPayLoad,
+  JWTRefreshTokenPayLoad,
+  JWTResetPassTokenPayLoad,
+} from '@auth/domain/types/jwt-tokens-payload';
 
 @Injectable()
 export class JwtTokenService implements TokenService {
@@ -16,7 +21,7 @@ export class JwtTokenService implements TokenService {
   generateRefreshToken(id: string): { refreshToken: string; tokenID: string } {
     const jti = v7();
 
-    const payload = {
+    const payload: Omit<JWTRefreshTokenPayLoad, 'iat' | 'exp'> = {
       sub: id,
       jti,
       type: 'refresh' as const,
@@ -32,7 +37,7 @@ export class JwtTokenService implements TokenService {
     email: string;
     roles: Permissions[];
   }): string {
-    const payload = {
+    const payload: Omit<JWTAccessTokenPayLoad, 'iat' | 'exp'> = {
       sub: props.userID,
       email: props.email,
       roles: props.roles,
@@ -42,7 +47,7 @@ export class JwtTokenService implements TokenService {
   }
 
   generateResetPassToken(props: { email: string }): string {
-    const payload = {
+    const payload: Omit<JWTResetPassTokenPayLoad, 'iat' | 'exp'> = {
       sub: props.email,
       type: 'reset-pass' as const,
     };
