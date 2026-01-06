@@ -1,1 +1,24 @@
-pnpm lint-stageddawdwa
+CHANGED_SERVICES=$(git diff --cached --name-only  | cut -d/ -f1 | uniq)
+PROTECTED_FOLDERS=(".github" ".husky")
+
+if [ ${#CHANGED_SERVICES[@]} -eq 0 ]; then
+    echo "> No services to test."
+else
+  echo "> Starting tests"
+fi
+
+for service in $CHANGED_SERVICES; do
+  if [[ " ${PROTECTED_FOLDERS[@]} " =~ " $service " ]]; then
+    continue
+  fi
+  
+  cd $service
+  echo "> Starting $service's tests."
+  (pnpm test || {
+      echo "❌ Tests failed in $service"
+      exit 1
+    })
+
+  cd ..
+  
+done
