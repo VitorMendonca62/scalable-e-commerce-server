@@ -1,5 +1,5 @@
-CHANGED_SERVICES=$(git diff --cached --name-only  | cut -d/ -f1 | uniq)
-PROTECTED_FOLDERS=(".github" ".husky")
+CHANGED_SERVICES=$(git diff --cached --name-only | cut -d/ -f1 | uniq)
+PROTECTED_FOLDERS=(".github" ".husky" "todo.md" "package.json")
 
 if [ ${#CHANGED_SERVICES[@]} -eq 0 ]; then
     echo "> No services to test."
