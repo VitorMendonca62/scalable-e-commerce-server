@@ -1,5 +1,4 @@
-CHANGED_SERVICES=$(git diff --cached --name-only | cut -d/ -f1 | uniq)
-PROTECTED_FOLDERS=(".github" ".husky" "todo.md" "package.json")
+CHANGED_SERVICES=$(git diff --cached --name-only | grep '^services/' | cut -d/ -f1 | uniq)
 
 if [ ${#CHANGED_SERVICES[@]} -eq 0 ]; then
     echo "> No services to test."
@@ -8,10 +7,6 @@ else
 fi
 
 for service in $CHANGED_SERVICES; do
-  if [[ " ${PROTECTED_FOLDERS[@]} " =~ " $service " ]]; then
-    continue
-  fi
-  
   cd $service
   echo "> Starting $service's tests."
   (pnpm test || {
