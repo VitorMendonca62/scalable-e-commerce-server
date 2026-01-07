@@ -17,11 +17,7 @@ export function ApiLoginUser() {
       example: {
         statusCode: 201,
         message: 'Usuário realizou login com sucesso',
-        data: {
-          accessToken: `Bearer <accessToken>`,
-          refreshToken: `Bearer <refreshToken>`,
-          type: 'Bearer',
-        },
+        data: undefined,
       },
       type: HttpResponseOutbound,
     }),

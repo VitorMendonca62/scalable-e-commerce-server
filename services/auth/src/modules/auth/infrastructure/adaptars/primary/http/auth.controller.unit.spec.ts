@@ -70,8 +70,8 @@ describe('AuthController', () => {
       jest.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
 
       jest.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        accessToken: `Bearer <accessToken>`,
-        refreshToken: `Bearer <refreshToken>`,
+        accessToken: `<accessToken>`,
+        refreshToken: `<refreshToken>`,
       });
     });
 
@@ -88,14 +88,14 @@ describe('AuthController', () => {
       expect(cookieService.setCookie).toHaveBeenNthCalledWith(
         1,
         Cookies.RefreshToken,
-        'Bearer <refreshToken>',
+        '<refreshToken>',
         604800000,
         response,
       );
       expect(cookieService.setCookie).toHaveBeenNthCalledWith(
         2,
         Cookies.AccessToken,
-        'Bearer <accessToken>',
+        '<accessToken>',
         3600000,
         response,
       );
@@ -148,7 +148,7 @@ describe('AuthController', () => {
     beforeEach(() => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
-        .mockResolvedValue('Bearer <accessToken>');
+        .mockResolvedValue('<accessToken>');
       request = {
         user: {
           userID: IDConstants.EXEMPLE,

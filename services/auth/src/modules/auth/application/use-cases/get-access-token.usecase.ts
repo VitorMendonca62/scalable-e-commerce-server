@@ -12,7 +12,7 @@ export class GetAccessTokenUseCase {
     private readonly tokenRepository: TokenRepository,
   ) {}
 
-  async execute(userID: string, tokenID: string): Promise<`Bearer ${string}`> {
+  async execute(userID: string, tokenID: string): Promise<string> {
     const user = await this.userRepository.findOne({ userID });
 
     if (user === undefined || user === null) {
@@ -21,6 +21,6 @@ export class GetAccessTokenUseCase {
 
     this.tokenRepository.updateLastAcess(tokenID);
 
-    return `Bearer ${this.tokenService.generateAccessToken(user)}`;
+    return this.tokenService.generateAccessToken(user);
   }
 }

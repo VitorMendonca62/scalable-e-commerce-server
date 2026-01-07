@@ -81,6 +81,19 @@ export class AuthController {
     response.statusCode = HttpStatus.CREATED;
     return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
+  // TODO IMPLEMENTAR UJM JHEITO MELOR DE FAZER OSSP
+  @Get('/test')
+  async test() {
+    return {
+      keys: [
+        {
+          k: 'and0c2VjcmV0MTIz',
+          kty: 'oct',
+          alg: 'HS256',
+        },
+      ],
+    };
+  }
 
   @Get('/token')
   @UseGuards(JWTRefreshGuard)

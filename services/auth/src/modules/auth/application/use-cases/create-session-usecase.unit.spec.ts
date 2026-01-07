@@ -95,8 +95,8 @@ describe('CreateSessionUseCase', () => {
         IDConstants.EXEMPLE,
       );
       expect(response).toEqual({
-        accessToken: 'Bearer TOKEN',
-        refreshToken: 'Bearer TOKEN',
+        accessToken: 'TOKEN',
+        refreshToken: 'TOKEN',
       });
       expect(tokenRepository.saveSession).toHaveBeenCalledWith(
         IDConstants.EXEMPLE,

@@ -25,6 +25,6 @@ export default class ValidateCodeForForgotPasswordUseCase {
 
     await this.emailCodeRepository.deleteMany(email);
 
-    return `Bearer ${this.tokenService.generateResetPassToken({ email })}`;
+    return this.tokenService.generateResetPassToken({ email });
   }
 }

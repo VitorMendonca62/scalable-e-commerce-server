@@ -60,8 +60,8 @@ export class CreateSessionUseCase {
     );
 
     return {
-      accessToken: `Bearer ${accessToken}`,
-      refreshToken: `Bearer ${refreshToken}`,
+      accessToken: accessToken,
+      refreshToken: refreshToken,
     };
   }
 }

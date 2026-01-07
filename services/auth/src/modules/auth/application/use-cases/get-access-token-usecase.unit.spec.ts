@@ -61,7 +61,7 @@ describe('GetAccessTokenUseCase', () => {
       });
       expect(tokenRepository.updateLastAcess).toHaveBeenCalledWith(tokenID);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
-      expect(response).toBe(`Bearer ${accessToken}`);
+      expect(response).toBe(accessToken);
     });
 
     it('should throw bad request exception when user does not exist', async () => {

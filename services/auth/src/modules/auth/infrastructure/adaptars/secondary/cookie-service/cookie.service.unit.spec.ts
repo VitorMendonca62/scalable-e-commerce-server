@@ -30,11 +30,10 @@ describe('CookieService', () => {
   } as any;
 
   const token = 'TOKEN';
-  const bearerToken = `Bearer ${token}`;
 
   const request: Request = {
     cookies: {
-      access_token: bearerToken,
+      access_token: token,
     },
   } as any;
 
@@ -89,7 +88,7 @@ describe('CookieService', () => {
   describe('extractFromRequest', () => {
     const cookieName = Cookies.AccessToken;
 
-    it('should return token without "Bearer" on sucess', async () => {
+    it('should return token without on sucess', async () => {
       const result = service.extractFromRequest(request, cookieName);
 
       expect(result).toBe(token);

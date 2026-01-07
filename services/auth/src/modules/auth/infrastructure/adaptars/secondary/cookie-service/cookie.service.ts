@@ -33,6 +33,6 @@ export default class CookieService {
       return null;
     }
 
-    return token.replace(/^Bearer\s+/i, '');
+    return token;
   }
 }

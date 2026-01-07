@@ -56,7 +56,7 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
       jest.spyOn(tokenService, 'generateResetPassToken').mockReturnValue(token);
 
       const response = await useCase.execute(code, email);
-      expect(response).toBe(`Bearer ${token}`);
+      expect(response).toBe(token);
     });
 
     it('should call emailCodeRepository.find with email and code', async () => {

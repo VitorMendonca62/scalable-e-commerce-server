@@ -103,7 +103,7 @@ describe('JwtRefreshStrategy', () => {
   describe('jwtFromRequest', () => {
     const request: Request = {
       cookies: {
-        refresh_token: 'Bearer token-value',
+        refresh_token: 'token-value',
       },
     } as any;
 
