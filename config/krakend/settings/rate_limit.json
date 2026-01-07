@@ -1,0 +1,14 @@
+{
+  "five_per_minute": {
+    "every": "1m",
+    "client_max_rate": 5,
+    "client_capacity": 5,
+    "strategy": "ip"
+  },
+  "three_per_minute": {
+    "every": "1m",
+    "client_max_rate": 3,
+    "client_capacity": 3,
+    "strategy": "ip"
+  }
+}

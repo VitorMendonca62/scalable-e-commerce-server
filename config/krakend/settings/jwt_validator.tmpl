@@ -1,0 +1,25 @@
+{
+  "refresh_token_validator": {
+    "alg": "HS256",
+    "cookie_key": "refresh_token",
+    "jwk_url": "http://scalable-e-commerce-api:8080/auth/test",
+    "disable_jwk_security": true,
+    "cache": true
+  },
+  "reset_pass_token_validator": {
+    "alg": "HS256",
+    "secret_key": "{{ env \"RESET_PASS_SECRET\" }}",
+    "cookie_name": "reset_pass_token"
+  },
+  "enter_role_validator": {
+    "alg": "HS256",
+    "cookie_key": "access_token",
+    "jwk_url": "http://scalable-e-commerce-api:8080/auth/test",
+    "disable_jwk_security": true,
+    "cache": true,
+    "roles_key": "roles",
+    "roles": [
+      "enter"
+    ]
+  }
+}

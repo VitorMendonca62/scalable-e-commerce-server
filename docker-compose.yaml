@@ -1,0 +1,40 @@
+networks:
+  scalable-commerce-net:
+    driver: bridge
+    name: scalable-commerce-net
+
+services:
+  message-broker:
+    image: rabbitmq:3-management-alpine
+    container_name: scalable-commerce-net 
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+    networks:
+      - scalable-commerce-net
+
+  krakend:
+    image: krakend
+    container_name: scalable-commerce-api-gateway 
+    volumes:
+      - ./config/krakend:/etc/krakend
+    init: true
+    ports:
+      - "1234:1234"
+      - "8000:8080"
+      - "8090:8090"
+      - "9090:9090"
+    environment:
+      - FC_ENABLE=1
+      - FC_PARTIALS=/etc/krakend/partials
+      - FC_SETTINGS=/etc/krakend/settings
+      - FC_TEMPLATES=/etc/krakend/templates
+      - KRAKEND_LOG_LEVEL=DEBUG
+      - TZ=America/Sao_Paulo
+    networks: 
+      - scalable-commerce-net
+    command: ["run", "-d", "-c", "/etc/krakend/krakend.tmpl"]
