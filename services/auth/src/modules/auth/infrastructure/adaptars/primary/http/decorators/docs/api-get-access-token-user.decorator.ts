@@ -19,7 +19,7 @@ export function ApiGetAccessToken() {
       example: {
         statusCode: HttpStatus.OK,
         message: 'Aqui está seu token de acesso',
-        data: 'Bearer <access_token>',
+        data: '<access_token>',
       },
       type: HttpResponseOutbound,
     }),

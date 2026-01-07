@@ -171,7 +171,7 @@ describe('AuthController', () => {
 
       expect(cookieService.setCookie).toHaveBeenCalledWith(
         Cookies.AccessToken,
-        'Bearer <accessToken>',
+        '<accessToken>',
         3600000,
         response,
       );
