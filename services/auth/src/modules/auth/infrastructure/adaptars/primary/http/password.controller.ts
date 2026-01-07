@@ -31,7 +31,6 @@ import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { Throttle } from '@nestjs/throttler';
 import {
   UserInAcessToken,
   UserInResetPassToken,
@@ -63,9 +62,7 @@ export class PasswordController {
     );
   }
 
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('/validate-code')
-  @HttpCode(HttpStatus.OK)
   @ApiValidateCodeForForgotPassword()
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
@@ -82,7 +79,7 @@ export class PasswordController {
       TokenExpirationConstants.RESET_PASS_TOKEN_MS,
       response,
     );
-
+    response.statusCode = HttpStatus.OK;
     return new HttpOKResponse(
       'Seu código de recuperação de senha foi validado com sucesso.',
     );
@@ -110,7 +107,6 @@ export class PasswordController {
   @HttpCode(HttpStatus.OK)
   @UseGuards(JWTAccessGuard)
   @ApiUpdatePassword()
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,
     @Req() request: Request,

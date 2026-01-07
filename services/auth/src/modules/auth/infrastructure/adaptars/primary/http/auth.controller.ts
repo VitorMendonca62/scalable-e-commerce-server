@@ -2,7 +2,6 @@
 import {
   Controller,
   Post,
-  HttpCode,
   HttpStatus,
   Body,
   Get,
@@ -40,7 +39,6 @@ import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { SkipThrottle, Throttle } from '@nestjs/throttler';
 import { UserInRefreshToken } from '@auth/domain/types/user';
 import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 
@@ -56,9 +54,7 @@ export class AuthController {
   ) {}
 
   @Post('/login')
-  @HttpCode(HttpStatus.CREATED)
   @ApiLoginUser()
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
   async login(
     @Body() dto: LoginUserDTO,
     @Res({ passthrough: true }) response: Response,
@@ -82,14 +78,13 @@ export class AuthController {
       response,
     );
 
+    response.statusCode = HttpStatus.CREATED;
     return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
 
   @Get('/token')
-  @HttpCode(HttpStatus.OK)
   @UseGuards(JWTRefreshGuard)
   @ApiGetAccessToken()
-  @SkipThrottle()
   async getAccessToken(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -104,14 +99,13 @@ export class AuthController {
       response,
     );
 
+    response.statusCode = HttpStatus.OK;
     return new HttpOKResponse('Seu token de acesso foi renovado');
   }
 
   @Post('/logout')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JWTRefreshGuard)
   @ApiLogout()
-  @SkipThrottle()
   async logout(
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
@@ -122,6 +116,7 @@ export class AuthController {
     response.clearCookie(Cookies.RefreshToken);
     response.clearCookie(Cookies.AccessToken);
 
+    response.statusCode = HttpStatus.NO_CONTENT;
     return new HttpNoContentResponse();
   }
 }
