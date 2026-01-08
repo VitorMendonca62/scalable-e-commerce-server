@@ -6,9 +6,13 @@ import { EnvironmentVariables } from './config/environment/env.validation';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import AppConfig from '@config/app.config';
+import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
+
+  app.useGlobalFilters(new HttpExceptionFilter());
+
   const appLogger = new Logger('API');
 
   const configService =

@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus } from '@nestjs/common';
 
-class HttpError<T = unknown> extends HttpException {
+export class HttpError<T = unknown> extends HttpException {
   data: T;
   statusCode: number;
 
@@ -9,7 +9,7 @@ class HttpError<T = unknown> extends HttpException {
     status: number = HttpStatus.BAD_REQUEST,
     data: T = undefined as T,
   ) {
-    super(message, status);
+    super({ message, data, statusCode: status }, status);
     this.data = data;
     this.statusCode = status;
   }
