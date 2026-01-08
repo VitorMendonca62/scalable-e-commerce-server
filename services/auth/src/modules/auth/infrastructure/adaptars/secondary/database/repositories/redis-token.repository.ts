@@ -38,8 +38,10 @@ export class RedisTokenRepository implements TokenRepository {
 
     const tokens = (await this.redis.smembers(sessionsKey)) as string[];
 
-    await this.redis.del(...tokens);
-    await this.redis.del(sessionsKey);
+    if (tokens.length > 0) {
+      await this.redis.del(...tokens);
+      await this.redis.del(sessionsKey);
+    }
   }
 
   async isRevoked(tokenID: string): Promise<boolean> {

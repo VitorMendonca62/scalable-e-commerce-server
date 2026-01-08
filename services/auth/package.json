@@ -15,7 +15,9 @@
     "test": "cross-env NODE_ENV=test jest --config jest.config.json",
     "test:cov": "cross-env NODE_ENV=test jest --coverage --config jest.config.json",
     "test:unit": "cross-env NODE_ENV=test jest --config jest.config.json --testPathPattern=\".unit.spec.ts\"",
-    "test:unit:cov": "cross-env NODE_ENV=test jest --coverage --config jest.config.json --testPathPattern=\".unit.spec.ts\""
+    "test:unit:cov": "cross-env NODE_ENV=test jest --coverage --config jest.config.json --testPathPattern=\".unit.spec.ts\"",
+    "jwt:keys:generate": "openssl genrsa -out auth-private.pem 2048 && openssl rsa -in auth-private.pem -pubout -out auth-public.pem && openssl genrsa -out reset-pass-private.pem 2048 && openssl rsa -in reset-pass-private.pem -pubout -out reset-pass-public.pem",
+    "jwt:keys:clean": "rm auth-private.pem auth-public.pem reset-pass-private.pem reset-pass-public.pem"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",
@@ -38,8 +40,10 @@
     "cookie-parser": "^1.4.7",
     "handlebars": "^4.7.8",
     "ioredis": "^5.9.0",
+    "jose": "^6.1.3",
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^7.0.12",
+    "openssl": "^2.0.0",
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

@@ -1,46 +1,34 @@
-// Decorators
 import {
   Controller,
   Post,
   HttpStatus,
   Body,
   Get,
-  UseGuards,
-  Req,
   Res,
   Ip,
+  Headers,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
-
-// Guards
-import { JWTRefreshGuard } from './guards/jwt-refresh.guard';
-
-// DTO's
 import { LoginUserDTO } from './dtos/login-user.dto';
-
-// Mappers
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
-
-// Use Cases
 import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token.usecase';
-
-// Ports
 import {
   HttpResponseOutbound,
   HttpCreatedResponse,
   HttpOKResponse,
   HttpNoContentResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { UserInRefreshToken } from '@auth/domain/types/user';
 import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
+import RevocationGuard from './guards/revocation.guard';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -81,29 +69,15 @@ export class AuthController {
     response.statusCode = HttpStatus.CREATED;
     return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
-  // TODO IMPLEMENTAR UJM JHEITO MELOR DE FAZER OSSP
-  @Get('/test')
-  async test() {
-    return {
-      keys: [
-        {
-          k: 'and0c2VjcmV0MTIz',
-          kty: 'oct',
-          alg: 'HS256',
-        },
-      ],
-    };
-  }
 
   @Get('/token')
-  @UseGuards(JWTRefreshGuard)
+  @UseGuards(RevocationGuard)
   @ApiGetAccessToken()
   async getAccessToken(
-    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
+    @Headers('x-user-id') userID: string,
+    @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
-    const { userID, tokenID } = request.user as UserInRefreshToken;
-
     const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
     this.cookieService.setCookie(
       Cookies.AccessToken,
@@ -117,14 +91,13 @@ export class AuthController {
   }
 
   @Post('/logout')
-  @UseGuards(JWTRefreshGuard)
+  @UseGuards(RevocationGuard)
   @ApiLogout()
   async logout(
-    @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
+    @Headers('x-user-id') userID: string,
+    @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
-    const { userID, tokenID } = request.user as UserInRefreshToken;
-
     await this.finishSessionUseCase.execute(tokenID, userID);
     response.clearCookie(Cookies.RefreshToken);
     response.clearCookie(Cookies.AccessToken);

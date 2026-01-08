@@ -33,29 +33,26 @@ import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/dat
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
 import { UpdatePasswordUseCase } from './application/use-cases/update-password-usecase';
-import { JwtRefreshStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-refresh.strategy';
-import { JwtResetPassStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-reset-pass.strategy';
-import { JwtAccessStrategy } from './infrastructure/adaptars/primary/http/strategies/jwt-access.strategy';
 import { TokenRepository } from './domain/ports/secondary/token-repository.port';
 import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
 import { FinishSessionUseCase } from './application/use-cases/finish-session.usecase';
 import CookieService from './infrastructure/adaptars/secondary/cookie-service/cookie.service';
-
+import * as fs from 'fs';
+import * as path from 'path';
+import CertsController from './infrastructure/adaptars/primary/http/certs.controller';
+import GetCertsUseCase from './application/use-cases/get-certs-usecase';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: UserModel.name, schema: UserSchema },
       { name: EmailCodeModel.name, schema: EmailCodeSchema },
     ]),
-    JwtModule.registerAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: async (
-        configService: ConfigService<EnvironmentVariables>,
-      ) => {
-        return {
-          secret: configService.get<string>('AUTH_JWT_SECRET'),
-        };
+    JwtModule.register({
+      privateKey: fs.readFileSync(
+        path.join(__dirname, '../../../auth-private.pem'),
+      ),
+      signOptions: {
+        algorithm: 'RS256',
       },
     }),
     ClientsModule.registerAsync([
@@ -89,11 +86,8 @@ import CookieService from './infrastructure/adaptars/secondary/cookie-service/co
       },
     ]),
   ],
-  controllers: [AuthController, PasswordController],
+  controllers: [AuthController, PasswordController, CertsController],
   providers: [
-    JwtRefreshStrategy,
-    JwtResetPassStrategy,
-    JwtAccessStrategy,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     FinishSessionUseCase,
@@ -104,6 +98,7 @@ import CookieService from './infrastructure/adaptars/secondary/cookie-service/co
     ValidateCodeForForgotPasswordUseCase,
     ResetPasswordUseCase,
     UpdatePasswordUseCase,
+    GetCertsUseCase,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,

@@ -12,7 +12,7 @@ import {
   HttpNoContentResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
@@ -51,6 +51,9 @@ describe('AuthController', () => {
       clearCookie: jest.fn(),
     } as any;
   });
+
+  const userID = IDConstants.EXEMPLE;
+  const tokenID = `token-${IDConstants.EXEMPLE}`;
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
@@ -143,31 +146,23 @@ describe('AuthController', () => {
   });
 
   describe('getAccessToken', () => {
-    let request: Request;
-
     beforeEach(() => {
       jest
         .spyOn(getAccessTokenUseCase, 'execute')
         .mockResolvedValue('<accessToken>');
-      request = {
-        user: {
-          userID: IDConstants.EXEMPLE,
-          tokenID: IDConstants.EXEMPLE,
-        },
-      } as any;
     });
 
     it('should call getAccessToken.execute with userId and tokenid', async () => {
-      await controller.getAccessToken(request, response);
+      await controller.getAccessToken(response, userID, tokenID);
 
       expect(getAccessTokenUseCase.execute).toHaveBeenCalledWith(
-        IDConstants.EXEMPLE,
-        IDConstants.EXEMPLE,
+        userID,
+        tokenID,
       );
     });
 
     it('should set access token on cookies', async () => {
-      await controller.getAccessToken(request, response);
+      await controller.getAccessToken(response, userID, tokenID);
 
       expect(cookieService.setCookie).toHaveBeenCalledWith(
         Cookies.AccessToken,
@@ -178,7 +173,7 @@ describe('AuthController', () => {
     });
 
     it('should return HttpOKResponse on success', async () => {
-      const result = await controller.getAccessToken(request, response);
+      const result = await controller.getAccessToken(response, userID, tokenID);
 
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
@@ -193,7 +188,7 @@ describe('AuthController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
-        await controller.getAccessToken(request, response);
+        await controller.getAccessToken(response, userID, tokenID);
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -204,35 +199,24 @@ describe('AuthController', () => {
   });
 
   describe('logout', () => {
-    let request: Request;
-
-    beforeEach(() => {
-      request = {
-        user: {
-          userID: IDConstants.EXEMPLE,
-          tokenID: IDConstants.EXEMPLE,
-        },
-      } as any;
-    });
-
     it('should call finishSessionUseCase.execute with userId and tokenid', async () => {
-      await controller.logout(request, response);
+      await controller.logout(response, userID, tokenID);
 
       expect(finishSessionUseCase.execute).toHaveBeenCalledWith(
-        IDConstants.EXEMPLE,
-        IDConstants.EXEMPLE,
+        tokenID,
+        userID,
       );
     });
 
     it('should clear access token and refresh_token on cookies', async () => {
-      await controller.logout(request, response);
+      await controller.logout(response, userID, tokenID);
 
       expect(response.clearCookie).toHaveBeenNthCalledWith(1, 'refresh_token');
       expect(response.clearCookie).toHaveBeenNthCalledWith(2, 'access_token');
     });
 
     it('should return HttpNoContentResponse on success', async () => {
-      const result = await controller.logout(request, response);
+      const result = await controller.logout(response, userID, tokenID);
 
       expect(result).toBeInstanceOf(HttpNoContentResponse);
     });
@@ -243,7 +227,7 @@ describe('AuthController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
-        await controller.logout(request, response);
+        await controller.logout(response, userID, tokenID);
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

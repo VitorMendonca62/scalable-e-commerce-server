@@ -2,7 +2,7 @@ import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-c
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
 import { PasswordController } from './password.controller';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
@@ -164,7 +164,6 @@ describe('PasswordController', () => {
 
   describe('resetPassword', () => {
     let response: Response;
-    let request: Request;
 
     const email = EmailConstants.EXEMPLE;
     const newPassword = PasswordConstants.EXEMPLE;
@@ -175,17 +174,11 @@ describe('PasswordController', () => {
         redirect: jest.fn(),
       } as any;
 
-      request = {
-        user: {
-          email: EmailConstants.EXEMPLE,
-        },
-      } as any;
-
       jest.spyOn(response, 'redirect').mockReturnValue(undefined);
     });
 
     it('should call resetPasswordUseCase.execute with email and new password', async () => {
-      await controller.resetPassword(dto, request, response);
+      await controller.resetPassword(dto, response, email);
 
       expect(resetPasswordUseCase.execute).toHaveBeenCalledWith(
         email,
@@ -194,7 +187,7 @@ describe('PasswordController', () => {
     });
 
     it('should redirect on success', async () => {
-      await controller.resetPassword(dto, request, response);
+      await controller.resetPassword(dto, response, email);
 
       expect(response.redirect).toHaveBeenCalledWith(
         HttpStatus.SEE_OTHER,
@@ -208,7 +201,7 @@ describe('PasswordController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
-        await controller.resetPassword(dto, request, response);
+        await controller.resetPassword(dto, response, email);
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -219,19 +212,11 @@ describe('PasswordController', () => {
   });
 
   describe('updatePassword', () => {
-    let request: Request;
     const dto = mockUpdatePasswordLikeInstance();
-
-    beforeEach(() => {
-      request = {
-        user: {
-          userID: IDConstants.EXEMPLE,
-        },
-      } as any;
-    });
+    const userID = IDConstants.EXEMPLE;
 
     it('should call updatePasswordUseCase.execute with userId and passwords', async () => {
-      await controller.updatePassword(dto, request);
+      await controller.updatePassword(dto, userID);
 
       expect(updatePasswordUseCase.execute).toHaveBeenCalledWith(
         IDConstants.EXEMPLE,
@@ -241,7 +226,7 @@ describe('PasswordController', () => {
     });
 
     it('should return HttpOKResponse on success', async () => {
-      const response = await controller.updatePassword(dto, request);
+      const response = await controller.updatePassword(dto, userID);
       expect(response).toBeInstanceOf(HttpOKResponse);
       expect(response).toEqual({
         statusCode: HttpStatus.OK,
@@ -255,7 +240,7 @@ describe('PasswordController', () => {
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
-        await controller.updatePassword(dto, request);
+        await controller.updatePassword(dto, userID);
         fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

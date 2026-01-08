@@ -7,13 +7,12 @@ import {
   Body,
   Res,
   Patch,
-  UseGuards,
-  Req,
+  Headers,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
 import { ApiSendCodeforForgotPassword } from './decorators/docs/api-send-code-for-forgot-password.decorator';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgot-pass.dto';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
@@ -24,20 +23,14 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordDTO } from './dtos/update-password.dto';
 import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
-import { JWTResetPassGuard } from './guards/jwt-reset-pass.guard';
-import { JWTAccessGuard } from './guards/jwt-access.guard';
 import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
 import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator';
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import {
-  UserInAcessToken,
-  UserInResetPassToken,
-} from '@auth/domain/types/user';
 import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 
-@Controller('auth/pass')
+@Controller('/pass')
 @ApiTags('PasswordController')
 export class PasswordController {
   constructor(
@@ -87,15 +80,12 @@ export class PasswordController {
 
   @Patch('/reset')
   @HttpCode(HttpStatus.SEE_OTHER)
-  @UseGuards(JWTResetPassGuard)
   @ApiResetPassword()
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
-    @Req() request: Request,
     @Res() response: Response,
+    @Headers('x-user-email') email: string,
   ): Promise<void> {
-    const { email } = request.user as UserInResetPassToken;
-
     await this.resetPasswordUseCase.execute(email, dto.newPassword);
     response.redirect(
       HttpStatus.SEE_OTHER,
@@ -105,14 +95,11 @@ export class PasswordController {
 
   @Patch('/')
   @HttpCode(HttpStatus.OK)
-  @UseGuards(JWTAccessGuard)
   @ApiUpdatePassword()
   async updatePassword(
     @Body() dto: UpdatePasswordDTO,
-    @Req() request: Request,
+    @Headers('x-user-id') userID: string,
   ): Promise<HttpResponseOutbound> {
-    const { userID } = request.user as UserInAcessToken;
-
     await this.updatePasswordUseCase.execute(
       userID,
       dto.newPassword,

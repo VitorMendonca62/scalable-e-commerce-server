@@ -8,7 +8,7 @@ import * as express from 'express';
 import AppConfig from '@config/app.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {});
   const appLogger = new Logger('API');
 
   const configService =

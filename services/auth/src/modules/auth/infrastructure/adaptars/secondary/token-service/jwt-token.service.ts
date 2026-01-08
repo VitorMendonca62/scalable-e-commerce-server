@@ -10,7 +10,8 @@ import {
   JWTRefreshTokenPayLoad,
   JWTResetPassTokenPayLoad,
 } from '@auth/domain/types/jwt-tokens-payload';
-
+import * as fs from 'fs';
+import * as path from 'path';
 @Injectable()
 export class JwtTokenService implements TokenService {
   constructor(
@@ -27,7 +28,10 @@ export class JwtTokenService implements TokenService {
       type: 'refresh' as const,
     };
     return {
-      refreshToken: this.jwtService.sign(payload, { expiresIn: '7D' }),
+      refreshToken: this.jwtService.sign(payload, {
+        expiresIn: '7D',
+        keyid: this.configService.get('AUTH_JWT_KEYID'),
+      }),
       tokenID: jti,
     };
   }
@@ -43,7 +47,10 @@ export class JwtTokenService implements TokenService {
       roles: props.roles,
       type: 'access' as const,
     };
-    return this.jwtService.sign(payload, { expiresIn: '1h' });
+    return this.jwtService.sign(payload, {
+      expiresIn: '1h',
+      keyid: this.configService.get('AUTH_JWT_KEYID'),
+    });
   }
 
   generateResetPassToken(props: { email: string }): string {
@@ -51,9 +58,13 @@ export class JwtTokenService implements TokenService {
       sub: props.email,
       type: 'reset-pass' as const,
     };
+
     return this.jwtService.sign(payload, {
       expiresIn: '10m',
-      secret: this.configService.get<string>('RESET_PASS_SECRET'),
+      privateKey: fs.readFileSync(
+        path.join(__dirname, '../../../../../../../reset-pass-private.pem'),
+      ),
+      keyid: this.configService.get<string>('RESET_PASS_KEYID'),
     });
   }
 }

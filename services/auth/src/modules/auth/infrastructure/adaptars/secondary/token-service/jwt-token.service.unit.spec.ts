@@ -7,7 +7,24 @@ import { ConfigService } from '@nestjs/config';
 jest.mock('uuid', () => {
   return { __esModule: true, v7: jest.fn() };
 });
+
+jest.mock('fs', () => {
+  return {
+    __esModule: true,
+    readFileSync: jest.fn(),
+  };
+});
+
+jest.mock('path', () => {
+  return {
+    __esModule: true,
+    join: jest.fn(),
+  };
+});
+
 import { v7 } from 'uuid';
+import * as fs from 'fs';
+import * as path from 'path';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 describe('JwtTokenService', () => {
@@ -18,7 +35,8 @@ describe('JwtTokenService', () => {
 
   const userId = 'userId';
   const token = 'T0K3n';
-  const resetPassSecret = 'SECRET';
+  const resetPassKeyID = 'SECRET';
+  const authKeyID = 'SECRET';
 
   beforeEach(async () => {
     jwtService = {
@@ -27,7 +45,7 @@ describe('JwtTokenService', () => {
     } as any;
 
     configService = {
-      get: jest.fn().mockReturnValue(resetPassSecret),
+      get: jest.fn(),
     } as any;
 
     service = new JwtTokenService(jwtService, configService);
@@ -44,6 +62,7 @@ describe('JwtTokenService', () => {
       (v7 as jest.Mock).mockReturnValue(IDConstants.EXEMPLE);
 
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
     it('should call jwt sign function with correct parameters', async () => {
@@ -55,8 +74,10 @@ describe('JwtTokenService', () => {
         type: 'refresh',
       };
 
+      expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '7D',
+        keyid: authKeyID,
       });
     });
 
@@ -74,6 +95,7 @@ describe('JwtTokenService', () => {
   describe('generateAccessToken', () => {
     beforeEach(async () => {
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
     const userJSON = mockUserLikeJSON();
@@ -91,8 +113,10 @@ describe('JwtTokenService', () => {
         type: 'access',
       };
 
+      expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '1h',
+        keyid: authKeyID,
       });
     });
 
@@ -105,8 +129,14 @@ describe('JwtTokenService', () => {
   });
 
   describe('generateResetPassToken', () => {
+    const mockPrivateKey = 'mock-private-key-content';
+    const mockPath = '/mock/path/to/reset-pass-private.pem';
+
     beforeEach(async () => {
       jest.spyOn(jwtService, 'sign').mockReturnValue(token);
+      jest.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
+      jest.spyOn(path, 'join').mockReturnValue(mockPath);
+      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
     });
 
     const userJSON = mockUserLikeJSON();
@@ -123,10 +153,13 @@ describe('JwtTokenService', () => {
         type: 'reset-pass',
       };
 
-      expect(configService.get).toHaveBeenCalledWith('RESET_PASS_SECRET');
+      expect(path.join).toHaveBeenCalled();
+      expect(fs.readFileSync).toHaveBeenCalledWith(mockPath);
+      expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '10m',
-        secret: resetPassSecret,
+        privateKey: mockPrivateKey,
+        keyid: resetPassKeyID,
       });
     });
 
