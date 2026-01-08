@@ -32,11 +32,8 @@
       "allow_credentials": true,
       "max_age": "86400"
     },
-    "qos/ratelimit/router": {
-      "every": "1m",
-      "client_max_rate": 100,
-      "client_capacity": 100,
-      "strategy": "ip"
+    "router/health-check": {
+      "health_path": "/__health"
     }
   },
   "endpoints": [
@@ -93,7 +90,8 @@
         }
       ],
       "extra_config": {
-        "auth/validator": {{ marshal .jwt_validator.refresh_token_validator }}
+        "auth/validator": {{ marshal .jwt_validator.refresh_token_validator }},
+        "qos/ratelimit/router": {{ marshal .rate_limit.one_hundred_per_minute }}
       }
     },
     {
@@ -112,7 +110,6 @@
       ],
       "extra_config": {
         "qos/ratelimit/router": {{ marshal .rate_limit.three_per_minute }}
-
       }
     },
     {

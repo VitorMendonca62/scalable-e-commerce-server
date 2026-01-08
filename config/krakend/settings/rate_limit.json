@@ -10,5 +10,11 @@
     "client_max_rate": 3,
     "client_capacity": 3,
     "strategy": "ip"
+  },
+  "one_hundred_per_minute": {
+    "every": "1m",
+    "client_max_rate": 100,
+    "client_capacity": 100,
+    "strategy": "ip"
   }
 }
