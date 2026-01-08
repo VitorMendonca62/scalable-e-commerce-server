@@ -25,5 +25,9 @@
     "^@config/(.*)$": "<rootDir>/src/config/$1",
     "^@common/(.*)$": "<rootDir>/src/common/$1",
     "^@/(.*)$": "<rootDir>/$1"
-  }
+  },
+  "transformIgnorePatterns": [
+    "node_modules/.pnpm/(?!jose)"
+  ]
+  
 }
