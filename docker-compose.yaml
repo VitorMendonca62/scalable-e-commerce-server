@@ -33,8 +33,6 @@ services:
       - FC_PARTIALS=/etc/krakend/partials
       - FC_SETTINGS=/etc/krakend/settings
       - FC_TEMPLATES=/etc/krakend/templates
-      - KRAKEND_LOG_LEVEL=DEBUG
-      - TZ=America/Sao_Paulo
     networks: 
       - scalable-commerce-net
     command: ["run", "-d", "-c", "/etc/krakend/krakend.tmpl"]

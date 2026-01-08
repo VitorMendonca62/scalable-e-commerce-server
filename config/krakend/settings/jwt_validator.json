@@ -1,0 +1,31 @@
+{
+  "refresh_token_validator": {
+    "alg": "RS256",
+    "cookie_key": "refresh_token",
+    "jwk_url": "http://scalable-e-commerce-api:8080/certs",
+    "disable_jwk_security": true,
+    "cache": true,
+    "propagate_claims": [
+      ["sub", "x-user-id"],
+      ["jti", "x-token-id"]
+    ]
+  },
+  "reset_pass_token_validator": {
+    "alg": "RS256",
+    "cookie_key": "reset_pass_token",
+    "jwk_url": "http://scalable-e-commerce-api:8080/certs",
+    "disable_jwk_security": true,
+    "cache": true,
+    "propagate_claims": [["sub", "x-user-email"]]
+  },
+  "enter_role_validator": {
+    "alg": "RS256",
+    "cookie_key": "access_token",
+    "jwk_url": "http://scalable-e-commerce-api:8080/certs",
+    "disable_jwk_security": true,
+    "cache": true,
+    "propagate_claims": [["sub", "x-user-id"]],
+    "roles_key": "roles",
+    "roles": ["enter"]
+  }
+}

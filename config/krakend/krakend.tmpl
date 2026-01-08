@@ -1,5 +1,5 @@
 {
-  "$schema": "https://www.krakend.io/schema/krakend.json",
+  "$schema": "http://www.krakend.io/schema/krakend.json",
   "version": 3,
   "name": "Scalable-E-Commerce - API Gateway",
   "port": 8080,
@@ -27,7 +27,7 @@
     "security/cors": {
       "allow_origins": ["*"],
       "allow_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "allow_headers": ["Origin", "Authorization", "Content-Type", "X-Request-ID"],
+      "allow_headers": ["Origin", "Content-Type", "X-Request-ID"],
       "expose_headers": ["X-Request-ID"],
       "allow_credentials": true,
       "max_age": "86400"
@@ -61,6 +61,7 @@
     {
       "endpoint": "/v1/token",
       "output_encoding": "no-op",
+      "input_headers": ["x-user-id", "x-token-id"],
       "backend": [
         {
           "url_pattern": "/auth/token",
@@ -78,6 +79,8 @@
     },
     {
       "endpoint": "/v1/logout",
+      "method": "POST",
+      "input_headers": ["x-user-id", "x-token-id"],
       "output_encoding": "no-op",
       "backend": [
         {
@@ -95,6 +98,7 @@
     },
     {
       "endpoint": "/v1/forgot-password",
+      "method": "POST",
       "output_encoding": "no-op",
       "backend": [
         {
@@ -113,6 +117,7 @@
     },
     {
       "endpoint": "/v1/forgot-password/validate-code",
+      "method": "POST",
       "output_encoding": "no-op",
       "backend": [
         {
@@ -129,7 +134,9 @@
       }
     },
     {
-      "endpoint": "/v1/password/reset",
+      "endpoint": "/v1/user/password/reset",
+      "method": "PATCH",
+      "input_headers": ["x-user-email", "Content-Type"],
       "output_encoding": "no-op",
       "backend": [
         {
@@ -137,6 +144,7 @@
           "host": [
             "http://scalable-e-commerce-api:8080"
           ],
+          "method": "PATCH",
           "sd": "static",
           "encoding": "no-op"
         }
@@ -147,7 +155,9 @@
       }
     },
     {
-      "endpoint": "/v1/user/pass",
+      "endpoint": "/v1/user/password",
+      "method": "PATCH",
+      "input_headers": ["x-user-id", "Content-Type"],
       "output_encoding": "no-op",
       "backend": [
         {
@@ -156,12 +166,13 @@
             "http://scalable-e-commerce-api:8080"
           ],
           "sd": "static",
+          "method": "PATCH",
           "encoding": "no-op"
         }
       ],
       "extra_config": {
-        "qos/ratelimit/router": {{ marshal .rate_limit.three_per_minute }},
-        "auth/validator": {{ marshal .jwt_validator.enter_role_validator }}
+        "auth/validator": {{ marshal .jwt_validator.enter_role_validator }},
+        "qos/ratelimit/router": {{ marshal .rate_limit.three_per_minute }}
       }
     }
   ]
