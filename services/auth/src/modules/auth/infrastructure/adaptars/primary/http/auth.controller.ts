@@ -8,6 +8,7 @@ import {
   Ip,
   Headers,
   UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
@@ -29,6 +30,10 @@ import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-servic
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 import RevocationGuard from './guards/revocation.guard';
+import { GoogleOAuthGuard } from './guards/google-oauth.guard';
+import { ConfigService } from '@nestjs/config';
+import { EnvironmentVariables } from '@config/environment/env.validation';
+import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -39,7 +44,60 @@ export class AuthController {
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
     private readonly finishSessionUseCase: FinishSessionUseCase,
     private readonly cookieService: CookieService,
+    private readonly configService: ConfigService<EnvironmentVariables>,
+    private readonly usersQueueService: UsersQueueService,
   ) {}
+
+  @Get('google')
+  getGoogleURL() {
+    const redirectUri = this.configService.get('GOOGLE_CALLBACK_URL');
+    const clientID = this.configService.get('GOOGLE_CLIENT_ID');
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&redirect_uri=${redirectUri}&scope=email%20profile&client_id=${clientID}`;
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleOAuthGuard)
+  async googleAuthRedirect(
+    @Req() request,
+    @Res({ passthrough: true }) response: Response,
+    @Ip() ip: string,
+  ) {
+    const user = request.user as UserGoogleInCallBack;
+    const googleLoginDTO = this.userMapper.googleLoginDTOForEntity(user, ip);
+
+    const { newUser, result } =
+      await this.createSessionUseCase.executeWithGoogle(googleLoginDTO);
+
+    if (newUser != undefined) {
+      this.usersQueueService.send('user-create-google', {
+        userID: newUser.userID,
+        name: user.name,
+        username: user.username,
+        email: newUser.email,
+        roles: newUser.roles,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+      });
+    }
+
+    const { accessToken, refreshToken } = result;
+
+    this.cookieService.setCookie(
+      Cookies.RefreshToken,
+      refreshToken,
+      TokenExpirationConstants.REFRESH_TOKEN_MS,
+      response,
+    );
+    this.cookieService.setCookie(
+      Cookies.AccessToken,
+      accessToken,
+      TokenExpirationConstants.ACCESS_TOKEN_MS,
+      response,
+    );
+
+    return new HttpCreatedResponse('Usuário realizou login com sucesso');
+  }
 
   @Post('/login')
   @ApiLoginUser()

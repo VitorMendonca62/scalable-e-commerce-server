@@ -1,6 +1,6 @@
+import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
-import { User } from '@auth/domain/entities/user.entity';
-import { defaultRoles } from '@auth/domain/types/permissions';
+import { UserEntity } from '@auth/domain/entities/user.entity';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import EmailVO from '@auth/domain/values-objects/email/email-vo';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
@@ -14,9 +14,11 @@ import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/mode
 import { mockPasswordHasher } from './password-mocks';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
+import { defaultRoles } from '@auth/domain/constants/roles';
+import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 
 // Common
-export const mockUserLikeJSON = (
+export const mockUserModel = (
   overrides: Partial<UserModel> = {},
 ): UserModel => {
   return {
@@ -27,13 +29,16 @@ export const mockUserLikeJSON = (
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),
+    accountProvider: AccountsProvider.DEFAULT,
+    accountProviderID: undefined,
+    active: true,
     ...overrides,
   };
 };
 
 export const mockUser = (overrides: Partial<UserModel> = {}) => {
-  const userJSON = mockUserLikeJSON(overrides);
-  const user = new User({
+  const userJSON = mockUserModel(overrides);
+  const user = new UserEntity({
     userID: new IDVO(userJSON.userID),
     email: new EmailVO(userJSON.email),
     password: new PasswordHashedVO(userJSON.password, mockPasswordHasher()),
@@ -41,6 +46,9 @@ export const mockUser = (overrides: Partial<UserModel> = {}) => {
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
     updatedAt: new Date('2025-02-16T17:21:05.370Z'),
+    accountProvider: AccountsProvider.DEFAULT,
+    accountProviderID: undefined,
+    active: true,
   });
 
   return user;
@@ -77,4 +85,30 @@ export const mockLoginUserDTOLikeInstance = (
     ? overrides.password
     : PasswordConstants.EXEMPLE;
   return dto;
+};
+
+// Login > Google
+
+export const mockUserGoogleInCallBack = (
+  overrides: Partial<UserGoogleInCallBack> = {},
+): UserGoogleInCallBack => {
+  return {
+    email: EmailConstants.EXEMPLE,
+    id: IDConstants.EXEMPLE,
+    name: 'test',
+    username: 'test',
+    ...overrides,
+  };
+};
+
+export const mockGoogleLogin = (
+  overrides: Partial<UserGoogleLogin> = {},
+): UserGoogleLogin => {
+  return {
+    email: new EmailVO(EmailConstants.EXEMPLE),
+    id: IDConstants.EXEMPLE,
+    name: 'test',
+    ip: '122.0.0.0',
+    ...overrides,
+  };
 };

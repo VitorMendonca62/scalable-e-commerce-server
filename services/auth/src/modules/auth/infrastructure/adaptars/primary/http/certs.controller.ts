@@ -1,4 +1,4 @@
-import GetCertsUseCase from '@auth/application/use-cases/get-certs-usecase';
+import GetCertsUseCase from '@auth/application/use-cases/get-certs.usecase';
 import { Controller, Get } from '@nestjs/common';
 
 @Controller('/certs')

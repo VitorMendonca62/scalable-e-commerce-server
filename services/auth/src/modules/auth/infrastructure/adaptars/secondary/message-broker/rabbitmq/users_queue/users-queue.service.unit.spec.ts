@@ -1,8 +1,8 @@
 import { ClientProxy } from '@nestjs/microservices';
-import { defaultRoles } from '@auth/domain/types/permissions';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { UsersQueueService } from './users-queue.service';
+import { defaultRoles } from '@auth/domain/constants/roles';
 
 describe('UsersQueueService', () => {
   let service: UsersQueueService;

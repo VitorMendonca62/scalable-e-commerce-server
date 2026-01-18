@@ -26,7 +26,7 @@ jest.mock('jose', () => {
 import * as fs from 'fs';
 import * as path from 'path';
 import { exportJWK, importSPKI } from 'jose';
-import GetCertsUseCase from './get-certs-usecase';
+import GetCertsUseCase from './get-certs.usecase';
 
 describe('GetCertsUseCase', () => {
   let useCase: GetCertsUseCase;

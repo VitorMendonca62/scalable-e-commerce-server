@@ -1,5 +1,4 @@
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-import { JWTTokensTypes } from '@auth/domain/types/jwt-tokens-payload';
 
 export class JwtPayloadValidator {
   static validate<T extends { sub?: string; type?: string }>(

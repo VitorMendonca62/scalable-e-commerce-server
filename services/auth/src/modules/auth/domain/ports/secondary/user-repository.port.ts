@@ -1,6 +1,9 @@
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
 
 export abstract class UserRepository {
-  abstract findOne(options: Partial<UserModel>): Promise<UserModel | undefined>;
+  abstract findOne(
+    options: Partial<UserModel>,
+  ): Promise<UserModel | undefined | null>;
   abstract update(userID: string, newFields: Partial<UserModel>): Promise<void>;
+  abstract create(user: UserModel): Promise<UserModel>;
 }

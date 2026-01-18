@@ -1,17 +1,10 @@
-import {
-  isNotEmpty,
-  isString,
-  isStrongPassword,
-  length,
-} from 'class-validator';
+import { isEmpty, isString, isStrongPassword, length } from 'class-validator';
 import { PasswordConstants } from './password-constants';
 import { FieldInvalid } from '../../ports/primary/http/errors.port';
 
 export default class PasswordValidator {
   static validate(value: string) {
-    if (!isNotEmpty(value)) {
-      throw new FieldInvalid(PasswordConstants.ERROR_REQUIRED, 'password');
-    }
+    if (isEmpty(value)) return;
 
     if (!isString(value)) {
       throw new FieldInvalid(PasswordConstants.ERROR_STRING, 'password');

@@ -1,6 +1,7 @@
-export enum Permissions {
-  ENTER = 'enter',
+export enum PermissionsSystem {
   READ_ITEMS = 'read_items',
-}
 
-export const defaultRoles = [Permissions.ENTER, Permissions.READ_ITEMS];
+  CHANGE_PASSWORD = 'change_password',
+
+  SHOULD_CHANGE_PASSWORD = 'should_change_password',
+}

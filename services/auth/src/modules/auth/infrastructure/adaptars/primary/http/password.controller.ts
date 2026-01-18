@@ -16,13 +16,12 @@ import { Response } from 'express';
 import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgot-pass.dto';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
-import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import {
   HttpOKResponse,
   HttpResponseOutbound,
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { UpdatePasswordDTO } from './dtos/update-password.dto';
-import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
+import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
 import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
 import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator';
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
@@ -36,8 +35,7 @@ export class PasswordController {
   constructor(
     private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
     private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
-    private readonly resetPasswordUseCase: ResetPasswordUseCase,
-    private readonly updatePasswordUseCase: UpdatePasswordUseCase,
+    private readonly changePasswordUseCase: ChangePasswordUseCase,
     private readonly cookieService: CookieService,
   ) {}
 
@@ -86,7 +84,7 @@ export class PasswordController {
     @Res() response: Response,
     @Headers('x-user-email') email: string,
   ): Promise<void> {
-    await this.resetPasswordUseCase.execute(email, dto.newPassword);
+    await this.changePasswordUseCase.executeReset(email, dto.newPassword);
     response.redirect(
       HttpStatus.SEE_OTHER,
       'https://github.com/VitorMendonca62',
@@ -100,7 +98,7 @@ export class PasswordController {
     @Body() dto: UpdatePasswordDTO,
     @Headers('x-user-id') userID: string,
   ): Promise<HttpResponseOutbound> {
-    await this.updatePasswordUseCase.execute(
+    await this.changePasswordUseCase.executeUpdate(
       userID,
       dto.newPassword,
       dto.oldPassword,

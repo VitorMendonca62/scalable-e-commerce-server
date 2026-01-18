@@ -1,5 +1,5 @@
 import { JwtTokenService } from './jwt-token.service';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
+import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
@@ -98,7 +98,7 @@ describe('JwtTokenService', () => {
       jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
-    const userJSON = mockUserLikeJSON();
+    const userJSON = mockUserModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {
@@ -139,7 +139,7 @@ describe('JwtTokenService', () => {
       jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
     });
 
-    const userJSON = mockUserLikeJSON();
+    const userJSON = mockUserModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {

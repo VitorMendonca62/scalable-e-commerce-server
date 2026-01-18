@@ -1,4 +1,3 @@
-import { JWTResetPassTokenPayLoad } from '@auth/domain/types/jwt-tokens-payload';
 import { JwtPayloadValidator } from './jwt-payload.validator';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';

@@ -1,6 +1,8 @@
+import { PermissionsSystem } from '@auth/domain/types/permissions';
 import { v7 } from 'uuid';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { defaultRoles, Permissions } from '@auth/domain/types/permissions';
+import { defaultRoles } from '@auth/domain/constants/roles';
+import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 
 export type UserDocument = UserModel & Document;
 
@@ -12,19 +14,35 @@ export class UserModel {
   @Prop({ required: true, type: String, unique: true })
   email: string;
 
-  @Prop({ required: true, type: String })
-  password: string;
+  @Prop({ type: String })
+  password: string | null | undefined;
 
-  @Prop({ required: true, type: String, unique: true })
-  phoneNumber: string;
+  @Prop({ type: String })
+  phoneNumber: string | null | undefined;
 
   @Prop({
     required: true,
     type: [String],
-    enum: Permissions,
+    enum: PermissionsSystem,
     default: defaultRoles,
   })
-  roles: Permissions[];
+  roles: PermissionsSystem[];
+
+  @Prop({ required: true, type: Boolean, default: true })
+  active: boolean;
+
+  @Prop({
+    required: true,
+    type: String,
+    enum: AccountsProvider,
+    default: AccountsProvider.DEFAULT,
+  })
+  accountProvider: string;
+
+  @Prop({
+    type: String,
+  })
+  accountProviderID: string | null | undefined;
 
   @Prop({ required: true, type: Date, default: Date.now })
   createdAt: Date;

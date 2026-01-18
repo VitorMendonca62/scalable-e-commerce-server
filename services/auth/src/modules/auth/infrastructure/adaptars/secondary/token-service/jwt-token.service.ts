@@ -1,15 +1,10 @@
+import { PermissionsSystem } from '@auth/domain/types/permissions';
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
-import { Permissions } from '@auth/domain/types/permissions';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { v7 } from 'uuid';
-import {
-  JWTAccessTokenPayLoad,
-  JWTRefreshTokenPayLoad,
-  JWTResetPassTokenPayLoad,
-} from '@auth/domain/types/jwt-tokens-payload';
 import * as fs from 'fs';
 import * as path from 'path';
 @Injectable()
@@ -39,7 +34,7 @@ export class JwtTokenService implements TokenService {
   generateAccessToken(props: {
     userID: string;
     email: string;
-    roles: Permissions[];
+    roles: PermissionsSystem[];
   }): string {
     const payload: Omit<JWTAccessTokenPayLoad, 'iat' | 'exp'> = {
       sub: props.userID,

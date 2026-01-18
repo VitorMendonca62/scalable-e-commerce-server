@@ -27,8 +27,8 @@
     "security/cors": {
       "allow_origins": ["*"],
       "allow_methods": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-      "allow_headers": ["Origin", "Content-Type", "X-Request-ID"],
-      "expose_headers": ["X-Request-ID"],
+      "allow_headers": ["Origin", "Content-Type", "X-Request-ID", "Authorization", "Cookie", "Accept", "Location"],
+      "expose_headers": ["Set-Cookie", "Location", "X-Request-ID"],
       "allow_credentials": true,
       "max_age": "86400"
     },
@@ -56,7 +56,45 @@
       }
     },
     {
+      "endpoint": "/v1/google",
+      "method": "GET",
+      "input_headers": ["*"],
+      "output_encoding": "no-op",
+      "backend": [
+        {
+          "url_pattern": "/auth/google",
+          "host": [
+            "http://scalable-e-commerce-api:8080"
+          ],
+          "sd": "static",
+          "encoding": "no-op",
+          "group": "backend1",
+          "extra_config": {
+              "modifier/lua-backend": {
+                "allow_open_libs": true,
+                "post": "local r = response.load(); r:statusCode(302); r:headers('Location', r:body());"
+              }
+            }
+        }
+    ]
+    },
+    {
+      "endpoint": "/v1/google/callback",
+      "method": "GET",
+      "output_encoding": "no-op",
+      "input_headers": ["*"],
+      "input_query_strings": ["*"],
+      "backend": [{
+        "url_pattern": "/auth/google/callback",
+        "method": "GET",
+        "host": ["http://scalable-e-commerce-api:8080"],
+        "sd": "static",
+        "encoding": "no-op"
+      }]
+    },
+    {
       "endpoint": "/v1/token",
+      "method": "GET",
       "output_encoding": "no-op",
       "input_headers": ["x-user-id", "x-token-id"],
       "backend": [

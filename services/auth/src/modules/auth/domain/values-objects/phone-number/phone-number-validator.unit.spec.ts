@@ -9,15 +9,10 @@ describe('PhoneNumberValidator', () => {
     expect(() => PhoneNumberValidator.validate(validPhone)).not.toThrow();
   });
 
-  it('should throw if phone number is empty', () => {
-    try {
-      PhoneNumberValidator.validate('');
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error).toBeInstanceOf(FieldInvalid);
-      expect(error.message).toBe(PhoneNumberConstants.ERROR_REQUIRED);
-      expect(error.data).toBe('phoneNumber');
-    }
+  it('should not throw if phone number is empyt', () => {
+    const validPhone = '';
+
+    expect(() => PhoneNumberValidator.validate(validPhone)).not.toThrow();
   });
 
   it('should throw if phone number is not a string', () => {

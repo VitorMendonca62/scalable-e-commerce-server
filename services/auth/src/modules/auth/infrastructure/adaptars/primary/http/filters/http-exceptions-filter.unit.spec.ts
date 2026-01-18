@@ -1,4 +1,4 @@
-import { ArgumentsHost, HttpStatus } from '@nestjs/common';
+import { ArgumentsHost, HttpStatus, NotFoundException } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exceptions-filter';
 jest.mock('@auth/domain/ports/primary/http/errors.port');
 import { HttpError } from '@auth/domain/ports/primary/http/errors.port';
@@ -39,7 +39,7 @@ describe('HttpExceptionFilter', () => {
       expect(getResponseMock).toHaveBeenCalled();
     });
 
-    it('should return same exception when exceptiono instance of HttpError', async () => {
+    it('should return same exception when exception instance of HttpError', async () => {
       const response = { foo: 'bar' };
       const status = HttpStatus.OK;
       const error = new HttpError(
@@ -50,6 +50,29 @@ describe('HttpExceptionFilter', () => {
 
       error.getResponse.mockReturnValue(response);
       error.getStatus.mockReturnValue(status);
+
+      filter.catch(error, host);
+
+      expect(error.getResponse).toHaveBeenCalled();
+      expect(error.getStatus).toHaveBeenCalled();
+      expect(statusMock).toHaveBeenCalledWith(status);
+      expect(jsonMock).toHaveBeenCalledWith(response);
+    });
+
+    it('should return same exception when exception instance of NotFoundException', async () => {
+      const status = HttpStatus.NOT_FOUND;
+      const response = {
+        message: 'Cannot GET /',
+        error: 'Not Found',
+        statusCode: status,
+      };
+
+      const error = new NotFoundException(
+        'Error',
+      ) as jest.Mocked<NotFoundException>;
+
+      jest.spyOn(error, 'getResponse').mockReturnValue(response);
+      jest.spyOn(error, 'getStatus').mockReturnValue(status);
 
       filter.catch(error, host);
 

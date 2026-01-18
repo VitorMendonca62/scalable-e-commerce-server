@@ -7,6 +7,7 @@ import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import AppConfig from '@config/app.config';
 import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
+import { addRabbitMQClient } from '@config/message-broker/rabbitmq.config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {});
@@ -28,6 +29,7 @@ async function bootstrap() {
 
   const appConfig = new AppConfig(configService, app);
 
+  addRabbitMQClient(app, configService);
   appConfig.configSwagger();
   appConfig.configValidationPipe();
   appConfig.configCors();

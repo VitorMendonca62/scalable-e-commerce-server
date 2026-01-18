@@ -9,15 +9,10 @@ describe('PasswordValidator', () => {
     expect(() => PasswordValidator.validate(password)).not.toThrow();
   });
 
-  it('should throw if password is empty', () => {
-    try {
-      PasswordValidator.validate('');
-      fail('Should have thrown an error');
-    } catch (error: any) {
-      expect(error).toBeInstanceOf(FieldInvalid);
-      expect(error.message).toBe(PasswordConstants.ERROR_REQUIRED);
-      expect(error.data).toBe('password');
-    }
+  it('should not throw if password is empyt', () => {
+    const password = '';
+
+    expect(() => PasswordValidator.validate(password)).not.toThrow();
   });
 
   it('should throw if password is not a string', () => {

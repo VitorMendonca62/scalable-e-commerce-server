@@ -4,6 +4,7 @@ import {
   Catch,
   ArgumentsHost,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -13,7 +14,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    if (exception instanceof HttpError) {
+    if (
+      exception instanceof HttpError ||
+      exception instanceof NotFoundException
+    ) {
       const exceptionResponse = exception.getResponse();
       return response.status(exception.getStatus()).json(exceptionResponse);
     }

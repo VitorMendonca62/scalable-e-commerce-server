@@ -31,8 +31,7 @@ import {
 import EmailCodeRepository from './domain/ports/secondary/email-code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
 import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
-import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase';
-import { UpdatePasswordUseCase } from './application/use-cases/update-password-usecase';
+import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase';
 import { TokenRepository } from './domain/ports/secondary/token-repository.port';
 import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
 import { FinishSessionUseCase } from './application/use-cases/finish-session.usecase';
@@ -40,7 +39,8 @@ import CookieService from './infrastructure/adaptars/secondary/cookie-service/co
 import * as fs from 'fs';
 import * as path from 'path';
 import CertsController from './infrastructure/adaptars/primary/http/certs.controller';
-import GetCertsUseCase from './application/use-cases/get-certs-usecase';
+import GetCertsUseCase from './application/use-cases/get-certs.usecase';
+import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategies/google.strategy';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -96,9 +96,9 @@ import GetCertsUseCase from './application/use-cases/get-certs-usecase';
     CookieService,
     SendCodeForForgotPasswordUseCase,
     ValidateCodeForForgotPasswordUseCase,
-    ResetPasswordUseCase,
-    UpdatePasswordUseCase,
+    ChangePasswordUseCase,
     GetCertsUseCase,
+    GoogleStrategy,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,

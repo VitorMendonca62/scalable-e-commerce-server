@@ -97,4 +97,16 @@ export class EnvironmentVariables {
   @IsEmail({}, { message: 'EMAIL_FROM_FOR_FORGOT_PASSWORD must be a email.' })
   @IsNotEmpty({ message: 'EMAIL_FROM_FOR_FORGOT_PASSWORD cannot be empty.' })
   EMAIL_FROM_FOR_FORGOT_PASSWORD: string;
+
+  @IsString({ message: 'GOOGLE_CLIENT_SECRET must be a string.' })
+  @IsNotEmpty({ message: 'GOOGLE_CLIENT_SECRET cannot be empty.' })
+  GOOGLE_CLIENT_SECRET: string;
+
+  @IsString({ message: 'GOOGLE_CLIENT_ID must be a string.' })
+  @IsNotEmpty({ message: 'GOOGLE_CLIENT_ID cannot be empty.' })
+  GOOGLE_CLIENT_ID: string;
+
+  @IsString({ message: 'GOOGLE_CALLBACK_URL must be a string.' })
+  @IsNotEmpty({ message: 'GOOGLE_CALLBACK_URL cannot be empty.' })
+  GOOGLE_CALLBACK_URL: string;
 }

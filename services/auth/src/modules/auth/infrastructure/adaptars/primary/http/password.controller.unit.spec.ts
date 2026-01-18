@@ -1,39 +1,39 @@
-import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
 import { PasswordController } from './password.controller';
 import { Response } from 'express';
-import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
+
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { ResetPasswordUseCase } from '@auth/application/use-cases/reset-password.usecase';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
-import { UpdatePasswordUseCase } from '@auth/application/use-cases/update-password-usecase';
+import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
+import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
+import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 
 describe('PasswordController', () => {
   let controller: PasswordController;
 
   let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
   let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
-  let resetPasswordUseCase: ResetPasswordUseCase;
-  let updatePasswordUseCase: UpdatePasswordUseCase;
+  let changePasswordUseCase: ChangePasswordUseCase;
   let cookiesService: CookieService;
 
   beforeEach(async () => {
     sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
     validateCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
-    resetPasswordUseCase = { execute: jest.fn() } as any;
-    updatePasswordUseCase = { execute: jest.fn() } as any;
+    changePasswordUseCase = {
+      executeReset: jest.fn(),
+      executeUpdate: jest.fn(),
+    } as any;
     cookiesService = { setCookie: jest.fn() } as any;
 
     controller = new PasswordController(
       sendCodeForForgotPasswordUseCase,
       validateCodeForForgotPasswordUseCase,
-      resetPasswordUseCase,
-      updatePasswordUseCase,
+      changePasswordUseCase,
       cookiesService,
     );
   });
@@ -42,8 +42,7 @@ describe('PasswordController', () => {
     expect(controller).toBeDefined();
     expect(sendCodeForForgotPasswordUseCase).toBeDefined();
     expect(validateCodeForForgotPasswordUseCase).toBeDefined();
-    expect(resetPasswordUseCase).toBeDefined();
-    expect(updatePasswordUseCase).toBeDefined();
+    expect(changePasswordUseCase).toBeDefined();
     expect(cookiesService).toBeDefined();
   });
 
@@ -177,10 +176,10 @@ describe('PasswordController', () => {
       jest.spyOn(response, 'redirect').mockReturnValue(undefined);
     });
 
-    it('should call resetPasswordUseCase.execute with email and new password', async () => {
+    it('should call changePasswordUseCase.executeReset with email and new password', async () => {
       await controller.resetPassword(dto, response, email);
 
-      expect(resetPasswordUseCase.execute).toHaveBeenCalledWith(
+      expect(changePasswordUseCase.executeReset).toHaveBeenCalledWith(
         email,
         newPassword,
       );
@@ -195,9 +194,9 @@ describe('PasswordController', () => {
       );
     });
 
-    it('should throw error if resetPasswordUseCase throws error', async () => {
+    it('should throw error if changePasswordUseCase throws error', async () => {
       jest
-        .spyOn(resetPasswordUseCase, 'execute')
+        .spyOn(changePasswordUseCase, 'executeReset')
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {
@@ -215,10 +214,10 @@ describe('PasswordController', () => {
     const dto = mockUpdatePasswordLikeInstance();
     const userID = IDConstants.EXEMPLE;
 
-    it('should call updatePasswordUseCase.execute with userId and passwords', async () => {
+    it('should call changePasswordUseCase.executeUpdate with userId and passwords', async () => {
       await controller.updatePassword(dto, userID);
 
-      expect(updatePasswordUseCase.execute).toHaveBeenCalledWith(
+      expect(changePasswordUseCase.executeUpdate).toHaveBeenCalledWith(
         IDConstants.EXEMPLE,
         dto.newPassword,
         dto.oldPassword,
@@ -234,9 +233,9 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if updatePasswordUseCase throws error', async () => {
+    it('should throw error if changePasswordUseCase throws error', async () => {
       jest
-        .spyOn(updatePasswordUseCase, 'execute')
+        .spyOn(changePasswordUseCase, 'executeUpdate')
         .mockRejectedValue(new Error('Erro no use case'));
 
       try {

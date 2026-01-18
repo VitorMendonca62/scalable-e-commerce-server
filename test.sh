@@ -5,7 +5,7 @@ curl -i -X POST "http://127.0.0.1:8000/v1/logout" \
   -b "refresh_token=$TOKEN" \
   -b "access_token=$TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"oldPassword": "@Aa12345678", "newPassword":"@Aa123456781"}' \
+  -d '{ "email":  "vitormsi2005@gmail.com"}' \
   # --cookie "refresh_token=$TOKEN" \
 done
 

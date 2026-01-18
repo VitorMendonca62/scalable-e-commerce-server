@@ -60,6 +60,18 @@ export class NotFoundUser<T = unknown> extends HttpError {
   }
 }
 
+export class Conflit<T = unknown> extends HttpError {
+  constructor(
+    message: string = 'Houve conflitos por motivos desconhecidos.',
+    data: T = undefined as T,
+  ) {
+    super(message, HttpStatus.CONFLICT, data);
+    this.statusCode = HttpStatus.CONFLICT;
+    this.message = message;
+    this.data = data;
+  }
+}
+
 export class ExternalServiceError<T = unknown> extends HttpError {
   constructor(
     message: string = 'Erro ao comunicar com serviço externo',

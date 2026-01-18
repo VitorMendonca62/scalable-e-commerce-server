@@ -1,4 +1,4 @@
-import { Permissions } from '@auth/domain/types/permissions';
+import { PermissionsSystem } from '@auth/domain/types/permissions';
 
 export abstract class TokenService {
   abstract generateRefreshToken(id: string): {
@@ -8,7 +8,7 @@ export abstract class TokenService {
   abstract generateAccessToken(props: {
     userID: string;
     email: string;
-    roles: Permissions[];
+    roles: PermissionsSystem[];
   }): string;
   abstract generateResetPassToken(props: { email: string }): string;
 }

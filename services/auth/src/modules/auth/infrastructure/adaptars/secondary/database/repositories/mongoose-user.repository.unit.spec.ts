@@ -1,5 +1,5 @@
 import { MongooseUserRepository } from './mongoose-user.repository';
-import { mockUserLikeJSON } from '@auth/infrastructure/helpers/tests/user-mocks';
+import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
@@ -12,9 +12,6 @@ describe('MongooseUserRepository', () => {
 
   let userModel: Model<UserDocument>;
 
-  let mockedExecFindOne: jest.Mock;
-  let mockedExecUpdateOne: jest.Mock;
-
   beforeEach(async () => {
     userModel = jest.fn() as any;
 
@@ -26,8 +23,10 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findOne', () => {
+    let mockedExecFindOne: jest.Mock;
+
     beforeEach(() => {
-      mockedExecFindOne = jest.fn().mockReturnValue(mockUserLikeJSON());
+      mockedExecFindOne = jest.fn().mockReturnValue(mockUserModel());
       userModel.findOne = jest.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
@@ -40,7 +39,7 @@ describe('MongooseUserRepository', () => {
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockUserLikeJSON());
+      expect(response).toEqual(mockUserModel());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -52,7 +51,7 @@ describe('MongooseUserRepository', () => {
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockUserLikeJSON());
+      expect(response).toEqual(mockUserModel());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -68,6 +67,8 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('update', () => {
+    let mockedExecUpdateOne: jest.Mock;
+
     beforeEach(() => {
       mockedExecUpdateOne = jest.fn();
       userModel.updateOne = jest.fn().mockReturnValue({
@@ -87,6 +88,24 @@ describe('MongooseUserRepository', () => {
         { $set: { password: PasswordConstants.EXEMPLE } },
       );
       expect(mockedExecUpdateOne).toHaveBeenCalled();
+    });
+  });
+
+  describe('create', () => {
+    const user = mockUserModel();
+    let mockedSavePrototype: jest.Mock;
+
+    beforeEach(() => {
+      mockedSavePrototype = jest.fn().mockReturnValue(undefined);
+      userModel.prototype.save = mockedSavePrototype;
+    });
+
+    it('should save user', async () => {
+      const result = await repository.create(user);
+
+      expect(result).toEqual(user);
+      expect(userModel).toHaveBeenCalledWith(user);
+      expect(mockedSavePrototype).toHaveBeenCalled();
     });
   });
 });

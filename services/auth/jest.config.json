@@ -14,7 +14,10 @@
     "!src/**/env.validation.ts",
     "!src/**/*.port.ts",
     "!src/config/environment/utils.ts",
-    "!src/**/database/models/*.ts"
+    "!src/**/database/models/*.ts",
+    "!src/**/types/*.ts",
+    "!src/**/constants/*.ts",
+    "!src/**/enums/*.ts"
   ],
   "coverageDirectory": "./coverage",
   "testEnvironment": "node",
@@ -26,8 +29,5 @@
     "^@common/(.*)$": "<rootDir>/src/common/$1",
     "^@/(.*)$": "<rootDir>/$1"
   },
-  "transformIgnorePatterns": [
-    "node_modules/.pnpm/(?!jose)"
-  ]
-  
+  "transformIgnorePatterns": ["node_modules/.pnpm/(?!jose)"]
 }

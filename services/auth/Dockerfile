@@ -8,9 +8,9 @@ COPY package*.json /app
 
 RUN pnpm install
 
-COPY . /app
-
 RUN pnpm jwt:keys:generate
+
+COPY . /app
 
 EXPOSE 8080
 
