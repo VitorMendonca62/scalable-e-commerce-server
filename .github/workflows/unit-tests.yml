@@ -19,16 +19,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with: 
-          node-version: 20 # Use 20, não 24
+          node-version: 20
           cache: 'pnpm'
           cache-dependency-path: services/auth/pnpm-lock.yaml
         
       - name: Install dependencies
         run: pnpm install
-        working-directory: auth
+        working-directory: services/auth/
 
       - name: Run tests
-        working-directory: auth
+        working-directory: services/auth/
         run: pnpm run test
   
   run-users-unit-tests:
