@@ -30,9 +30,6 @@ export default defineConfig({
         'src/**/enums/*.ts',
       ],
     },
-    cache: {
-      dir: 'node_modules/.vitest',
-    },
     isolate: false,
     maxConcurrency: 10,
     alias: {

@@ -7,8 +7,8 @@ import * as classValidator from 'class-validator';
 import { validateENV } from './env.validate';
 
 describe('validateENV', () => {
-  const mockEnv: Record<string, unknown> = {
-    NODE_ENV: 'development',
+  const mockEnv: EnvironmentVariables = {
+    NODE_ENV: NodeEnv.Development,
     HOST: 'localhost',
     PORT: 8080,
     RABBITMQ_HOST: 'scalable-commerce-net',
@@ -19,6 +19,18 @@ describe('validateENV', () => {
     MONGO_INITDB_ROOT_PASSWORD: '12345678',
     MONGO_DB_HOST: 'database-auth',
     MONGO_INITDB_DATABASE: 'database-auth',
+    COOKIE_SECRET: 'secret',
+    RESET_PASS_KEYID: 'keyid',
+    REDIS_HOST: 'localhost',
+    REDIS_PASSWORD: '1234',
+    SMTP_HOST: 'localhost',
+    SMTP_PORT: 0,
+    SMPT_USER_ID: '123',
+    SMPT_USER_PASSWORD: '13214',
+    EMAIL_FROM_FOR_FORGOT_PASSWORD: '1323',
+    GOOGLE_CLIENT_SECRET: '132',
+    GOOGLE_CLIENT_ID: 'daw',
+    GOOGLE_CALLBACK_URL: 'dawdwa',
   };
 
   const mockInstance = new EnvironmentVariables();
@@ -33,7 +45,18 @@ describe('validateENV', () => {
   mockInstance.MONGO_INITDB_ROOT_PASSWORD = '12345678';
   mockInstance.MONGO_DB_HOST = 'database-auth';
   mockInstance.MONGO_INITDB_DATABASE = 'database-auth';
-
+  mockInstance.COOKIE_SECRET = 'secret';
+  mockInstance.RESET_PASS_KEYID = 'keyid';
+  mockInstance.REDIS_HOST = 'localhost';
+  mockInstance.REDIS_PASSWORD = '1234';
+  mockInstance.SMTP_HOST = 'localhost';
+  mockInstance.SMTP_PORT = 0;
+  mockInstance.SMPT_USER_ID = '123';
+  mockInstance.SMPT_USER_PASSWORD = '13214';
+  mockInstance.EMAIL_FROM_FOR_FORGOT_PASSWORD = '1323';
+  mockInstance.GOOGLE_CLIENT_SECRET = '132';
+  mockInstance.GOOGLE_CLIENT_ID = 'daw';
+  mockInstance.GOOGLE_CALLBACK_URL = 'dawdwa';
   let plainToInstanceMocked: Mock;
   let validateSyncMocked: Mock;
 
