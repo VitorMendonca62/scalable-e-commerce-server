@@ -5,6 +5,7 @@ import {
   ArgumentsHost,
   HttpStatus,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Response } from 'express';
 
@@ -16,6 +17,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     if (
       exception instanceof HttpError ||
+      exception instanceof UnauthorizedException ||
       exception instanceof NotFoundException
     ) {
       const exceptionResponse = exception.getResponse();

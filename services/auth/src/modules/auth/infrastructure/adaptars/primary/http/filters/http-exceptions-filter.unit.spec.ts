@@ -1,4 +1,9 @@
-import { ArgumentsHost, HttpStatus, NotFoundException } from '@nestjs/common';
+import {
+  ArgumentsHost,
+  HttpStatus,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exceptions-filter';
 jest.mock('@auth/domain/ports/primary/http/errors.port');
 import { HttpError } from '@auth/domain/ports/primary/http/errors.port';
@@ -70,6 +75,29 @@ describe('HttpExceptionFilter', () => {
       const error = new NotFoundException(
         'Error',
       ) as jest.Mocked<NotFoundException>;
+
+      jest.spyOn(error, 'getResponse').mockReturnValue(response);
+      jest.spyOn(error, 'getStatus').mockReturnValue(status);
+
+      filter.catch(error, host);
+
+      expect(error.getResponse).toHaveBeenCalled();
+      expect(error.getStatus).toHaveBeenCalled();
+      expect(statusMock).toHaveBeenCalledWith(status);
+      expect(jsonMock).toHaveBeenCalledWith(response);
+    });
+
+    it('should return same exception when exception instance of UnauthorizedException', async () => {
+      const status = HttpStatus.UNAUTHORIZED;
+      const response = {
+        message: 'Cannot GET /',
+        error: 'Not Found',
+        statusCode: status,
+      };
+
+      const error = new UnauthorizedException(
+        'Error',
+      ) as jest.Mocked<UnauthorizedException>;
 
       jest.spyOn(error, 'getResponse').mockReturnValue(response);
       jest.spyOn(error, 'getStatus').mockReturnValue(status);
