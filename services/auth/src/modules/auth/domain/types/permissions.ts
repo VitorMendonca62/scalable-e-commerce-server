@@ -3,5 +3,5 @@ export enum PermissionsSystem {
 
   CHANGE_PASSWORD = 'change_password',
 
-  SHOULD_CHANGE_PASSWORD = 'should_change_password',
+  CAN_NEW_PASSWORD = 'can_change_password',
 }
