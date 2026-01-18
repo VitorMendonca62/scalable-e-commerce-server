@@ -1,15 +1,15 @@
 ## Requisitos Funcionais de Autenticação (Módulo Auth)
 
+// Gateway: | **RF-A06** | **Validação de Token:** Fornecer um mecanismo (endpoint ou chave pública) para que outros microsserviços (Users, Products, etc.) possam validar a autenticidade e as permissões (roles) de um token JWT. |
+
 | ID Requisito | Descrição Detalhada |
 | :--- | :--- |
 | **RF-A01** | **Login com Credenciais:** Permitir que um usuário faça login usando e-mail e senha validados. |
 | **RF-A02** | **Login Social (Google):** Suportar o fluxo de autenticação via OAuth/OIDC com o Google. |
 | **RF-A03** | **Emissão de Token JWT:** Após login bem-sucedido, emitir um JSON Web Token (JWT) de acesso (curta duração) e um token de refresh (longa duração). |
-| **RF-A04** | **Renovação de Token:** Fornecer um endpoint para receber o token de refresh e emitir um novo token de acesso válido. |
-| **RF-A05** | **Esqueci a Senha - Solicitação:** Permitir que o usuário solicite a redefinição de senha, gerando um código único ou link de redefinição (token) e enviando-o por e-mail. |
-| **RF-A06** | **Esqueci a Senha - Validação:** Permitir que o usuário utilize o código/token recebido por e-mail para redefinir a senha. |
-| **RF-A07** | **Validação de Token:** Fornecer um mecanismo (endpoint ou chave pública) para que outros microsserviços (Users, Products, etc.) possam validar a autenticidade e as permissões (roles) de um token JWT. |
-| **RF-A08** | **Logout:** Invalidar os tokens de sessão (ex: colocando o token de refresh em uma blacklist). |
+| **RF-A04** | **Esqueci a Senha - Solicitação:** Permitir que o usuário solicite a redefinição de senha, gerando um código único ou link de redefinição (token) e enviando-o por e-mail. |
+| **RF-A05** | **Esqueci a Senha - Validação:** Permitir que o usuário utilize o código/token recebido por e-mail para redefinir a senha. |
+| **RF-A06** | **Logout:** Invalidar os tokens de sessão (ex: colocando o token de refresh em uma whitelist). |
 
 ##  Requisitos Não-Funcionais de Autenticação (Módulo Auth)
 
