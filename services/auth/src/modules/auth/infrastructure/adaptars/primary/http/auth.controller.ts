@@ -9,6 +9,7 @@ import {
   Headers,
   UseGuards,
   Req,
+  HttpCode,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
@@ -23,7 +24,6 @@ import {
   HttpOKResponse,
   HttpNoContentResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Response } from 'express';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
@@ -34,6 +34,7 @@ import { GoogleOAuthGuard } from './guards/google-oauth.guard';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -49,6 +50,7 @@ export class AuthController {
   ) {}
 
   @Get('google')
+  @HttpCode(HttpStatus.OK)
   getGoogleURL() {
     const redirectUri = this.configService.get('GOOGLE_CALLBACK_URL');
     const clientID = this.configService.get('GOOGLE_CLIENT_ID');
@@ -58,12 +60,13 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(GoogleOAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
   async googleAuthRedirect(
-    @Req() request,
-    @Res({ passthrough: true }) response: Response,
+    @Req() request: FastifyRequest & { user: UserGoogleInCallBack },
+    @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
   ) {
-    const user = request.user as UserGoogleInCallBack;
+    const user = request.user;
     const googleLoginDTO = this.userMapper.googleLoginDTOForEntity(user, ip);
 
     const { newUser, result } =
@@ -103,7 +106,7 @@ export class AuthController {
   @ApiLoginUser()
   async login(
     @Body() dto: LoginUserDTO,
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
   ): Promise<HttpResponseOutbound> {
     const token = await this.createSessionUseCase.execute(
@@ -124,7 +127,7 @@ export class AuthController {
       response,
     );
 
-    response.statusCode = HttpStatus.CREATED;
+    response.status(HttpStatus.CREATED);
     return new HttpCreatedResponse('Usuário realizou login com sucesso');
   }
 
@@ -132,7 +135,7 @@ export class AuthController {
   @UseGuards(RevocationGuard)
   @ApiGetAccessToken()
   async getAccessToken(
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) response: FastifyReply,
     @Headers('x-user-id') userID: string,
     @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
@@ -144,7 +147,7 @@ export class AuthController {
       response,
     );
 
-    response.statusCode = HttpStatus.OK;
+    response.status(HttpStatus.OK);
     return new HttpOKResponse('Seu token de acesso foi renovado');
   }
 
@@ -152,15 +155,15 @@ export class AuthController {
   @UseGuards(RevocationGuard)
   @ApiLogout()
   async logout(
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) response: FastifyReply,
     @Headers('x-user-id') userID: string,
     @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
     await this.finishSessionUseCase.execute(tokenID, userID);
-    response.clearCookie(Cookies.RefreshToken);
-    response.clearCookie(Cookies.AccessToken);
+    response.clearCookie(Cookies.RefreshToken, { signed: true });
+    response.clearCookie(Cookies.AccessToken, { signed: true });
 
-    response.statusCode = HttpStatus.NO_CONTENT;
+    response.status(HttpStatus.NO_CONTENT);
     return new HttpNoContentResponse();
   }
 }

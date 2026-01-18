@@ -30,7 +30,7 @@ describe('HttpExceptionFilter', () => {
 
     beforeEach(() => {
       host = { switchToHttp: switchToHttpMock } as any;
-      statusMock.mockReturnValue({ json: jsonMock });
+      statusMock.mockReturnValue({ send: jsonMock });
       getResponseMock.mockReturnValue({ status: statusMock });
       switchToHttpMock.mockReturnValue({ getResponse: getResponseMock });
 

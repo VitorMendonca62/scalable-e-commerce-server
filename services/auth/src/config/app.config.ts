@@ -2,13 +2,14 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables, NodeEnv } from './environment/env.validation';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default class AppConfig {
   constructor(
     private readonly configService: ConfigService<EnvironmentVariables>,
-    private readonly app: INestApplication,
+    private readonly app: NestFastifyApplication,
   ) {}
 
   configSwagger() {

@@ -20,6 +20,7 @@ export default class PasswordValidator {
         minSymbols: 1,
         minUppercase: 1,
         minNumbers: 1,
+        minLength: PasswordConstants.MIN_LENGTH,
       })
     ) {
       throw new FieldInvalid(PasswordConstants.ERROR_WEAK_PASSWORD, 'password');

@@ -73,6 +73,20 @@ describe('RedisTokenRepository', () => {
       expect(redis.del).toHaveBeenNthCalledWith(1, ...tokensKeys);
       expect(redis.del).toHaveBeenNthCalledWith(2, sessionsKey);
     });
+
+    it('should no call redis.del if tokens length is 0', async () => {
+      const tokensKeys = [];
+
+      vi.spyOn(redis, 'smembers').mockResolvedValue(tokensKeys);
+
+      const sessionsKey = `session:${userID}`;
+
+      await repository.revokeAllSessions(userID);
+
+      expect(redis.smembers).toHaveBeenCalledWith(sessionsKey);
+      expect(redis.del).not.toHaveBeenCalled();
+      expect(redis.del).not.toHaveBeenCalled();
+    });
   });
 
   describe('isRevoked', () => {

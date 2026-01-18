@@ -5,7 +5,8 @@ import {
 } from '@config/environment/env.validation';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Request, Response } from 'express';
+import { FastifyReply, FastifyRequest } from 'fastify';
+import '@fastify/cookie';
 
 @Injectable()
 export default class CookieService {
@@ -13,17 +14,21 @@ export default class CookieService {
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  setCookie(name: string, value: string, age: number, response: Response) {
-    response.cookie(name, value, {
+  setCookie(name: string, value: string, age: number, response: FastifyReply) {
+    response.setCookie(name, value, {
       httpOnly: true,
       secure: this.configService.get('NODE_ENV') === NodeEnv.Production,
       sameSite: 'strict',
       maxAge: age,
       path: '/',
+      signed: true,
     });
   }
 
-  extractFromRequest(request: Request, cookieName: Cookies): string | null {
+  extractFromRequest(
+    request: FastifyRequest,
+    cookieName: Cookies,
+  ): string | null {
     if (request?.cookies === undefined || request?.cookies === null) {
       return null;
     }

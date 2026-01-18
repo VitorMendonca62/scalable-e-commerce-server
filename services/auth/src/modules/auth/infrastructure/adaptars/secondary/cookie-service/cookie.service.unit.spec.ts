@@ -4,9 +4,9 @@ import {
   NodeEnv,
 } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
-import { Request, Response } from 'express';
 import CookieService from './cookie.service';
 import { type Mock } from 'vitest';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 describe('CookieService', () => {
   let service: CookieService;
@@ -26,13 +26,13 @@ describe('CookieService', () => {
     expect(configService).toBeDefined();
   });
 
-  const response: Response = {
-    cookie: vi.fn(),
+  const response: FastifyReply = {
+    setCookie: vi.fn(),
   } as any;
 
   const token = 'TOKEN';
 
-  const request: Request = {
+  const request: FastifyRequest = {
     cookies: {
       access_token: token,
     },
@@ -43,17 +43,18 @@ describe('CookieService', () => {
     const value = 'TOKEN';
     const age = 1000;
 
-    it('should call response.cookie function with cookie name, value and all parameters', async () => {
+    it('should call response.setCookie function with cookie name, value and all parameters', async () => {
       (configService.get as Mock).mockReturnValue(NodeEnv.Production);
 
       service.setCookie(cookieName, value, age, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(cookieName, value, {
+      expect(response.setCookie).toHaveBeenCalledWith(cookieName, value, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: age,
         path: '/',
+        signed: true,
       });
     });
 
@@ -62,12 +63,13 @@ describe('CookieService', () => {
 
       service.setCookie(cookieName, value, age, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(cookieName, value, {
+      expect(response.setCookie).toHaveBeenCalledWith(cookieName, value, {
         httpOnly: true,
         secure: false,
         sameSite: 'strict',
         maxAge: age,
         path: '/',
+        signed: true,
       });
     });
 
@@ -76,12 +78,13 @@ describe('CookieService', () => {
 
       service.setCookie(cookieName, value, age, response);
 
-      expect(response.cookie).toHaveBeenCalledWith(cookieName, value, {
+      expect(response.setCookie).toHaveBeenCalledWith(cookieName, value, {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
         maxAge: age,
         path: '/',
+        signed: true,
       });
     });
   });
@@ -96,7 +99,7 @@ describe('CookieService', () => {
     });
 
     it('should return null if request.cookies is null or undefined', async () => {
-      const nullRequest: Request = {
+      const nullRequest: FastifyRequest = {
         cookies: null,
       } as any;
 
@@ -104,7 +107,7 @@ describe('CookieService', () => {
 
       expect(nullResult).toBeNull();
 
-      const undefinedRequest: Request = {
+      const undefinedRequest: FastifyRequest = {
         cookies: undefined,
       } as any;
 
@@ -117,7 +120,7 @@ describe('CookieService', () => {
     });
 
     it('should return null if request.cookies.cookiename is null or undefined', async () => {
-      const nullRequest: Request = {
+      const nullRequest: FastifyRequest = {
         cookies: {
           access_token: null,
         },
@@ -127,7 +130,7 @@ describe('CookieService', () => {
 
       expect(nullResult).toBeNull();
 
-      const undefinedRequest: Request = {
+      const undefinedRequest: FastifyRequest = {
         cookies: {
           access_token: undefined,
         },

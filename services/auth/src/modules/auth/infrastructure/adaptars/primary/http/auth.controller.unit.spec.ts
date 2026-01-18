@@ -15,7 +15,6 @@ import {
   HttpNoContentResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { Request, Response } from 'express';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
@@ -23,6 +22,7 @@ import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-servic
 import { ConfigService } from '@nestjs/config';
 import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { EnvironmentVariables } from '@config/environment/env.validation';
+import { FastifyReply, FastifyRequest } from 'fastify';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -36,8 +36,7 @@ describe('AuthController', () => {
 
   let userMapper: UserMapper;
 
-  let request: Request;
-  let response: Response;
+  let response: FastifyReply;
 
   beforeEach(async () => {
     userMapper = {
@@ -66,6 +65,7 @@ describe('AuthController', () => {
 
     response = {
       clearCookie: vi.fn(),
+      status: vi.fn(),
     } as any;
   });
 
@@ -114,6 +114,8 @@ describe('AuthController', () => {
     const userGoogleInCallback: UserGoogleInCallBack =
       mockUserGoogleInCallBack();
     const ip = '120.0.0.0';
+
+    let request: FastifyRequest & { user: UserGoogleInCallBack };
 
     beforeEach(() => {
       request = {
@@ -273,6 +275,7 @@ describe('AuthController', () => {
     it('should return HttpCreatedResponse on success', async () => {
       const result = await controller.login(dto, response, ip);
 
+      expect(response.status).toBeCalledWith(HttpStatus.CREATED);
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
@@ -341,6 +344,7 @@ describe('AuthController', () => {
     it('should return HttpOKResponse on success', async () => {
       const result = await controller.getAccessToken(response, userID, tokenID);
 
+      expect(response.status).toBeCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -377,13 +381,18 @@ describe('AuthController', () => {
     it('should clear access token and refresh_token on cookies', async () => {
       await controller.logout(response, userID, tokenID);
 
-      expect(response.clearCookie).toHaveBeenNthCalledWith(1, 'refresh_token');
-      expect(response.clearCookie).toHaveBeenNthCalledWith(2, 'access_token');
+      expect(response.clearCookie).toHaveBeenNthCalledWith(1, 'refresh_token', {
+        signed: true,
+      });
+      expect(response.clearCookie).toHaveBeenNthCalledWith(2, 'access_token', {
+        signed: true,
+      });
     });
 
     it('should return HttpNoContentResponse on success', async () => {
       const result = await controller.logout(response, userID, tokenID);
 
+      expect(response.status).toBeCalledWith(HttpStatus.NO_CONTENT);
       expect(result).toBeInstanceOf(HttpNoContentResponse);
     });
 

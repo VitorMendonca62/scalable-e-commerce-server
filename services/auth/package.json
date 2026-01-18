@@ -20,6 +20,8 @@
     "jwt:keys:clean": "rm certs/*.pem"
   },
   "dependencies": {
+    "@fastify/cookie": "^10.0.0",
+    "@fastify/static": "^9.0.0",
     "@nestjs-modules/ioredis": "^2.0.2",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^10.4.20",
@@ -29,7 +31,7 @@
     "@nestjs/microservices": "^10.4.20",
     "@nestjs/mongoose": "^11.0.4",
     "@nestjs/passport": "^11.0.5",
-    "@nestjs/platform-express": "^10.4.20",
+    "@nestjs/platform-fastify": "^11.1.12",
     "@nestjs/swagger": "^8.1.1",
     "@nestjs/terminus": "^11.0.0",
     "amqp-connection-manager": "^4.1.15",
@@ -37,10 +39,11 @@
     "bcryptjs": "^3.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.3",
-    "cookie-parser": "^1.4.7",
+    "fastify": "^5.7.1",
     "handlebars": "^4.7.8",
     "ioredis": "^5.9.0",
     "jose": "^6.1.3",
+    "mongoose": "^9.1.4",
     "nodemailer": "^7.0.12",
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
@@ -54,8 +57,6 @@
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^10.4.20",
     "@types/bcrypt": "^5.0.2",
-    "@types/cookie-parser": "^1.4.10",
-    "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^20.19.27",
     "@types/nodemailer": "^7.0.4",
@@ -63,6 +64,7 @@
     "@types/passport-google-oauth20": "^2.0.17",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
+    "@vitest/coverage-istanbul": "4.0.17",
     "cross-env": "^7.0.3",
     "eslint": "^9.39.2",
     "eslint-config-prettier": "^9.1.2",
@@ -75,6 +77,11 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.17"
+  },
+  "pnpm": {
+    "overrides": {
+      "fastify": "5.7.1"
+    }
   },
   "vitest": {
     "moduleFileExtensions": [

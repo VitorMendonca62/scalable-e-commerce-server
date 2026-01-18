@@ -12,7 +12,6 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
 import { ApiSendCodeforForgotPassword } from './decorators/docs/api-send-code-for-forgot-password.decorator';
-import { Response } from 'express';
 import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgot-pass.dto';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
@@ -28,6 +27,7 @@ import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
+import { FastifyReply } from 'fastify';
 
 @Controller('/pass')
 @ApiTags('PasswordController')
@@ -44,20 +44,19 @@ export class PasswordController {
   @ApiSendCodeforForgotPassword()
   async sendCode(
     @Body() dto: SendCodeForForgotPasswordDTO,
-    @Res() response: Response,
+    @Res() response: FastifyReply,
   ): Promise<void> {
     await this.sendCodeForForgotPasswordUseCase.execute(dto.email);
-    response.redirect(
-      HttpStatus.SEE_OTHER,
-      'https://github.com/VitorMendonca62',
-    );
+    response
+      .status(HttpStatus.SEE_OTHER)
+      .redirect('https://github.com/VitorMendonca62');
   }
 
   @Post('/validate-code')
   @ApiValidateCodeForForgotPassword()
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
-    @Res({ passthrough: true }) response: Response,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
     const token = await this.validateCodeForForgotPasswordUseCase.execute(
       dto.code,
@@ -70,7 +69,7 @@ export class PasswordController {
       TokenExpirationConstants.RESET_PASS_TOKEN_MS,
       response,
     );
-    response.statusCode = HttpStatus.OK;
+    response.status(HttpStatus.OK);
     return new HttpOKResponse(
       'Seu código de recuperação de senha foi validado com sucesso.',
     );
@@ -81,14 +80,13 @@ export class PasswordController {
   @ApiResetPassword()
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
-    @Res() response: Response,
+    @Res() response: FastifyReply,
     @Headers('x-user-email') email: string,
   ): Promise<void> {
     await this.changePasswordUseCase.executeReset(email, dto.newPassword);
-    response.redirect(
-      HttpStatus.SEE_OTHER,
-      'https://github.com/VitorMendonca62',
-    );
+    response
+      .status(HttpStatus.SEE_OTHER)
+      .redirect('https://github.com/VitorMendonca62');
   }
 
   @Patch('/')

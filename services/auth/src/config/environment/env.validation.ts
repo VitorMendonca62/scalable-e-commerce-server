@@ -47,6 +47,10 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'AUTH_JWT_KEYID cannot be empty.' })
   AUTH_JWT_KEYID: string;
 
+  @IsString({ message: 'COOKIE_SECRET must be a string.' })
+  @IsNotEmpty({ message: 'COOKIE_SECRET cannot be empty.' })
+  COOKIE_SECRET: string;
+
   @IsString({ message: 'RESET_PASS_KEYID must be a string.' })
   @IsNotEmpty({ message: 'RESET_PASS_KEYID cannot be empty.' })
   RESET_PASS_KEYID: string;

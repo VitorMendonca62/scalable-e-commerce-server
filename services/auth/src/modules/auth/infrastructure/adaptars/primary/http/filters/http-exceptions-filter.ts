@@ -7,13 +7,13 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { FastifyReply } from 'fastify';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
+    const response = ctx.getResponse<FastifyReply>();
 
     if (
       exception instanceof HttpError ||
@@ -21,7 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       exception instanceof NotFoundException
     ) {
       const exceptionResponse = exception.getResponse();
-      return response.status(exception.getStatus()).json(exceptionResponse);
+      return response.status(exception.getStatus()).send(exceptionResponse);
     }
 
     const responseBody = {
@@ -30,6 +30,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       data: new Date().toISOString(),
     };
 
-    response.status(responseBody.statusCode).json(responseBody);
+    response.status(responseBody.statusCode).send(responseBody);
   }
 }

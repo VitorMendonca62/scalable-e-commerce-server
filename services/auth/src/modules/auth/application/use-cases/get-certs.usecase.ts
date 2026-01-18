@@ -13,7 +13,7 @@ export default class GetCertsUseCase {
 
   private async getJwk(file: `${string}.pem`) {
     const publicPem = fs.readFileSync(
-      path.join(__dirname, `../../../../../certs/${file}`),
+      path.join(process.cwd(), `certs/${file}`),
       'utf-8',
     );
     const publicKey = await importSPKI(publicPem, 'RS256');

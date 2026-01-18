@@ -8,7 +8,28 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Password(type: 'default' | 'new' | 'old' = 'default') {
+export function Password(
+  type: 'default' | 'new' | 'old' = 'default',
+  canStrongPassword = true,
+) {
+  const decorators = [];
+
+  if (canStrongPassword) {
+    decorators.push(
+      IsStrongPassword(
+        {
+          minLowercase: 1,
+          minLength: PasswordConstants.MIN_LENGTH,
+          minSymbols: 1,
+          minUppercase: 1,
+          minNumbers: 1,
+        },
+        {
+          message: addPrefix('A senha está muito fraca', type),
+        },
+      ),
+    );
+  }
   return applyDecorators(
     IsNotEmpty({
       message: addPrefix(PasswordConstants.ERROR_REQUIRED, type),
@@ -17,17 +38,6 @@ export function Password(type: 'default' | 'new' | 'old' = 'default') {
     MinLength(PasswordConstants.MIN_LENGTH, {
       message: addPrefix(PasswordConstants.ERROR_MIN_LENGTH, type),
     }),
-    IsStrongPassword(
-      {
-        minLowercase: 1,
-        minLength: PasswordConstants.MIN_LENGTH,
-        minSymbols: 1,
-        minUppercase: 1,
-        minNumbers: 1,
-      },
-      {
-        message: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, type),
-      },
-    ),
+    ...decorators,
   );
 }

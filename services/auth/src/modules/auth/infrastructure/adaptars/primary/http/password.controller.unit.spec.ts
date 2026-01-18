@@ -1,7 +1,6 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { HttpStatus } from '@nestjs/common';
 import { PasswordController } from './password.controller';
-import { Response } from 'express';
 
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
@@ -12,6 +11,7 @@ import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
+import { FastifyReply } from 'fastify';
 
 describe('PasswordController', () => {
   let controller: PasswordController;
@@ -47,16 +47,19 @@ describe('PasswordController', () => {
   });
 
   describe('sendCode', () => {
-    let expressResponse: Response;
+    let expressResponse: FastifyReply;
     const email = EmailConstants.EXEMPLE;
     const dto = { email };
 
     beforeEach(() => {
       expressResponse = {
         redirect: vi.fn(),
+        status: vi.fn(),
       } as any;
 
-      vi.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(expressResponse, 'status').mockReturnValue({
+        redirect: expressResponse.redirect,
+      } as any);
     });
 
     it('should call sendCodeForForgotPasswordUseCase.execute with email', async () => {
@@ -70,8 +73,8 @@ describe('PasswordController', () => {
     it('should redirect on success', async () => {
       await controller.sendCode(dto, expressResponse);
 
+      expect(expressResponse.status).toHaveBeenCalledWith(HttpStatus.SEE_OTHER);
       expect(expressResponse.redirect).toHaveBeenCalledWith(
-        HttpStatus.SEE_OTHER,
         'https://github.com/VitorMendonca62',
       );
     });
@@ -93,7 +96,7 @@ describe('PasswordController', () => {
   });
 
   describe('validateCode', () => {
-    let expressResponse: Response;
+    let expressResponse: FastifyReply;
     const email = EmailConstants.EXEMPLE;
     const code = 'AAAAAA';
     const dto = { email, code };
@@ -101,10 +104,12 @@ describe('PasswordController', () => {
     beforeEach(() => {
       expressResponse = {
         redirect: vi.fn(),
-        cookie: vi.fn(),
+        status: vi.fn(),
       } as any;
 
-      vi.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(expressResponse, 'status').mockReturnValue({
+        redirect: expressResponse.redirect,
+      } as any);
     });
 
     it('should call validCodeForForgotPasswordUseCase.execute with email and code', async () => {
@@ -140,6 +145,7 @@ describe('PasswordController', () => {
 
       const result = await controller.validateCode(dto, expressResponse);
 
+      expect(expressResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -165,7 +171,7 @@ describe('PasswordController', () => {
   });
 
   describe('resetPassword', () => {
-    let response: Response;
+    let response: FastifyReply;
 
     const email = EmailConstants.EXEMPLE;
     const newPassword = PasswordConstants.EXEMPLE;
@@ -173,10 +179,13 @@ describe('PasswordController', () => {
 
     beforeEach(() => {
       response = {
+        status: vi.fn(),
         redirect: vi.fn(),
       } as any;
 
-      vi.spyOn(response, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(response, 'status').mockReturnValue({
+        redirect: response.redirect,
+      } as any);
     });
 
     it('should call changePasswordUseCase.executeReset with email and new password', async () => {
@@ -191,8 +200,8 @@ describe('PasswordController', () => {
     it('should redirect on success', async () => {
       await controller.resetPassword(dto, response, email);
 
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.SEE_OTHER);
       expect(response.redirect).toHaveBeenCalledWith(
-        HttpStatus.SEE_OTHER,
         'https://github.com/VitorMendonca62',
       );
     });

@@ -3,14 +3,23 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { EnvironmentVariables } from './config/environment/env.validation';
-import * as cookieParser from 'cookie-parser';
-import * as express from 'express';
 import AppConfig from '@config/app.config';
 import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
 import { addRabbitMQClient } from '@config/message-broker/rabbitmq.config';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {});
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({
+      bodyLimit: 10485760,
+      logger: false,
+    }),
+  );
 
   app.useGlobalFilters(new HttpExceptionFilter());
 
@@ -22,10 +31,9 @@ async function bootstrap() {
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');
 
-  app.use(cookieParser());
-
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ limit: '10mb', extended: true }));
+  await app.register(fastifyCookie, {
+    secret: configService.get<string>('COOKIE_SECRET'),
+  });
 
   const appConfig = new AppConfig(configService, app);
 

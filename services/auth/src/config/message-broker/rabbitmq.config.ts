@@ -1,10 +1,11 @@
-import { INestApplication, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { EnvironmentVariables } from '../environment/env.validation';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export const addRabbitMQClient = async (
-  app: INestApplication,
+  app: NestFastifyApplication,
   configService: ConfigService<EnvironmentVariables>,
 ) => {
   const logger = new Logger('RabbitMQ');
@@ -28,5 +29,4 @@ export const addRabbitMQClient = async (
   });
 
   await app.startAllMicroservices().catch((error) => logger.error(error));
-  return app;
 };

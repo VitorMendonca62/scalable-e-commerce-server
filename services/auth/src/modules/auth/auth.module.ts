@@ -49,7 +49,7 @@ import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategie
     ]),
     JwtModule.register({
       privateKey: fs.readFileSync(
-        path.join(__dirname, '../../../certs/auth-private.pem'),
+        path.join(process.cwd(), 'certs/auth-private.pem'),
       ),
       signOptions: {
         algorithm: 'RS256',

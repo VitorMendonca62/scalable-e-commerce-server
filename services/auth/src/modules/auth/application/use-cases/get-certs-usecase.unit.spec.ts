@@ -69,7 +69,7 @@ describe('GetCertsUseCase', () => {
 
       expect(path.join).toHaveBeenCalledWith(
         expect.any(String),
-        '../../../../../certs/auth-public.pem',
+        'certs/auth-public.pem',
       );
       expect(fs.readFileSync).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
@@ -148,7 +148,7 @@ describe('GetCertsUseCase', () => {
 
       expect(path.join).toHaveBeenCalledWith(
         expect.any(String),
-        '../../../../../certs/reset-pass-public.pem',
+        'certs/reset-pass-public.pem',
       );
       expect(fs.readFileSync).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
