@@ -1,3 +1,5 @@
+import { type Mock } from 'vitest';
+
 import { EnvironmentVariables, NodeEnv } from './env.validation';
 
 import * as classTransformer from 'class-transformer';
@@ -32,13 +34,13 @@ describe('validateENV', () => {
   mockInstance.MONGO_DB_HOST = 'database-auth';
   mockInstance.MONGO_INITDB_DATABASE = 'database-auth';
 
-  let plainToInstanceMocked: jest.SpyInstance;
-  let validateSyncMocked: jest.SpyInstance;
+  let plainToInstanceMocked: Mock;
+  let validateSyncMocked: Mock;
 
   beforeAll(() => {
-    plainToInstanceMocked = jest.spyOn(classTransformer, 'plainToInstance');
+    plainToInstanceMocked = vi.spyOn(classTransformer, 'plainToInstance');
 
-    validateSyncMocked = jest.spyOn(classValidator, 'validateSync');
+    validateSyncMocked = vi.spyOn(classValidator, 'validateSync');
   });
 
   beforeEach(() => {

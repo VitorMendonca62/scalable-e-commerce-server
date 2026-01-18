@@ -21,6 +21,7 @@
       "@auth/*": ["src/modules/auth/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"]
-    }
+    },
+    "types": ["node", "vitest/globals"]
   }
 }

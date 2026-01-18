@@ -17,9 +17,11 @@ export default defineConfig([
       'no-unused-expressions': 'error',
     },
   },
-
   {
-    files: ['**/*.ts'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**'],
+  },
+  {
+    files: ['src/**/*.ts'],
 
     languageOptions: {
       parser: typescriptParser,

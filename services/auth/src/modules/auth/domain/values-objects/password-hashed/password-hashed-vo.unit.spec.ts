@@ -3,6 +3,8 @@ import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.por
 import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-mocks';
 import { PasswordHashedConstants } from './password-hashed-constants';
 import { PasswordConstants } from '../password/password-constants';
+import { type Mock } from 'vitest';
+vi.unmock('@auth/domain/values-objects/password-hashed/password-hashed-vo');
 
 describe('PasswordHashedVO', () => {
   let passwordHasher: PasswordHasher;
@@ -36,7 +38,7 @@ describe('PasswordHashedVO', () => {
       });
 
       it('should return passwordHasher.compare result', () => {
-        (passwordHasher.compare as jest.Mock).mockReturnValue(false);
+        (passwordHasher.compare as Mock).mockReturnValue(false);
         const valueObject = new PasswordHashedVO(
           PasswordHashedConstants.EXEMPLE,
           passwordHasher,
@@ -46,7 +48,7 @@ describe('PasswordHashedVO', () => {
 
         expect(result).toBe(false);
 
-        (passwordHasher.compare as jest.Mock).mockReturnValue(true);
+        (passwordHasher.compare as Mock).mockReturnValue(true);
         const valueObject2 = new PasswordHashedVO(
           PasswordHashedConstants.EXEMPLE,
           passwordHasher,

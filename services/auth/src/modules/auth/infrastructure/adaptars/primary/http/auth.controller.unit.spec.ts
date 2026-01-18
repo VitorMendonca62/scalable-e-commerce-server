@@ -41,18 +41,18 @@ describe('AuthController', () => {
 
   beforeEach(async () => {
     userMapper = {
-      loginDTOForEntity: jest.fn(),
-      googleLoginDTOForEntity: jest.fn(),
+      loginDTOForEntity: vi.fn(),
+      googleLoginDTOForEntity: vi.fn(),
     } as any;
     createSessionUseCase = {
-      execute: jest.fn(),
-      executeWithGoogle: jest.fn(),
+      execute: vi.fn(),
+      executeWithGoogle: vi.fn(),
     } as any;
-    getAccessTokenUseCase = { execute: jest.fn() } as any;
-    finishSessionUseCase = { execute: jest.fn() } as any;
-    cookieService = { setCookie: jest.fn() } as any;
-    configService = { get: jest.fn() } as any;
-    usersQueueService = { send: jest.fn() } as any;
+    getAccessTokenUseCase = { execute: vi.fn() } as any;
+    finishSessionUseCase = { execute: vi.fn() } as any;
+    cookieService = { setCookie: vi.fn() } as any;
+    configService = { get: vi.fn() } as any;
+    usersQueueService = { send: vi.fn() } as any;
 
     controller = new AuthController(
       userMapper,
@@ -65,7 +65,7 @@ describe('AuthController', () => {
     );
 
     response = {
-      clearCookie: jest.fn(),
+      clearCookie: vi.fn(),
     } as any;
   });
 
@@ -88,10 +88,10 @@ describe('AuthController', () => {
     const clientID = IDConstants.EXEMPLE;
 
     beforeEach(() => {
-      jest
-        .spyOn(configService, 'get')
-        .mockReturnValueOnce('http://localhost/callback');
-      jest.spyOn(configService, 'get').mockReturnValueOnce(IDConstants.EXEMPLE);
+      vi.spyOn(configService, 'get').mockReturnValueOnce(
+        'http://localhost/callback',
+      );
+      vi.spyOn(configService, 'get').mockReturnValueOnce(IDConstants.EXEMPLE);
     });
 
     it('should return oauth2 google url ', () => {
@@ -120,11 +120,11 @@ describe('AuthController', () => {
         user: userGoogleInCallback,
       } as any;
 
-      jest
-        .spyOn(userMapper, 'googleLoginDTOForEntity')
-        .mockReturnValue(mockGoogleLogin());
+      vi.spyOn(userMapper, 'googleLoginDTOForEntity').mockReturnValue(
+        mockGoogleLogin(),
+      );
 
-      jest.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
         result: {
           accessToken: `<accessToken>`,
           refreshToken: `<refreshToken>`,
@@ -146,7 +146,7 @@ describe('AuthController', () => {
     });
 
     it('should call userQueueService.send with fields for create user in other service', async () => {
-      jest.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
         result: {
           accessToken: `<accessToken>`,
           refreshToken: `<refreshToken>`,
@@ -200,13 +200,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if createSessionUseCase throws error', async () => {
-      jest
-        .spyOn(createSessionUseCase, 'executeWithGoogle')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.googleAuthRedirect(request, response, ip);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -215,15 +215,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if userMapper.googleLoginDTOForEntity throws error', async () => {
-      jest
-        .spyOn(userMapper, 'googleLoginDTOForEntity')
-        .mockImplementation(() => {
-          throw new Error('Erro no mapper');
-        });
+      vi.spyOn(userMapper, 'googleLoginDTOForEntity').mockImplementation(() => {
+        throw new Error('Erro no mapper');
+      });
 
       try {
         await controller.googleAuthRedirect(request, response, ip);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no mapper');
@@ -238,9 +236,9 @@ describe('AuthController', () => {
     const ip = '120.0.0.0';
 
     beforeEach(() => {
-      jest.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
+      vi.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
 
-      jest.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
         accessToken: `<accessToken>`,
         refreshToken: `<refreshToken>`,
       });
@@ -283,13 +281,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if createSessionUseCase throws error', async () => {
-      jest
-        .spyOn(createSessionUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(createSessionUseCase, 'execute').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.login(dto, response, ip);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -298,13 +296,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if userMapper.loginDTOForEntity throws error', async () => {
-      jest.spyOn(userMapper, 'loginDTOForEntity').mockImplementation(() => {
+      vi.spyOn(userMapper, 'loginDTOForEntity').mockImplementation(() => {
         throw new Error('Erro no mapper');
       });
 
       try {
         await controller.login(dto, response, ip);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no mapper');
@@ -315,9 +313,9 @@ describe('AuthController', () => {
 
   describe('getAccessToken', () => {
     beforeEach(() => {
-      jest
-        .spyOn(getAccessTokenUseCase, 'execute')
-        .mockResolvedValue('<accessToken>');
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue(
+        '<accessToken>',
+      );
     });
 
     it('should call getAccessToken.execute with userId and tokenid', async () => {
@@ -351,13 +349,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if getAccessTokenUseCase throws error', async () => {
-      jest
-        .spyOn(getAccessTokenUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.getAccessToken(response, userID, tokenID);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -390,13 +388,13 @@ describe('AuthController', () => {
     });
 
     it('should throw error if finishSessionUseCase throws error', async () => {
-      jest
-        .spyOn(finishSessionUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(finishSessionUseCase, 'execute').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.logout(response, userID, tokenID);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');

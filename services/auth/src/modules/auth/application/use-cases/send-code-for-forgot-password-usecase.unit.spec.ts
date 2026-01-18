@@ -1,3 +1,7 @@
+vi.mock('otp-generator', () => {
+  return { generate: vi.fn() };
+});
+
 import * as otpGenerator from 'otp-generator';
 import SendCodeForForgotPasswordUseCase from './send-code-for-forgot-password.usecase';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
@@ -5,8 +9,9 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
+import { type Mock } from 'vitest';
 
-describe('GetAccessTokenUseCase', () => {
+describe('SendCodeForForgotPasswordUseCase', () => {
   let useCase: SendCodeForForgotPasswordUseCase;
 
   let emailSender: EmailSender;
@@ -15,15 +20,15 @@ describe('GetAccessTokenUseCase', () => {
 
   beforeEach(async () => {
     emailSender = {
-      send: jest.fn(),
+      send: vi.fn(),
     } as any;
 
     codeRepository = {
-      save: jest.fn(),
+      save: vi.fn(),
     } as any;
 
     configService = {
-      get: jest.fn(),
+      get: vi.fn(),
     } as any;
 
     useCase = new SendCodeForForgotPasswordUseCase(
@@ -46,11 +51,11 @@ describe('GetAccessTokenUseCase', () => {
     const OTPCode = 'AAAAAA';
 
     beforeEach(() => {
-      jest.spyOn(otpGenerator, 'generate').mockReturnValue(OTPCode);
-      jest.spyOn(configService, 'get').mockReturnValue(emailFrom);
+      (otpGenerator.generate as Mock).mockReturnValue(OTPCode);
+      vi.spyOn(configService, 'get').mockReturnValue(emailFrom);
 
-      jest.useFakeTimers();
-      jest.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
     });
 
     it('should call otpGenerator.generate with correct parameters', async () => {
@@ -94,13 +99,13 @@ describe('GetAccessTokenUseCase', () => {
     });
 
     it('should rethrow error if emailSender throw error', async () => {
-      jest
-        .spyOn(emailSender, 'send')
-        .mockRejectedValue(new Error('Error sending email'));
+      vi.spyOn(emailSender, 'send').mockRejectedValue(
+        new Error('Error sending email'),
+      );
 
       try {
         await useCase.execute(email);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error sending email');
@@ -109,13 +114,13 @@ describe('GetAccessTokenUseCase', () => {
     });
 
     it('should rethrow error if codeRepository throw error', async () => {
-      jest
-        .spyOn(codeRepository, 'save')
-        .mockRejectedValue(new Error('Error saving code'));
+      vi.spyOn(codeRepository, 'save').mockRejectedValue(
+        new Error('Error saving code'),
+      );
 
       try {
         await useCase.execute(email);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error saving code');

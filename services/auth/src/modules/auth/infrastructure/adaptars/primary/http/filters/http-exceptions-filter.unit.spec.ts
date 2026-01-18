@@ -5,8 +5,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exceptions-filter';
-jest.mock('@auth/domain/ports/primary/http/errors.port');
+vi.mock('@auth/domain/ports/primary/http/errors.port');
 import { HttpError } from '@auth/domain/ports/primary/http/errors.port';
+import { type Mocked } from 'vitest';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;
@@ -20,10 +21,10 @@ describe('HttpExceptionFilter', () => {
   });
 
   describe('catch', () => {
-    const switchToHttpMock: jest.Mock = jest.fn();
-    const getResponseMock: jest.Mock = jest.fn();
-    const statusMock: jest.Mock = jest.fn();
-    const jsonMock: jest.Mock = jest.fn();
+    const switchToHttpMock = vi.fn();
+    const getResponseMock = vi.fn();
+    const statusMock = vi.fn();
+    const jsonMock = vi.fn();
 
     let host: ArgumentsHost;
 
@@ -33,8 +34,8 @@ describe('HttpExceptionFilter', () => {
       getResponseMock.mockReturnValue({ status: statusMock });
       switchToHttpMock.mockReturnValue({ getResponse: getResponseMock });
 
-      jest.useFakeTimers();
-      jest.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
     });
 
     it('should call hosts functions', async () => {
@@ -51,7 +52,7 @@ describe('HttpExceptionFilter', () => {
         'Error',
         status,
         response,
-      ) as jest.Mocked<HttpError>;
+      ) as Mocked<HttpError>;
 
       error.getResponse.mockReturnValue(response);
       error.getStatus.mockReturnValue(status);
@@ -72,12 +73,10 @@ describe('HttpExceptionFilter', () => {
         statusCode: status,
       };
 
-      const error = new NotFoundException(
-        'Error',
-      ) as jest.Mocked<NotFoundException>;
+      const error = new NotFoundException('Error') as Mocked<NotFoundException>;
 
-      jest.spyOn(error, 'getResponse').mockReturnValue(response);
-      jest.spyOn(error, 'getStatus').mockReturnValue(status);
+      vi.spyOn(error, 'getResponse').mockReturnValue(response);
+      vi.spyOn(error, 'getStatus').mockReturnValue(status);
 
       filter.catch(error, host);
 
@@ -97,10 +96,10 @@ describe('HttpExceptionFilter', () => {
 
       const error = new UnauthorizedException(
         'Error',
-      ) as jest.Mocked<UnauthorizedException>;
+      ) as Mocked<UnauthorizedException>;
 
-      jest.spyOn(error, 'getResponse').mockReturnValue(response);
-      jest.spyOn(error, 'getStatus').mockReturnValue(status);
+      vi.spyOn(error, 'getResponse').mockReturnValue(response);
+      vi.spyOn(error, 'getStatus').mockReturnValue(status);
 
       filter.catch(error, host);
 

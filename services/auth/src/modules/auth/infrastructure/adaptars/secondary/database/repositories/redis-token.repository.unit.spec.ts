@@ -9,13 +9,13 @@ describe('RedisTokenRepository', () => {
 
   beforeEach(async () => {
     redis = {
-      hset: jest.fn(),
-      sadd: jest.fn(),
-      expire: jest.fn(),
-      del: jest.fn(),
-      srem: jest.fn(),
-      exists: jest.fn(),
-      smembers: jest.fn(),
+      hset: vi.fn(),
+      sadd: vi.fn(),
+      expire: vi.fn(),
+      del: vi.fn(),
+      srem: vi.fn(),
+      exists: vi.fn(),
+      smembers: vi.fn(),
     } as any;
 
     repository = new RedisTokenRepository(redis);
@@ -26,8 +26,8 @@ describe('RedisTokenRepository', () => {
     expect(redis).toBeDefined();
   });
 
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
 
   const tokenID = `token-${IDConstants.EXEMPLE}`;
   const userID = IDConstants.EXEMPLE;
@@ -63,7 +63,7 @@ describe('RedisTokenRepository', () => {
     it('should call all functions with correct parameters', async () => {
       const tokensKeys = ['token:1', 'token:2,', 'token:3'];
 
-      jest.spyOn(redis, 'smembers').mockResolvedValue(tokensKeys);
+      vi.spyOn(redis, 'smembers').mockResolvedValue(tokensKeys);
 
       const sessionsKey = `session:${userID}`;
 
@@ -83,14 +83,14 @@ describe('RedisTokenRepository', () => {
     });
 
     it('should return true if key not exists in database', async () => {
-      jest.spyOn(redis, 'exists').mockResolvedValue(0);
+      vi.spyOn(redis, 'exists').mockResolvedValue(0);
 
       const result = await repository.isRevoked(tokenID);
       expect(result).toBe(true);
     });
 
     it('should return false if key exists in database', async () => {
-      jest.spyOn(redis, 'exists').mockResolvedValue(1);
+      vi.spyOn(redis, 'exists').mockResolvedValue(1);
 
       const result = await repository.isRevoked(tokenID);
       expect(result).toBe(false);

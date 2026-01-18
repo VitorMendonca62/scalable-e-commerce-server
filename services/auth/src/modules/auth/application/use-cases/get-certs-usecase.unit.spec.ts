@@ -1,25 +1,22 @@
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
-
-jest.mock('fs', () => {
+import { type Mock } from 'vitest';
+vi.mock('fs', () => {
   return {
-    __esModule: true,
-    readFileSync: jest.fn(),
+    readFileSync: vi.fn(),
   };
 });
 
-jest.mock('path', () => {
+vi.mock('path', () => {
   return {
-    __esModule: true,
-    join: jest.fn(),
+    join: vi.fn(),
   };
 });
 
-jest.mock('jose', () => {
+vi.mock('jose', () => {
   return {
-    __esModule: true,
-    importSPKI: jest.fn(),
-    exportJWK: jest.fn(),
+    importSPKI: vi.fn(),
+    exportJWK: vi.fn(),
   };
 });
 
@@ -45,12 +42,12 @@ describe('GetCertsUseCase', () => {
 
   beforeEach(async () => {
     configService = {
-      get: jest.fn(),
+      get: vi.fn(),
     } as any;
 
     useCase = new GetCertsUseCase(configService);
 
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('should be defined', () => {
@@ -60,11 +57,11 @@ describe('GetCertsUseCase', () => {
 
   describe('getAuthCert', () => {
     beforeEach(() => {
-      jest.spyOn(path, 'join').mockReturnValue(mockPath);
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
-      (importSPKI as jest.Mock).mockResolvedValue(mockPublicKey);
-      (exportJWK as jest.Mock).mockResolvedValue(mockJwk);
-      jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
+      vi.spyOn(path, 'join').mockReturnValue(mockPath);
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
+      (importSPKI as Mock).mockResolvedValue(mockPublicKey);
+      (exportJWK as Mock).mockResolvedValue(mockJwk);
+      vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
     it('should call functions with correct parameters', async () => {
@@ -92,13 +89,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if fs.readFileSync throws error', async () => {
-      jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
+      vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
         throw new Error('Error reading file');
       });
 
       try {
         await useCase.getAuthCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error reading file');
@@ -107,13 +104,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if importSPKI throws error', async () => {
-      (importSPKI as jest.Mock).mockRejectedValueOnce(
+      (importSPKI as Mock).mockRejectedValueOnce(
         new Error('Error importing SPKI'),
       );
 
       try {
         await useCase.getAuthCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error importing SPKI');
@@ -122,13 +119,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if exportJWK throws error', async () => {
-      (exportJWK as jest.Mock).mockRejectedValueOnce(
+      (exportJWK as Mock).mockRejectedValueOnce(
         new Error('Error exporting JWK'),
       );
 
       try {
         await useCase.getAuthCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error exporting JWK');
@@ -139,11 +136,11 @@ describe('GetCertsUseCase', () => {
 
   describe('getResetPassCert', () => {
     beforeEach(() => {
-      jest.spyOn(path, 'join').mockReturnValue(mockPath);
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
-      (importSPKI as jest.Mock).mockResolvedValue(mockPublicKey);
-      (exportJWK as jest.Mock).mockResolvedValue(mockJwk);
-      jest.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
+      vi.spyOn(path, 'join').mockReturnValue(mockPath);
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
+      (importSPKI as Mock).mockResolvedValue(mockPublicKey);
+      (exportJWK as Mock).mockResolvedValue(mockJwk);
+      vi.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
     });
 
     it('should call functions with correct parameters', async () => {
@@ -171,13 +168,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if fs.readFileSync throws error', async () => {
-      jest.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
+      vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
         throw new Error('Error reading file');
       });
 
       try {
         await useCase.getResetPassCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error reading file');
@@ -186,13 +183,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if importSPKI throws error', async () => {
-      (importSPKI as jest.Mock).mockRejectedValueOnce(
+      (importSPKI as Mock).mockRejectedValueOnce(
         new Error('Error importing SPKI'),
       );
 
       try {
         await useCase.getResetPassCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error importing SPKI');
@@ -201,13 +198,13 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should rethrow error if exportJWK throws error', async () => {
-      (exportJWK as jest.Mock).mockRejectedValueOnce(
+      (exportJWK as Mock).mockRejectedValueOnce(
         new Error('Error exporting JWK'),
       );
 
       try {
         await useCase.getResetPassCert();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error exporting JWK');

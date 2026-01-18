@@ -15,7 +15,7 @@ describe('GoogleStrategy', () => {
 
   beforeEach(async () => {
     configService = {
-      get: jest.fn((key: string) => {
+      get: vi.fn((key: string) => {
         const config = {
           GOOGLE_CLIENT_ID: clientID,
           GOOGLE_CLIENT_SECRET: clientSecret,
@@ -44,7 +44,7 @@ describe('GoogleStrategy', () => {
     };
 
     it('should call done function with null and user', async () => {
-      const mockDoneFunction = jest.fn();
+      const mockDoneFunction = vi.fn();
 
       await strategy.validate('', '', profile, mockDoneFunction);
       expect(mockDoneFunction).toHaveBeenCalledWith(null, {

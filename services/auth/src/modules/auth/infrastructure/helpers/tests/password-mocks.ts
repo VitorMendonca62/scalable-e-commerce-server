@@ -1,10 +1,11 @@
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
+import { type Mocked } from 'vitest';
 
-export const mockPasswordHasher: () => jest.Mocked<PasswordHasher> = () => {
-  const passwordHasher: jest.Mocked<PasswordHasher> = {
-    hash: jest.fn(),
-    compare: jest.fn(),
+export const mockPasswordHasher: () => Mocked<PasswordHasher> = () => {
+  const passwordHasher: Mocked<PasswordHasher> = {
+    hash: vi.fn(),
+    compare: vi.fn(),
   };
 
   passwordHasher.hash.mockReturnValue(PasswordHashedConstants.EXEMPLE);

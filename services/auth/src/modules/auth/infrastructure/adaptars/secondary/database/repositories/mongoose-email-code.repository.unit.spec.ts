@@ -3,18 +3,19 @@ import MongooseEmailCodeRepository from './mongoose-email-code.repository';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EmailCodeDocument } from '../models/email-code.model';
 import { Model } from 'mongoose';
+import { type Mock } from 'vitest';
 
 describe('MongooseEmailCodeRepository', () => {
   let repository: MongooseEmailCodeRepository;
 
   let EmailCodeModel: Model<EmailCodeDocument>;
 
-  let mockedExecFindOne: jest.Mock;
-  let mockedSavePrototype: jest.Mock;
-  let mockedExecDelete: jest.Mock;
+  let mockedExecFindOne: Mock;
+  let mockedSavePrototype: Mock;
+  let mockedExecDelete: Mock;
 
   beforeEach(async () => {
-    EmailCodeModel = jest.fn() as any;
+    EmailCodeModel = vi.fn() as any;
 
     repository = new MongooseEmailCodeRepository(EmailCodeModel);
   });
@@ -26,8 +27,8 @@ describe('MongooseEmailCodeRepository', () => {
 
   describe('findOne', () => {
     beforeEach(() => {
-      mockedExecFindOne = jest.fn().mockReturnValue(mockEmailCodeLikeJSON());
-      EmailCodeModel.findOne = jest.fn().mockReturnValue({
+      mockedExecFindOne = vi.fn().mockReturnValue(mockEmailCodeLikeJSON());
+      EmailCodeModel.findOne = vi.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
     });
@@ -73,7 +74,7 @@ describe('MongooseEmailCodeRepository', () => {
     const emailCode = mockEmailCodeLikeJSON();
 
     beforeEach(() => {
-      mockedSavePrototype = jest.fn().mockReturnValue(undefined);
+      mockedSavePrototype = vi.fn().mockReturnValue(undefined);
       EmailCodeModel.prototype.save = mockedSavePrototype;
     });
 
@@ -88,8 +89,8 @@ describe('MongooseEmailCodeRepository', () => {
 
   describe('deleteMany', () => {
     beforeEach(() => {
-      mockedExecDelete = jest.fn();
-      EmailCodeModel.deleteMany = jest.fn().mockReturnValue({
+      mockedExecDelete = vi.fn();
+      EmailCodeModel.deleteMany = vi.fn().mockReturnValue({
         exec: mockedExecDelete,
       });
     });

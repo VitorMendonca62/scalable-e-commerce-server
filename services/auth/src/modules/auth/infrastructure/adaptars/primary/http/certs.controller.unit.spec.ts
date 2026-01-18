@@ -8,8 +8,8 @@ describe('CertsController', () => {
 
   beforeEach(async () => {
     getCertsUseCase = {
-      getAuthCert: jest.fn(),
-      getResetPassCert: jest.fn(),
+      getAuthCert: vi.fn(),
+      getResetPassCert: vi.fn(),
     } as any;
 
     controller = new CertsController(getCertsUseCase);
@@ -34,10 +34,10 @@ describe('CertsController', () => {
     };
 
     beforeEach(() => {
-      jest.spyOn(getCertsUseCase, 'getAuthCert').mockResolvedValue(authCert);
-      jest
-        .spyOn(getCertsUseCase, 'getResetPassCert')
-        .mockResolvedValue(resetPassCert);
+      vi.spyOn(getCertsUseCase, 'getAuthCert').mockResolvedValue(authCert);
+      vi.spyOn(getCertsUseCase, 'getResetPassCert').mockResolvedValue(
+        resetPassCert,
+      );
     });
     it('should call getAuthCert and getResetPassCert', async () => {
       await controller.getCerts();
@@ -55,26 +55,26 @@ describe('CertsController', () => {
     });
 
     it('should throw error if getCertsUseCase throws error', async () => {
-      jest
-        .spyOn(getCertsUseCase, 'getAuthCert')
-        .mockRejectedValueOnce(new Error('Erro no use case'));
+      vi.spyOn(getCertsUseCase, 'getAuthCert').mockRejectedValueOnce(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.getCerts();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
         expect(error.data).toBeUndefined();
       }
 
-      jest
-        .spyOn(getCertsUseCase, 'getResetPassCert')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(getCertsUseCase, 'getResetPassCert').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.getCerts();
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');

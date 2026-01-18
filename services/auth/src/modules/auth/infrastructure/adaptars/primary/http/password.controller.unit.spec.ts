@@ -22,13 +22,13 @@ describe('PasswordController', () => {
   let cookiesService: CookieService;
 
   beforeEach(async () => {
-    sendCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
-    validateCodeForForgotPasswordUseCase = { execute: jest.fn() } as any;
+    sendCodeForForgotPasswordUseCase = { execute: vi.fn() } as any;
+    validateCodeForForgotPasswordUseCase = { execute: vi.fn() } as any;
     changePasswordUseCase = {
-      executeReset: jest.fn(),
-      executeUpdate: jest.fn(),
+      executeReset: vi.fn(),
+      executeUpdate: vi.fn(),
     } as any;
-    cookiesService = { setCookie: jest.fn() } as any;
+    cookiesService = { setCookie: vi.fn() } as any;
 
     controller = new PasswordController(
       sendCodeForForgotPasswordUseCase,
@@ -53,10 +53,10 @@ describe('PasswordController', () => {
 
     beforeEach(() => {
       expressResponse = {
-        redirect: jest.fn(),
+        redirect: vi.fn(),
       } as any;
 
-      jest.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
     });
 
     it('should call sendCodeForForgotPasswordUseCase.execute with email', async () => {
@@ -77,13 +77,13 @@ describe('PasswordController', () => {
     });
 
     it('should throw error if createSessionUseCase throws error', async () => {
-      jest
-        .spyOn(sendCodeForForgotPasswordUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(sendCodeForForgotPasswordUseCase, 'execute').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.sendCode(dto, expressResponse);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -100,11 +100,11 @@ describe('PasswordController', () => {
 
     beforeEach(() => {
       expressResponse = {
-        redirect: jest.fn(),
-        cookie: jest.fn(),
+        redirect: vi.fn(),
+        cookie: vi.fn(),
       } as any;
 
-      jest.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(expressResponse, 'redirect').mockReturnValue(undefined);
     });
 
     it('should call validCodeForForgotPasswordUseCase.execute with email and code', async () => {
@@ -117,9 +117,10 @@ describe('PasswordController', () => {
     });
 
     it('should store reset token in cookie', async () => {
-      jest
-        .spyOn(validateCodeForForgotPasswordUseCase, 'execute')
-        .mockResolvedValue('token');
+      vi.spyOn(
+        validateCodeForForgotPasswordUseCase,
+        'execute',
+      ).mockResolvedValue('token');
 
       await controller.validateCode(dto, expressResponse);
 
@@ -132,9 +133,10 @@ describe('PasswordController', () => {
     });
 
     it('should redirect on code and email are valid', async () => {
-      jest
-        .spyOn(validateCodeForForgotPasswordUseCase, 'execute')
-        .mockResolvedValue('token');
+      vi.spyOn(
+        validateCodeForForgotPasswordUseCase,
+        'execute',
+      ).mockResolvedValue('token');
 
       const result = await controller.validateCode(dto, expressResponse);
 
@@ -146,13 +148,14 @@ describe('PasswordController', () => {
     });
 
     it('should throw error if validateCodeForForgotPasswordUseCase throws error', async () => {
-      jest
-        .spyOn(validateCodeForForgotPasswordUseCase, 'execute')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(
+        validateCodeForForgotPasswordUseCase,
+        'execute',
+      ).mockRejectedValue(new Error('Erro no use case'));
 
       try {
         await controller.validateCode(dto, expressResponse);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -170,10 +173,10 @@ describe('PasswordController', () => {
 
     beforeEach(() => {
       response = {
-        redirect: jest.fn(),
+        redirect: vi.fn(),
       } as any;
 
-      jest.spyOn(response, 'redirect').mockReturnValue(undefined);
+      vi.spyOn(response, 'redirect').mockReturnValue(undefined);
     });
 
     it('should call changePasswordUseCase.executeReset with email and new password', async () => {
@@ -195,13 +198,13 @@ describe('PasswordController', () => {
     });
 
     it('should throw error if changePasswordUseCase throws error', async () => {
-      jest
-        .spyOn(changePasswordUseCase, 'executeReset')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(changePasswordUseCase, 'executeReset').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.resetPassword(dto, response, email);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');
@@ -234,13 +237,13 @@ describe('PasswordController', () => {
     });
 
     it('should throw error if changePasswordUseCase throws error', async () => {
-      jest
-        .spyOn(changePasswordUseCase, 'executeUpdate')
-        .mockRejectedValue(new Error('Erro no use case'));
+      vi.spyOn(changePasswordUseCase, 'executeUpdate').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.updatePassword(dto, userID);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no use case');

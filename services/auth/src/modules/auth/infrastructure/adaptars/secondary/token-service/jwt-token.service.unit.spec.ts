@@ -3,22 +3,21 @@ import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
+import { type Mock } from 'vitest';
 
-jest.mock('uuid', () => {
-  return { __esModule: true, v7: jest.fn() };
+vi.mock('uuid', () => {
+  return { v7: vi.fn() };
 });
 
-jest.mock('fs', () => {
+vi.mock('fs', () => {
   return {
-    __esModule: true,
-    readFileSync: jest.fn(),
+    readFileSync: vi.fn(),
   };
 });
 
-jest.mock('path', () => {
+vi.mock('path', () => {
   return {
-    __esModule: true,
-    join: jest.fn(),
+    join: vi.fn(),
   };
 });
 
@@ -40,12 +39,12 @@ describe('JwtTokenService', () => {
 
   beforeEach(async () => {
     jwtService = {
-      sign: jest.fn(),
-      verify: jest.fn(),
+      sign: vi.fn(),
+      verify: vi.fn(),
     } as any;
 
     configService = {
-      get: jest.fn(),
+      get: vi.fn(),
     } as any;
 
     service = new JwtTokenService(jwtService, configService);
@@ -59,10 +58,10 @@ describe('JwtTokenService', () => {
 
   describe('generateRefreshToken', () => {
     beforeEach(async () => {
-      (v7 as jest.Mock).mockReturnValue(IDConstants.EXEMPLE);
+      (v7 as Mock).mockReturnValue(IDConstants.EXEMPLE);
 
-      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-      jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
+      vi.spyOn(jwtService, 'sign').mockReturnValue(token);
+      vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
     it('should call jwt sign function with correct parameters', async () => {
@@ -94,8 +93,8 @@ describe('JwtTokenService', () => {
 
   describe('generateAccessToken', () => {
     beforeEach(async () => {
-      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-      jest.spyOn(configService, 'get').mockReturnValue(authKeyID);
+      vi.spyOn(jwtService, 'sign').mockReturnValue(token);
+      vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
     const userJSON = mockUserModel();
@@ -133,10 +132,10 @@ describe('JwtTokenService', () => {
     const mockPath = '/mock/path/to/reset-pass-private.pem';
 
     beforeEach(async () => {
-      jest.spyOn(jwtService, 'sign').mockReturnValue(token);
-      jest.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
-      jest.spyOn(path, 'join').mockReturnValue(mockPath);
-      jest.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
+      vi.spyOn(jwtService, 'sign').mockReturnValue(token);
+      vi.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
+      vi.spyOn(path, 'join').mockReturnValue(mockPath);
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
     });
 
     const userJSON = mockUserModel();

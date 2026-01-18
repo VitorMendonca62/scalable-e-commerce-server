@@ -11,7 +11,7 @@ describe('RevocationGuard', () => {
 
   beforeEach(() => {
     tokenRepository = {
-      isRevoked: jest.fn(),
+      isRevoked: vi.fn(),
     } as any;
 
     guard = new RevocationGuard(tokenRepository);
@@ -24,8 +24,8 @@ describe('RevocationGuard', () => {
 
   describe('canActivate', () => {
     let executionContext: ExecutionContext;
-    const switchToHttpMock: jest.Mock = jest.fn();
-    const getRequestMock: jest.Mock = jest.fn();
+    const switchToHttpMock = vi.fn();
+    const getRequestMock = vi.fn();
 
     beforeEach(() => {
       executionContext = { switchToHttp: switchToHttpMock } as any;
@@ -48,7 +48,7 @@ describe('RevocationGuard', () => {
           headers: { 'x-token-id': '' },
         });
         await guard.canActivate(executionContext);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
@@ -60,7 +60,7 @@ describe('RevocationGuard', () => {
           headers: { 'x-token-id': undefined },
         });
         await guard.canActivate(executionContext);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
@@ -72,7 +72,7 @@ describe('RevocationGuard', () => {
           headers: { 'x-token-id': null },
         });
         await guard.canActivate(executionContext);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
@@ -86,12 +86,12 @@ describe('RevocationGuard', () => {
         headers: { 'x-token-id': tokenID },
       });
 
-      jest.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(true);
+      vi.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(true);
 
       try {
         await guard.canActivate(executionContext);
         expect(tokenRepository.isRevoked).toHaveBeenCalledWith(tokenID);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');

@@ -9,7 +9,7 @@ describe('FinishSessionUseCase', () => {
 
   beforeEach(async () => {
     tokenRepository = {
-      revokeOneSession: jest.fn(),
+      revokeOneSession: vi.fn(),
     } as any;
 
     useCase = new FinishSessionUseCase(tokenRepository);

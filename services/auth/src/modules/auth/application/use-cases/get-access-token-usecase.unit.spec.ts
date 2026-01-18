@@ -15,16 +15,16 @@ describe('GetAccessTokenUseCase', () => {
 
   beforeEach(async () => {
     userRepository = {
-      findOne: jest.fn(),
+      findOne: vi.fn(),
     } as any;
 
     tokenService = {
-      verifyToken: jest.fn(),
-      generateAccessToken: jest.fn(),
+      verifyToken: vi.fn(),
+      generateAccessToken: vi.fn(),
     } as any;
 
     tokenRepository = {
-      updateLastAcess: jest.fn(),
+      updateLastAcess: vi.fn(),
     } as any;
 
     useCase = new GetAccessTokenUseCase(
@@ -46,13 +46,13 @@ describe('GetAccessTokenUseCase', () => {
     const tokenID = IDConstants.EXEMPLE;
 
     beforeEach(() => {
-      jest
-        .spyOn(tokenService, 'generateAccessToken')
-        .mockReturnValue(accessToken);
+      vi.spyOn(tokenService, 'generateAccessToken').mockReturnValue(
+        accessToken,
+      );
     });
 
     it('should use case call functions with correct parameters and return token', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
       const response = await useCase.execute(user.userID, tokenID);
 
@@ -65,11 +65,11 @@ describe('GetAccessTokenUseCase', () => {
     });
 
     it('should throw bad request exception when user does not exist', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       try {
         await useCase.execute(user.userID, tokenID);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe('Token inválido ou expirado');

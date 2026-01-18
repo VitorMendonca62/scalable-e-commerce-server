@@ -1,6 +1,3 @@
-import { mockValueObjects } from '../helpers/tests/values-objects-mock';
-mockValueObjects(['all']);
-
 // Helpers
 import {
   mockGoogleLogin,
@@ -9,12 +6,6 @@ import {
   mockUserModel,
 } from '../helpers/tests/user-mocks';
 import { mockPasswordHasher } from '../helpers/tests/password-mocks';
-
-// VO's
-import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
-import IDVO from '@auth/domain/values-objects/id/id-vo';
-import EmailVO from '@auth/domain/values-objects/email/email-vo';
-import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 
 // Entities
 import { UserEntity } from '@auth/domain/entities/user.entity';
@@ -28,16 +19,27 @@ import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { defaultGoogleRoles } from '@auth/domain/constants/roles';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
+import { type Mock } from 'vitest';
+import {
+  mockEmailConstructor,
+  mockIDConstructor,
+  mockPasswordConstructor,
+  mockPasswordHashedConstructor,
+  mockPhoneNumberConstructor,
+} from '../helpers/tests/values-objects-mock';
+import PasswordVO from '@auth/domain/values-objects/password/password-vo';
+import EmailVO from '@auth/domain/values-objects/email/email-vo';
+import IDVO from '@auth/domain/values-objects/id/id-vo';
+import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
   let passwordHasher: PasswordHasher;
 
-  jest.useFakeTimers();
-  jest.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
+  vi.useFakeTimers();
+  vi.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
 
   beforeEach(async () => {
-    mockValueObjects(['all']);
     passwordHasher = mockPasswordHasher();
     mapper = new UserMapper(passwordHasher);
   });
@@ -53,8 +55,8 @@ describe('UserMapper', () => {
     it('should call VOs with correct parameters', async () => {
       mapper.loginDTOForEntity(dto, ip);
 
-      expect(EmailVO).toHaveBeenCalledWith(dto.email);
-      expect(PasswordVO).toHaveBeenCalledWith(
+      expect(mockEmailConstructor).toHaveBeenCalledWith(dto.email);
+      expect(mockPasswordConstructor).toHaveBeenCalledWith(
         dto.password,
         false,
         passwordHasher,
@@ -65,6 +67,7 @@ describe('UserMapper', () => {
       const user = mapper.loginDTOForEntity(dto, ip);
 
       expect(user).toBeInstanceOf(UserLogin);
+      expect(user.email).toBeInstanceOf(EmailVO);
       expect(user.password).toBeInstanceOf(PasswordVO);
       expect(typeof user.ip).toBe('string');
     });
@@ -78,22 +81,22 @@ describe('UserMapper', () => {
     });
 
     it('should throw if value object throws error', () => {
-      const valuesObjects = [EmailVO, PasswordVO];
+      const valuesObjects = [mockEmailConstructor, mockPasswordConstructor];
 
       valuesObjects.forEach((VO, index) => {
-        (VO as jest.Mock).mockImplementation(() => {
+        (VO as Mock).mockImplementation(() => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
         try {
           mapper.loginDTOForEntity(dto, ip);
-          fail('Should have thrown an error');
+          expect.fail('Should have thrown an error');
         } catch (error: any) {
           expect(error).toBeInstanceOf(Error);
           expect(error.message).toBe(`Campo inválido - ${index}`);
           expect(error.data).toBeUndefined();
         }
-        (VO as jest.Mock).mockRestore();
+        (VO as Mock).mockRestore();
       });
     });
   });
@@ -105,7 +108,7 @@ describe('UserMapper', () => {
     it('should call VOs with correct parameters', async () => {
       mapper.googleLoginDTOForEntity(dto, ip);
 
-      expect(EmailVO).toHaveBeenCalledWith(dto.email);
+      expect(mockEmailConstructor).toHaveBeenCalledWith(dto.email);
     });
 
     it('should return User with correct types', async () => {
@@ -127,22 +130,22 @@ describe('UserMapper', () => {
     });
 
     it('should throw if value object throws error', () => {
-      const valuesObjects = [EmailVO];
+      const valuesObjects = [mockEmailConstructor];
 
       valuesObjects.forEach((VO, index) => {
-        (VO as jest.Mock).mockImplementation(() => {
+        (VO as Mock).mockImplementation(() => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
         try {
           mapper.googleLoginDTOForEntity(dto, ip);
-          fail('Should have thrown an error');
+          expect.fail('Should have thrown an error');
         } catch (error: any) {
           expect(error).toBeInstanceOf(Error);
           expect(error.message).toBe(`Campo inválido - ${index}`);
           expect(error.data).toBeUndefined();
         }
-        (VO as jest.Mock).mockRestore();
+        (VO as Mock).mockRestore();
       });
     });
   });
@@ -153,13 +156,13 @@ describe('UserMapper', () => {
     it('should call VOs with correct parameters', async () => {
       mapper.jsonToUser(json);
 
-      expect(IDVO).toHaveBeenCalledWith(json.userID);
-      expect(EmailVO).toHaveBeenCalledWith(json.email);
-      expect(PasswordHashedVO).toHaveBeenCalledWith(
+      expect(mockIDConstructor).toHaveBeenCalledWith(json.userID);
+      expect(mockEmailConstructor).toHaveBeenCalledWith(json.email);
+      expect(mockPasswordHashedConstructor).toHaveBeenCalledWith(
         json.password,
         passwordHasher,
       );
-      expect(PhoneNumberVO).toHaveBeenCalledWith(json.phoneNumber);
+      expect(mockPhoneNumberConstructor).toHaveBeenCalledWith(json.phoneNumber);
     });
 
     it('should return User with correct types', async () => {
@@ -187,17 +190,22 @@ describe('UserMapper', () => {
     });
 
     it('should throw if value object throws error', () => {
-      const valuesObjects = [EmailVO, PasswordHashedVO, PhoneNumberVO, IDVO];
+      const valuesObjects = [
+        mockEmailConstructor,
+        mockPasswordHashedConstructor,
+        mockPhoneNumberConstructor,
+        mockIDConstructor,
+      ];
 
       valuesObjects.forEach((VO, index) => {
-        (VO as jest.Mock).mockImplementation(() => {
+        (VO as Mock).mockImplementation(() => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
         expect(() => mapper.jsonToUser(json)).toThrow(
           `Campo inválido - ${index}`,
         );
-        (VO as jest.Mock).mockRestore();
+        (VO as Mock).mockRestore();
       });
     });
   });

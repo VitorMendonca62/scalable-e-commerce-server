@@ -1,6 +1,14 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import BcryptPasswordHasher from './bcrypt-password-hasher';
 import * as bcrypt from 'bcryptjs';
+import { type Mock } from 'vitest';
+
+vi.mock('bcryptjs', () => {
+  return {
+    hashSync: vi.fn(),
+    compareSync: vi.fn(),
+  };
+});
 
 describe('BcryptPasswordHasher', () => {
   let service: BcryptPasswordHasher;
@@ -15,7 +23,7 @@ describe('BcryptPasswordHasher', () => {
 
   describe('hash', () => {
     beforeEach(() => {
-      jest.spyOn(bcrypt, 'hashSync').mockReturnValue('PasswordHashed');
+      (bcrypt.hashSync as Mock).mockReturnValue('PasswordHashed');
     });
 
     it('should call bcrypt.hashSync with the correct parameters', () => {
@@ -38,7 +46,7 @@ describe('BcryptPasswordHasher', () => {
 
   describe('compare', () => {
     beforeEach(() => {
-      jest.spyOn(bcrypt, 'compareSync').mockReturnValue(true);
+      (bcrypt.compareSync as Mock).mockReturnValue(true);
     });
 
     it('should call bcrypt.compareSync with the correct parameters', () => {
@@ -62,7 +70,7 @@ describe('BcryptPasswordHasher', () => {
     });
 
     it('should return false when the plain password does not match the hash', () => {
-      jest.spyOn(bcrypt, 'compareSync').mockReturnValue(false);
+      vi.spyOn(bcrypt, 'compareSync').mockReturnValue(false);
 
       const result = service.compare(
         PasswordConstants.EXEMPLE,

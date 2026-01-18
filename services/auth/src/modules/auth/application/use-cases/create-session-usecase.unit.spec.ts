@@ -1,5 +1,5 @@
-jest.mock('uuid', () => {
-  return { __esModule: true, v7: jest.fn() };
+vi.mock('uuid', () => {
+  return { v7: vi.fn() };
 });
 
 // Mocks
@@ -26,6 +26,8 @@ import { defaultGoogleRoles } from '@auth/domain/constants/roles';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { v7 } from 'uuid';
 
+import { type Mock } from 'vitest';
+
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
 
@@ -36,23 +38,23 @@ describe('CreateSessionUseCase', () => {
 
   beforeEach(async () => {
     userRepository = {
-      findOne: jest.fn(),
-      create: jest.fn(),
-      update: jest.fn(),
+      findOne: vi.fn(),
+      create: vi.fn(),
+      update: vi.fn(),
     } as any;
 
     tokenService = {
-      generateAccessToken: jest.fn(),
-      generateRefreshToken: jest.fn(),
+      generateAccessToken: vi.fn(),
+      generateRefreshToken: vi.fn(),
     } as any;
 
     userMapper = {
-      jsonToUser: jest.fn(),
-      googleUserCreateForJSON: jest.fn(),
+      jsonToUser: vi.fn(),
+      googleUserCreateForJSON: vi.fn(),
     } as any;
 
     tokenRepository = {
-      saveSession: jest.fn(),
+      saveSession: vi.fn(),
     } as any;
 
     useCase = new CreateSessionUseCase(
@@ -83,13 +85,14 @@ describe('CreateSessionUseCase', () => {
     const userLogin = mockLoginUser();
 
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
-      jest.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
-      jest.spyOn(user.password, 'comparePassword').mockReturnValue(true);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
+      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
+      vi.spyOn(user.password, 'comparePassword').mockReturnValue(true);
 
-      jest
-        .spyOn(useCase as any, 'generateAccessAndRefreshToken')
-        .mockResolvedValue(generateAccessAndRefreshTokenResult);
+      vi.spyOn(
+        useCase as any,
+        'generateAccessAndRefreshToken',
+      ).mockResolvedValue(generateAccessAndRefreshTokenResult);
     });
 
     it('should use case call functions with correct parameters', async () => {
@@ -117,11 +120,11 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw WrongCredentials exception when user does not exists', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       try {
         await useCase.execute(userLogin);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe(
@@ -132,11 +135,11 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw WrongCredentials if password is incorrect', async () => {
-      jest.spyOn(user.password, 'comparePassword').mockReturnValue(false);
+      vi.spyOn(user.password, 'comparePassword').mockReturnValue(false);
 
       try {
         await useCase.execute(userLogin);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe(
@@ -147,13 +150,14 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw WrongCredentials if user is not active', async () => {
-      jest
-        .spyOn(userMapper, 'jsonToUser')
-        .mockReturnValue({ ...user, active: false });
+      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue({
+        ...user,
+        active: false,
+      });
 
       try {
         await useCase.execute(userLogin);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
         expect(error.message).toBe(
@@ -176,18 +180,19 @@ describe('CreateSessionUseCase', () => {
     const defautlUser = mockUserModel();
 
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUser);
-      jest.spyOn(userRepository, 'create').mockResolvedValue(undefined);
-      jest.spyOn(userRepository, 'update').mockResolvedValue(undefined);
-      jest
-        .spyOn(userMapper, 'googleUserCreateForJSON')
-        .mockReturnValue(googleUser);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUser);
+      vi.spyOn(userRepository, 'create').mockResolvedValue(undefined);
+      vi.spyOn(userRepository, 'update').mockResolvedValue(undefined);
+      vi.spyOn(userMapper, 'googleUserCreateForJSON').mockReturnValue(
+        googleUser,
+      );
 
-      jest
-        .spyOn(useCase as any, 'generateAccessAndRefreshToken')
-        .mockResolvedValue(generateAccessAndRefreshTokenResult);
+      vi.spyOn(
+        useCase as any,
+        'generateAccessAndRefreshToken',
+      ).mockResolvedValue(generateAccessAndRefreshTokenResult);
 
-      (v7 as jest.Mock).mockReturnValue(IDConstants.EXEMPLE);
+      (v7 as Mock).mockReturnValue(IDConstants.EXEMPLE);
     });
 
     describe('is not new user', () => {
@@ -209,7 +214,7 @@ describe('CreateSessionUseCase', () => {
       });
 
       it('should no call userRepository.update when account provider not is default', async () => {
-        jest.spyOn(userRepository, 'findOne').mockResolvedValue({
+        vi.spyOn(userRepository, 'findOne').mockResolvedValue({
           ...defautlUser,
           accountProvider: AccountsProvider.GOOGLE,
           accountProviderID: `google-${IDConstants.EXEMPLE}`,
@@ -228,13 +233,14 @@ describe('CreateSessionUseCase', () => {
       });
 
       it('should throw WrongCredentials if user is not active', async () => {
-        jest
-          .spyOn(userRepository, 'findOne')
-          .mockResolvedValue({ ...defautlUser, active: false });
+        vi.spyOn(userRepository, 'findOne').mockResolvedValue({
+          ...defautlUser,
+          active: false,
+        });
 
         try {
           await useCase.executeWithGoogle(userGoogleLogin);
-          fail('Should have thrown an error');
+          expect.fail('Should have thrown an error');
         } catch (error: any) {
           expect(error).toBeInstanceOf(WrongCredentials);
           expect(error.message).toBe(
@@ -247,8 +253,8 @@ describe('CreateSessionUseCase', () => {
 
     describe('is new user', () => {
       beforeEach(() => {
-        jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-        jest.spyOn(userRepository, 'create').mockResolvedValue(googleUser);
+        vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+        vi.spyOn(userRepository, 'create').mockResolvedValue(googleUser);
       });
 
       it('should use case call functions with correct parameters', async () => {
@@ -283,8 +289,8 @@ describe('CreateSessionUseCase', () => {
 
   describe('generateAccessAndRefreshToken', () => {
     beforeEach(() => {
-      jest.spyOn(tokenService, 'generateAccessToken').mockReturnValue('TOKEN');
-      jest.spyOn(tokenService, 'generateRefreshToken').mockReturnValue({
+      vi.spyOn(tokenService, 'generateAccessToken').mockReturnValue('TOKEN');
+      vi.spyOn(tokenService, 'generateRefreshToken').mockReturnValue({
         refreshToken: 'TOKEN',
         tokenID: IDConstants.EXEMPLE,
       });

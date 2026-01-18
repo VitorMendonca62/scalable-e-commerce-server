@@ -3,14 +3,15 @@ import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/p
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { UsersQueueService } from './users-queue.service';
 import { defaultRoles } from '@auth/domain/constants/roles';
+import { type Mocked } from 'vitest';
 
 describe('UsersQueueService', () => {
   let service: UsersQueueService;
-  let clientProxy: jest.Mocked<ClientProxy>;
+  let clientProxy: Mocked<ClientProxy>;
 
   beforeEach(async () => {
     clientProxy = {
-      emit: jest.fn(),
+      emit: vi.fn(),
     } as any;
 
     service = new UsersQueueService(clientProxy);

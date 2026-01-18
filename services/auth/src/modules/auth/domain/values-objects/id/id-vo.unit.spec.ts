@@ -1,10 +1,11 @@
+vi.unmock('@auth/domain/values-objects/id/id-vo');
 import IDValidator from './id-validator';
 import IDVO from './id-vo';
 import { IDConstants } from './id-constants';
 
 describe('IDVO', () => {
   beforeEach(() => {
-    jest.spyOn(IDValidator, 'validate').mockReturnValue();
+    vi.spyOn(IDValidator, 'validate').mockReturnValue();
   });
 
   it('should store a value', () => {
@@ -20,13 +21,13 @@ describe('IDVO', () => {
   });
 
   it('should rethrow error if validator throw error', () => {
-    jest.spyOn(IDValidator, 'validate').mockImplementation(() => {
+    vi.spyOn(IDValidator, 'validate').mockImplementation(() => {
       throw new Error('Error');
     });
 
     try {
       new IDVO(IDConstants.EXEMPLE);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toBe('Error');

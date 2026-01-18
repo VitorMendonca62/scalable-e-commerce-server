@@ -1,5 +1,3 @@
-import { mockValueObjects } from '@auth/infrastructure/helpers/tests/values-objects-mock';
-mockValueObjects(['hashedPassword', 'password']);
 import {
   FieldInvalid,
   NotFoundUser,
@@ -9,13 +7,18 @@ import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.por
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
-import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { ChangePasswordUseCase } from './change-password.usecase';
 import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import {
+  mockPasswordConstructor,
+  mockPasswordGetValue,
+  mockPasswordHashedCompare,
+  mockPasswordHashedConstructor,
+  mockPasswordHashedGetValue,
+} from '@auth/infrastructure/helpers/tests/values-objects-mock';
 
 describe('ChangePasswordUseCase', () => {
   let useCase: ChangePasswordUseCase;
@@ -26,13 +29,13 @@ describe('ChangePasswordUseCase', () => {
 
   beforeEach(async () => {
     userRepository = {
-      findOne: jest.fn(),
-      update: jest.fn(),
+      findOne: vi.fn(),
+      update: vi.fn(),
     } as any;
 
     passwordHasher = {} as any;
     tokenRepository = {
-      revokeAllSessions: jest.fn(),
+      revokeAllSessions: vi.fn(),
     } as any;
 
     useCase = new ChangePasswordUseCase(
@@ -42,6 +45,10 @@ describe('ChangePasswordUseCase', () => {
     );
   });
 
+  const userID = IDConstants.EXEMPLE;
+  const newPassword = `new-${PasswordConstants.EXEMPLE}`;
+  const user = mockUserModel();
+
   it('should be defined', () => {
     expect(useCase).toBeDefined();
     expect(userRepository).toBeDefined();
@@ -49,25 +56,20 @@ describe('ChangePasswordUseCase', () => {
     expect(tokenRepository).toBeDefined();
   });
 
-  describe('updateExecute', () => {
-    const userID = IDConstants.EXEMPLE;
-    const newPassword = `new-${PasswordConstants.EXEMPLE}`;
+  describe('executeUpdate', () => {
     const oldPassword = `old-${PasswordConstants.EXEMPLE}`;
-    const user = mockUserModel();
 
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-      (PasswordVO.prototype.getValue as jest.Mock).mockReturnValue(newPassword);
-      (PasswordHashedVO.prototype.getValue as jest.Mock).mockReturnValue(
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      mockPasswordHashedGetValue.mockReturnValue(
         PasswordHashedConstants.EXEMPLE,
       );
-      jest
-        .spyOn(PasswordHashedVO.prototype, 'comparePassword')
-        .mockReturnValue(true);
+      mockPasswordHashedCompare.mockReturnValue(true);
+      vi.spyOn(useCase as any, 'updatePassword');
     });
 
     afterEach(() => {
-      jest.resetAllMocks();
+      vi.resetAllMocks();
     });
 
     it('should use case call functions with correct parameters', async () => {
@@ -76,33 +78,23 @@ describe('ChangePasswordUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         userID,
       });
-      expect(PasswordHashedVO).toHaveBeenCalledWith(
+      expect(mockPasswordHashedConstructor).toHaveBeenCalledWith(
         user.password,
         passwordHasher,
       );
-      expect(PasswordHashedVO.prototype.comparePassword).toHaveBeenCalledWith(
-        oldPassword,
-      );
-      expect(PasswordVO).toHaveBeenCalledWith(
-        newPassword,
-        true,
-        passwordHasher,
-      );
-      expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
-        password: newPassword,
-      });
-
-      expect(tokenRepository.revokeAllSessions).toHaveBeenCalledWith(
+      expect(mockPasswordHashedCompare).toHaveBeenCalledWith(oldPassword);
+      expect((useCase as any).updatePassword).toBeCalledWith(
         user.userID,
+        newPassword,
       );
     });
 
     it('should throw NotFoundUser when user does not exist', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       try {
         await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(NotFoundUser);
         expect(error.message).toBe('Usuário não encontrado.');
@@ -111,13 +103,13 @@ describe('ChangePasswordUseCase', () => {
     });
 
     it('should rethrow error if PasswordHashedVO throw error', async () => {
-      (PasswordHashedVO as jest.Mock).mockImplementationOnce(() => {
+      mockPasswordHashedConstructor.mockImplementationOnce(() => {
         throw new Error('Error PasswordHashedVO');
       });
 
       try {
         await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error PasswordHashedVO');
@@ -126,13 +118,11 @@ describe('ChangePasswordUseCase', () => {
     });
 
     it('should throw WrongCredentials if oldPassword is incorrect', async () => {
-      jest
-        .spyOn(PasswordHashedVO.prototype, 'comparePassword')
-        .mockReturnValue(false);
+      mockPasswordHashedCompare.mockReturnValue(false);
 
       try {
         await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(FieldInvalid);
         expect(error.message).toBe('A senha atual informada está incorreta.');
@@ -140,60 +130,27 @@ describe('ChangePasswordUseCase', () => {
       }
     });
 
-    it('should rethrow error if PasswordVO throw error', async () => {
-      (PasswordVO as jest.Mock).mockImplementationOnce(() => {
-        throw new Error('Error PasswordVO');
-      });
+    it('should retrow error if this.updatePassword throw error', async () => {
+      vi.spyOn(useCase as any, 'updatePassword').mockRejectedValue(
+        new Error('Error in updatePassword'),
+      );
 
       try {
         await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error PasswordVO');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if userRepository.find throw error', async () => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockRejectedValue(new Error('Error finding code row'));
-
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error finding code row');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if userRepository.update throw error', async () => {
-      jest
-        .spyOn(userRepository, 'update')
-        .mockRejectedValue(new Error('Error updating code'));
-
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error updating code');
-        expect(error.data).toBeUndefined();
+        expect(error.message).toBe('Error in updatePassword');
       }
     });
   });
 
-  describe('execute', () => {
+  describe('executeReset', () => {
     const email = EmailConstants.EXEMPLE;
-    const user = mockUserModel();
-    const newPassword = `new-${PasswordConstants.EXEMPLE}`;
 
     beforeEach(() => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(user);
-      (PasswordVO.prototype.getValue as jest.Mock).mockReturnValue(newPassword);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+      vi.spyOn(useCase as any, 'updatePassword');
     });
 
     it('should use case call functions with correct parameters', async () => {
@@ -202,7 +159,51 @@ describe('ChangePasswordUseCase', () => {
       expect(userRepository.findOne).toHaveBeenCalledWith({
         email,
       });
-      expect(PasswordVO).toHaveBeenCalledWith(
+      expect((useCase as any).updatePassword).toBeCalledWith(
+        user.userID,
+        newPassword,
+      );
+    });
+
+    it('should throw WrongCredentials when user does not exist', async () => {
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+
+      try {
+        await useCase.executeReset(email, newPassword);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error.message).toBe('Token inválido ou expirado');
+        expect(error.data).toBeUndefined();
+      }
+    });
+
+    it('should rethrow error if userRepository.findOne throw error', async () => {
+      vi.spyOn(userRepository, 'findOne').mockRejectedValue(
+        new Error('Error finding code row'),
+      );
+      try {
+        await useCase.executeReset(email, newPassword);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Error finding code row');
+        expect(error.data).toBeUndefined();
+      }
+    });
+  });
+
+  describe('updatePassword', () => {
+    beforeEach(() => {
+      vi.spyOn(userRepository, 'update');
+      vi.spyOn(tokenRepository, 'revokeAllSessions');
+      mockPasswordGetValue.mockReturnValue(newPassword);
+    });
+
+    it('should call functions with correct parameters', async () => {
+      await (useCase as any).updatePassword(userID, newPassword);
+
+      expect(mockPasswordConstructor).toHaveBeenCalledWith(
         newPassword,
         true,
         passwordHasher,
@@ -216,27 +217,14 @@ describe('ChangePasswordUseCase', () => {
       );
     });
 
-    it('should throw bad request exception when user does not exist', async () => {
-      jest.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-
-      try {
-        await useCase.executeReset(email, newPassword);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Token inválido ou expirado');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
     it('should rethrow error if PasswordVO throw error', async () => {
-      (PasswordVO as jest.Mock).mockImplementationOnce(() => {
+      mockPasswordConstructor.mockImplementationOnce(() => {
         throw new Error('Error PasswordVO');
       });
 
       try {
-        await useCase.executeReset(email, newPassword);
-        fail('Should have thrown an error');
+        await (useCase as any).updatePassword(userID, newPassword);
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error PasswordVO');
@@ -244,31 +232,32 @@ describe('ChangePasswordUseCase', () => {
       }
     });
 
-    it('should rethrow error if userRepository.find throw error', async () => {
-      jest
-        .spyOn(userRepository, 'findOne')
-        .mockRejectedValue(new Error('Error finding code row'));
+    it('should rethrow error if userRepository.update throw error', async () => {
+      vi.spyOn(userRepository, 'update').mockRejectedValue(
+        new Error('Error updating code'),
+      );
+
       try {
-        await useCase.executeReset(email, newPassword);
-        fail('Should have thrown an error');
+        await (useCase as any).updatePassword(userID, newPassword);
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error finding code row');
+        expect(error.message).toBe('Error updating code');
         expect(error.data).toBeUndefined();
       }
     });
 
-    it('should rethrow error if userRepository.update throw error', async () => {
-      jest
-        .spyOn(userRepository, 'update')
-        .mockRejectedValue(new Error('Error updating code'));
+    it('should rethrow error if tokenRepository.revokeAllSessions throw error', async () => {
+      vi.spyOn(tokenRepository, 'revokeAllSessions').mockRejectedValue(
+        new Error('Error revoke sessions'),
+      );
 
       try {
-        await useCase.executeReset(email, newPassword);
-        fail('Should have thrown an error');
+        await (useCase as any).updatePassword(userID, newPassword);
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error updating code');
+        expect(error.message).toBe('Error revoke sessions');
         expect(error.data).toBeUndefined();
       }
     });

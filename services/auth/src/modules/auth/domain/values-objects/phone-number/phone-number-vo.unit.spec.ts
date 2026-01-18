@@ -1,10 +1,11 @@
 import { PhoneNumberConstants } from './phone-number-constants';
 import PhoneNumberValidator from './phone-number-validator';
 import PhoneNumberVO from './phone-number-vo';
+vi.unmock('@auth/domain/values-objects/phone-number/phone-number-vo');
 
 describe('PhoneNumberVO', () => {
   beforeEach(() => {
-    jest.spyOn(PhoneNumberValidator, 'validate').mockReturnValue();
+    vi.spyOn(PhoneNumberValidator, 'validate').mockReturnValue();
   });
 
   it('should store a value', () => {
@@ -22,13 +23,13 @@ describe('PhoneNumberVO', () => {
   });
 
   it('should rethrow error if validator throw error', () => {
-    jest.spyOn(PhoneNumberValidator, 'validate').mockImplementation(() => {
+    vi.spyOn(PhoneNumberValidator, 'validate').mockImplementation(() => {
       throw new Error('Error');
     });
 
     try {
       new PhoneNumberVO(PhoneNumberConstants.EXEMPLE);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toBe('Error');

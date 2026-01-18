@@ -1,10 +1,11 @@
+vi.unmock('@auth/domain/values-objects/email/email-vo');
 import EmailValidator from './email-validator';
 import EmailVO from './email-vo';
 import { EmailConstants } from './email-constants';
 
 describe('EmailVO', () => {
   beforeEach(() => {
-    jest.spyOn(EmailValidator, 'validate').mockReturnValue();
+    vi.spyOn(EmailValidator, 'validate').mockReturnValue();
   });
 
   it('should store a value', () => {
@@ -22,13 +23,13 @@ describe('EmailVO', () => {
   });
 
   it('should rethrow error if validator throw error', () => {
-    jest.spyOn(EmailValidator, 'validate').mockImplementation(() => {
+    vi.spyOn(EmailValidator, 'validate').mockImplementation(() => {
       throw new Error('Error');
     });
 
     try {
       new EmailVO(EmailConstants.EXEMPLE);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(Error);
       expect(error.message).toBe('Error');

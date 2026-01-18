@@ -1,15 +1,16 @@
+vi.unmock('@auth/domain/values-objects/password/password-vo');
 import PasswordValidator from './password-validator';
 import PasswordVO from './password-vo';
 import { PasswordConstants } from './password-constants';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-mocks';
 import { PasswordHashedConstants } from '../password-hashed/password-hashed-constants';
-
+import { type Mock } from 'vitest';
 describe('PasswordVO', () => {
   let passwordHasher: PasswordHasher;
 
   beforeEach(() => {
-    jest.spyOn(PasswordValidator, 'validate').mockReturnValue();
+    vi.spyOn(PasswordValidator, 'validate').mockReturnValue();
     passwordHasher = mockPasswordHasher();
   });
 
@@ -43,13 +44,13 @@ describe('PasswordVO', () => {
     });
 
     it('should rethrow error if validator throw error', () => {
-      jest.spyOn(PasswordValidator, 'validate').mockImplementation(() => {
+      vi.spyOn(PasswordValidator, 'validate').mockImplementation(() => {
         throw new Error('Error');
       });
 
       try {
         new PasswordVO(PasswordConstants.EXEMPLE, true, passwordHasher);
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error');
@@ -75,7 +76,7 @@ describe('PasswordVO', () => {
     });
 
     it('should return passwordHasher.compare result', () => {
-      (passwordHasher.compare as jest.Mock).mockReturnValue(false);
+      (passwordHasher.compare as Mock).mockReturnValue(false);
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
         true,
@@ -86,7 +87,7 @@ describe('PasswordVO', () => {
 
       expect(result).toBe(false);
 
-      (passwordHasher.compare as jest.Mock).mockReturnValue(true);
+      (passwordHasher.compare as Mock).mockReturnValue(true);
 
       const valueObject2 = new PasswordVO(
         PasswordConstants.EXEMPLE,

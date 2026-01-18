@@ -6,6 +6,7 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { Model } from 'mongoose';
 import { UserDocument } from '../models/user.model';
+import { type Mock } from 'vitest';
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
@@ -13,7 +14,7 @@ describe('MongooseUserRepository', () => {
   let userModel: Model<UserDocument>;
 
   beforeEach(async () => {
-    userModel = jest.fn() as any;
+    userModel = vi.fn() as any;
 
     repository = new MongooseUserRepository(userModel);
   });
@@ -23,11 +24,11 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findOne', () => {
-    let mockedExecFindOne: jest.Mock;
+    let mockedExecFindOne: Mock;
 
     beforeEach(() => {
-      mockedExecFindOne = jest.fn().mockReturnValue(mockUserModel());
-      userModel.findOne = jest.fn().mockReturnValue({
+      mockedExecFindOne = vi.fn().mockReturnValue(mockUserModel());
+      userModel.findOne = vi.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
     });
@@ -67,11 +68,11 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('update', () => {
-    let mockedExecUpdateOne: jest.Mock;
+    let mockedExecUpdateOne: Mock;
 
     beforeEach(() => {
-      mockedExecUpdateOne = jest.fn();
-      userModel.updateOne = jest.fn().mockReturnValue({
+      mockedExecUpdateOne = vi.fn();
+      userModel.updateOne = vi.fn().mockReturnValue({
         exec: mockedExecUpdateOne,
       });
     });
@@ -93,10 +94,10 @@ describe('MongooseUserRepository', () => {
 
   describe('create', () => {
     const user = mockUserModel();
-    let mockedSavePrototype: jest.Mock;
+    let mockedSavePrototype: Mock;
 
     beforeEach(() => {
-      mockedSavePrototype = jest.fn().mockReturnValue(undefined);
+      mockedSavePrototype = vi.fn().mockReturnValue(undefined);
       userModel.prototype.save = mockedSavePrototype;
     });
 

@@ -9,7 +9,7 @@ describe('NodemailerEmailSender', () => {
 
   beforeEach(async () => {
     mailerService = {
-      sendMail: jest.fn(),
+      sendMail: vi.fn(),
     } as any;
 
     service = new NodemailerEmailSender(mailerService);
@@ -46,7 +46,7 @@ describe('NodemailerEmailSender', () => {
     });
 
     it('should throw ExternalServiceError if mailerService throw error', async () => {
-      jest.spyOn(mailerService, 'sendMail').mockImplementation(() => {
+      vi.spyOn(mailerService, 'sendMail').mockImplementation(() => {
         throw new Error('Error finding email');
       });
 
@@ -60,7 +60,7 @@ describe('NodemailerEmailSender', () => {
             any: 'any',
           },
         );
-        fail('Should have thrown an error');
+        expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(ExternalServiceError);
         expect(error.message).toBe(

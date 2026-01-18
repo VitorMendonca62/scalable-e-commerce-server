@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { Request, Response } from 'express';
 import CookieService from './cookie.service';
+import { type Mock } from 'vitest';
 
 describe('CookieService', () => {
   let service: CookieService;
@@ -14,7 +15,7 @@ describe('CookieService', () => {
 
   beforeEach(async () => {
     configService = {
-      get: jest.fn(),
+      get: vi.fn(),
     } as any;
 
     service = new CookieService(configService);
@@ -26,7 +27,7 @@ describe('CookieService', () => {
   });
 
   const response: Response = {
-    cookie: jest.fn(),
+    cookie: vi.fn(),
   } as any;
 
   const token = 'TOKEN';
@@ -43,7 +44,7 @@ describe('CookieService', () => {
     const age = 1000;
 
     it('should call response.cookie function with cookie name, value and all parameters', async () => {
-      (configService.get as jest.Mock).mockReturnValue(NodeEnv.Production);
+      (configService.get as Mock).mockReturnValue(NodeEnv.Production);
 
       service.setCookie(cookieName, value, age, response);
 
@@ -57,7 +58,7 @@ describe('CookieService', () => {
     });
 
     it('should secure is false if NODE_ENV in configService not is production', async () => {
-      (configService.get as jest.Mock).mockReturnValue(NodeEnv.Development);
+      (configService.get as Mock).mockReturnValue(NodeEnv.Development);
 
       service.setCookie(cookieName, value, age, response);
 
@@ -71,7 +72,7 @@ describe('CookieService', () => {
     });
 
     it('should secure is true if NODE_ENV in configService is production', async () => {
-      (configService.get as jest.Mock).mockReturnValue(NodeEnv.Production);
+      (configService.get as Mock).mockReturnValue(NodeEnv.Production);
 
       service.setCookie(cookieName, value, age, response);
 
