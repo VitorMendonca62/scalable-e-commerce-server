@@ -57,7 +57,10 @@ export class JwtTokenService implements TokenService {
     return this.jwtService.sign(payload, {
       expiresIn: '10m',
       privateKey: fs.readFileSync(
-        path.join(__dirname, '../../../../../../../reset-pass-private.pem'),
+        path.join(
+          __dirname,
+          '../../../../../../../certs/reset-pass-private.pem',
+        ),
       ),
       keyid: this.configService.get<string>('RESET_PASS_KEYID'),
     });

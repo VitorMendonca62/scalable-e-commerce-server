@@ -16,8 +16,8 @@
     "test:cov": "cross-env NODE_ENV=test jest --coverage --config jest.config.json",
     "test:unit": "cross-env NODE_ENV=test jest --config jest.config.json --testPathPattern=\".unit.spec.ts\"",
     "test:unit:cov": "cross-env NODE_ENV=test jest --coverage --config jest.config.json --testPathPattern=\".unit.spec.ts\"",
-    "jwt:keys:generate": "openssl genrsa -out auth-private.pem 2048 && openssl rsa -in auth-private.pem -pubout -out auth-public.pem && openssl genrsa -out reset-pass-private.pem 2048 && openssl rsa -in reset-pass-private.pem -pubout -out reset-pass-public.pem",
-    "jwt:keys:clean": "rm auth-private.pem auth-public.pem reset-pass-private.pem reset-pass-public.pem"
+    "jwt:keys:generate": "openssl genrsa -out certs/auth-private.pem 2048 && openssl rsa -in certs/auth-private.pem -pubout -out certs/auth-public.pem && openssl genrsa -out certs/reset-pass-private.pem 2048 && openssl rsa -in certs/reset-pass-private.pem -pubout -out certs/reset-pass-public.pem",
+    "jwt:keys:clean": "rm certs/*.pem"
   },
   "dependencies": {
     "@nestjs-modules/ioredis": "^2.0.2",
