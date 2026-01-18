@@ -49,7 +49,7 @@ export class CreateSessionUseCase {
       throw new WrongCredentials();
     }
 
-    if (user.active == false) throw new WrongCredentials();
+    if (user.active === false) throw new WrongCredentials();
 
     return await this.generateAccessAndRefreshToken(userJSON, inputUser.ip);
   }

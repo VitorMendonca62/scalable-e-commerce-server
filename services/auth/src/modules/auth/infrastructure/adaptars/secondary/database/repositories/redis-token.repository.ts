@@ -45,7 +45,7 @@ export class RedisTokenRepository implements TokenRepository {
   }
 
   async isRevoked(tokenID: string): Promise<boolean> {
-    return (await this.redis.exists(`token:${tokenID}`)) == 0;
+    return (await this.redis.exists(`token:${tokenID}`)) === 0;
   }
 
   async updateLastAcess(tokenID: string): Promise<void> {
