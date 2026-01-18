@@ -9,22 +9,27 @@ jobs:
 
     steps:       
       - name: Checkout Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v3
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with: 
-          node-version: 24
-          cache: "npm"
-          cache-dependency-path: auth/package-lock.json  
+          node-version: 20 # Use 20, não 24
+          cache: 'pnpm'
+          cache-dependency-path: services/auth/pnpm-lock.yaml
         
       - name: Install dependencies
-        run: npm install
+        run: pnpm install
         working-directory: auth
 
       - name: Run tests
         working-directory: auth
-        run: npm run test
+        run: pnpm run test
   
   run-users-unit-tests:
     name: Run Users Unit Tests
