@@ -40,7 +40,6 @@ export class PasswordController {
   ) {}
 
   @Post('/send-code')
-  @HttpCode(HttpStatus.SEE_OTHER)
   @ApiSendCodeforForgotPassword()
   async sendCode(
     @Body() dto: SendCodeForForgotPasswordDTO,
@@ -49,10 +48,11 @@ export class PasswordController {
     await this.sendCodeForForgotPasswordUseCase.execute(dto.email);
     response
       .status(HttpStatus.SEE_OTHER)
-      .redirect('https://github.com/VitorMendonca62');
+      .redirect('https://github.com/VitorMendonca62'); //  OTP code screen
   }
 
   @Post('/validate-code')
+  @HttpCode(HttpStatus.OK)
   @ApiValidateCodeForForgotPassword()
   async validateCode(
     @Body() dto: ValidateCodeForForgotPasswordDTO,
@@ -69,14 +69,12 @@ export class PasswordController {
       TokenExpirationConstants.RESET_PASS_TOKEN_MS,
       response,
     );
-    response.status(HttpStatus.OK);
     return new HttpOKResponse(
       'Seu código de recuperação de senha foi validado com sucesso.',
     );
   }
 
   @Patch('/reset')
-  @HttpCode(HttpStatus.SEE_OTHER)
   @ApiResetPassword()
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
@@ -86,7 +84,7 @@ export class PasswordController {
     await this.changePasswordUseCase.executeReset(email, dto.newPassword);
     response
       .status(HttpStatus.SEE_OTHER)
-      .redirect('https://github.com/VitorMendonca62');
+      .redirect('https://github.com/VitorMendonca62'); // Login
   }
 
   @Patch('/')

@@ -16,7 +16,9 @@
     "test:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts",
     "test:unit": "cross-env NODE_ENV=test vitest --config vitest.config.ts --testPathPattern=\".unit.spec.ts\"",
     "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts --testPathPattern=\".unit.spec.ts\"",
-    "jwt:keys:generate": "openssl genrsa -out certs/auth-private.pem 2048 && openssl rsa -in certs/auth-private.pem -pubout -out certs/auth-public.pem && openssl genrsa -out certs/reset-pass-private.pem 2048 && openssl rsa -in certs/reset-pass-private.pem -pubout -out certs/reset-pass-public.pem",
+    "jwt:keys:auth": "openssl genrsa -out certs/auth-private.pem 2048 && openssl rsa -in certs/auth-private.pem -pubout -out certs/auth-public.pem",
+    "jwt:keys:reset-pass": "openssl genrsa -out certs/reset-pass-private.pem 2048 && openssl rsa -in certs/reset-pass-private.pem -pubout -out certs/reset-pass-public.pem",
+    "jwt:keys:generate": "pnpm run jwt:keys:auth && pnpm run jwt:keys:reset-pass",
     "jwt:keys:clean": "rm certs/*.pem"
   },
   "dependencies": {

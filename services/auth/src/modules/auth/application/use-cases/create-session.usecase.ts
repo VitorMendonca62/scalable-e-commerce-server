@@ -66,12 +66,12 @@ export class CreateSessionUseCase {
       newUserModel = await this.userRepository.create(newUser);
     }
 
-    if (newUserModel == undefined) {
+    if (newUserModel === undefined) {
       if (userModel.active === false) {
         throw new WrongCredentials();
       }
 
-      if (userModel.accountProvider == AccountsProvider.DEFAULT) {
+      if (userModel.accountProvider === AccountsProvider.DEFAULT) {
         await this.userRepository.update(userModel.userID, {
           accountProvider: AccountsProvider.GOOGLE,
           accountProviderID: inputUser.id,

@@ -145,7 +145,6 @@ describe('PasswordController', () => {
 
       const result = await controller.validateCode(dto, expressResponse);
 
-      expect(expressResponse.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
