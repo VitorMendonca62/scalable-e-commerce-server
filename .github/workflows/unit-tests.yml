@@ -25,10 +25,10 @@ jobs:
         
       - name: Install dependencies
         run: pnpm install
-        working-directory: services/auth/
+        working-directory: services/auth
 
       - name: Run tests
-        working-directory: services/auth/
+        working-directory: services/auth
         run: pnpm run test
   
   run-users-unit-tests:
