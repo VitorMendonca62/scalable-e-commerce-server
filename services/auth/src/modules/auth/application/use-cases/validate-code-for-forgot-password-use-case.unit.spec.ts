@@ -1,15 +1,17 @@
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
-import { mockEmailCodeLikeJSONWithoutValidCode } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 import ValidateCodeForForgotPasswordUseCase from './validate-code-for-forgot-password.usecase';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { BusinessRuleFailure } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 
 describe('ValidateCodeForForgotPasswordUseCase', () => {
   let useCase: ValidateCodeForForgotPasswordUseCase;
 
   let emailCodeRepository: EmailCodeRepository;
   let tokenService: TokenService;
+
+  let emailCodeModelFactory: EmailCodeModelFactory;
 
   beforeEach(async () => {
     emailCodeRepository = {
@@ -27,6 +29,8 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
       emailCodeRepository,
       tokenService,
     );
+
+    emailCodeModelFactory = new EmailCodeModelFactory();
   });
 
   it('should be defined', () => {
@@ -40,7 +44,7 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
 
     beforeEach(() => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(
-        mockEmailCodeLikeJSONWithoutValidCode(),
+        emailCodeModelFactory.likeOBject(),
       );
 
       vi.useFakeTimers();
@@ -81,7 +85,7 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
 
     it('should throw BusinessRuleFailure when the code expired', async () => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(
-        mockEmailCodeLikeJSONWithoutValidCode({
+        emailCodeModelFactory.likeOBject({
           expiresIn: new Date('2024-01-01T10:10:00z'),
         }),
       );

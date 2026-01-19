@@ -1,9 +1,9 @@
-import { mockEmailCodeLikeJSONWithoutValidCode as mockEmailCodeLikeJSON } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 import MongooseEmailCodeRepository from './mongoose-email-code.repository';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { EmailCodeDocument } from '../models/email-code.model';
 import { Model } from 'mongoose';
 import { type Mock } from 'vitest';
+import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-mocks';
 
 describe('MongooseEmailCodeRepository', () => {
   let repository: MongooseEmailCodeRepository;
@@ -26,8 +26,14 @@ describe('MongooseEmailCodeRepository', () => {
   });
 
   describe('findOne', () => {
+    let emailCodeModelFactory: EmailCodeModelFactory;
+
     beforeEach(() => {
-      mockedExecFindOne = vi.fn().mockReturnValue(mockEmailCodeLikeJSON());
+      emailCodeModelFactory = new EmailCodeModelFactory();
+
+      mockedExecFindOne = vi
+        .fn()
+        .mockReturnValue(emailCodeModelFactory.likeOBject());
       EmailCodeModel.findOne = vi.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
@@ -42,7 +48,7 @@ describe('MongooseEmailCodeRepository', () => {
         email: EmailConstants.EXEMPLE,
       });
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockEmailCodeLikeJSON());
+      expect(response).toEqual(emailCodeModelFactory.likeOBject());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -54,7 +60,7 @@ describe('MongooseEmailCodeRepository', () => {
 
       expect(EmailCodeModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockEmailCodeLikeJSON());
+      expect(response).toEqual(emailCodeModelFactory.likeOBject());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
       expect(response.code).toBe('AAAAAA');
     });
@@ -71,7 +77,8 @@ describe('MongooseEmailCodeRepository', () => {
   });
 
   describe('save', () => {
-    const emailCode = mockEmailCodeLikeJSON();
+    let emailCodeModelFactory = new EmailCodeModelFactory();
+    const emailCode = emailCodeModelFactory.likeOBject();
 
     beforeEach(() => {
       mockedSavePrototype = vi.fn().mockReturnValue(undefined);
