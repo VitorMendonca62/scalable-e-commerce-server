@@ -3,7 +3,7 @@ import PasswordValidator from './password-validator';
 import PasswordVO from './password-vo';
 import { PasswordConstants } from './password-constants';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { mockPasswordHasher } from '@auth/infrastructure/helpers/tests/password-mocks';
+import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-mocks';
 import { PasswordHashedConstants } from '../password-hashed/password-hashed-constants';
 import { type Mock } from 'vitest';
 describe('PasswordVO', () => {
@@ -11,7 +11,7 @@ describe('PasswordVO', () => {
 
   beforeEach(() => {
     vi.spyOn(PasswordValidator, 'validate').mockReturnValue();
-    passwordHasher = mockPasswordHasher();
+    passwordHasher = new PasswordHasherFactory().default();
   });
 
   describe('Constructor', () => {

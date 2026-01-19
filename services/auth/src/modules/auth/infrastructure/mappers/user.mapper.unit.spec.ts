@@ -5,7 +5,6 @@ import {
   mockUserGoogleInCallBack,
   mockUserModel,
 } from '../helpers/tests/user-mocks';
-import { mockPasswordHasher } from '../helpers/tests/password-mocks';
 
 // Entities
 import { UserEntity } from '@auth/domain/entities/user.entity';
@@ -31,6 +30,7 @@ import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import EmailVO from '@auth/domain/values-objects/email/email-vo';
 import IDVO from '@auth/domain/values-objects/id/id-vo';
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
+import { PasswordHasherFactory } from '../helpers/tests/password-mocks';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -40,7 +40,8 @@ describe('UserMapper', () => {
   vi.setSystemTime(new Date('2025-01-01T16:00:00.000Z'));
 
   beforeEach(async () => {
-    passwordHasher = mockPasswordHasher();
+    passwordHasher = new PasswordHasherFactory().default();
+
     mapper = new UserMapper(passwordHasher);
   });
 

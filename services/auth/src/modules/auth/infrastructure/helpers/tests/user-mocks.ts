@@ -11,11 +11,11 @@ import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/p
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
-import { mockPasswordHasher } from './password-mocks';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 import { defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
+import { PasswordHasherFactory } from './password-mocks';
 
 // Common
 export const mockUserModel = (
@@ -41,7 +41,10 @@ export const mockUser = (overrides: Partial<UserModel> = {}) => {
   const user = new UserEntity({
     userID: new IDVO(userJSON.userID),
     email: new EmailVO(userJSON.email),
-    password: new PasswordHashedVO(userJSON.password, mockPasswordHasher()),
+    password: new PasswordHashedVO(
+      userJSON.password,
+      new PasswordHasherFactory().default(),
+    ),
     phoneNumber: new PhoneNumberVO(userJSON.phoneNumber),
     roles: defaultRoles,
     createdAt: new Date('2025-02-16T17:21:05.370Z'),
@@ -69,7 +72,11 @@ export const mockLoginUser = (overrides: Partial<LoginUserDTO> = {}) => {
   const dto = mockLoginUserDTO(overrides);
   return new UserLogin({
     email: new EmailVO(dto.email),
-    password: new PasswordVO(dto.password, false, mockPasswordHasher()),
+    password: new PasswordVO(
+      dto.password,
+      false,
+      new PasswordHasherFactory().default(),
+    ),
     ip: '122.0.0.0',
   });
 };
