@@ -1,13 +1,19 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { ResetPasswordDTO } from './reset-password.dto';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('ResetPasswordDTO', () => {
+  let validationObjectFactory: ValidationObjectFactory;
+
+  beforeEach(() => {
+    validationObjectFactory = new ValidationObjectFactory();
+  });
+
   it('should sucess validation when all fields are valid', async () => {
     const dto = new ResetPasswordDTO();
     dto.newPassword = PasswordConstants.EXEMPLE;
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
@@ -15,7 +21,7 @@ describe('ResetPasswordDTO', () => {
     const dto = new ResetPasswordDTO();
     dto.newPassword = undefined;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -30,7 +36,7 @@ describe('ResetPasswordDTO', () => {
     const dto = new ResetPasswordDTO();
     dto.newPassword = 0 as any;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -43,7 +49,7 @@ describe('ResetPasswordDTO', () => {
     const dto = new ResetPasswordDTO();
     dto.newPassword = PasswordConstants.MIN_LENGTH_EXEMPLE;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -56,7 +62,7 @@ describe('ResetPasswordDTO', () => {
     const dto = new ResetPasswordDTO();
     dto.newPassword = PasswordConstants.WEAK_EXEMPLE;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);

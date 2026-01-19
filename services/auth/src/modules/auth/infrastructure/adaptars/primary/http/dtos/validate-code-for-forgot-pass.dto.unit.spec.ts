@@ -1,17 +1,26 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { ValidateCodeForForgotPasswordDTO } from './validate-code-for-forgot-pass.dto';
 import {
-  mockValidateCodeForForgotPasswordDTOLikeInstance,
-  validateObject,
+  ValidateCodeForForgotPasswordDTOFactory,
+  ValidationObjectFactory,
 } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('ValidateCodeForForgotPasswordDTO', () => {
+  let validateCodeForForgotPasswordDTOFactory: ValidateCodeForForgotPasswordDTOFactory;
+  let validationObjectFactory: ValidationObjectFactory;
+
+  beforeEach(() => {
+    validateCodeForForgotPasswordDTOFactory =
+      new ValidateCodeForForgotPasswordDTOFactory();
+    validationObjectFactory = new ValidationObjectFactory();
+  });
+
   it('should sucess validation when all fields are valid', async () => {
     const dto = new ValidateCodeForForgotPasswordDTO();
     dto.email = EmailConstants.EXEMPLE;
     dto.code = 'AAAAAA';
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
@@ -23,11 +32,11 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+      const dto = validateCodeForForgotPasswordDTOFactory.likeInstance({
         [key]: undefined,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -45,11 +54,11 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+      const dto = validateCodeForForgotPasswordDTOFactory.likeInstance({
         [key]: 1 as any,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -58,11 +67,11 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
   });
 
   it('should return error when email is invalid', async () => {
-    const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+    const dto = validateCodeForForgotPasswordDTOFactory.likeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -70,11 +79,11 @@ describe('ValidateCodeForForgotPasswordDTO', () => {
   });
 
   it('should return error when code no have 6 chars', async () => {
-    const dto = mockValidateCodeForForgotPasswordDTOLikeInstance({
+    const dto = validateCodeForForgotPasswordDTOFactory.likeInstance({
       code: 'sss',
     });
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);

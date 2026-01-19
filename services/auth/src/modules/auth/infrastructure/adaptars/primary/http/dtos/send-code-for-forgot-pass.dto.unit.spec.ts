@@ -1,12 +1,18 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { SendCodeForForgotPasswordDTO } from './send-code-for-forgot-pass.dto';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('SendCodeForForgotPasswordDTO', () => {
+  let validationObjectFactory: ValidationObjectFactory;
+
+  beforeEach(() => {
+    validationObjectFactory = new ValidationObjectFactory();
+  });
+
   it('should sucess validation when all fields are valid', async () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = EmailConstants.EXEMPLE;
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
@@ -14,7 +20,7 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = undefined;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -29,7 +35,7 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = 0 as any;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -40,7 +46,7 @@ describe('SendCodeForForgotPasswordDTO', () => {
     const dto = new SendCodeForForgotPasswordDTO();
     dto.email = EmailConstants.WRONG_EXEMPLE;
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);

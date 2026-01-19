@@ -1,14 +1,22 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import {
-  mockUpdatePasswordLikeInstance,
-  validateObject,
+  UpdatePasswordDTOFactory,
+  ValidationObjectFactory,
 } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 
 describe('UpdatePasswordDTO', () => {
+  let updatePasswordDTOFactory: UpdatePasswordDTOFactory;
+  let validationObjectFactory: ValidationObjectFactory;
+
+  beforeEach(() => {
+    updatePasswordDTOFactory = new UpdatePasswordDTOFactory();
+    validationObjectFactory = new ValidationObjectFactory();
+  });
+
   it('should sucess validation when all fields are valid', async () => {
-    const dto = mockUpdatePasswordLikeInstance();
-    const errors = await validateObject(dto);
+    const dto = updatePasswordDTOFactory.likeInstance();
+    const errors = await validationObjectFactory.validateObject(dto);
     expect(errors).toHaveLength(0);
   });
 
@@ -20,11 +28,11 @@ describe('UpdatePasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdatePasswordLikeInstance({
+      const dto = updatePasswordDTOFactory.likeInstance({
         [key]: undefined,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -42,11 +50,11 @@ describe('UpdatePasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdatePasswordLikeInstance({
+      const dto = updatePasswordDTOFactory.likeInstance({
         [key]: 1 as any,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -62,11 +70,11 @@ describe('UpdatePasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdatePasswordLikeInstance({
+      const dto = updatePasswordDTOFactory.likeInstance({
         [key]: PasswordConstants.MIN_LENGTH_EXEMPLE,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -82,11 +90,11 @@ describe('UpdatePasswordDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockUpdatePasswordLikeInstance({
+      const dto = updatePasswordDTOFactory.likeInstance({
         [key]: PasswordConstants.WEAK_EXEMPLE,
       });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);

@@ -4,7 +4,6 @@ import { PasswordController } from './password.controller';
 
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
-import { mockUpdatePasswordLikeInstance } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
 import CookieService from '../../secondary/cookie-service/cookie.service';
@@ -12,6 +11,7 @@ import { Cookies } from '@auth/domain/enums/cookies.enum';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import { FastifyReply } from 'fastify';
+import { UpdatePasswordDTOFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 
 describe('PasswordController', () => {
   let controller: PasswordController;
@@ -222,7 +222,8 @@ describe('PasswordController', () => {
   });
 
   describe('updatePassword', () => {
-    const dto = mockUpdatePasswordLikeInstance();
+    const updatePasswordDTOFactory = new UpdatePasswordDTOFactory();
+    const dto = updatePasswordDTOFactory.likeInstance();
     const userID = IDConstants.EXEMPLE;
 
     it('should call changePasswordUseCase.executeUpdate with userId and passwords', async () => {

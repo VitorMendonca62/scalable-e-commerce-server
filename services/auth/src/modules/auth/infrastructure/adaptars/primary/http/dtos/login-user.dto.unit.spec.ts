@@ -1,11 +1,19 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { validateObject } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
 import { mockLoginUserDTOLikeInstance } from '@auth/infrastructure/helpers/tests/user-mocks';
 
 describe('LoginUserDTO', () => {
+  let validationObjectFactory: ValidationObjectFactory;
+
+  beforeEach(() => {
+    validationObjectFactory = new ValidationObjectFactory();
+  });
+
   it('should sucess validation when all fields are valid', async () => {
-    const errors = await validateObject(mockLoginUserDTOLikeInstance());
+    const errors = await validationObjectFactory.validateObject(
+      mockLoginUserDTOLikeInstance(),
+    );
     expect(errors).toHaveLength(0);
   });
 
@@ -19,7 +27,7 @@ describe('LoginUserDTO', () => {
       const [key, message] = field;
       const dto = mockLoginUserDTOLikeInstance({ [key]: undefined });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -39,7 +47,7 @@ describe('LoginUserDTO', () => {
       const [key, message] = field;
       const dto = mockLoginUserDTOLikeInstance({ [key]: 12345 });
 
-      const errors = await validateObject(dto);
+      const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
@@ -50,7 +58,7 @@ describe('LoginUserDTO', () => {
   it('should return error when any field is shorter than the allowed length', async () => {
     const dto = mockLoginUserDTOLikeInstance({ password: 'a' });
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
@@ -64,7 +72,7 @@ describe('LoginUserDTO', () => {
       email: EmailConstants.WRONG_EXEMPLE,
     });
 
-    const errors = await validateObject(dto);
+    const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
 
     expect(errors).toHaveLength(1);
