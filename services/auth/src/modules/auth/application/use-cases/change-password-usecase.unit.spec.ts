@@ -9,7 +9,7 @@ import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ChangePasswordUseCase } from './change-password.usecase';
-import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
+import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import {
@@ -47,7 +47,7 @@ describe('ChangePasswordUseCase', () => {
 
   const userID = IDConstants.EXEMPLE;
   const newPassword = `new-${PasswordConstants.EXEMPLE}`;
-  const user = mockUserModel();
+  const user = new UserFactory().likeModel();
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();

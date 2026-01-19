@@ -1,7 +1,7 @@
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ResetPasswordDTO } from './reset-password.dto';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
-import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 
 describe('ResetPasswordDTO', () => {
   let validationObjectFactory: ValidationObjectFactory;

@@ -1,5 +1,4 @@
 import { MongooseUserRepository } from './mongoose-user.repository';
-import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
@@ -7,6 +6,7 @@ import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { Model } from 'mongoose';
 import { UserDocument } from '../models/user.model';
 import { type Mock } from 'vitest';
+import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
@@ -24,10 +24,12 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findOne', () => {
+    const user = new UserFactory().likeModel();
+
     let mockedExecFindOne: Mock;
 
     beforeEach(() => {
-      mockedExecFindOne = vi.fn().mockReturnValue(mockUserModel());
+      mockedExecFindOne = vi.fn().mockReturnValue(user);
       userModel.findOne = vi.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
@@ -40,7 +42,7 @@ describe('MongooseUserRepository', () => {
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockUserModel());
+      expect(response).toEqual(user);
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -52,7 +54,7 @@ describe('MongooseUserRepository', () => {
 
       expect(userModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(mockUserModel());
+      expect(response).toEqual(user);
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -93,7 +95,7 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('create', () => {
-    const user = mockUserModel();
+    const user = new UserFactory().likeModel();
     let mockedSavePrototype: Mock;
 
     beforeEach(() => {

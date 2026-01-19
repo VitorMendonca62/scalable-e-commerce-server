@@ -1,7 +1,7 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
-import { mockLoginUserDTOLikeInstance } from '@auth/infrastructure/helpers/tests/user-mocks';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
+import { LoginUserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
 describe('LoginUserDTO', () => {
   let validationObjectFactory: ValidationObjectFactory;
@@ -12,7 +12,7 @@ describe('LoginUserDTO', () => {
 
   it('should sucess validation when all fields are valid', async () => {
     const errors = await validationObjectFactory.validateObject(
-      mockLoginUserDTOLikeInstance(),
+      new LoginUserFactory().likeDTOLikeInstance(),
     );
     expect(errors).toHaveLength(0);
   });
@@ -25,7 +25,9 @@ describe('LoginUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockLoginUserDTOLikeInstance({ [key]: undefined });
+      const dto = new LoginUserFactory().likeDTOLikeInstance({
+        [key]: undefined,
+      });
 
       const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
@@ -45,7 +47,7 @@ describe('LoginUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = mockLoginUserDTOLikeInstance({ [key]: 12345 });
+      const dto = new LoginUserFactory().likeDTOLikeInstance({ [key]: 12345 });
 
       const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
@@ -56,7 +58,7 @@ describe('LoginUserDTO', () => {
   });
 
   it('should return error when any field is shorter than the allowed length', async () => {
-    const dto = mockLoginUserDTOLikeInstance({ password: 'a' });
+    const dto = new LoginUserFactory().likeDTOLikeInstance({ password: 'a' });
 
     const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
@@ -68,7 +70,7 @@ describe('LoginUserDTO', () => {
   });
 
   it('should return error when email is invalid', async () => {
-    const dto = mockLoginUserDTOLikeInstance({
+    const dto = new LoginUserFactory().likeDTOLikeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 

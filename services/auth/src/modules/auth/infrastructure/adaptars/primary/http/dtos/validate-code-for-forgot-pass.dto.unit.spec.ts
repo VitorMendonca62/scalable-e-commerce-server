@@ -3,7 +3,7 @@ import { ValidateCodeForForgotPasswordDTO } from './validate-code-for-forgot-pas
 import {
   ValidateCodeForForgotPasswordDTOFactory,
   ValidationObjectFactory,
-} from '@auth/infrastructure/helpers/tests/dtos-mocks';
+} from '@auth/infrastructure/helpers/tests/dtos-factory';
 
 describe('ValidateCodeForForgotPasswordDTO', () => {
   let validateCodeForForgotPasswordDTOFactory: ValidateCodeForForgotPasswordDTOFactory;

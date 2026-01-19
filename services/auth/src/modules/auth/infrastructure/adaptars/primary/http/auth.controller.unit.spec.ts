@@ -3,12 +3,10 @@ import { AuthController } from './auth.controller';
 import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
 import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token.usecase';
 import {
-  mockGoogleLogin,
-  mockLoginUser,
-  mockLoginUserDTO,
-  mockUserGoogleInCallBack,
-  mockUserModel,
-} from '@auth/infrastructure/helpers/tests/user-mocks';
+  GoogleUserFactory,
+  LoginUserFactory,
+  UserFactory,
+} from '@auth/infrastructure/helpers/tests/user-factory';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import {
   HttpCreatedResponse,
@@ -110,10 +108,10 @@ describe('AuthController', () => {
   });
 
   describe('googleAuthRedirect', () => {
-    const user = mockUserModel();
-    const userGoogleInCallback: UserGoogleInCallBack =
-      mockUserGoogleInCallBack();
+    const userModel = new UserFactory().likeModel();
+    const userGoogleInCallback = new GoogleUserFactory().likeUserInCallbBack();
     const ip = '120.0.0.0';
+    const userGoogleLogin = new GoogleUserFactory().likeEntity();
 
     let request: FastifyRequest & { user: UserGoogleInCallBack };
 
@@ -123,7 +121,7 @@ describe('AuthController', () => {
       } as any;
 
       vi.spyOn(userMapper, 'googleLoginDTOForEntity').mockReturnValue(
-        mockGoogleLogin(),
+        userGoogleLogin,
       );
 
       vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
@@ -143,7 +141,7 @@ describe('AuthController', () => {
         ip,
       );
       expect(createSessionUseCase.executeWithGoogle).toHaveBeenCalledWith(
-        mockGoogleLogin(),
+        userGoogleLogin,
       );
     });
 
@@ -153,7 +151,7 @@ describe('AuthController', () => {
           accessToken: `<accessToken>`,
           refreshToken: `<refreshToken>`,
         },
-        newUser: user,
+        newUser: userModel,
       });
 
       await controller.googleAuthRedirect(request, response, ip);
@@ -161,13 +159,13 @@ describe('AuthController', () => {
       expect(usersQueueService.send).toHaveBeenCalledWith(
         'user-create-google',
         {
-          userID: user.userID,
+          userID: userModel.userID,
           name: 'test',
           username: 'test',
-          email: user.email,
-          roles: user.roles,
-          createdAt: user.createdAt,
-          updatedAt: user.updatedAt,
+          email: userModel.email,
+          roles: userModel.roles,
+          createdAt: userModel.createdAt,
+          updatedAt: userModel.updatedAt,
         },
       );
     });
@@ -233,12 +231,14 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    const user = mockLoginUser();
-    const dto = mockLoginUserDTO();
+    const loginUserEntity = new LoginUserFactory().likeEntity();
+    const dto = new LoginUserFactory().likeDTO();
     const ip = '120.0.0.0';
 
     beforeEach(() => {
-      vi.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(user);
+      vi.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(
+        loginUserEntity,
+      );
 
       vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
         accessToken: `<accessToken>`,
@@ -250,7 +250,9 @@ describe('AuthController', () => {
       await controller.login(dto, response, ip);
 
       expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto, ip);
-      expect(createSessionUseCase.execute).toHaveBeenCalledWith(user);
+      expect(createSessionUseCase.execute).toHaveBeenCalledWith(
+        loginUserEntity,
+      );
     });
 
     it('should set access token and refresh token on cookies', async () => {

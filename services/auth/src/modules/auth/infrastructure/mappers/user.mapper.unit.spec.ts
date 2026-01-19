@@ -1,10 +1,9 @@
 // Helpers
 import {
-  mockGoogleLogin,
-  mockLoginUserDTO,
-  mockUserGoogleInCallBack,
-  mockUserModel,
-} from '../helpers/tests/user-mocks';
+  GoogleUserFactory,
+  LoginUserFactory,
+  UserFactory,
+} from '../helpers/tests/user-factory';
 
 // Entities
 import { UserEntity } from '@auth/domain/entities/user.entity';
@@ -30,7 +29,7 @@ import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import EmailVO from '@auth/domain/values-objects/email/email-vo';
 import IDVO from '@auth/domain/values-objects/id/id-vo';
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
-import { PasswordHasherFactory } from '../helpers/tests/password-mocks';
+import { PasswordHasherFactory } from '../helpers/tests/password-factory';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -50,7 +49,7 @@ describe('UserMapper', () => {
   });
 
   describe('loginDTOForEntity', () => {
-    const dto = mockLoginUserDTO();
+    const dto = new LoginUserFactory().likeDTO();
     const ip = '120.0.0.0';
 
     it('should call VOs with correct parameters', async () => {
@@ -103,7 +102,7 @@ describe('UserMapper', () => {
   });
 
   describe('googleLoginDTOForEntity', () => {
-    const dto = mockUserGoogleInCallBack();
+    const dto = new GoogleUserFactory().likeUserInCallbBack();
     const ip = '120.0.0.0';
 
     it('should call VOs with correct parameters', async () => {
@@ -152,22 +151,24 @@ describe('UserMapper', () => {
   });
 
   describe('jsonToUser', () => {
-    const json = mockUserModel();
+    const userModel = new UserFactory().likeModel();
 
     it('should call VOs with correct parameters', async () => {
-      mapper.jsonToUser(json);
+      mapper.jsonToUser(userModel);
 
-      expect(mockIDConstructor).toHaveBeenCalledWith(json.userID);
-      expect(mockEmailConstructor).toHaveBeenCalledWith(json.email);
+      expect(mockIDConstructor).toHaveBeenCalledWith(userModel.userID);
+      expect(mockEmailConstructor).toHaveBeenCalledWith(userModel.email);
       expect(mockPasswordHashedConstructor).toHaveBeenCalledWith(
-        json.password,
+        userModel.password,
         passwordHasher,
       );
-      expect(mockPhoneNumberConstructor).toHaveBeenCalledWith(json.phoneNumber);
+      expect(mockPhoneNumberConstructor).toHaveBeenCalledWith(
+        userModel.phoneNumber,
+      );
     });
 
     it('should return User with correct types', async () => {
-      const user = mapper.jsonToUser(json);
+      const user = mapper.jsonToUser(userModel);
 
       expect(user).toBeInstanceOf(UserEntity);
       expect(user.userID).toBeInstanceOf(IDVO);
@@ -180,14 +181,14 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct fields', async () => {
-      const user = mapper.jsonToUser(json);
+      const user = mapper.jsonToUser(userModel);
 
-      expect(user.userID.getValue()).toBe(json.userID);
-      expect(user.email.getValue()).toBe(json.email);
-      expect(user.password.getValue()).toBe(json.password);
-      expect(user.phoneNumber.getValue()).toBe(json.phoneNumber);
-      expect(user.createdAt).toBe(json.createdAt);
-      expect(user.updatedAt).toBe(json.updatedAt);
+      expect(user.userID.getValue()).toBe(userModel.userID);
+      expect(user.email.getValue()).toBe(userModel.email);
+      expect(user.password.getValue()).toBe(userModel.password);
+      expect(user.phoneNumber.getValue()).toBe(userModel.phoneNumber);
+      expect(user.createdAt).toBe(userModel.createdAt);
+      expect(user.updatedAt).toBe(userModel.updatedAt);
     });
 
     it('should throw if value object throws error', () => {
@@ -203,7 +204,7 @@ describe('UserMapper', () => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
-        expect(() => mapper.jsonToUser(json)).toThrow(
+        expect(() => mapper.jsonToUser(userModel)).toThrow(
           `Campo inválido - ${index}`,
         );
         (VO as Mock).mockRestore();
@@ -212,19 +213,22 @@ describe('UserMapper', () => {
   });
 
   describe('googleUserCreateForJSON', () => {
-    const user = mockGoogleLogin();
+    const userGoogleLogin = new GoogleUserFactory().likeEntity();
 
     it('should return user like json', async () => {
-      const result = mapper.googleUserCreateForJSON(user, IDConstants.EXEMPLE);
+      const result = mapper.googleUserCreateForJSON(
+        userGoogleLogin,
+        IDConstants.EXEMPLE,
+      );
 
       expect(result).toEqual({
         userID: IDConstants.EXEMPLE,
-        email: user.email.getValue(),
+        email: userGoogleLogin.email.getValue(),
         password: undefined,
         phoneNumber: undefined,
         roles: defaultGoogleRoles,
         accountProvider: AccountsProvider.GOOGLE,
-        accountProviderID: user.id,
+        accountProviderID: userGoogleLogin.id,
         createdAt: new Date(),
         updatedAt: new Date(),
         active: true,

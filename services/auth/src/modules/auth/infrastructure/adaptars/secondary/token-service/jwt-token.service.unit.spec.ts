@@ -1,5 +1,4 @@
 import { JwtTokenService } from './jwt-token.service';
-import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
 import { JwtService } from '@nestjs/jwt';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
@@ -25,6 +24,7 @@ import { v7 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
 describe('JwtTokenService', () => {
   let service: JwtTokenService;
@@ -97,18 +97,18 @@ describe('JwtTokenService', () => {
       vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
-    const userJSON = mockUserModel();
+    const userModel = new UserFactory().likeModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {
-        email: userJSON.email,
-        roles: userJSON.roles,
+        email: userModel.email,
+        roles: userModel.roles,
       };
-      service.generateAccessToken({ ...props, userID: userJSON.userID });
+      service.generateAccessToken({ ...props, userID: userModel.userID });
 
       const playload = {
         ...props,
-        sub: userJSON.userID,
+        sub: userModel.userID,
         type: 'access',
       };
 
@@ -120,7 +120,7 @@ describe('JwtTokenService', () => {
     });
 
     it('should return token', async () => {
-      const result = service.generateAccessToken(userJSON);
+      const result = service.generateAccessToken(userModel);
 
       expect(typeof result).toBe('string');
       expect(result).toBe(token);
@@ -138,17 +138,17 @@ describe('JwtTokenService', () => {
       vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
     });
 
-    const userJSON = mockUserModel();
+    const userModel = new UserFactory().likeModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {
-        email: userJSON.email,
+        email: userModel.email,
       };
 
       service.generateResetPassToken({ ...props });
 
       const playload = {
-        sub: userJSON.email,
+        sub: userModel.email,
         type: 'reset-pass',
       };
 
@@ -163,7 +163,7 @@ describe('JwtTokenService', () => {
     });
 
     it('should return token', async () => {
-      const result = service.generateResetPassToken(userJSON);
+      const result = service.generateResetPassToken(userModel);
 
       expect(typeof result).toBe('string');
       expect(result).toBe(token);

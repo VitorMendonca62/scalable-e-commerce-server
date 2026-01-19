@@ -1,6 +1,6 @@
 import { GetAccessTokenUseCase } from './get-access-token.usecase';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
-import { mockUserModel } from '@auth/infrastructure/helpers/tests/user-mocks';
+import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
@@ -41,7 +41,7 @@ describe('GetAccessTokenUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUserModel();
+    const user = new UserFactory().likeModel();
     const accessToken = 'ACCESSTOKEN';
     const tokenID = IDConstants.EXEMPLE;
 

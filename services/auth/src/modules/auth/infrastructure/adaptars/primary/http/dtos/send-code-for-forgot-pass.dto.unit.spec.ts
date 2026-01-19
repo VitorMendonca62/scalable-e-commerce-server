@@ -1,6 +1,6 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { SendCodeForForgotPasswordDTO } from './send-code-for-forgot-pass.dto';
-import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 
 describe('SendCodeForForgotPasswordDTO', () => {
   let validationObjectFactory: ValidationObjectFactory;

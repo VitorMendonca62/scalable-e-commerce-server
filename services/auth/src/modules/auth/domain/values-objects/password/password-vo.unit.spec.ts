@@ -3,7 +3,7 @@ import PasswordValidator from './password-validator';
 import PasswordVO from './password-vo';
 import { PasswordConstants } from './password-constants';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-mocks';
+import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
 import { PasswordHashedConstants } from '../password-hashed/password-hashed-constants';
 import { type Mock } from 'vitest';
 describe('PasswordVO', () => {

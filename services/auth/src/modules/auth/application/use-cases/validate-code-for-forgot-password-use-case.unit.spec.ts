@@ -3,7 +3,7 @@ import ValidateCodeForForgotPasswordUseCase from './validate-code-for-forgot-pas
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { BusinessRuleFailure } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-mocks';
+import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-factory';
 
 describe('ValidateCodeForForgotPasswordUseCase', () => {
   let useCase: ValidateCodeForForgotPasswordUseCase;

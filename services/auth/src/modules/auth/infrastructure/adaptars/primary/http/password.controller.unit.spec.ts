@@ -11,7 +11,7 @@ import { Cookies } from '@auth/domain/enums/cookies.enum';
 import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import { FastifyReply } from 'fastify';
-import { UpdatePasswordDTOFactory } from '@auth/infrastructure/helpers/tests/dtos-mocks';
+import { UpdatePasswordDTOFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 
 describe('PasswordController', () => {
   let controller: PasswordController;

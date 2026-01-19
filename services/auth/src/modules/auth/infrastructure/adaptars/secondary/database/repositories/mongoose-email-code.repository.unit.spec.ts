@@ -3,7 +3,7 @@ import { EmailConstants } from '@auth/domain/values-objects/email/email-constant
 import { EmailCodeDocument } from '../models/email-code.model';
 import { Model } from 'mongoose';
 import { type Mock } from 'vitest';
-import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-mocks';
+import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-factory';
 
 describe('MongooseEmailCodeRepository', () => {
   let repository: MongooseEmailCodeRepository;

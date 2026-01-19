@@ -2,7 +2,7 @@ import { PasswordConstants } from '@auth/domain/values-objects/password/password
 import {
   UpdatePasswordDTOFactory,
   ValidationObjectFactory,
-} from '@auth/infrastructure/helpers/tests/dtos-mocks';
+} from '@auth/infrastructure/helpers/tests/dtos-factory';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 
 describe('UpdatePasswordDTO', () => {

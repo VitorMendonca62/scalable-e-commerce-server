@@ -4,11 +4,10 @@ vi.mock('uuid', () => {
 
 // Mocks
 import {
-  mockUser,
-  mockUserModel,
-  mockLoginUser,
-  mockGoogleLogin,
-} from '@auth/infrastructure/helpers/tests/user-mocks';
+  GoogleUserFactory,
+  LoginUserFactory,
+  UserFactory,
+} from '@auth/infrastructure/helpers/tests/user-factory';
 import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 
 // Dependences
@@ -22,7 +21,6 @@ import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 // Function
 import { CreateSessionUseCase } from './create-session.usecase';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
-import { defaultGoogleRoles } from '@auth/domain/constants/roles';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { v7 } from 'uuid';
 
@@ -65,7 +63,7 @@ describe('CreateSessionUseCase', () => {
     );
   });
 
-  const userModel = mockUserModel();
+  const userModel = new UserFactory().likeModel();
 
   const generateAccessAndRefreshTokenResult = {
     accessToken: 'TOKEN',
@@ -81,13 +79,13 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = mockUser();
-    const userLogin = mockLoginUser();
+    const userEntity = new UserFactory().likeEntity();
+    const loginUserEntity = new LoginUserFactory().likeEntity();
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
-      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue(user);
-      vi.spyOn(user.password, 'comparePassword').mockReturnValue(true);
+      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue(userEntity);
+      vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(true);
 
       vi.spyOn(
         useCase as any,
@@ -96,25 +94,25 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should use case call functions with correct parameters', async () => {
-      await useCase.execute(userLogin);
+      await useCase.execute(loginUserEntity);
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
-        email: userLogin.email.getValue(),
+        email: loginUserEntity.email.getValue(),
       });
 
       expect(userMapper.jsonToUser).toHaveBeenCalledWith(userModel);
 
-      expect(user.password.comparePassword).toHaveBeenCalledWith(
-        userLogin.password.getValue(),
+      expect(userEntity.password.comparePassword).toHaveBeenCalledWith(
+        loginUserEntity.password.getValue(),
       );
 
       expect(
         (useCase as any).generateAccessAndRefreshToken,
-      ).toHaveBeenCalledWith(userModel, userLogin.ip);
+      ).toHaveBeenCalledWith(userModel, loginUserEntity.ip);
     });
 
     it('should return what generateAccessAndRefreshToken returns', async () => {
-      const result = await useCase.execute(userLogin);
+      const result = await useCase.execute(loginUserEntity);
 
       expect(result).toEqual(generateAccessAndRefreshTokenResult);
     });
@@ -123,7 +121,7 @@ describe('CreateSessionUseCase', () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
       try {
-        await useCase.execute(userLogin);
+        await useCase.execute(loginUserEntity);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
@@ -135,10 +133,10 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw WrongCredentials if password is incorrect', async () => {
-      vi.spyOn(user.password, 'comparePassword').mockReturnValue(false);
+      vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(false);
 
       try {
-        await useCase.execute(userLogin);
+        await useCase.execute(loginUserEntity);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
@@ -151,12 +149,12 @@ describe('CreateSessionUseCase', () => {
 
     it('should throw WrongCredentials if user is not active', async () => {
       vi.spyOn(userMapper, 'jsonToUser').mockReturnValue({
-        ...user,
+        ...userEntity,
         active: false,
       });
 
       try {
-        await useCase.execute(userLogin);
+        await useCase.execute(loginUserEntity);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(WrongCredentials);
@@ -169,22 +167,19 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('executeWithGoogle', () => {
-    const googleUser = mockUserModel({
-      password: undefined,
-      phoneNumber: undefined,
-      roles: defaultGoogleRoles,
-      accountProvider: AccountsProvider.GOOGLE,
-      accountProviderID: `google-${IDConstants.EXEMPLE}`,
-    });
-    const userGoogleLogin = mockGoogleLogin();
-    const defautlUser = mockUserModel();
+    const userModelFactory: UserFactory = new UserFactory();
+    const googleUserFactory: GoogleUserFactory = new GoogleUserFactory();
+
+    const googleUserModel = googleUserFactory.likeModel();
+    const defautlUserModel = userModelFactory.likeModel();
+    const userGoogleLogin = new GoogleUserFactory().likeEntity();
 
     beforeEach(() => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUser);
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUserModel);
       vi.spyOn(userRepository, 'create').mockResolvedValue(undefined);
       vi.spyOn(userRepository, 'update').mockResolvedValue(undefined);
       vi.spyOn(userMapper, 'googleUserCreateForJSON').mockReturnValue(
-        googleUser,
+        googleUserModel,
       );
 
       vi.spyOn(
@@ -215,7 +210,7 @@ describe('CreateSessionUseCase', () => {
 
       it('should no call userRepository.update when account provider not is default', async () => {
         vi.spyOn(userRepository, 'findOne').mockResolvedValue({
-          ...defautlUser,
+          ...defautlUserModel,
           accountProvider: AccountsProvider.GOOGLE,
           accountProviderID: `google-${IDConstants.EXEMPLE}`,
         });
@@ -234,7 +229,7 @@ describe('CreateSessionUseCase', () => {
 
       it('should throw WrongCredentials if user is not active', async () => {
         vi.spyOn(userRepository, 'findOne').mockResolvedValue({
-          ...defautlUser,
+          ...defautlUserModel,
           active: false,
         });
 
@@ -254,7 +249,7 @@ describe('CreateSessionUseCase', () => {
     describe('is new user', () => {
       beforeEach(() => {
         vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-        vi.spyOn(userRepository, 'create').mockResolvedValue(googleUser);
+        vi.spyOn(userRepository, 'create').mockResolvedValue(googleUserModel);
       });
 
       it('should use case call functions with correct parameters', async () => {
@@ -269,20 +264,20 @@ describe('CreateSessionUseCase', () => {
           IDConstants.EXEMPLE,
         );
 
-        expect(userRepository.create).toHaveBeenCalledWith(googleUser);
+        expect(userRepository.create).toHaveBeenCalledWith(googleUserModel);
 
         expect(userRepository.update).not.toHaveBeenCalled();
 
         expect(
           (useCase as any).generateAccessAndRefreshToken,
-        ).toHaveBeenCalledWith(googleUser, userGoogleLogin.ip);
+        ).toHaveBeenCalledWith(googleUserModel, userGoogleLogin.ip);
       });
 
       it('should return accessToken and refreshToken in result and newUser', async () => {
         const result = await useCase.executeWithGoogle(userGoogleLogin);
 
         expect(result.result).toEqual(generateAccessAndRefreshTokenResult);
-        expect(result.newUser).toEqual(googleUser);
+        expect(result.newUser).toEqual(googleUserModel);
       });
     });
   });
