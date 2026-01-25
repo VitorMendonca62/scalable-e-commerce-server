@@ -29,6 +29,7 @@ export class UserMapper {
       avatar: undefined,
       roles: defaultRoles,
       createdAt: dateNow,
+      addresses: [],
       updatedAt: dateNow,
     });
   }
@@ -72,6 +73,7 @@ export class UserMapper {
       avatar: user.avatar?.getValue(),
       phoneNumber: user.phoneNumber?.getValue(),
       roles: user.roles,
+      addresses: user.addresses,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };

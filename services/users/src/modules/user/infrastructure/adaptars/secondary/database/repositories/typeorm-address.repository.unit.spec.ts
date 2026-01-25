@@ -6,6 +6,8 @@ import { Repository } from 'typeorm';
 import AddressModel from '../models/address.model';
 import TypeOrmAddressRepository from './typeorm-address.repository';
 import { AddressFactory } from '@modules/user/infrastructure/helpers/address/factory';
+import { UserFactory } from '@modules/user/infrastructure/helpers/users/factory';
+import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
 
 describe('TypeOrmAddressRepository', () => {
   let repository: TypeOrmAddressRepository;
@@ -14,7 +16,9 @@ describe('TypeOrmAddressRepository', () => {
   beforeEach(() => {
     addressRepository = {
       save: vi.fn(),
-      findBy: vi.fn(),
+      create: vi.fn(),
+      find: vi.fn(),
+      count: vi.fn(),
       delete: vi.fn(),
     } as any;
 
@@ -27,32 +31,55 @@ describe('TypeOrmAddressRepository', () => {
   });
 
   describe('addAddress', () => {
-    const address = AddressFactory.createModel();
+    const address = AddressFactory.createModel({ user: undefined });
+    const userID = IDConstants.EXEMPLE;
+
+    it('should call create with correct parameters', async () => {
+      await repository.addAddress(userID, address);
+
+      expect(addressRepository.create).toHaveBeenCalledWith({
+        ...address,
+        user: { userID },
+      });
+    });
 
     it('should call save with correct parameters', async () => {
-      await repository.addAddress(address);
+      const addressCreated = AddressFactory.createModel();
 
-      expect(addressRepository.save).toHaveBeenCalledWith(address);
+      vi.spyOn(addressRepository, 'create').mockReturnValue(addressCreated);
+      await repository.addAddress(userID, address);
+
+      expect(addressRepository.save).toHaveBeenCalledWith(addressCreated);
     });
   });
 
   describe('getAll', () => {
     const userID = 'user-123';
     const addresses: AddressModel[] = [
-      AddressFactory.createModel({ id: 1, userID: 'id.id' }),
+      AddressFactory.createModel({
+        id: 1,
+        user: { id: 132, ...UserFactory.createModel() },
+      }),
       AddressFactory.createModel({ id: 2 }),
     ];
 
-    it('should call findBy with correct parameters', async () => {
-      vi.spyOn(addressRepository, 'findBy').mockResolvedValue(addresses);
+    it('should call find with correct parameters', async () => {
+      vi.spyOn(addressRepository, 'find').mockResolvedValue(addresses);
 
       await repository.getAll(userID);
 
-      expect(addressRepository.findBy).toHaveBeenCalledWith({ userID });
+      expect(addressRepository.find).toHaveBeenCalledWith({
+        where: {
+          user: {
+            userID: userID,
+          },
+        },
+        order: { createdAt: 'ASC' },
+      });
     });
 
     it('should return all addresses for the user', async () => {
-      vi.spyOn(addressRepository, 'findBy').mockResolvedValue(addresses);
+      vi.spyOn(addressRepository, 'find').mockResolvedValue(addresses);
 
       const result = await repository.getAll(userID);
 
@@ -62,29 +89,31 @@ describe('TypeOrmAddressRepository', () => {
 
   describe('countAddresses', () => {
     const userID = 'user-123';
-    const addresses: AddressModel[] = [
-      AddressFactory.createModel({ id: 1, userID: 'id.id' }),
-      AddressFactory.createModel({ id: 2 }),
-    ];
 
-    it('should call findBy with correct parameters', async () => {
-      vi.spyOn(addressRepository, 'findBy').mockResolvedValue(addresses);
+    it('should call count with correct parameters', async () => {
+      vi.spyOn(addressRepository, 'count').mockResolvedValue(2);
 
       await repository.countAddresses(userID);
 
-      expect(addressRepository.findBy).toHaveBeenCalledWith({ userID });
+      expect(addressRepository.count).toHaveBeenCalledWith({
+        where: {
+          user: {
+            userID,
+          },
+        },
+      });
     });
 
     it('should return the correct count of addresses', async () => {
-      vi.spyOn(addressRepository, 'findBy').mockResolvedValue(addresses);
+      vi.spyOn(addressRepository, 'count').mockResolvedValue(4);
 
       const result = await repository.countAddresses(userID);
 
-      expect(result).toBe(2);
+      expect(result).toBe(4);
     });
 
     it('should return zero when user has no addresses', async () => {
-      vi.spyOn(addressRepository, 'findBy').mockResolvedValue([]);
+      vi.spyOn(addressRepository, 'count').mockResolvedValue(0);
 
       const result = await repository.countAddresses(userID);
 

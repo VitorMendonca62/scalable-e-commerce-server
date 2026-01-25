@@ -1,13 +1,22 @@
 import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  CreateDateColumn,
+} from 'typeorm';
+import UserModel from './user.model';
 
 @Entity('addresses')
 export default class AddressModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ name: 'user_id' })
-  userID: string;
+  @ManyToOne(() => UserModel, (user) => user.addresses, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id', referencedColumnName: 'userID' })
+  user: UserModel;
 
   @Column()
   street: string;
@@ -32,4 +41,7 @@ export default class AddressModel {
 
   @Column()
   country: string;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 }

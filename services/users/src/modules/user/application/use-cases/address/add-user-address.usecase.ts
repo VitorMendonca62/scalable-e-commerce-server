@@ -16,11 +16,11 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
   ) {}
 
   async execute(newAddress: AddressEntity): Promise<ExecuteReturn> {
-    if (
-      (await this.addressRepositoy.countAddresses(
-        newAddress.userID.getValue(),
-      )) >= 3
-    ) {
+    const addressesCount = await this.addressRepositoy.countAddresses(
+      newAddress.userID.getValue(),
+    );
+
+    if (addressesCount >= 3) {
       return {
         ok: false,
         message:
@@ -28,9 +28,20 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
         reason: ApplicationResultReasons.BUSINESS_RULE_FAILURE,
       };
     }
-    await this.addressRepositoy.addAddress(
-      this.addressMapper.entityForModel(newAddress),
-    );
+
+    try {
+      await this.addressRepositoy.addAddress(
+        newAddress.userID.getValue(),
+        this.addressMapper.entityForModel(newAddress),
+      );
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+      return {
+        ok: false,
+        message: 'Não foi possivel adicionar o endereço',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      };
+    }
 
     return { ok: true };
   }

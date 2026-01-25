@@ -53,7 +53,10 @@ describe('AddUserAddressUseCase', () => {
     it('should call addressRepositoy.addAddress with correct parameters', async () => {
       await useCase.execute(newAddress);
 
-      expect(addressRepositoy.addAddress).toHaveBeenCalledWith(addressModel);
+      expect(addressRepositoy.addAddress).toHaveBeenCalledWith(
+        newAddress.userID.getValue(),
+        addressModel,
+      );
     });
 
     it('should return ok on sucess', async () => {
@@ -88,19 +91,17 @@ describe('AddUserAddressUseCase', () => {
       }
     });
 
-    it('should rethrow error if addressRepositoy.addAddress throw error', async () => {
+    it('should return NOT_POSSIBLE error if addressRepositoy.addAddress throw error', async () => {
       vi.spyOn(addressRepositoy, 'addAddress').mockRejectedValue(
         new Error('Error'),
       );
 
-      try {
-        await useCase.execute(newAddress);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(newAddress);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel adicionar o endereço',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
     it('should rethrow error if addressMapper.entityForModel throw error', async () => {

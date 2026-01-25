@@ -25,6 +25,7 @@ import {
   AvatarVO,
   EmailVO,
 } from '@modules/user/domain/values-objects/user/values-object';
+import { AddressFactory } from '../address/factory';
 
 export class UserDTOFactory {
   static createCreateUserDTO(
@@ -138,22 +139,19 @@ export class UserDTOFactory {
 
 export class UserFactory {
   static createEntity(overrides: Partial<UserEntity> = {}): UserEntity {
-    const data = {
+    return new UserEntity({
       userID: new IDVO(IDConstants.EXEMPLE),
       email: new EmailVO(EmailConstants.EXEMPLE),
       name: new NameVO(NameConstants.EXEMPLE),
       username: new UsernameVO(UsernameConstants.EXEMPLE),
       phoneNumber: new PhoneNumberVO(PhoneNumberConstants.EXEMPLE),
-      active: true,
-      email_verified: false,
-      phone_verified: false,
       avatar: new AvatarVO(AvatarConstants.EXEMPLE),
       roles: defaultRoles,
+      addresses: [],
       createdAt: new Date(),
       updatedAt: new Date(),
       ...overrides,
-    };
-    return new UserEntity(data);
+    });
   }
 
   static createModel(
@@ -170,6 +168,7 @@ export class UserFactory {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
+      addresses: [AddressFactory.createModel()],
       ...overrides,
     };
   }

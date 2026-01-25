@@ -33,7 +33,7 @@ export class AddressMapper {
     });
   }
 
-  entityForModel(entity: AddressEntity): Omit<AddressModel, 'id'> {
+  entityForModel(entity: AddressEntity): Omit<AddressModel, 'id' | 'user'> {
     return {
       city: entity.city.getValue(),
       complement: entity.complement.getValue(),
@@ -43,7 +43,7 @@ export class AddressMapper {
       country: entity.country.getValue(),
       state: entity.state.getValue(),
       street: entity.street.getValue(),
-      userID: entity.userID.getValue(),
+      createdAt: entity.createdAt,
     };
   }
 }

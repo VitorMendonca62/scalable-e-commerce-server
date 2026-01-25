@@ -11,16 +11,37 @@ export default class TypeOrmAddressRepository implements AddressRepository {
     private addressRepository: Repository<AddressModel>,
   ) {}
 
-  async addAddress(address: Omit<AddressModel, 'id'>): Promise<void> {
+  async addAddress(
+    userID: string,
+    addressData: Omit<AddressModel, 'id' | 'user'>,
+  ): Promise<void> {
+    const address = this.addressRepository.create({
+      ...addressData,
+      user: { userID },
+    });
+
     await this.addressRepository.save(address);
   }
 
   async getAll(userID: string): Promise<AddressModel[]> {
-    return await this.addressRepository.findBy({ userID });
+    return await this.addressRepository.find({
+      where: {
+        user: {
+          userID: userID,
+        },
+      },
+      order: { createdAt: 'ASC' },
+    });
   }
 
   async countAddresses(userID: string): Promise<number> {
-    return (await this.addressRepository.findBy({ userID })).length;
+    return await this.addressRepository.count({
+      where: {
+        user: {
+          userID,
+        },
+      },
+    });
   }
 
   async delete(addressIndex: number): Promise<void> {

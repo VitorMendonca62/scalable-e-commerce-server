@@ -43,6 +43,7 @@ import { configRedisdDB } from '@config/database/redis.config';
           database: configService.get('POSTGRES_DB'),
           entities: [UserModel, AddressModel],
           synchronize: true,
+          logging: true,
         };
       },
       inject: [ConfigService],

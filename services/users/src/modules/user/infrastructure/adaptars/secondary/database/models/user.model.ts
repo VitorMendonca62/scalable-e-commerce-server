@@ -4,10 +4,12 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { v7 } from 'uuid';
+import AddressModel from './address.model';
 
 @Entity('users')
 export default class UserModel {
@@ -36,6 +38,9 @@ export default class UserModel {
     type: 'simple-array',
   })
   roles: PermissionsSystem[];
+
+  @OneToMany(() => AddressModel, (address) => address.user)
+  addresses: AddressModel[];
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

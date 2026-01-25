@@ -225,6 +225,7 @@ describe('UserMapper', () => {
         roles: userEntity.roles,
         createdAt: userEntity.createdAt,
         updatedAt: userEntity.updatedAt,
+        addresses: userEntity.addresses,
       });
     });
   });

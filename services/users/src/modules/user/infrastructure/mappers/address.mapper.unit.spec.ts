@@ -106,7 +106,7 @@ describe('AddressMapper', () => {
       expect(result).toHaveProperty('country');
       expect(result).toHaveProperty('state');
       expect(result).toHaveProperty('street');
-      expect(result).toHaveProperty('userID');
+      expect(result).toHaveProperty('createdAt');
     });
 
     it('should preserve primitive types', () => {
@@ -120,7 +120,7 @@ describe('AddressMapper', () => {
       expect(typeof result.country).toBe('string');
       expect(typeof result.state).toBe('string');
       expect(typeof result.street).toBe('string');
-      expect(typeof result.userID).toBe('string');
+      expect(typeof result.createdAt).toBe('object');
     });
 
     it('should return correct values', () => {
@@ -134,7 +134,7 @@ describe('AddressMapper', () => {
       expect(result.country).toBe(address.country.getValue());
       expect(result.state).toBe(address.state.getValue());
       expect(result.street).toBe(address.street.getValue());
-      expect(result.userID).toBe(address.userID.getValue());
+      expect(result.createdAt).toBe(address.createdAt);
     });
   });
 });

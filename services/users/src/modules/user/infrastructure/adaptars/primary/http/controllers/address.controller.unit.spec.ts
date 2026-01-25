@@ -105,11 +105,29 @@ describe('AddressController', () => {
       });
     });
 
-    it('should return BusinessRuleFailure if use case result is not ok', async () => {
+    it('should return BusinessRuleFailure if use case result is not ok and reason is BUSINESS_RULE_FAILURE', async () => {
       vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue({
         ok: false,
         message: 'any',
         reason: ApplicationResultReasons.BUSINESS_RULE_FAILURE,
+      });
+
+      const result = await controller.addAddress(dto, userID, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(BusinessRuleFailure);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'any',
+        data: undefined,
+      });
+    });
+
+    it('should return BusinessRuleFailure if use case result is not ok and reason is NOT_POSSIBLE', async () => {
+      vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
       });
 
       const result = await controller.addAddress(dto, userID, response);

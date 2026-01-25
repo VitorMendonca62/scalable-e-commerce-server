@@ -5,7 +5,9 @@ export interface AddUserAddressPort {
   execute: (newAddress: AddressEntity) => Promise<ExecuteReturn>;
 }
 
-type ExecuteResultReasons = ApplicationResultReasons.BUSINESS_RULE_FAILURE;
+type ExecuteResultReasons =
+  | ApplicationResultReasons.BUSINESS_RULE_FAILURE
+  | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteReturn =
   | {
