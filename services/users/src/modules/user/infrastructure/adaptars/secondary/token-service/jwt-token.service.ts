@@ -18,6 +18,7 @@ export class JwtTokenService implements TokenService {
       type: 'signup' as const,
     };
 
+    //  TODO VERIFICAR ESSE ANY
     return this.jwtService.sign(payload as any, {
       expiresIn: '10m',
       privateKey: fs.readFileSync(

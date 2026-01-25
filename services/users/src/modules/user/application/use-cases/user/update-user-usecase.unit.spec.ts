@@ -87,6 +87,20 @@ describe('UpdateUserUseCase', () => {
       });
     });
 
+    it('should return ok on sucess with username', async () => {
+      const userUpdate = UserUpdateFactory.createEntity();
+      const userUpdateModel = UserUpdateFactory.createModel();
+
+      vi.spyOn(userMapper, 'updateEntityForObject').mockReturnValue(
+        userUpdateModel,
+      );
+      const result = await useCase.execute(userID, userUpdate);
+
+      expect(result).toEqual({
+        ok: true,
+      });
+    });
+
     it('should return ERROR_ALREADY_EXISTS with username if usersame is in use', async () => {
       vi.spyOn(userRepository, 'findOneWithOR').mockResolvedValue(
         UserFactory.createModel(),

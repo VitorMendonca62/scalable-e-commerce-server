@@ -1,11 +1,10 @@
 import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
 import { ValidationObjectFactory } from '@modules/user/infrastructure/helpers/dto-helper';
 import { UserDTOFactory } from '@modules/user/infrastructure/helpers/users/factory';
-import { ValidateEmailDTO } from './validate-email.dto';
 
 describe('ValidateCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {
-    const dto = new ValidateEmailDTO();
+    const dto = UserDTOFactory.createValidateEmailDTOLikeInstance();
     dto.email = EmailConstants.EXEMPLE;
 
     const errors = await ValidationObjectFactory.validateObject(dto);
