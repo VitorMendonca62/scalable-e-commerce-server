@@ -337,12 +337,21 @@ describe('UserController', () => {
       });
     });
 
-    it('should call getUserUseCase.execute', async () => {
+    it('should call getUserUseCase.execute if identifier is not uuid', async () => {
       await controller.findOne(identifier, response);
 
       expect(getUserUseCase.execute).toHaveBeenCalledWith(
         identifier,
         'username',
+      );
+    });
+
+    it('should call getUserUseCase.execute if identifier is uuid', async () => {
+      await controller.findOne(IDConstants.EXEMPLE, response);
+
+      expect(getUserUseCase.execute).toHaveBeenCalledWith(
+        IDConstants.EXEMPLE,
+        'userID',
       );
     });
 
