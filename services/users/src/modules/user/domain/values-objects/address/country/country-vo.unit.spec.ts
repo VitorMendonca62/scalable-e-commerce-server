@@ -1,10 +1,10 @@
-import CityConstants from './city-constants';
+import CountryConstants from './country-constants';
 
-import CityVO from './city-vo';
+import CountryVO from './country-vo';
 
-describe('CityVO', () => {
-  const constants = CityConstants;
-  const valueObject = CityVO;
+describe('CountryVO', () => {
+  const constants = CountryConstants;
+  const valueObject = CountryVO;
 
   it('should store a value', () => {
     const valueObjectResult = new valueObject(constants.EXEMPLE);

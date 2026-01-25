@@ -1,10 +1,9 @@
-import CityConstants from './city-constants';
+import AvatarConstants from './avatar-constants';
+import AvatarVO from './avatar-vo';
 
-import CityVO from './city-vo';
-
-describe('CityVO', () => {
-  const constants = CityConstants;
-  const valueObject = CityVO;
+describe('AvatarVO', () => {
+  const constants = AvatarConstants;
+  const valueObject = AvatarVO;
 
   it('should store a value', () => {
     const valueObjectResult = new valueObject(constants.EXEMPLE);

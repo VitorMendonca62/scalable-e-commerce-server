@@ -1,10 +1,10 @@
-import CityConstants from './city-constants';
+import NumberConstants from './number-constants';
 
-import CityVO from './city-vo';
+import NumberVO from './number-vo';
 
-describe('CityVO', () => {
-  const constants = CityConstants;
-  const valueObject = CityVO;
+describe('NumberVO', () => {
+  const constants = NumberConstants;
+  const valueObject = NumberVO;
 
   it('should store a value', () => {
     const valueObjectResult = new valueObject(constants.EXEMPLE);

@@ -1,10 +1,10 @@
-import CityConstants from './city-constants';
+import ComplementConstants from './complement-constants';
 
-import CityVO from './city-vo';
+import ComplementVO from './complement-vo';
 
-describe('CityVO', () => {
-  const constants = CityConstants;
-  const valueObject = CityVO;
+describe('ComplementVO', () => {
+  const constants = ComplementConstants;
+  const valueObject = ComplementVO;
 
   it('should store a value', () => {
     const valueObjectResult = new valueObject(constants.EXEMPLE);

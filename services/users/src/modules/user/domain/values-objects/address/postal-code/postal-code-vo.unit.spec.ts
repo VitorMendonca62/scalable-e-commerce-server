@@ -1,10 +1,10 @@
-import CityConstants from './city-constants';
+import PostalCodeConstants from './postal-code-constants';
 
-import CityVO from './city-vo';
+import PostalCodeVO from './postal-code-vo';
 
-describe('CityVO', () => {
-  const constants = CityConstants;
-  const valueObject = CityVO;
+describe('PostalCodeVO', () => {
+  const constants = PostalCodeConstants;
+  const valueObject = PostalCodeVO;
 
   it('should store a value', () => {
     const valueObjectResult = new valueObject(constants.EXEMPLE);
