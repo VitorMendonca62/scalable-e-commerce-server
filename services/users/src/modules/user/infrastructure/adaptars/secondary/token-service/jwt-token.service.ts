@@ -18,7 +18,7 @@ export class JwtTokenService implements TokenService {
       type: 'signup' as const,
     };
 
-    return this.jwtService.sign(payload, {
+    return this.jwtService.sign(payload as any, {
       expiresIn: '10m',
       privateKey: fs.readFileSync(
         path.join(process.cwd(), `certs/sign-up-private.pem`),
