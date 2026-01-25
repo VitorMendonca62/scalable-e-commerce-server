@@ -7,13 +7,7 @@ import {
   MinLength,
 } from 'class-validator';
 
-export function Password(isStrongPassword: boolean) {
-  const decorators = [];
-
-  if (isStrongPassword) {
-    decorators.push();
-  }
-
+export function Password() {
   return applyDecorators(
     IsNotEmpty({
       message: PasswordConstants.ERROR_REQUIRED,

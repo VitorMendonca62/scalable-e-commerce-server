@@ -18,7 +18,7 @@ export class CreateUserDTO {
   @ApiUsername()
   username: string;
 
-  @Password(true)
+  @Password()
   @ApiPassword()
   password: string;
 
