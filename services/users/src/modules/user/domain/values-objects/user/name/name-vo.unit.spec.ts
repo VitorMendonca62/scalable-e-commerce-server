@@ -1,8 +1,6 @@
 import NameConstants from './name-constants';
 import NameVO from './name-vo';
 
-vi.unmock('@auth/domain/values-objects/name/name-vo');
-
 describe('NameVO', () => {
   const constants = NameConstants;
   const valueObject = NameVO;

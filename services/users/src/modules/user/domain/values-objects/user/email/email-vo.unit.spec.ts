@@ -1,8 +1,6 @@
 import EmailConstants from './email-constants';
 import EmailVO from './email-vo';
 
-vi.unmock('@auth/domain/values-objects/email/email-vo');
-
 describe('EmailVO', () => {
   const constants = EmailConstants;
   const valueObject = EmailVO;

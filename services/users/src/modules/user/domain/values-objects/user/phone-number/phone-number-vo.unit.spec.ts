@@ -2,8 +2,6 @@ import PhoneNumberConstants from './phone-number-constants';
 
 import PhoneNumberVO from './phone-number-vo';
 
-vi.unmock('@auth/domain/values-objects/phone-number/phone-number-vo');
-
 describe('PhoneNumberVO', () => {
   const constants = PhoneNumberConstants;
   const valueObject = PhoneNumberVO;
