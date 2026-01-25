@@ -1,5 +1,7 @@
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
+import {
+  EmailConstants,
+  PasswordConstants,
+} from '@auth/domain/values-objects/constants';
 import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 import { LoginUserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 

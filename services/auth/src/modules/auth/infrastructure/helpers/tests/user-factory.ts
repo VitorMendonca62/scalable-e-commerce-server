@@ -1,21 +1,23 @@
-import { AccountsProvider } from '@auth/domain/types/accounts-provider';
+import { defaultRoles, defaultGoogleRoles } from '@auth/domain/constants/roles';
+import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserEntity } from '@auth/domain/entities/user.entity';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import EmailVO from '@auth/domain/values-objects/email/email-vo';
-import IDVO from '@auth/domain/values-objects/id/id-vo';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import PasswordVO from '@auth/domain/values-objects/password/password-vo';
-import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
-import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
+import { AccountsProvider } from '@auth/domain/types/accounts-provider';
+import {
+  EmailVO,
+  IDVO,
+  PasswordHashedVO,
+  PasswordVO,
+} from '@auth/domain/values-objects';
+import {
+  EmailConstants,
+  IDConstants,
+  PasswordConstants,
+  PasswordHashedConstants,
+} from '@auth/domain/values-objects/constants';
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
-import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
-import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
-import { defaultGoogleRoles, defaultRoles } from '@auth/domain/constants/roles';
-import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { PasswordHasherFactory } from './password-factory';
-import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 export class UserFactory {
   likeModel(overrides: Partial<UserModel> = {}): UserModel {
@@ -23,7 +25,6 @@ export class UserFactory {
       userID: IDConstants.EXEMPLE,
       email: EmailConstants.EXEMPLE,
       password: PasswordHashedConstants.EXEMPLE,
-      phoneNumber: PhoneNumberConstants.EXEMPLE,
       roles: defaultRoles,
       createdAt: new Date('2025-02-16T17:21:05.370Z'),
       updatedAt: new Date('2025-02-16T17:21:05.370Z'),
@@ -44,7 +45,6 @@ export class UserFactory {
         userModel.password,
         new PasswordHasherFactory().default(),
       ),
-      phoneNumber: new PhoneNumberVO(userModel.phoneNumber),
       roles: defaultRoles,
       createdAt: new Date('2025-02-16T17:21:05.370Z'),
       updatedAt: new Date('2025-02-16T17:21:05.370Z'),
@@ -94,7 +94,6 @@ export class GoogleUserFactory {
   likeModel(overrides: Partial<UserModel> = {}): UserModel {
     return new UserFactory().likeModel({
       password: undefined,
-      phoneNumber: undefined,
       roles: defaultGoogleRoles,
       accountProvider: AccountsProvider.GOOGLE,
       accountProviderID: `google-${IDConstants.EXEMPLE}`,

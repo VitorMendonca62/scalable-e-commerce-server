@@ -1,9 +1,9 @@
 import PasswordHashedVO from './password-hashed-vo';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { PasswordHashedConstants } from './password-hashed-constants';
-import { PasswordConstants } from '../password/password-constants';
+
 import { type Mock } from 'vitest';
 import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
+import { PasswordConstants, PasswordHashedConstants } from '../constants';
 vi.unmock('@auth/domain/values-objects/password-hashed/password-hashed-vo');
 
 describe('PasswordHashedVO', () => {

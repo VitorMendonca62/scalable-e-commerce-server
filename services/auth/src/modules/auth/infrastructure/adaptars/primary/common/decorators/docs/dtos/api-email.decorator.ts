@@ -1,4 +1,4 @@
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

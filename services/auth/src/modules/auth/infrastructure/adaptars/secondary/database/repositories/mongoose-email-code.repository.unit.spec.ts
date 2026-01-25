@@ -1,5 +1,5 @@
 import MongooseEmailCodeRepository from './mongoose-email-code.repository';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { EmailCodeDocument } from '../models/email-code.model';
 import { Model } from 'mongoose';
 import { type Mock } from 'vitest';

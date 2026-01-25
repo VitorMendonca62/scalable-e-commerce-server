@@ -1,6 +1,6 @@
+import { PasswordConstants } from '@auth/domain/values-objects/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 
 export function ApiPassword(required: boolean) {
   return applyDecorators(

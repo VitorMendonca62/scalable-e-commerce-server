@@ -17,9 +17,6 @@ export class UserModel {
   @Prop({ type: String })
   password: string | null | undefined;
 
-  @Prop({ type: String })
-  phoneNumber: string | null | undefined;
-
   @Prop({
     required: true,
     type: [String],

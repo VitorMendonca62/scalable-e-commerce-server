@@ -1,4 +1,4 @@
-export class PasswordConstants {
+export default class PasswordConstants {
   static readonly DESCRIPTION =
     'A senha, que será criptografada assim que entra no sistema é utilizada para entrar no sistema. Ela deve conter um caracter especial, um número uma letra maiúscula e outra minúscula.';
 

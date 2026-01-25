@@ -1,12 +1,13 @@
-import { MongooseUserRepository } from './mongoose-user.repository';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import IDConstants from '@auth/domain/values-objects/id/id-constants';
-import { Model } from 'mongoose';
-import { UserDocument } from '../models/user.model';
-import { type Mock } from 'vitest';
+import {
+  EmailConstants,
+  IDConstants,
+  PasswordConstants,
+} from '@auth/domain/values-objects/constants';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
+import { Model } from 'mongoose';
+import { type Mock } from 'vitest';
+import { UserDocument } from '../models/user.model';
+import { MongooseUserRepository } from './mongoose-user.repository';
 
 describe('MongooseUserRepository', () => {
   let repository: MongooseUserRepository;
@@ -49,7 +50,6 @@ describe('MongooseUserRepository', () => {
     it('should return user with many fields', async () => {
       const response = await repository.findOne({
         email: EmailConstants.EXEMPLE,
-        phoneNumber: PhoneNumberConstants.EXEMPLE,
       });
 
       expect(userModel.findOne).toHaveBeenCalled();

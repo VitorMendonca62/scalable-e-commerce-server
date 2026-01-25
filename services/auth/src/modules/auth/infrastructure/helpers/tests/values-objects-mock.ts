@@ -1,9 +1,10 @@
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import IDConstants from '@auth/domain/values-objects/id/id-constants';
-import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
+import {
+  EmailConstants,
+  IDConstants,
+  PasswordConstants,
+  PasswordHashedConstants,
+} from '@auth/domain/values-objects/constants';
 import { type Mock } from 'vitest';
 
 // Mock Email
@@ -84,21 +85,4 @@ class MockID {
 
 vi.mock('@auth/domain/values-objects/id/id-vo', () => ({
   default: MockID,
-}));
-
-// Mock PhoneNumber
-
-export const mockPhoneNumberConstructor: Mock = vi.fn();
-export const mockPhoneNumberGetValue: Mock = vi
-  .fn()
-  .mockReturnValue(PhoneNumberConstants.EXEMPLE);
-class MockPhoneNumber {
-  constructor(value: string) {
-    mockPhoneNumberConstructor(value);
-  }
-  getValue = mockPhoneNumberGetValue;
-}
-
-vi.mock('@auth/domain/values-objects/phone-number/phone-number-vo', () => ({
-  default: MockPhoneNumber,
 }));

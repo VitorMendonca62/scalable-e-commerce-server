@@ -1,4 +1,4 @@
-export class PasswordHashedConstants {
+export default class PasswordHashedConstants {
   static readonly DESCRIPTION =
     'A senha criptografada para ser salva no sistema e servir como credencial para a entrada do usuário\.';
 

@@ -1,9 +1,8 @@
 import { ClientProxy } from '@nestjs/microservices';
-import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { UsersQueueService } from './users-queue.service';
 import { defaultRoles } from '@auth/domain/constants/roles';
 import { type Mocked } from 'vitest';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 
 describe('UsersQueueService', () => {
   let service: UsersQueueService;
@@ -28,7 +27,6 @@ describe('UsersQueueService', () => {
         userID: '1',
         roles: defaultRoles,
         email: EmailConstants.EXEMPLE,
-        phonenumber: PhoneNumberConstants.EXEMPLE,
       };
       const event = 'user-created';
 

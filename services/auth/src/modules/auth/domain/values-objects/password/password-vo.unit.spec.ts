@@ -1,16 +1,15 @@
 vi.unmock('@auth/domain/values-objects/password/password-vo');
-import PasswordValidator from './password-validator';
 import PasswordVO from './password-vo';
-import { PasswordConstants } from './password-constants';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
-import { PasswordHashedConstants } from '../password-hashed/password-hashed-constants';
 import { type Mock } from 'vitest';
+import PasswordConstants from './password-constants';
+import { PasswordHashedConstants } from '../constants';
+import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
+
 describe('PasswordVO', () => {
   let passwordHasher: PasswordHasher;
 
   beforeEach(() => {
-    vi.spyOn(PasswordValidator, 'validate').mockReturnValue();
     passwordHasher = new PasswordHasherFactory().default();
   });
 
@@ -33,29 +32,6 @@ describe('PasswordVO', () => {
       );
       expect(passwordHasher.hash).not.toHaveBeenCalled();
       expect(valueObject.getValue()).toBe(PasswordConstants.EXEMPLE);
-    });
-
-    it('should call PasswordValidator.validate with value and if is strong password', () => {
-      new PasswordVO(PasswordConstants.EXEMPLE, true, passwordHasher);
-
-      expect(PasswordValidator.validate).toHaveBeenCalledWith(
-        PasswordConstants.EXEMPLE,
-      );
-    });
-
-    it('should rethrow error if validator throw error', () => {
-      vi.spyOn(PasswordValidator, 'validate').mockImplementation(() => {
-        throw new Error('Error');
-      });
-
-      try {
-        new PasswordVO(PasswordConstants.EXEMPLE, true, passwordHasher);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
     });
   });
 

@@ -1,4 +1,4 @@
-export class EmailConstants {
+export default class EmailConstants {
   static readonly DESCRIPTION =
     'O email serve como identificador único de usuário e utiliza-se para entrar no sistema';
 

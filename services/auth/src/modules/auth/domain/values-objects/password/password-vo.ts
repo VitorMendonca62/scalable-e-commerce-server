@@ -1,4 +1,3 @@
-import PasswordValidator from './password-validator';
 import { ValueObject } from '../value-object';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 
@@ -10,7 +9,6 @@ export default class PasswordVO extends ValueObject<string> {
     canHashPassword: boolean,
     passwordHasher: PasswordHasher,
   ) {
-    PasswordValidator.validate(value);
     super(canHashPassword ? passwordHasher.hash(value) : value);
     this.passwordHasher = passwordHasher;
   }

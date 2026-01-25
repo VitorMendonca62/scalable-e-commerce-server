@@ -1,5 +1,5 @@
 import { ExternalServiceError } from '@auth/domain/ports/primary/http/errors.port';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { MailerService } from '@nestjs-modules/mailer';
 import NodemailerEmailSender from './nodemailer.service';
 

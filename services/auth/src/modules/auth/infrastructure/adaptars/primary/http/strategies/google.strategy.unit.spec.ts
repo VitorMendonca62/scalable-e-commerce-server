@@ -1,4 +1,4 @@
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';

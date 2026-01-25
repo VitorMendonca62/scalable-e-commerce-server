@@ -1,5 +1,5 @@
 import { HttpResponseOutbound } from '@auth/domain/ports/primary/http/sucess.port';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
+import { PasswordConstants } from '@auth/domain/values-objects/constants';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,

@@ -1,9 +1,9 @@
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import {
   UpdatePasswordDTOFactory,
   ValidationObjectFactory,
 } from '@auth/infrastructure/helpers/tests/dtos-factory';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
+import { PasswordConstants } from '@auth/domain/values-objects/constants';
 
 describe('UpdatePasswordDTO', () => {
   let updatePasswordDTOFactory: UpdatePasswordDTOFactory;

@@ -1,4 +1,4 @@
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { EmailCodeModel } from '@auth/infrastructure/adaptars/secondary/database/models/email-code.model';
 
 export class EmailCodeModelFactory {

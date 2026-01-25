@@ -4,7 +4,7 @@ vi.mock('otp-generator', () => {
 
 import * as otpGenerator from 'otp-generator';
 import SendCodeForForgotPasswordUseCase from './send-code-for-forgot-password.usecase';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';

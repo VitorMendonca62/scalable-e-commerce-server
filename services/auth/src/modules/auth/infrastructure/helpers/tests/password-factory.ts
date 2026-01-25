@@ -1,5 +1,5 @@
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
-import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
+import { PasswordHashedConstants } from '@auth/domain/values-objects/constants';
 import { type Mocked } from 'vitest';
 
 export class PasswordHasherFactory {

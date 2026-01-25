@@ -6,12 +6,14 @@ import {
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
-import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
-import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ChangePasswordUseCase } from './change-password.usecase';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import {
+  EmailConstants,
+  PasswordConstants,
+  PasswordHashedConstants,
+} from '@auth/domain/values-objects/constants';
 import {
   mockPasswordConstructor,
   mockPasswordGetValue,

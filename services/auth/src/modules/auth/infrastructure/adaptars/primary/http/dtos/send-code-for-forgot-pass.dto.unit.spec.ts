@@ -1,4 +1,4 @@
-import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
+import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { SendCodeForForgotPasswordDTO } from './send-code-for-forgot-pass.dto';
 import { ValidationObjectFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 
