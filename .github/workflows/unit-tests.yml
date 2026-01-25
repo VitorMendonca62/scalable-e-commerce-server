@@ -30,19 +30,17 @@ jobs:
 
     steps:       
       - name: Checkout Project
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      - name: Setup node
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with: 
-          node-version: 24
-          cache: "npm"
-          cache-dependency-path: auth/package-lock.json  
+          node-version: 20
         
       - name: Install dependencies
         run: npm install
-        working-directory: users
+        working-directory: services/users
 
       - name: Run tests
-        working-directory: users
+        working-directory: services/users
         run: npm run test
