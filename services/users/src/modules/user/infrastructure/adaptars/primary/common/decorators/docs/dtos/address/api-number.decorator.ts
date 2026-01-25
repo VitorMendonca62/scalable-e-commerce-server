@@ -2,7 +2,7 @@ import { NumberConstants } from '@modules/user/domain/values-objects/address/con
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiNumber( ) {
+export function ApiNumber() {
   return applyDecorators(
     ApiProperty({
       description: NumberConstants.DESCRIPTION,

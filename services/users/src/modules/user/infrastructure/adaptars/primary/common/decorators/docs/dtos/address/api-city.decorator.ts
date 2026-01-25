@@ -2,7 +2,7 @@ import { CityConstants } from '@modules/user/domain/values-objects/address/const
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiCity( ) {
+export function ApiCity() {
   return applyDecorators(
     ApiProperty({
       description: CityConstants.DESCRIPTION,

@@ -2,7 +2,7 @@ import { PostalCodeConstants } from '@modules/user/domain/values-objects/address
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 
-export function ApiPostalCode( ) {
+export function ApiPostalCode() {
   return applyDecorators(
     ApiProperty({
       description: PostalCodeConstants.DESCRIPTION,

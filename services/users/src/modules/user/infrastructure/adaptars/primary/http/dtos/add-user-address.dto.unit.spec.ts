@@ -33,14 +33,14 @@ describe('AddUserAddressDTO', () => {
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
       const dto = AddressDTOFactory.createAddUserAddressDTOLikeInstance({
-        [key]: "",
+        [key]: '',
       });
 
       const errors = await validate(dto);
       const fieldError = errors[0];
 
       expect(errors).toHaveLength(1);
-      expect(fieldError.value).toBe("");
+      expect(fieldError.value).toBe('');
       expect(fieldError.property).toBe(key);
       expect(fieldError.constraints.isNotEmpty).toBe(message);
     });
