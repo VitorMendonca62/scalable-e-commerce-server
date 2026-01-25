@@ -16,7 +16,6 @@ import {
   UserUpdateFactory,
 } from '@modules/user/infrastructure/helpers/users/factory';
 import CookieService from '../services/cookie/cookie.service';
-import { MessageBrokerService } from '@modules/user/domain/ports/secondary/message-broker.port';
 import { FastifyReply } from 'fastify';
 import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
 import { Cookies } from '@modules/user/domain/enums/cookies.enum';
@@ -36,13 +35,14 @@ import {
   NotFoundItem,
 } from '@modules/user/domain/ports/primary/http/error.port';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 describe('UserController', () => {
   let controller: UserController;
 
   let userMapper: UserMapper;
   let cookieService: CookieService;
-  let messageBrokerService: MessageBrokerService;
+  let usersQueueService: UsersQueueService;
 
   let validateEmailUseCase: ValidateEmailUseCase;
   let createUserUseCase: CreateUserUseCase;
@@ -62,7 +62,7 @@ describe('UserController', () => {
       setCookie: vi.fn(),
     } as any;
 
-    messageBrokerService = {
+    usersQueueService = {
       send: vi.fn(),
     } as any;
 
@@ -78,7 +78,7 @@ describe('UserController', () => {
     controller = new UserController(
       userMapper,
       cookieService,
-      messageBrokerService,
+      usersQueueService,
       validateEmailUseCase,
       createUserUseCase,
       getUserUseCase,
@@ -100,7 +100,7 @@ describe('UserController', () => {
     expect(controller).toBeDefined();
     expect(userMapper).toBeDefined();
     expect(cookieService).toBeDefined();
-    expect(messageBrokerService).toBeDefined();
+    expect(usersQueueService).toBeDefined();
     expect(validateEmailUseCase).toBeDefined();
     expect(createUserUseCase).toBeDefined();
     expect(getUserUseCase).toBeDefined();
@@ -261,7 +261,7 @@ describe('UserController', () => {
     it('should send user-created event with correct payload', async () => {
       await controller.create(dto, email, response);
 
-      expect(messageBrokerService.send).toHaveBeenCalledWith('user-created', {
+      expect(usersQueueService.send).toHaveBeenCalledWith('user-created', {
         userID,
         email: email,
         password: dto.password,

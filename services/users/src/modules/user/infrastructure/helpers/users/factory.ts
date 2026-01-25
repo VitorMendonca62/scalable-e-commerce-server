@@ -26,6 +26,7 @@ import {
   EmailVO,
 } from '@modules/user/domain/values-objects/user/values-object';
 import { AddressFactory } from '../address/factory';
+import { ExternalUser } from '@modules/user/domain/types/external-user';
 
 export class UserDTOFactory {
   static createCreateUserDTO(
@@ -134,6 +135,21 @@ export class UserDTOFactory {
     dto.code = keys.includes('code') ? overrides.code : 'AAAAAA';
 
     return dto;
+  }
+
+  static createGoogleExternalPayload(
+    overrides: Partial<ExternalUser> = {},
+  ): ExternalUser {
+    return {
+      userID: IDConstants.EXEMPLE,
+      name: NameConstants.EXEMPLE,
+      username: UsernameConstants.EXEMPLE,
+      email: EmailConstants.EXEMPLE,
+      roles: defaultRoles,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      ...overrides,
+    };
   }
 }
 

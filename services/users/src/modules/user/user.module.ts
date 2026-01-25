@@ -24,7 +24,6 @@ import UserModel from './infrastructure/adaptars/secondary/database/models/user.
 import AddressModel from './infrastructure/adaptars/secondary/database/models/address.model';
 import CookieService from './infrastructure/adaptars/primary/http/services/cookie/cookie.service';
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
-import { MessageBrokerService } from './domain/ports/secondary/message-broker.port';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
@@ -35,6 +34,7 @@ import { JwtModule } from '@nestjs/jwt';
 import * as fs from 'fs';
 import * as path from 'path';
 import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-email-code.repository';
+import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
 @Module({
   imports: [
     HttpModule,
@@ -79,7 +79,7 @@ import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/da
     ]),
   ],
 
-  controllers: [UserController, AddressController],
+  controllers: [UserController, AddressController, UserExternalController],
   providers: [
     UserMapper,
     CookieService,
@@ -96,10 +96,7 @@ import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/da
       provide: EmailSender,
       useClass: NodemailerEmailSender,
     },
-    {
-      provide: MessageBrokerService,
-      useClass: UsersQueueService,
-    },
+    UsersQueueService,
     {
       provide: UserRepository,
       useClass: TypeOrmUserRepository,

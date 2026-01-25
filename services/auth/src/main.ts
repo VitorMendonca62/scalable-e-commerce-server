@@ -43,7 +43,9 @@ async function bootstrap() {
   appConfig.configCors();
 
   await app
-    .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))
+    .listen(PORT, '0.0.0.0', () =>
+      appLogger.debug(`Server running in ${HOST}:${PORT}`),
+    )
     .catch((err) => appLogger.error(err));
 }
 

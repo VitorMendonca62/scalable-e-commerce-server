@@ -14,6 +14,7 @@ import { isNotEmpty } from 'class-validator';
 import { defaultRoles } from '@modules/user/domain/constants/roles';
 import UserModel from '../adaptars/secondary/database/models/user.model';
 import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+import { ExternalUser } from '@modules/user/domain/types/external-user';
 
 @Injectable()
 export class UserMapper {
@@ -47,6 +48,23 @@ export class UserMapper {
         : undefined,
       updatedAt: new Date(),
     });
+  }
+
+  externalControllerPayloadForModel(
+    payload: ExternalUser,
+  ): Omit<UserModel, 'id'> {
+    return {
+      userID: payload.userID,
+      name: payload.name,
+      username: payload.username,
+      email: payload.email,
+      phoneNumber: null,
+      avatar: null,
+      roles: payload.roles,
+      addresses: undefined,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
+    };
   }
 
   updateEntityForObject(entity: UserUpdateEntity): Partial<UserModel> {

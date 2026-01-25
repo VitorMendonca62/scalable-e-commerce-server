@@ -29,10 +29,10 @@ export default class UserModel {
   email: string;
 
   @Column({ nullable: true })
-  avatar: string;
+  avatar: string | null;
 
   @Column({ nullable: true, name: 'phone_number' })
-  phoneNumber: string;
+  phoneNumber: string | null;
 
   @Column({
     type: 'simple-array',

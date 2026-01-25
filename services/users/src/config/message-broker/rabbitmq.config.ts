@@ -19,6 +19,7 @@ export const addRabbitMQClient = async (
     transport: Transport.RMQ,
     options: {
       urls: [uri],
+      queue: 'users_queue',
       queueOptions: {
         exclusive: false,
         autoDelete: false,

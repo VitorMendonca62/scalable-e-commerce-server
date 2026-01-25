@@ -46,16 +46,16 @@ import { Cookies } from '@modules/user/domain/enums/cookies.enum';
 import CookieService from '../services/cookie/cookie.service';
 import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
 import { FastifyReply } from 'fastify';
-import { MessageBrokerService } from '@modules/user/domain/ports/secondary/message-broker.port';
 import { isUUID } from 'class-validator';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userMapper: UserMapper,
     private readonly cookieService: CookieService,
-    private readonly messageBrokerService: MessageBrokerService,
+    private readonly usersQueueService: UsersQueueService,
     private readonly validateEmailUseCase: ValidateEmailUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
@@ -125,7 +125,7 @@ export class UserController {
       );
     }
 
-    this.messageBrokerService.send('user-created', {
+    this.usersQueueService.send('user-created', {
       userID,
       email: email,
       password: dto.password,

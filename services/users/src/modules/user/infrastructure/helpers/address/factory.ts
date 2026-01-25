@@ -23,7 +23,6 @@ import {
 } from '@modules/user/domain/values-objects/address/values-object';
 import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
 import AddressModel from '../../adaptars/secondary/database/models/address.model';
-import { UserFactory } from '../users/factory';
 
 export class AddressDTOFactory {
   static createAddUserAddressDTO(
@@ -66,7 +65,7 @@ export class AddressDTOFactory {
 
 export class AddressFactory {
   static createEntity(overrides: Partial<AddressEntity> = {}): AddressEntity {
-    const data: Record<keyof AddressEntity, any> = {
+    const data: AddressEntity = {
       city: new CityVO(CityConstants.EXEMPLE),
       complement: new ComplementVO(ComplementConstants.EXEMPLE),
       neighborhood: new NeighborhoodVO(NeighborhoodConstants.EXEMPLE),
@@ -95,6 +94,7 @@ export class AddressFactory {
       country: CountryConstants.EXEMPLE,
       createdAt: new Date(),
       id: 1,
+      user: undefined,
       ...overrides,
     };
   }

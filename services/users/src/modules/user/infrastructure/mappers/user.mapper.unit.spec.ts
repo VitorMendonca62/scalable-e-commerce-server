@@ -229,4 +229,24 @@ describe('UserMapper', () => {
       });
     });
   });
+  describe('externalControllerPayloadForModel', () => {
+    const payload = UserDTOFactory.createGoogleExternalPayload();
+
+    it('should return user like json', async () => {
+      const result = mapper.externalControllerPayloadForModel(payload);
+
+      expect(result).toEqual({
+        userID: payload.userID,
+        name: payload.name,
+        username: payload.username,
+        email: payload.email,
+        phoneNumber: null,
+        avatar: null,
+        roles: payload.roles,
+        addresses: undefined,
+        createdAt: payload.createdAt,
+        updatedAt: payload.updatedAt,
+      });
+    });
+  });
 });
