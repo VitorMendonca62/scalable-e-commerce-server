@@ -16,20 +16,12 @@ export function Password(
 
   if (canStrongPassword) {
     decorators.push(
-      IsStrongPassword(
-        {
-          minLowercase: 1,
-          minLength: PasswordConstants.MIN_LENGTH,
-          minSymbols: 1,
-          minUppercase: 1,
-          minNumbers: 1,
-        },
-        {
-          message: addPrefix('A senha está muito fraca', type),
-        },
-      ),
+      IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
+        message: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, type),
+      }),
     );
   }
+
   return applyDecorators(
     IsNotEmpty({
       message: addPrefix(PasswordConstants.ERROR_REQUIRED, type),

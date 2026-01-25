@@ -1,7 +1,7 @@
 vi.unmock('@auth/domain/values-objects/id/id-vo');
+import IDConstants from './id-constants';
 import IDValidator from './id-validator';
 import IDVO from './id-vo';
-import { IDConstants } from './id-constants';
 
 describe('IDVO', () => {
   beforeEach(() => {

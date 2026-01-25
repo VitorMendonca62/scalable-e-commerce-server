@@ -10,6 +10,7 @@ import { configMongoDB } from '@config/database/mongo.config';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { configRedisdDB } from '@config/database/redis.config';
 import { RedisModule } from '@nestjs-modules/ioredis';
+
 @Module({
   imports: [
     ConfigModule.forRoot({

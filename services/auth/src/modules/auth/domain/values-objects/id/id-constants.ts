@@ -1,4 +1,4 @@
-export class IDConstants {
+export default class IDConstants {
   static readonly DESCRIPTION =
     'O ID serve como identificador único universal e é utilizado para identificar entidades no sistema';
 

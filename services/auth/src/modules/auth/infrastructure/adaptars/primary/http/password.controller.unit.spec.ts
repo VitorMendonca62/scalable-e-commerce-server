@@ -3,7 +3,7 @@ import { HttpStatus } from '@nestjs/common';
 import { PasswordController } from './password.controller';
 
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
 import CookieService from '../../secondary/cookie-service/cookie.service';

@@ -23,7 +23,7 @@ vi.mock('path', () => {
 import { v7 } from 'uuid';
 import * as fs from 'fs';
 import * as path from 'path';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
 describe('JwtTokenService', () => {

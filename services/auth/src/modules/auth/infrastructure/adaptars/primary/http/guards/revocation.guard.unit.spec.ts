@@ -1,6 +1,6 @@
 import { ExecutionContext } from '@nestjs/common';
 import RevocationGuard from './revocation.guard';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 

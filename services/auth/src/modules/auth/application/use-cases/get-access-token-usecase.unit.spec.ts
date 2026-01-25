@@ -4,7 +4,7 @@ import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;

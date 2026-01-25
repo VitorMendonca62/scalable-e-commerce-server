@@ -3,31 +3,25 @@ import { ApiMessage } from '@auth/infrastructure/adaptars/primary/http/decorator
 import { ApiStatusCode } from '@auth/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-status-code.decorator';
 import { HttpStatus } from '@nestjs/common';
 
-export abstract class HttpResponseOutbound {
+export abstract class HttpResponseOutbound<T = unknown> {
   @ApiStatusCode()
-  statusCode: number;
+  statusCode: HttpStatus;
 
   @ApiMessage()
   message: string;
 
   @ApiData()
-  data: object | string | undefined;
+  data: T;
 
-  constructor(
-    status: number,
-    message: string,
-    data: object | string | undefined = undefined,
-  ) {
+  constructor(status: HttpStatus, message: string, data: T = undefined) {
     this.statusCode = status;
     this.message = message;
     this.data = data;
   }
 }
-export class HttpOKResponse extends HttpResponseOutbound {
-  constructor(
-    message: string = 'OK!',
-    data: object | string | undefined = undefined,
-  ) {
+
+export class HttpOKResponse<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'OK!', data: T = undefined) {
     super(HttpStatus.OK, message, data);
   }
 }
@@ -38,28 +32,21 @@ export class HttpNoContentResponse extends HttpResponseOutbound {
   }
 }
 
-export class HttpAcceptedResponse extends HttpResponseOutbound {
-  constructor(
-    message: string = 'Accepted!',
-    data: object | string | undefined = undefined,
-  ) {
+export class HttpAcceptedResponse<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Accepted!', data: T = undefined) {
     super(HttpStatus.ACCEPTED, message, data);
   }
 }
 
-export class HttpCreatedResponse extends HttpResponseOutbound {
-  constructor(
-    message: string = 'Criado!',
-    data: object | string | undefined = undefined,
-  ) {
+export class HttpCreatedResponse<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Criado!', data: T = undefined) {
     super(HttpStatus.CREATED, message, data);
   }
 }
-export class HttpRedirectSeeOrtherResponse extends HttpResponseOutbound {
-  constructor(
-    message: string = 'Redirecionado!',
-    data: object | string | undefined = undefined,
-  ) {
+export class HttpRedirectSeeOrtherResponse<
+  T = unknown,
+> extends HttpResponseOutbound {
+  constructor(message: string = 'Redirecionado!', data: T = undefined) {
     super(HttpStatus.SEE_OTHER, message, data);
   }
 }

@@ -1,6 +1,6 @@
 import { isNotEmpty, isString, isUUID } from 'class-validator';
 import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
-import { IDConstants } from './id-constants';
+import IDConstants from './id-constants';
 
 export default class IDValidator {
   static validate(value: string) {

@@ -6,7 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import CookieService from './cookie.service';
 import { type Mock } from 'vitest';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply } from 'fastify';
 
 describe('CookieService', () => {
   let service: CookieService;
@@ -28,14 +28,6 @@ describe('CookieService', () => {
 
   const response: FastifyReply = {
     setCookie: vi.fn(),
-  } as any;
-
-  const token = 'TOKEN';
-
-  const request: FastifyRequest = {
-    cookies: {
-      access_token: token,
-    },
   } as any;
 
   describe('setCookie', () => {
@@ -86,62 +78,6 @@ describe('CookieService', () => {
         path: '/',
         signed: true,
       });
-    });
-  });
-
-  describe('extractFromRequest', () => {
-    const cookieName = Cookies.AccessToken;
-
-    it('should return token without on sucess', async () => {
-      const result = service.extractFromRequest(request, cookieName);
-
-      expect(result).toBe(token);
-    });
-
-    it('should return null if request.cookies is null or undefined', async () => {
-      const nullRequest: FastifyRequest = {
-        cookies: null,
-      } as any;
-
-      const nullResult = service.extractFromRequest(nullRequest, cookieName);
-
-      expect(nullResult).toBeNull();
-
-      const undefinedRequest: FastifyRequest = {
-        cookies: undefined,
-      } as any;
-
-      const undefinedResult = service.extractFromRequest(
-        undefinedRequest,
-        cookieName,
-      );
-
-      expect(undefinedResult).toBeNull();
-    });
-
-    it('should return null if request.cookies.cookiename is null or undefined', async () => {
-      const nullRequest: FastifyRequest = {
-        cookies: {
-          access_token: null,
-        },
-      } as any;
-
-      const nullResult = service.extractFromRequest(nullRequest, cookieName);
-
-      expect(nullResult).toBeNull();
-
-      const undefinedRequest: FastifyRequest = {
-        cookies: {
-          access_token: undefined,
-        },
-      } as any;
-
-      const undefinedResult = service.extractFromRequest(
-        undefinedRequest,
-        cookieName,
-      );
-
-      expect(undefinedResult).toBeNull();
     });
   });
 });

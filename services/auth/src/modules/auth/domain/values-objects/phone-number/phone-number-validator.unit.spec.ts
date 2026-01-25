@@ -18,7 +18,7 @@ describe('PhoneNumberValidator', () => {
   it('should throw if phone number is not a string', () => {
     try {
       PhoneNumberValidator.validate(12345678901 as any);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PhoneNumberConstants.ERROR_STRING);
@@ -31,7 +31,7 @@ describe('PhoneNumberValidator', () => {
 
     try {
       PhoneNumberValidator.validate(wrongLengthPhone);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PhoneNumberConstants.ERROR_LENGTH);
@@ -44,7 +44,7 @@ describe('PhoneNumberValidator', () => {
 
     try {
       PhoneNumberValidator.validate(invalidBRPhone);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PhoneNumberConstants.ERROR_INVALID);

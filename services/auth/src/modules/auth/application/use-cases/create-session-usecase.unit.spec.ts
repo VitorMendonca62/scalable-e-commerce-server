@@ -8,7 +8,7 @@ import {
   LoginUserFactory,
   UserFactory,
 } from '@auth/infrastructure/helpers/tests/user-factory';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 // Dependences
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
@@ -47,8 +47,8 @@ describe('CreateSessionUseCase', () => {
     } as any;
 
     userMapper = {
-      jsonToUser: vi.fn(),
-      googleUserCreateForJSON: vi.fn(),
+      modelToEntity: vi.fn(),
+      googleEntityForModel: vi.fn(),
     } as any;
 
     tokenRepository = {
@@ -84,7 +84,7 @@ describe('CreateSessionUseCase', () => {
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
-      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue(userEntity);
+      vi.spyOn(userMapper, 'modelToEntity').mockReturnValue(userEntity);
       vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(true);
 
       vi.spyOn(
@@ -100,7 +100,7 @@ describe('CreateSessionUseCase', () => {
         email: loginUserEntity.email.getValue(),
       });
 
-      expect(userMapper.jsonToUser).toHaveBeenCalledWith(userModel);
+      expect(userMapper.modelToEntity).toHaveBeenCalledWith(userModel);
 
       expect(userEntity.password.comparePassword).toHaveBeenCalledWith(
         loginUserEntity.password.getValue(),
@@ -148,7 +148,7 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should throw WrongCredentials if user is not active', async () => {
-      vi.spyOn(userMapper, 'jsonToUser').mockReturnValue({
+      vi.spyOn(userMapper, 'modelToEntity').mockReturnValue({
         ...userEntity,
         active: false,
       });
@@ -178,7 +178,7 @@ describe('CreateSessionUseCase', () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUserModel);
       vi.spyOn(userRepository, 'create').mockResolvedValue(undefined);
       vi.spyOn(userRepository, 'update').mockResolvedValue(undefined);
-      vi.spyOn(userMapper, 'googleUserCreateForJSON').mockReturnValue(
+      vi.spyOn(userMapper, 'googleEntityForModel').mockReturnValue(
         googleUserModel,
       );
 
@@ -259,7 +259,7 @@ describe('CreateSessionUseCase', () => {
           email: userGoogleLogin.email.getValue(),
         });
 
-        expect(userMapper.googleUserCreateForJSON).toHaveBeenCalledWith(
+        expect(userMapper.googleEntityForModel).toHaveBeenCalledWith(
           userGoogleLogin,
           IDConstants.EXEMPLE,
         );

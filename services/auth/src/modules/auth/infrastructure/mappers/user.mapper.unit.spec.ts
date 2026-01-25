@@ -13,7 +13,6 @@ import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserMapper } from './user.mapper';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { defaultGoogleRoles } from '@auth/domain/constants/roles';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
@@ -30,6 +29,7 @@ import EmailVO from '@auth/domain/values-objects/email/email-vo';
 import IDVO from '@auth/domain/values-objects/id/id-vo';
 import PhoneNumberVO from '@auth/domain/values-objects/phone-number/phone-number-vo';
 import { PasswordHasherFactory } from '../helpers/tests/password-factory';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -150,11 +150,11 @@ describe('UserMapper', () => {
     });
   });
 
-  describe('jsonToUser', () => {
+  describe('modelToEntity', () => {
     const userModel = new UserFactory().likeModel();
 
     it('should call VOs with correct parameters', async () => {
-      mapper.jsonToUser(userModel);
+      mapper.modelToEntity(userModel);
 
       expect(mockIDConstructor).toHaveBeenCalledWith(userModel.userID);
       expect(mockEmailConstructor).toHaveBeenCalledWith(userModel.email);
@@ -168,7 +168,7 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct types', async () => {
-      const user = mapper.jsonToUser(userModel);
+      const user = mapper.modelToEntity(userModel);
 
       expect(user).toBeInstanceOf(UserEntity);
       expect(user.userID).toBeInstanceOf(IDVO);
@@ -181,7 +181,7 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct fields', async () => {
-      const user = mapper.jsonToUser(userModel);
+      const user = mapper.modelToEntity(userModel);
 
       expect(user.userID.getValue()).toBe(userModel.userID);
       expect(user.email.getValue()).toBe(userModel.email);
@@ -204,7 +204,7 @@ describe('UserMapper', () => {
           throw new Error(`Campo inválido - ${index}`);
         });
 
-        expect(() => mapper.jsonToUser(userModel)).toThrow(
+        expect(() => mapper.modelToEntity(userModel)).toThrow(
           `Campo inválido - ${index}`,
         );
         (VO as Mock).mockRestore();
@@ -212,11 +212,11 @@ describe('UserMapper', () => {
     });
   });
 
-  describe('googleUserCreateForJSON', () => {
+  describe('googleEntityForModel', () => {
     const userGoogleLogin = new GoogleUserFactory().likeEntity();
 
     it('should return user like json', async () => {
-      const result = mapper.googleUserCreateForJSON(
+      const result = mapper.googleEntityForModel(
         userGoogleLogin,
         IDConstants.EXEMPLE,
       );

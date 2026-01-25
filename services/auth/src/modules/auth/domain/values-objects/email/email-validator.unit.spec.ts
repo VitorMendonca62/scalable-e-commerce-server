@@ -12,7 +12,7 @@ describe('EmailValidator', () => {
   it('should throw if email is empty', () => {
     try {
       EmailValidator.validate('');
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(EmailConstants.ERROR_REQUIRED);
@@ -25,7 +25,7 @@ describe('EmailValidator', () => {
 
     try {
       EmailValidator.validate(invalidEmail);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(EmailConstants.ERROR_INVALID);

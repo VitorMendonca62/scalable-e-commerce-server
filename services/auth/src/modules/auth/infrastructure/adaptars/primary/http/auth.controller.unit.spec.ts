@@ -13,7 +13,7 @@ import {
   HttpNoContentResponse,
   HttpOKResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';

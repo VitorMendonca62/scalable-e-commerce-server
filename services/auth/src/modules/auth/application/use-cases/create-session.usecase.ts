@@ -40,7 +40,7 @@ export class CreateSessionUseCase {
       throw new WrongCredentials();
     }
 
-    const user = this.userMapper.jsonToUser(userJSON);
+    const user = this.userMapper.modelToEntity(userJSON);
     if (
       !(user.password as PasswordHashedVO).comparePassword(
         inputUser.password.getValue(),
@@ -61,7 +61,7 @@ export class CreateSessionUseCase {
 
     let newUserModel: UserModel;
     if (userModel === null || userModel === undefined) {
-      const newUser = this.userMapper.googleUserCreateForJSON(inputUser, v7());
+      const newUser = this.userMapper.googleEntityForModel(inputUser, v7());
 
       newUserModel = await this.userRepository.create(newUser);
     }

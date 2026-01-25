@@ -2,7 +2,7 @@ import { MongooseUserRepository } from './mongoose-user.repository';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { Model } from 'mongoose';
 import { UserDocument } from '../models/user.model';
 import { type Mock } from 'vitest';

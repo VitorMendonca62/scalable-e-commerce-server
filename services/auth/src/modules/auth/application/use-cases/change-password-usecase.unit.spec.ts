@@ -5,7 +5,7 @@ import {
 } from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { ChangePasswordUseCase } from './change-password.usecase';

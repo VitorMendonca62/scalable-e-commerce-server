@@ -1,6 +1,6 @@
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { PasswordHashedConstants } from '@auth/domain/values-objects/password-hashed/password-hashed-constants';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import { PhoneNumberConstants } from '@auth/domain/values-objects/phone-number/phone-number-constants';

@@ -83,7 +83,12 @@
   "pnpm": {
     "overrides": {
       "fastify": "5.7.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@nestjs/core",
+      "@scarf/scarf",
+      "esbuild"
+    ]
   },
   "vitest": {
     "moduleFileExtensions": [

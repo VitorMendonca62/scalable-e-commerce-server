@@ -1,5 +1,5 @@
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './google.strategy';

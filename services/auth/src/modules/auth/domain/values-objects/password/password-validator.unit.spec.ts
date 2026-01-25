@@ -18,7 +18,7 @@ describe('PasswordValidator', () => {
   it('should throw if password is not a string', () => {
     try {
       PasswordValidator.validate(12345678 as any);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PasswordConstants.ERROR_STRING);
@@ -32,7 +32,7 @@ describe('PasswordValidator', () => {
     try {
       PasswordValidator.validate(shortPassword);
 
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PasswordConstants.ERROR_MIN_LENGTH);
@@ -45,7 +45,7 @@ describe('PasswordValidator', () => {
 
     try {
       PasswordValidator.validate(weakPassword);
-      fail('Should have thrown an error');
+      expect.fail('Should have thrown an error');
     } catch (error: any) {
       expect(error).toBeInstanceOf(FieldInvalid);
       expect(error.message).toBe(PasswordConstants.ERROR_WEAK_PASSWORD);

@@ -1,3 +1,4 @@
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 import { EnvironmentVariables } from '@config/environment/env.validation';
@@ -9,7 +10,7 @@ import * as otpGenerator from 'otp-generator';
 export default class SendCodeForForgotPasswordUseCase {
   constructor(
     private readonly emailSender: EmailSender,
-    private readonly codeRepository: EmailCodeRepository,
+    private readonly emailCodeRepository: EmailCodeRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
@@ -31,9 +32,10 @@ export default class SendCodeForForgotPasswordUseCase {
       },
     );
 
-    const expiresIn = new Date().getTime() + 1000 * 60 * 10;
+    const expiresIn =
+      new Date().getTime() + TokenExpirationConstants.RESET_PASS_TOKEN_MS;
 
-    await this.codeRepository.save({
+    await this.emailCodeRepository.save({
       email,
       code: OTPCode,
       expiresIn: new Date(expiresIn),

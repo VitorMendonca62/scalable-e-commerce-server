@@ -2,11 +2,11 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 export class HttpError<T = unknown> extends HttpException {
   data: T;
-  statusCode: number;
+  statusCode: HttpStatus;
 
   constructor(
     message: string = 'Algo de errado aconteceu!',
-    status: number = HttpStatus.BAD_REQUEST,
+    status: HttpStatus = HttpStatus.BAD_REQUEST,
     data: T = undefined as T,
   ) {
     super({ message, data, statusCode: status }, status);

@@ -1,6 +1,6 @@
 import Redis from 'ioredis';
 import { RedisTokenRepository } from './redis-token.repository';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 describe('RedisTokenRepository', () => {
   let repository: RedisTokenRepository;

@@ -3,7 +3,6 @@ import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserEntity } from '@auth/domain/entities/user.entity';
 import { EmailConstants } from '@auth/domain/values-objects/email/email-constants';
 import EmailVO from '@auth/domain/values-objects/email/email-vo';
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
 import IDVO from '@auth/domain/values-objects/id/id-vo';
 import { PasswordConstants } from '@auth/domain/values-objects/password/password-constants';
 import PasswordVO from '@auth/domain/values-objects/password/password-vo';
@@ -16,6 +15,7 @@ import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/passwo
 import { defaultGoogleRoles, defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { PasswordHasherFactory } from './password-factory';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 export class UserFactory {
   likeModel(overrides: Partial<UserModel> = {}): UserModel {

@@ -1,4 +1,4 @@
-import { IDConstants } from '@auth/domain/values-objects/id/id-constants';
+import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from './finish-session.usecase';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 

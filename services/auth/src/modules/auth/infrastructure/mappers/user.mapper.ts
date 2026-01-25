@@ -49,7 +49,7 @@ export class UserMapper {
     });
   }
 
-  jsonToUser(json: UserModel): UserEntity {
+  modelToEntity(json: UserModel): UserEntity {
     return new UserEntity({
       userID: new IDVO(json.userID),
       email: new EmailVO(json.email),
@@ -64,7 +64,7 @@ export class UserMapper {
     });
   }
 
-  googleUserCreateForJSON(user: UserGoogleLogin, userID: string): UserModel {
+  googleEntityForModel(user: UserGoogleLogin, userID: string): UserModel {
     return {
       userID,
       email: user.email.getValue(),
