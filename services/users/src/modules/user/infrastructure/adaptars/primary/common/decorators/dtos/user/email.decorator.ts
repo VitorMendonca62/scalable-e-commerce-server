@@ -1,6 +1,6 @@
 import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 
 export function Email() {
   return applyDecorators(

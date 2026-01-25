@@ -1,3 +1,3 @@
 export abstract class TokenService {
-  abstract verifyToken(token: string): Record<string, any>;
+  abstract generateSignUpToken(props: { email: string }): string;
 }

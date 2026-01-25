@@ -1,4 +1,4 @@
-export class CityConstants {
+export default class CityConstants {
   static readonly DESCRIPTION = 'A cidade é o município onde o usuário reside';
 
   static readonly EXEMPLE = 'São Paulo';

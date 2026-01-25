@@ -1,4 +1,4 @@
-export class UsernameConstants {
+export default class UsernameConstants {
   static readonly DESCRIPTION =
     'O apelido serve como identificador único de usuário e é utilizado para o usuário ser identificado no sistema';
 
@@ -18,7 +18,7 @@ export class UsernameConstants {
 
   // Errors exemple
   static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_STRING_EXEMPLE = 12345;
+  static readonly ERROR_STRING_EXEMPLE = 12345 as any;
   static readonly ERROR_MIN_LENGTH_EXEMPLE = 'ab';
   static readonly ERROR_NO_SPACES_EXEMPLE = 'user name';
   static readonly ERROR_ALREADY_EXISTS_EXEMPLE = 'vitormendonca62';

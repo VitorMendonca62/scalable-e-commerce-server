@@ -1,7 +1,10 @@
-import { AddressEntity } from '@user/infrastructure/adaptars/secondary/database/entities/address.entity';
+import AddressModel from '@modules/user/infrastructure/adaptars/secondary/database/models/address.model';
 
-export abstract class AddressRepositoy {
-  abstract addAddress(address: AddressEntity): Promise<void>;
-  abstract getAll(userId: string): Promise<AddressEntity[]>;
-  abstract delete(userId: string, addressIndex: number): Promise<void>;
+export default abstract class AddressRepository {
+  abstract addAddress(address: Omit<AddressModel, 'id'>): Promise<void>;
+
+  abstract getAll(userID: string): Promise<AddressModel[]>;
+  abstract countAddresses(userID: string): Promise<number>;
+
+  abstract delete(addressIndex: number): Promise<void>;
 }

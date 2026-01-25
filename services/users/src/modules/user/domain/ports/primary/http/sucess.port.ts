@@ -1,44 +1,33 @@
-import { ApiData } from '@user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-data.decorator';
-import { ApiMessage } from '@user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-message.decorator';
-import { ApiStatusCode } from '@user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-status-code.decorator';
+import { ApiData } from '@modules/user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-data.decorator';
+import { ApiMessage } from '@modules/user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-message.decorator';
+import { ApiStatusCode } from '@modules/user/infrastructure/adaptars/primary/http/decorators/docs/dtos/api-status-code.decorator';
 import { HttpStatus } from '@nestjs/common';
 
-export abstract class HttpResponseOutbound {
+export abstract class HttpResponseOutbound<T = unknown> {
   @ApiStatusCode()
-  statusCode: number;
+  statusCode: HttpStatus;
 
   @ApiMessage()
   message: string;
 
   @ApiData()
-  data: any;
+  data: T;
 
-  constructor(status: number, message: string, data: any = undefined) {
+  constructor(status: HttpStatus, message: string, data: T = undefined) {
     this.statusCode = status;
     this.message = message;
     this.data = data;
   }
 }
-export class HttpOKResponse extends HttpResponseOutbound {
-  constructor(message: string = 'OK!', data: any = undefined) {
+
+export class HttpOKResponse<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'OK!', data: T = undefined) {
     super(HttpStatus.OK, message, data);
   }
 }
 
-export class HttpCreatedResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Criado!', data: any = undefined) {
+export class HttpCreatedResponse<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Criado!', data: T = undefined) {
     super(HttpStatus.CREATED, message, data);
-  }
-}
-
-export class HttpUpdatedResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Atualizado!', data: any = undefined) {
-    super(HttpStatus.OK, message, data);
-  }
-}
-
-export class HttpDeletedResponse extends HttpResponseOutbound {
-  constructor(message: string = 'Deletado!', data: any = undefined) {
-    super(HttpStatus.OK, message, data);
   }
 }

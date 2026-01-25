@@ -1,5 +1,5 @@
 // Enums
-import { Permissions } from '../types/permissions';
+import { PermissionsSystem } from '../types/permissions';
 import {
   NameVO,
   UsernameVO,
@@ -7,50 +7,36 @@ import {
   AvatarVO,
   PhoneNumberVO,
 } from '../values-objects/user/values-object';
-import IDVO from '../values-objects/uuid/id-vo';
+import IDVO from '../values-objects/common/uuid/id-vo';
 
-export class User {
-  _id?: number;
-  userId: IDVO;
+export class UserEntity {
+  userID: IDVO;
   name: NameVO;
   username: UsernameVO;
   email: EmailVO;
-  avatar?: AvatarVO;
-  active: boolean;
-  email_verified: boolean;
-  phone_verified: boolean;
-  phonenumber: PhoneNumberVO;
-  roles: Permissions[];
+  avatar: AvatarVO | undefined;
+  phoneNumber: PhoneNumberVO | undefined;
+  roles: PermissionsSystem[];
   createdAt: Date;
   updatedAt: Date;
 
   constructor(props: {
-    _id?: number;
-    userId: IDVO;
+    userID: IDVO;
     name: NameVO;
     username: UsernameVO;
     email: EmailVO;
-    avatar: AvatarVO | null;
-    phonenumber: PhoneNumberVO;
-    active: boolean;
-    email_verified: boolean;
-    phone_verified: boolean;
-    roles: Permissions[];
-    createdAt?: Date;
-    updatedAt?: Date;
+    avatar: AvatarVO | undefined;
+    phoneNumber: PhoneNumberVO | undefined;
+    roles: PermissionsSystem[];
+    createdAt: Date;
+    updatedAt: Date;
   }) {
-    this._id = props._id;
-    this.userId = props.userId;
+    this.userID = props.userID;
     this.name = props.name;
     this.username = props.username;
     this.email = props.email;
     this.avatar = props.avatar;
-    this.phonenumber = props.phonenumber;
-
-    this.active = props.active;
-    this.email_verified = props.email_verified;
-    this.phone_verified = props.phone_verified;
-
+    this.phoneNumber = props.phoneNumber;
     this.roles = props.roles;
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;

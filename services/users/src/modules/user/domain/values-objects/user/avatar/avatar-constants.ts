@@ -1,4 +1,4 @@
-export class AvatarConstants {
+export default class AvatarConstants {
   static readonly DESCRIPTION =
     'O avatar é uma imagem de perfil do usuário que pode ser uma URL ou um identificador de imagem';
 
@@ -15,7 +15,7 @@ export class AvatarConstants {
 
   // ERROR EXAMPLES
   static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_STRING_EXEMPLE = 123;
+  static readonly ERROR_STRING_EXEMPLE = 123 as any;
   static readonly ERROR_INVALID_EXEMPLE = 'not-a-valid-url';
   static readonly ERROR_TOO_LONG_EXEMPLE =
     'https://example.com/' + 'a'.repeat(501);

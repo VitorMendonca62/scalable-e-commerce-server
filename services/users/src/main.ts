@@ -1,68 +1,50 @@
-/* eslint-disable no-console */
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { addRabbitMQClient } from './config/message-broker/rabbitmq.config';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { EnvironmentVariables } from './config/environment/env.validation';
-import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
+import { HttpExceptionFilter } from '@user/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
+import { addRabbitMQClient } from '@config/message-broker/rabbitmq.config';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import AppConfig from '@config/app.config';
+import fastifyCookie from '@fastify/cookie';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter({
+      bodyLimit: 10485760,
+      logger: false,
+    }),
+  );
 
-  const config = new DocumentBuilder()
-    .setTitle('Users System')
-    .setDescription('The users system for a e-commerce store')
-    .setVersion('1.0')
-    .addTag('auth')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'Authorization',
-        in: 'header',
-      },
-      'refresh_token',
-    )
-    .build();
-
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('docs', app, document);
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   const configService =
     app.get<ConfigService<EnvironmentVariables>>(ConfigService);
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      stopAtFirstError: true,
-      transform: false,
-      exceptionFactory: (errors) => {
-        if (errors.length == 0) {
-          return new FieldInvalid('Erro desconhecido', 'Erro');
-        }
-
-        const firstError = errors[0];
-        const firstConstraintMessage = firstError.constraints
-          ? Object.values(firstError.constraints)[0]
-          : 'Erro desconhecido';
-
-        return new FieldInvalid(firstConstraintMessage, firstError.property);
-      },
-    }),
-  );
+  const appLogger = new Logger('API');
 
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');
 
-  await app.listen(PORT, () =>
-    new Logger('Server').debug(`Server running in ${HOST}:${PORT}`),
-  );
+  await app.register(fastifyCookie, {
+    secret: configService.get<string>('COOKIE_SECRET'),
+  });
 
-  // await addRabbitMQClient(app, configService);
+  const appConfig = new AppConfig(configService, app);
+
+  addRabbitMQClient(app, configService);
+  appConfig.configSwagger();
+  appConfig.configValidationPipe();
+  appConfig.configCors();
+
+  await app
+    .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))
+    .catch((err) => appLogger.error(err));
 }
 
 bootstrap();

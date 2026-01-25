@@ -1,11 +1,6 @@
-import { CityConstants } from '@user/domain/values-objects/address/city/city-constants';
+import CityConstants from '@user/domain/values-objects/address/city/city-constants';
 import { applyDecorators } from '@nestjs/common';
-import {
-  IsNotEmpty,
-  IsString,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export function City() {
   return applyDecorators(

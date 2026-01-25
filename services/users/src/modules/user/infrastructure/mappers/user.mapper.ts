@@ -1,12 +1,8 @@
-import { User } from '@user/domain/entities/user.entity';
+import { UserEntity } from '@modules/user/domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDTO } from '../adaptars/primary/http/dtos/create-user.dto';
-import { defaultRoles } from '@user/domain/types/permissions';
-import { UserEntity } from '../adaptars/secondary/database/entities/user.entity';
-import { UserUpdate } from '@user/domain/entities/user-update.entity';
-import { UpdateUserDTO } from '../adaptars/primary/http/dtos/update-user.dto';
-import { v7 } from 'uuid';
-import IDVO from '@user/domain/values-objects/uuid/id-vo';
+import { CreateUserDTO } from '../adaptars/primary/http/dtos/user/create-user.dto';
+import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
+import { UpdateUserDTO } from '../adaptars/primary/http/dtos/user/update-user.dto';
 import {
   AvatarVO,
   EmailVO,
@@ -14,74 +10,67 @@ import {
   PhoneNumberVO,
   UsernameVO,
 } from '@modules/user/domain/values-objects/user/values-object';
-import { isEmpty } from 'class-validator';
+import { isNotEmpty } from 'class-validator';
+import { defaultRoles } from '@modules/user/domain/constants/roles';
+import UserModel from '../adaptars/secondary/database/models/user.model';
+import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
 
 @Injectable()
 export class UserMapper {
-  createDTOForModel(dto: CreateUserDTO, userId: string) {
+  createDTOForEntity(dto: CreateUserDTO, email: string, userID: string) {
     const dateNow = new Date();
 
-    return new User({
-      userId: new IDVO(userId),
-      name: new NameVO(dto.name, true),
-      username: new UsernameVO(dto.username, true),
-      email: new EmailVO(dto.email, true),
-      phonenumber: new PhoneNumberVO(dto.phonenumber, true),
-      active: true,
-      email_verified: false,
-      phone_verified: false,
-      avatar: new AvatarVO(null, false),
+    return new UserEntity({
+      userID: new IDVO(userID),
+      name: new NameVO(dto.name),
+      username: new UsernameVO(dto.username),
+      email: new EmailVO(email),
+      phoneNumber: new PhoneNumberVO(dto.phoneNumber),
+      avatar: undefined,
       roles: defaultRoles,
       createdAt: dateNow,
       updatedAt: dateNow,
     });
   }
 
-  updateDTOForModel(dto: UpdateUserDTO, userId: string): UserUpdate {
-    const props: any = {
-      userId: new IDVO(userId),
+  updateDTOForModel(dto: UpdateUserDTO, userID: string): UserUpdateEntity {
+    return new UserUpdateEntity({
+      userID: new IDVO(userID),
+      name: isNotEmpty(dto.name) ? new NameVO(dto.name) : undefined,
+      username: isNotEmpty(dto.username)
+        ? new UsernameVO(dto.username)
+        : undefined,
+      avatar: isNotEmpty(dto.avatar) ? new AvatarVO(dto.avatar) : undefined,
+      phoneNumber: isNotEmpty(dto.phoneNumber)
+        ? new PhoneNumberVO(dto.phoneNumber)
+        : undefined,
       updatedAt: new Date(),
-    };
-
-    if (!isEmpty(dto.name)) props.name = new NameVO(dto.name, false);
-    if (!isEmpty(dto.username))
-      props.username = new UsernameVO(dto.username, false);
-    if (!isEmpty(dto.email)) props.email = new EmailVO(dto.email, false);
-    if (!isEmpty(dto.avatar)) props.avatar = new AvatarVO(dto.avatar, false);
-    if (!isEmpty(dto.phonenumber))
-      props.phonenumber = new PhoneNumberVO(dto.phonenumber, false);
-
-    return new UserUpdate(props);
+    });
   }
 
-  userUpdateModelForJSON(user: UserUpdate): Record<keyof UserUpdate, any> {
-    const returned: any = {
-      userId: user.userId.getValue(),
-      updatedAt: user.updatedAt,
-    };
-
-    if (!isEmpty(user.avatar)) returned.avatar = user.avatar.getValue();
-    if (!isEmpty(user.email)) returned.email = user.email.getValue();
-    if (!isEmpty(user.name)) returned.name = user.name.getValue();
-    if (!isEmpty(user.phonenumber))
-      returned.phonenumber = user.phonenumber.getValue();
-    if (!isEmpty(user.username)) returned.username = user.username.getValue();
-
-    return returned;
-  }
-
-  userModelToJSON(user: User): UserEntity {
+  updateEntityForObject(entity: UserUpdateEntity): Partial<UserModel> {
     return {
-      _id: user._id,
-      userId: user.userId.getValue(),
+      userID: entity.userID.getValue(),
+      name: isNotEmpty(entity.name) ? entity.name.getValue() : undefined,
+      username: isNotEmpty(entity.username)
+        ? entity.username.getValue()
+        : undefined,
+      avatar: isNotEmpty(entity.avatar) ? entity.avatar.getValue() : undefined,
+      phoneNumber: isNotEmpty(entity.phoneNumber)
+        ? entity.phoneNumber.getValue()
+        : undefined,
+      updatedAt: entity.updatedAt,
+    };
+  }
+
+  entityToModel(user: UserEntity): Omit<UserModel, 'id'> {
+    return {
+      userID: user.userID.getValue(),
       name: user.name.getValue(),
       username: user.username.getValue(),
       email: user.email.getValue(),
-      avatar: user.avatar.getValue(),
-      active: user.active,
-      email_verified: user.email_verified,
-      phone_verified: user.phone_verified,
-      phonenumber: user.phonenumber.getValue(),
+      avatar: user.avatar?.getValue(),
+      phoneNumber: user.phoneNumber?.getValue(),
       roles: user.roles,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,

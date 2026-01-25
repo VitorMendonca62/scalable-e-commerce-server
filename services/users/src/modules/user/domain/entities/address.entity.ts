@@ -8,11 +8,10 @@ import {
   StateVO,
   StreetVO,
 } from '../values-objects/address/values-object';
-import IDVO from '../values-objects/uuid/id-vo';
+import IDVO from '../values-objects/common/uuid/id-vo';
 
-export class Address {
-  id?: number;
-  userId: IDVO;
+export class AddressEntity {
+  userID: IDVO;
   street: StreetVO;
   number: NumberVO;
   complement: ComplementVO;
@@ -25,8 +24,7 @@ export class Address {
   updatedAt: Date;
 
   constructor(props: {
-    id?: number;
-    userId: IDVO;
+    userID: IDVO;
     street: StreetVO;
     number: NumberVO;
     complement: ComplementVO;
@@ -38,8 +36,7 @@ export class Address {
     createdAt: Date;
     updatedAt: Date;
   }) {
-    this.id = props.id;
-    this.userId = props.userId;
+    this.userID = props.userID;
     this.street = props.street;
     this.number = props.number;
     this.complement = props.complement;

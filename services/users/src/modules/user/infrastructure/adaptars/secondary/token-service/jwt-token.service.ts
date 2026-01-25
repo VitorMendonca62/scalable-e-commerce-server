@@ -1,17 +1,29 @@
+import { EnvironmentVariables } from '@config/environment/env.validation';
+import { TokenService } from '@modules/user/domain/ports/secondary/token-service.port';
 import { Injectable } from '@nestjs/common';
-import { WrongCredentials } from '@user/domain/ports/primary/http/error.port';
+import { ConfigService } from '@nestjs/config';
+import * as fs from 'fs';
 import { JwtService } from '@nestjs/jwt';
-import { TokenService } from '@user/domain/ports/secondary/token-service.port';
-
+import * as path from 'path';
 @Injectable()
 export class JwtTokenService implements TokenService {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService<EnvironmentVariables>,
+  ) {}
 
-  verifyToken(token: string): Record<string, any> {
-    try {
-      return this.jwtService.verify(token) as Record<string, any>;
-    } catch (error) {
-      throw new WrongCredentials('Token inválido ou expirado');
-    }
+  generateSignUpToken(props: { email: string }): string {
+    const payload: Omit<JWTSignUpTokenPayLoad, 'iat' | 'exp'> = {
+      sub: props.email,
+      type: 'signup' as const,
+    };
+
+    return this.jwtService.sign(payload, {
+      expiresIn: '10m',
+      privateKey: fs.readFileSync(
+        path.join(process.cwd(), `certs/sign-up-private.pem`),
+      ),
+      keyid: this.configService.get<string>('SIGN_UP_KEYID'),
+    });
   }
 }

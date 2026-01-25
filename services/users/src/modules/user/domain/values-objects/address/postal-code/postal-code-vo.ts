@@ -1,10 +1,7 @@
 import { ValueObject } from '../../value-object';
-import { PostalCodeValidator } from './postal-code-validator';
 
-export default class PostalCodeVO extends ValueObject {
+export default class PostalCodeVO extends ValueObject<string> {
   constructor(value: string) {
-    super();
-    PostalCodeValidator.validate(value);
-    this.value = value;
+    super(value);
   }
 }

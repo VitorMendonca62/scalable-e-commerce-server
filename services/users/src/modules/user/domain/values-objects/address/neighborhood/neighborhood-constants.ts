@@ -1,4 +1,4 @@
-export class NeighborhoodConstants {
+export default class NeighborhoodConstants {
   static readonly DESCRIPTION =
     'O bairro é a região ou área específica da cidade onde o usuário reside';
 

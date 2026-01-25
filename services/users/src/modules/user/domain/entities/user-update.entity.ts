@@ -1,37 +1,32 @@
-import { isEmpty } from 'class-validator';
 import {
   NameVO,
   UsernameVO,
-  EmailVO,
   AvatarVO,
   PhoneNumberVO,
 } from '../values-objects/user/values-object';
-import IDVO from '../values-objects/uuid/id-vo';
+import IDVO from '../values-objects/common/uuid/id-vo';
 
-export class UserUpdate {
-  userId: IDVO;
-  name?: NameVO;
-  username?: UsernameVO;
-  email?: EmailVO;
-  avatar?: AvatarVO;
-  phonenumber?: PhoneNumberVO;
-  updatedAt?: Date;
+export class UserUpdateEntity {
+  userID: IDVO;
+  name: NameVO | undefined;
+  username: UsernameVO | undefined;
+  avatar: AvatarVO | undefined;
+  phoneNumber: PhoneNumberVO | undefined;
+  updatedAt: Date;
 
   constructor(props: {
-    userId: IDVO;
-    name?: NameVO;
-    username?: UsernameVO;
-    email?: EmailVO;
-    avatar?: AvatarVO;
-    phonenumber?: PhoneNumberVO;
-    updatedAt?: Date;
+    userID: IDVO;
+    name: NameVO | undefined;
+    username: UsernameVO | undefined;
+    avatar: AvatarVO | undefined;
+    phoneNumber: PhoneNumberVO | undefined;
+    updatedAt: Date;
   }) {
-    this.userId = props.userId;
-    if (!isEmpty(props.name)) this.name = props.name;
-    if (!isEmpty(props.username)) this.username = props.username;
-    if (!isEmpty(props.email)) this.email = props.email;
-    if (!isEmpty(props.avatar)) this.avatar = props.avatar;
-    if (!isEmpty(props.phonenumber)) this.phonenumber = props.phonenumber;
+    this.userID = props.userID;
+    this.name = props.name;
+    this.username = props.username;
+    this.avatar = props.avatar;
+    this.phoneNumber = props.phoneNumber;
     this.updatedAt = props.updatedAt;
   }
 }

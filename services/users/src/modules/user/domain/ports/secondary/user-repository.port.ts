@@ -1,14 +1,21 @@
-import { UserEntity } from '@user/infrastructure/adaptars/secondary/database/entities/user.entity';
-import { UserUpdate } from '../../entities/user-update.entity';
+import UserModel from '@modules/user/infrastructure/adaptars/secondary/database/models/user.model';
 
-export abstract class UserRepository {
-  abstract create(user: UserEntity): Promise<void>;
+export default abstract class UserRepository {
+  abstract create(user: Omit<UserModel, 'id'>): Promise<void>;
+
   abstract findOne(
-    options: Partial<Record<keyof UserEntity, string>>,
-  ): Promise<UserEntity | undefined>;
-  abstract delete(id: string): Promise<void>;
+    options: Omit<Partial<UserModel>, 'roles'>,
+  ): Promise<Omit<UserModel, 'id'> | undefined | null>;
+
+  abstract findOneWithOR(
+    options: Omit<Partial<UserModel>, 'roles'>[],
+    withDeleted: boolean,
+  ): Promise<Omit<UserModel, 'id'> | undefined | null>;
+
+  abstract delete(userID: string): Promise<number>;
+
   abstract update(
-    id: string,
-    newFields: Record<keyof UserUpdate, any>,
-  ): Promise<UserEntity>;
+    userID: string,
+    newFields: Partial<UserModel>,
+  ): Promise<number>;
 }

@@ -1,12 +1,6 @@
 import { AvatarConstants } from '@modules/user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  IsUrl,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, IsUrl, MaxLength } from 'class-validator';
 
 export function Avatar() {
   return applyDecorators(

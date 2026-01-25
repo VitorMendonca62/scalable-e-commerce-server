@@ -14,6 +14,7 @@
     "skipLibCheck": true,
     "strictNullChecks": false,
     "noImplicitAny": false,
+    "preserveSymlinks": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
@@ -22,6 +23,7 @@
       "@user/*": ["src/modules/user/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"]
-    }
+    },
+    "types": ["node", "vitest/globals"]
   }
 }

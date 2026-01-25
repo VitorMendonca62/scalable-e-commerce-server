@@ -1,10 +1,7 @@
 import { ValueObject } from '../../value-object';
-import { CountryValidator } from './country-validator';
 
-export default class CountryVO extends ValueObject {
+export default class CountryVO extends ValueObject<string> {
   constructor(value: string) {
-    super();
-    CountryValidator.validate(value);
-    this.value = value;
+    super(value);
   }
 }

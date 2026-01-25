@@ -1,10 +1,11 @@
-import { INestApplication, Logger } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { EnvironmentVariables } from '../environment/env.validation';
+import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export const addRabbitMQClient = async (
-  app: INestApplication,
+  app: NestFastifyApplication,
   configService: ConfigService<EnvironmentVariables>,
 ) => {
   const logger = new Logger('RabbitMQ');
@@ -12,9 +13,7 @@ export const addRabbitMQClient = async (
   const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
   const host = configService.get<string>('RABBITMQ_HOST');
 
-  const uri = `amqp://${user}:${password}@${host}:5672`;
-
-  logger.debug(uri);
+  const uri = `amqp://${user}:${password}@${host}`;
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
@@ -29,9 +28,5 @@ export const addRabbitMQClient = async (
     },
   });
 
-  await app
-    .startAllMicroservices()
-    .then(() => logger.debug('Message broker client is listening'))
-    .catch((error) => logger.error(error));
-  return app;
+  await app.startAllMicroservices().catch((error) => logger.error(error));
 };

@@ -1,12 +1,6 @@
 import { CountryConstants } from '@modules/user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
-import {
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MinLength,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MinLength, MaxLength } from 'class-validator';
 
 export function Country() {
   return applyDecorators(

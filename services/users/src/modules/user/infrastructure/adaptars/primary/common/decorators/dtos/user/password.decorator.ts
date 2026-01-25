@@ -11,11 +11,7 @@ export function Password(isStrongPassword: boolean) {
   const decorators = [];
 
   if (isStrongPassword) {
-    decorators.push(
-      IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
-        message: PasswordConstants.ERROR_WEAK_PASSWORD,
-      }),
-    );
+    decorators.push();
   }
 
   return applyDecorators(
@@ -26,6 +22,8 @@ export function Password(isStrongPassword: boolean) {
     MinLength(PasswordConstants.MIN_LENGTH, {
       message: PasswordConstants.ERROR_MIN_LENGTH,
     }),
-    ...decorators,
+    IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
+      message: PasswordConstants.ERROR_WEAK_PASSWORD,
+    }),
   );
 }

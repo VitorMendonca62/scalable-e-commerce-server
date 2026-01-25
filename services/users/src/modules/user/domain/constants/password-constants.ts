@@ -25,11 +25,6 @@ export class PasswordConstants {
   static readonly ERROR_STRING = 'A senha deve ser uma string válida.';
   static readonly ERROR_MIN_LENGTH =
     'A senha está muito curta. O mínimo são 8 caracteres.';
-  static readonly ERROR_WEAK_PASSWORD = 'A senha está muito fraca. Ela deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.';
-
-  // Errors exemple
-  static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_STRING_EXEMPLE = 12345678;
-  static readonly ERROR_MIN_LENGTH_EXEMPLE = 'abc123';
-  static readonly ERROR_WEAK_PASSWORD_EXEMPLE = 'abcdefgh';
+  static readonly ERROR_WEAK_PASSWORD =
+    'A senha está muito fraca. Ela deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.';
 }

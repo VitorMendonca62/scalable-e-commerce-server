@@ -1,4 +1,4 @@
-export class PostalCodeConstants {
+export default class PostalCodeConstants {
   static readonly DESCRIPTION =
     'O CEP é o código de endereçamento postal que identifica a localização';
 

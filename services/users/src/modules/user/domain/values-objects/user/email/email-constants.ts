@@ -1,4 +1,4 @@
-export class EmailConstants {
+export default class EmailConstants {
   static readonly DESCRIPTION =
     'O email serve como identificador único de usuário e utiliza-se para entrar no sistema';
 
@@ -14,7 +14,7 @@ export class EmailConstants {
 
   // Errors exemples
   static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_STRING_EXEMPLE = 123;
+  static readonly ERROR_STRING_EXEMPLE = 123 as any;
   static readonly ERROR_INVALID_EXEMPLE = 'email-invalido';
   static readonly ERROR_ALREADY_EXISTS_EXEMPLE = 'vitorqueiroz325@gmail.com';
 }

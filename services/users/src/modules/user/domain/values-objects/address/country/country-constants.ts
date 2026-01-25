@@ -1,4 +1,4 @@
-export class CountryConstants {
+export default class CountryConstants {
   static readonly DESCRIPTION =
     'O país é o local onde o usuário reside ou está localizado';
 

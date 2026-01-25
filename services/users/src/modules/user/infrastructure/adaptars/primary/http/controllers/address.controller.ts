@@ -2,7 +2,6 @@ import {
   HttpResponseOutbound,
   HttpCreatedResponse,
   HttpOKResponse,
-  HttpDeletedResponse,
 } from '@user/domain/ports/primary/http/sucess.port';
 import {
   Post,
@@ -14,15 +13,22 @@ import {
   Delete,
   Controller,
   UsePipes,
+  Headers,
   ValidationPipe,
+  Res,
 } from '@nestjs/common';
+import { AddressMapper } from '@modules/user/infrastructure/mappers/address.mapper';
+import {
+  AddUserAddressUseCase,
+  DeleteUserAddressUseCase,
+  GetUserAddressesUseCase,
+} from '@modules/user/application/use-cases/address/use-cases';
 import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
-import { AddUserAddressUseCase } from '@user/application/use-cases/add-user-address.usecase';
-import { DeleteUserAddressUseCase } from '@user/application/use-cases/delete-user-address.usecase';
-import { GetUserAddressUseCase as GetUserAddressesUseCase } from '@user/application/use-cases/get-user-addresses.usecase';
-import { AddressMapper } from '@user/infrastructure/mappers/address.mapper';
-import { AuthorizationToken } from '../getValue/authorization-token.decorator';
-import { IdInTokenPipe } from '@common/pipes/id-in-token.pipe';
+import {
+  BusinessRuleFailure,
+  NotFoundItem,
+} from '@modules/user/domain/ports/primary/http/error.port';
+import { FastifyReply } from 'fastify';
 
 @Controller('/address')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -35,29 +41,39 @@ export class AddressController {
   ) {}
 
   @Post('/')
-  @HttpCode(HttpStatus.CREATED)
-  async add(
+  async addAddress(
     @Body() dto: AddUserAddressDTO,
-    @AuthorizationToken('authorization', IdInTokenPipe)
-    id: string,
+    @Headers('x-user-id') userID: string,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    const address = this.addressMapper.addUserAddressDTOForModel(dto, id);
+    const address = this.addressMapper.addUserAddressDTOForEntity(dto, userID);
 
-    return new HttpCreatedResponse(
-      'Endereço criado com sucesso',
-      await this.addUserAddressUseCase.execute(id, address),
-    );
+    const useCaseResult = await this.addUserAddressUseCase.execute(address);
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new BusinessRuleFailure(useCaseResult.message);
+    }
+
+    response.status(HttpStatus.CREATED);
+    return new HttpCreatedResponse('Endereço criado com sucesso');
   }
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
   async getAll(
-    @AuthorizationToken('authorization', IdInTokenPipe)
-    id: string,
+    @Headers('x-user-id') userID: string,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
+    const useCaseResult = await this.getUserAddressesUseCase.execute(userID);
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.NOT_FOUND);
+      return new NotFoundItem(useCaseResult.message);
+    }
     return new HttpOKResponse(
       'Aqui está todos os endereços do usuário',
-      await this.getUserAddressesUseCase.execute(id),
+      useCaseResult.result,
     );
   }
 
@@ -65,12 +81,19 @@ export class AddressController {
   @HttpCode(HttpStatus.OK)
   async delete(
     @Param('addressId') addressId: number,
-    @AuthorizationToken('authorization', IdInTokenPipe)
-    id: string,
+    @Headers('x-user-id') userID: string,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    return new HttpDeletedResponse(
-      'Endereço deletado com sucesso',
-      await this.deleteUserAddressUseCase.execute(addressId, id),
+    const useCaseResult = await this.deleteUserAddressUseCase.execute(
+      addressId,
+      userID,
     );
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.NOT_FOUND);
+      return new NotFoundItem(useCaseResult.message);
+    }
+
+    return new HttpOKResponse('Endereço deletado com sucesso');
   }
 }

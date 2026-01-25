@@ -1,18 +1,19 @@
-export class StateConstants {
+import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
+
+export default class StateConstants {
   static readonly DESCRIPTION =
     'O estado é a unidade federativa ou província onde o usuário reside';
 
-  static readonly EXEMPLE = 'São Paulo';
+  static readonly EXEMPLE = BrazilStates.PE;
   static readonly WRONG_EXEMPLE = '';
-  static readonly MAX_LENGTH = 50;
-  static readonly MIN_LENGTH = 2;
+  static readonly LENGTH = 2;
   // ERRORS
   static readonly ERROR_REQUIRED = 'O estado é obrigatório';
   static readonly ERROR_STRING = 'O estado deve ser uma string';
   static readonly ERROR_INVALID = 'O estado deve ser válido';
-  static readonly ERROR_TOO_LONG =
-    'O estado não pode ter mais de 50 caracteres';
-  static readonly ERROR_TOO_SHORT = 'O estado deve ter pelo menos 2 caracteres';
+  static readonly ERROR_LENGTH = 'O estado deve ter pelo menos 2 caracteres';
+  static readonly ERROR_NOT_BRAZIL_STATE =
+    'O estado deve ser uma UF do Brasil. ( Ex.: SP )';
 
   // ERROR EXAMPLES
   static readonly ERROR_REQUIRED_EXEMPLE = '';

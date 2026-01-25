@@ -1,9 +1,9 @@
-export class PhoneNumberConstants {
+export default class PhoneNumberConstants {
   static readonly DESCRIPTION =
     'O número de telefone serve como informação auxiliar para o sistema. Deve ser um número válido no Brasil!.';
 
   static readonly EXEMPLE = '+5581999999999';
-  static readonly WRONG_EXEMPLE = '+15551234567';
+  static readonly WRONG_EXEMPLE = '+1581999999999';
   static readonly LENGTH = 14;
 
   // ERRORS
@@ -16,5 +16,5 @@ export class PhoneNumberConstants {
   static readonly ERROR_LENGTH_EXEMPLE = '+55819999999';
   static readonly ERROR_REQUIRED_EXEMPLE = '';
   static readonly ERROR_INVALID_EXEMPLE = '+1181999999999';
-  static readonly ERROR_STRING_EXEMPLE = 11181999999999;
+  static readonly ERROR_STRING_EXEMPLE = 11181999999999 as any;
 }

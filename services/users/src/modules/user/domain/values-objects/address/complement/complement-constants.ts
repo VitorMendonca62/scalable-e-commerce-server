@@ -1,4 +1,4 @@
-export class ComplementConstants {
+export default class ComplementConstants {
   static readonly DESCRIPTION =
     'O complemento é uma informação adicional para localizar o endereço (apartamento, sala, etc.)';
 

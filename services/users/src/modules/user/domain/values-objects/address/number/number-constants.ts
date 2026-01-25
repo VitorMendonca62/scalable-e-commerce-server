@@ -1,5 +1,6 @@
-export class NumberConstants {
-  static readonly DESCRIPTION = 'O número é a identificação numérica do endereço';
+export default class NumberConstants {
+  static readonly DESCRIPTION =
+    'O número é a identificação numérica do endereço';
 
   static readonly EXEMPLE = '123';
   static readonly WRONG_EXEMPLE = '';
@@ -19,4 +20,3 @@ export class NumberConstants {
   static readonly ERROR_INVALID_EXEMPLE = 'ABC';
   static readonly ERROR_TOO_LONG_EXEMPLE = '12345678901';
 }
-

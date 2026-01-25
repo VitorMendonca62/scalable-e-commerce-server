@@ -1,4 +1,4 @@
-export class NameConstants {
+export default class NameConstants {
   static readonly DESCRIPTION =
     'O nome completo do usuário. Serve como informação auxiliar para o sistema';
 
@@ -15,6 +15,6 @@ export class NameConstants {
 
   // Errors exemples
   static readonly ERROR_REQUIRED_EXEMPLE = '';
-  static readonly ERROR_STRING_EXEMPLE = 12345;
+  static readonly ERROR_STRING_EXEMPLE = 12345 as any;
   static readonly ERROR_MIN_LENGTH_EXEMPLE = 'Vi';
 }
