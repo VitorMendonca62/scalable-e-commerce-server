@@ -50,23 +50,6 @@ export class UserMapper {
     });
   }
 
-  externalControllerPayloadForModel(
-    payload: ExternalUser,
-  ): Omit<UserModel, 'id'> {
-    return {
-      userID: payload.userID,
-      name: payload.name,
-      username: payload.username,
-      email: payload.email,
-      phoneNumber: null,
-      avatar: null,
-      roles: payload.roles,
-      addresses: undefined,
-      createdAt: payload.createdAt,
-      updatedAt: payload.updatedAt,
-    };
-  }
-
   updateEntityForObject(entity: UserUpdateEntity): Partial<UserModel> {
     return {
       userID: entity.userID.getValue(),
@@ -94,6 +77,23 @@ export class UserMapper {
       addresses: user.addresses,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
+    };
+  }
+
+  externalControllerPayloadForModel(
+    payload: ExternalUser,
+  ): Omit<UserModel, 'id'> {
+    return {
+      userID: payload.userID,
+      name: payload.name,
+      username: payload.username,
+      email: payload.email,
+      phoneNumber: null,
+      avatar: null,
+      roles: payload.roles,
+      addresses: undefined,
+      createdAt: payload.createdAt,
+      updatedAt: payload.updatedAt,
     };
   }
 }
