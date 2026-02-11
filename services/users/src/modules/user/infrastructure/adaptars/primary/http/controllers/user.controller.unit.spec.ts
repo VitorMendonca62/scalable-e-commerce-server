@@ -265,7 +265,6 @@ describe('UserController', () => {
         userID,
         email: email,
         password: dto.password,
-        phoneNumber: dto.phoneNumber,
         roles: userModel.roles,
         createdAt: userModel.createdAt,
         updatedAt: userModel.updatedAt,

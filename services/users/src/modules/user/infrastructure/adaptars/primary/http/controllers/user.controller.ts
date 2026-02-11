@@ -129,7 +129,6 @@ export class UserController {
       userID,
       email: email,
       password: dto.password,
-      phoneNumber: dto.phoneNumber,
       roles: useCaseResult.result.roles,
       createdAt: useCaseResult.result.createdAt,
       updatedAt: useCaseResult.result.updatedAt,
@@ -196,6 +195,11 @@ export class UserController {
       return new NotFoundItem(useCaseResult.message);
     }
 
+    this.usersQueueService.send('user-updated', {
+      userID,
+      ...dto,
+    });
+
     return new HttpOKResponse('Usuário atualizado com sucesso', dto);
   }
 
@@ -211,6 +215,10 @@ export class UserController {
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }
+
+    this.usersQueueService.send('user-deleted', {
+      userID,
+    });
 
     return new HttpOKResponse('Usuário deletado com sucesso');
   }
