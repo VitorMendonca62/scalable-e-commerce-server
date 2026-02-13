@@ -1,4 +1,3 @@
-import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import {
   Controller,
   Post,
@@ -13,7 +12,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { SendCodeForForgotPasswordDTO } from './dtos/send-code-for-forgot-pass.dto';
 import { ApiSendCodeforForgotPassword } from './decorators/docs/api-send-code-for-forgot-password.decorator';
 import { ValidateCodeForForgotPasswordDTO } from './dtos/validate-code-for-forgot-pass.dto';
-import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
 import { ResetPasswordDTO } from './dtos/reset-password.dto';
 import {
   HttpOKResponse,
@@ -34,13 +32,13 @@ import {
   NotFoundUser,
   WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
+import ForgotPasswordUseCase from '@auth/application/use-cases/forgot-password.usecase';
 
 @Controller('/pass')
 @ApiTags('PasswordController')
 export class PasswordController {
   constructor(
-    private readonly sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase,
-    private readonly validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase,
+    private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
     private readonly cookieService: CookieService,
   ) {}
@@ -51,7 +49,7 @@ export class PasswordController {
   async sendCode(
     @Body() dto: SendCodeForForgotPasswordDTO,
   ): Promise<HttpResponseOutbound> {
-    await this.sendCodeForForgotPasswordUseCase.execute(dto.email);
+    await this.forgotPasswordUseCase.sendCode(dto.email);
 
     return new HttpOKResponse(
       'Código de recuperação enviado com sucesso. Verifique seu email.',
@@ -65,11 +63,10 @@ export class PasswordController {
     @Body() dto: ValidateCodeForForgotPasswordDTO,
     @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    const useCaseResult =
-      await this.validateCodeForForgotPasswordUseCase.execute(
-        dto.code,
-        dto.email,
-      );
+    const useCaseResult = await this.forgotPasswordUseCase.validateCode(
+      dto.code,
+      dto.email,
+    );
 
     if (useCaseResult.ok === false) {
       response.status(HttpStatus.BAD_REQUEST);

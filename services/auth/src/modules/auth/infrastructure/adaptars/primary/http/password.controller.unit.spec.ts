@@ -10,8 +10,6 @@ import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
 import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import ValidateCodeForForgotPasswordUseCase from '@auth/application/use-cases/validate-code-for-forgot-password.usecase';
-import SendCodeForForgotPasswordUseCase from '@auth/application/use-cases/send-code-for-forgot-password.usecase';
 import { FastifyReply } from 'fastify';
 import { UpdatePasswordDTOFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
@@ -20,27 +18,30 @@ import {
   NotFoundUser,
   WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
+import ForgotPasswordUseCase from '@auth/application/use-cases/forgot-password.usecase';
 
 describe('PasswordController', () => {
   let controller: PasswordController;
 
-  let sendCodeForForgotPasswordUseCase: SendCodeForForgotPasswordUseCase;
-  let validateCodeForForgotPasswordUseCase: ValidateCodeForForgotPasswordUseCase;
+  let forgotPasswordUseCase: ForgotPasswordUseCase;
   let changePasswordUseCase: ChangePasswordUseCase;
   let cookiesService: CookieService;
 
   beforeEach(async () => {
-    sendCodeForForgotPasswordUseCase = { execute: vi.fn() } as any;
-    validateCodeForForgotPasswordUseCase = { execute: vi.fn() } as any;
+    forgotPasswordUseCase = {
+      sendCode: vi.fn(),
+      validateCode: vi.fn(),
+    } as any;
+
     changePasswordUseCase = {
       executeReset: vi.fn(),
       executeUpdate: vi.fn(),
     } as any;
+
     cookiesService = { setCookie: vi.fn() } as any;
 
     controller = new PasswordController(
-      sendCodeForForgotPasswordUseCase,
-      validateCodeForForgotPasswordUseCase,
+      forgotPasswordUseCase,
       changePasswordUseCase,
       cookiesService,
     );
@@ -48,8 +49,7 @@ describe('PasswordController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
-    expect(sendCodeForForgotPasswordUseCase).toBeDefined();
-    expect(validateCodeForForgotPasswordUseCase).toBeDefined();
+    expect(forgotPasswordUseCase).toBeDefined();
     expect(changePasswordUseCase).toBeDefined();
     expect(cookiesService).toBeDefined();
   });
@@ -58,20 +58,18 @@ describe('PasswordController', () => {
     const email = EmailConstants.EXEMPLE;
     const dto = { email };
 
-    it('should call sendCodeForForgotPasswordUseCase.execute with email', async () => {
-      vi.spyOn(sendCodeForForgotPasswordUseCase, 'execute').mockResolvedValue({
+    it('should call forgotPasswordUseCase.validateCode with email', async () => {
+      vi.spyOn(forgotPasswordUseCase, 'sendCode').mockResolvedValue({
         ok: true,
       });
 
       await controller.sendCode(dto);
 
-      expect(sendCodeForForgotPasswordUseCase.execute).toHaveBeenCalledWith(
-        email,
-      );
+      expect(forgotPasswordUseCase.sendCode).toHaveBeenCalledWith(email);
     });
 
     it('should return HttpOKResponse on success', async () => {
-      vi.spyOn(sendCodeForForgotPasswordUseCase, 'execute').mockResolvedValue({
+      vi.spyOn(forgotPasswordUseCase, 'sendCode').mockResolvedValue({
         ok: true,
       });
 
@@ -85,8 +83,8 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if createSessionUseCase throws error', async () => {
-      vi.spyOn(sendCodeForForgotPasswordUseCase, 'execute').mockRejectedValue(
+    it('should throw error if forgotPasswordUseCase throws error', async () => {
+      vi.spyOn(forgotPasswordUseCase, 'sendCode').mockRejectedValue(
         new Error('Erro no use case'),
       );
 
@@ -112,19 +110,16 @@ describe('PasswordController', () => {
         status: vi.fn().mockReturnThis(),
       } as any;
 
-      vi.spyOn(
-        validateCodeForForgotPasswordUseCase,
-        'execute',
-      ).mockResolvedValue({
+      vi.spyOn(forgotPasswordUseCase, 'validateCode').mockResolvedValue({
         ok: true,
         result: 'token',
       });
     });
 
-    it('should call validCodeForForgotPasswordUseCase.execute with email and code', async () => {
+    it('should call validCodeForForgotPasswordUseCase.validateCode with email and code', async () => {
       await controller.validateCode(dto, response);
 
-      expect(validateCodeForForgotPasswordUseCase.execute).toHaveBeenCalledWith(
+      expect(forgotPasswordUseCase.validateCode).toHaveBeenCalledWith(
         code,
         email,
       );
@@ -152,10 +147,7 @@ describe('PasswordController', () => {
     });
 
     it('should return FieldInvalid when reason error is invalid code', async () => {
-      vi.spyOn(
-        validateCodeForForgotPasswordUseCase,
-        'execute',
-      ).mockResolvedValue({
+      vi.spyOn(forgotPasswordUseCase, 'validateCode').mockResolvedValue({
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
         message: 'message',
@@ -172,11 +164,10 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if validateCodeForForgotPasswordUseCase throws error', async () => {
-      vi.spyOn(
-        validateCodeForForgotPasswordUseCase,
-        'execute',
-      ).mockRejectedValue(new Error('Erro no use case'));
+    it('should throw error if forgotPasswordUseCase throws error', async () => {
+      vi.spyOn(forgotPasswordUseCase, 'validateCode').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
 
       try {
         await controller.validateCode(dto, response);
