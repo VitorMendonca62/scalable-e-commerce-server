@@ -1,9 +1,9 @@
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import ValidateCodeForForgotPasswordUseCase from './validate-code-for-forgot-password.usecase';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
-import { BusinessRuleFailure } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailConstants } from '@auth/domain/values-objects/constants';
 import { EmailCodeModelFactory } from '@auth/infrastructure/helpers/tests/email-code-factory';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('ValidateCodeForForgotPasswordUseCase', () => {
   let useCase: ValidateCodeForForgotPasswordUseCase;
@@ -59,8 +59,8 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
       const token = 'RESET-PASS-TOKEN';
       vi.spyOn(tokenService, 'generateResetPassToken').mockReturnValue(token);
 
-      const response = await useCase.execute(code, email);
-      expect(response).toBe(token);
+      const result = await useCase.execute(code, email);
+      expect(result).toEqual({ ok: true, result: token });
     });
 
     it('should call emailCodeRepository.find with email and code', async () => {
@@ -68,38 +68,30 @@ describe('ValidateCodeForForgotPasswordUseCase', () => {
       expect(emailCodeRepository.findOne).toHaveBeenCalledWith({ code, email });
     });
 
-    it('should throw BusinessRuleFailure when no have document with code and email', async () => {
+    it('should return field invalid reason and ok is false when no have document with code and email', async () => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(undefined);
 
-      try {
-        await useCase.execute(code, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(BusinessRuleFailure);
-        expect(error.message).toBe(
-          'Código de recuperação inválido ou expirado. Tente novamente',
-        );
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(code, email);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.FIELD_INVALID,
+        message: 'Código de recuperação inválido ou expirado. Tente novamente',
+      });
     });
 
-    it('should throw BusinessRuleFailure when the code expired', async () => {
+    it('should return field invalid when the code expired', async () => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(
         emailCodeModelFactory.likeOBject({
           expiresIn: new Date('2024-01-01T10:10:00z'),
         }),
       );
 
-      try {
-        await useCase.execute(code, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(BusinessRuleFailure);
-        expect(error.message).toBe(
-          'Código de recuperação inválido ou expirado. Tente novamente',
-        );
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(code, email);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.FIELD_INVALID,
+        message: 'Código de recuperação inválido ou expirado. Tente novamente',
+      });
     });
 
     it('should call emailCodeRepository.deleteMany with correct parameters', async () => {

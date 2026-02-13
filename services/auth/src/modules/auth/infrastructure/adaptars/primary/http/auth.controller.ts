@@ -37,6 +37,7 @@ import {
   GetAccessTokenUseCase,
 } from '@auth/application/use-cases/use-cases';
 import { LoginUserDTO } from './dtos/dtos';
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -71,8 +72,10 @@ export class AuthController {
     const user = request.user;
     const googleLoginDTO = this.userMapper.googleLoginDTOForEntity(user, ip);
 
-    const { newUser, result } =
+    const useCaseResult =
       await this.createSessionUseCase.executeWithGoogle(googleLoginDTO);
+
+    const { newUser, tokens } = useCaseResult.result;
 
     if (newUser != undefined) {
       this.usersQueueService.send('user-create-google', {
@@ -86,7 +89,7 @@ export class AuthController {
       });
     }
 
-    const { accessToken, refreshToken } = result;
+    const { accessToken, refreshToken } = tokens;
 
     this.cookieService.setCookie(
       Cookies.RefreshToken,
@@ -111,10 +114,16 @@ export class AuthController {
     @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
   ): Promise<HttpResponseOutbound> {
-    const token = await this.createSessionUseCase.execute(
+    const useCaseResult = await this.createSessionUseCase.execute(
       this.userMapper.loginDTOForEntity(dto, ip),
     );
-    const { accessToken, refreshToken } = token;
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.UNAUTHORIZED);
+      return new WrongCredentials(useCaseResult.message);
+    }
+
+    const { accessToken, refreshToken } = useCaseResult.result;
 
     this.cookieService.setCookie(
       Cookies.RefreshToken,
@@ -141,10 +150,19 @@ export class AuthController {
     @Headers('x-user-id') userID: string,
     @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
-    const token = await this.getAccessTokenUseCase.execute(userID, tokenID);
+    const useCaseResult = await this.getAccessTokenUseCase.execute(
+      userID,
+      tokenID,
+    );
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.UNAUTHORIZED);
+      return new WrongCredentials(useCaseResult.message);
+    }
+
     this.cookieService.setCookie(
       Cookies.AccessToken,
-      token,
+      useCaseResult.result,
       TokenExpirationConstants.ACCESS_TOKEN_MS,
       response,
     );

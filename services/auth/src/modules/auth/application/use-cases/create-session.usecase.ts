@@ -1,29 +1,23 @@
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
-// Decorator's
 import { Injectable } from '@nestjs/common';
-
-// Ports
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-
-// Services
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
-
-// Mappers
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
-
-// Entities
 import { UserLogin } from '../../domain/entities/user-login.entity';
-
-// Repositories
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
 import { v7 } from 'uuid';
+import {
+  CreateSesssionPort,
+  ExecuteReturn,
+  ExecuteWithGoogleReturn,
+} from '@auth/domain/ports/application/create-session.port';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 @Injectable()
-export class CreateSessionUseCase {
+export class CreateSessionUseCase implements CreateSesssionPort {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly tokenRepository: TokenRepository,
@@ -31,13 +25,17 @@ export class CreateSessionUseCase {
     private readonly userMapper: UserMapper,
   ) {}
 
-  async execute(inputUser: UserLogin) {
+  async execute(inputUser: UserLogin): Promise<ExecuteReturn> {
     const userJSON = await this.userRepository.findOne({
       email: inputUser.email.getValue(),
     });
 
     if (userJSON === undefined || userJSON === null) {
-      throw new WrongCredentials();
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      };
     }
 
     const user = this.userMapper.modelToEntity(userJSON);
@@ -46,13 +44,22 @@ export class CreateSessionUseCase {
         inputUser.password.getValue(),
       )
     ) {
-      throw new WrongCredentials();
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      };
     }
 
-    return await this.generateAccessAndRefreshToken(userJSON, inputUser.ip);
+    return {
+      ok: true,
+      result: await this.generateAccessAndRefreshToken(userJSON, inputUser.ip),
+    };
   }
 
-  async executeWithGoogle(inputUser: UserGoogleLogin) {
+  async executeWithGoogle(
+    inputUser: UserGoogleLogin,
+  ): Promise<ExecuteWithGoogleReturn> {
     const userModel = await this.userRepository.findOne({
       email: inputUser.email.getValue(),
     });
@@ -64,21 +71,25 @@ export class CreateSessionUseCase {
       newUserModel = await this.userRepository.create(newUser);
     }
 
-    if (newUserModel === undefined) {
-      if (userModel.accountProvider === AccountsProvider.DEFAULT) {
-        await this.userRepository.update(userModel.userID, {
-          accountProvider: AccountsProvider.GOOGLE,
-          accountProviderID: inputUser.id,
-        });
-      }
+    if (
+      newUserModel === undefined &&
+      userModel.accountProvider === AccountsProvider.DEFAULT
+    ) {
+      await this.userRepository.update(userModel.userID, {
+        accountProvider: AccountsProvider.GOOGLE,
+        accountProviderID: inputUser.id,
+      });
     }
 
     return {
-      result: await this.generateAccessAndRefreshToken(
-        newUserModel || userModel,
-        inputUser.ip,
-      ),
-      newUser: newUserModel,
+      ok: true,
+      result: {
+        tokens: await this.generateAccessAndRefreshToken(
+          newUserModel || userModel,
+          inputUser.ip,
+        ),
+        newUser: newUserModel,
+      },
     };
   }
 

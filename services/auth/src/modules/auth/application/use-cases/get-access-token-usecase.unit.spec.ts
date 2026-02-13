@@ -1,10 +1,10 @@
 import { GetAccessTokenUseCase } from './get-access-token.usecase';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('GetAccessTokenUseCase', () => {
   let useCase: GetAccessTokenUseCase;
@@ -54,27 +54,35 @@ describe('GetAccessTokenUseCase', () => {
     it('should use case call functions with correct parameters and return token', async () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(user);
 
-      const response = await useCase.execute(user.userID, tokenID);
+      await useCase.execute(user.userID, tokenID);
 
       expect(userRepository.findOne).toHaveBeenCalledWith({
         userID: user.userID,
       });
       expect(tokenRepository.updateLastAcess).toHaveBeenCalledWith(tokenID);
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith(user);
-      expect(response).toBe(accessToken);
     });
 
-    it('should throw bad request exception when user does not exist', async () => {
+    it('should return token and ok on sucess', async () => {
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(user);
+
+      const result = await useCase.execute(user.userID, tokenID);
+
+      expect(result).toEqual({
+        ok: true,
+        result: accessToken,
+      });
+    });
+
+    it('should return ok false and not found reason when user does not exist', async () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      try {
-        await useCase.execute(user.userID, tokenID);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Token inválido ou expirado');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(user.userID, tokenID);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Token inválido ou expirado',
+      });
     });
   });
 });

@@ -1,8 +1,3 @@
-import {
-  FieldInvalid,
-  NotFoundUser,
-  WrongCredentials,
-} from '@auth/domain/ports/primary/http/errors.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
@@ -21,6 +16,7 @@ import {
   mockPasswordHashedConstructor,
   mockPasswordHashedGetValue,
 } from '@auth/infrastructure/helpers/tests/values-objects-mock';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('ChangePasswordUseCase', () => {
   let useCase: ChangePasswordUseCase;
@@ -91,45 +87,46 @@ describe('ChangePasswordUseCase', () => {
       );
     });
 
-    it('should throw NotFoundUser when user does not exist', async () => {
+    it('should return token and ok on sucess', async () => {
+      const result = await useCase.executeUpdate(
+        userID,
+        newPassword,
+        oldPassword,
+      );
+
+      expect(result).toEqual({
+        ok: true,
+      });
+    });
+
+    it('should return ok false and NotFoundUser reason when user does not exist', async () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(NotFoundUser);
-        expect(error.message).toBe('Usuário não encontrado.');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if PasswordHashedVO throw error', async () => {
-      mockPasswordHashedConstructor.mockImplementationOnce(() => {
-        throw new Error('Error PasswordHashedVO');
+      const result = await useCase.executeUpdate(
+        userID,
+        newPassword,
+        oldPassword,
+      );
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
       });
-
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error PasswordHashedVO');
-        expect(error.data).toBeUndefined();
-      }
     });
 
-    it('should throw FieldInvalid if oldPassword is incorrect', async () => {
+    it('should return FieldInvalid reason and ok false if oldPassword is incorrect', async () => {
       mockPasswordHashedCompare.mockReturnValue(false);
 
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(FieldInvalid);
-        expect(error.message).toBe('A senha atual informada está incorreta.');
-        expect(error.data).toBe('oldPassword');
-      }
+      const result = await useCase.executeUpdate(
+        userID,
+        newPassword,
+        oldPassword,
+      );
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.FIELD_INVALID,
+        messsage: 'A senha atual informada está incorreta.',
+        result: 'oldPassword',
+      });
     });
 
     it('should retrow error if this.updatePassword throw error', async () => {
@@ -167,6 +164,26 @@ describe('ChangePasswordUseCase', () => {
       );
     });
 
+    it('should return token and ok on sucess', async () => {
+      const result = await useCase.executeReset(email, newPassword);
+
+      expect(result).toEqual({
+        ok: true,
+      });
+    });
+
+    it('should return ok false and not found reason when user does not exist', async () => {
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+
+      const result = await useCase.executeReset(email, newPassword);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Token inválido ou expirado',
+      });
+    });
+
     it('should rethrow error if userRepository.findOne throw error', async () => {
       vi.spyOn(userRepository, 'findOne').mockRejectedValue(
         new Error('Error finding code row'),
@@ -177,19 +194,6 @@ describe('ChangePasswordUseCase', () => {
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Error finding code row');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should throw WrongCredentials when user does not exist', async () => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-
-      try {
-        await useCase.executeReset(email, newPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe('Token inválido ou expirado');
         expect(error.data).toBeUndefined();
       }
     });

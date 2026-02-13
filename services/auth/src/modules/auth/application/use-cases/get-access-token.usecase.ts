@@ -1,26 +1,37 @@
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 import { Injectable } from '@nestjs/common';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import {
+  GetAccessTokenPort,
+  ExecuteReturn,
+} from '@auth/domain/ports/application/get-access-token.port';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 @Injectable()
-export class GetAccessTokenUseCase {
+export class GetAccessTokenUseCase implements GetAccessTokenPort {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly tokenService: TokenService,
     private readonly tokenRepository: TokenRepository,
   ) {}
 
-  async execute(userID: string, tokenID: string): Promise<string> {
+  async execute(userID: string, tokenID: string): Promise<ExecuteReturn> {
     const user = await this.userRepository.findOne({ userID });
 
     if (user === undefined || user === null) {
-      throw new WrongCredentials('Token inválido ou expirado');
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Token inválido ou expirado',
+      };
     }
 
-    this.tokenRepository.updateLastAcess(tokenID);
+    await this.tokenRepository.updateLastAcess(tokenID);
 
-    return this.tokenService.generateAccessToken(user);
+    return {
+      ok: true,
+      result: this.tokenService.generateAccessToken(user),
+    };
   }
 }

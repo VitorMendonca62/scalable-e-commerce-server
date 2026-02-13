@@ -5,16 +5,20 @@ import { EnvironmentVariables } from '@config/environment/env.validation';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as otpGenerator from 'otp-generator';
+import {
+  SendCodeForForgotPasswordPort,
+  ExecuteReturn,
+} from '@auth/domain/ports/application/send-code-for-forgot-password.port';
 
 @Injectable()
-export default class SendCodeForForgotPasswordUseCase {
+export default class SendCodeForForgotPasswordUseCase implements SendCodeForForgotPasswordPort {
   constructor(
     private readonly emailSender: EmailSender,
     private readonly emailCodeRepository: EmailCodeRepository,
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
-  async execute(email: string) {
+  async execute(email: string): Promise<ExecuteReturn> {
     const OTPCode = otpGenerator.generate(6, {
       upperCaseAlphabets: true,
       specialChars: false,
@@ -40,5 +44,9 @@ export default class SendCodeForForgotPasswordUseCase {
       code: OTPCode,
       expiresIn: new Date(expiresIn),
     });
+
+    return {
+      ok: true,
+    };
   }
 }

@@ -1,8 +1,9 @@
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import {
-  FieldInvalid,
-  NotFoundUser,
-  WrongCredentials,
-} from '@auth/domain/ports/primary/http/errors.port';
+  ChangePasswordPort,
+  ExecuteResetReturn,
+  ExecuteUpdateReturn,
+} from '@auth/domain/ports/application/change-password.port';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
@@ -11,7 +12,7 @@ import PasswordVO from '@auth/domain/values-objects/password/password-vo';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class ChangePasswordUseCase {
+export class ChangePasswordUseCase implements ChangePasswordPort {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly passwordHasher: PasswordHasher,
@@ -22,35 +23,53 @@ export class ChangePasswordUseCase {
     userID: string,
     newPassword: string,
     oldPassword: string,
-  ): Promise<void> {
+  ): Promise<ExecuteUpdateReturn> {
     const user = await this.userRepository.findOne({
       userID,
     });
 
-    if (user === undefined || user === null) throw new NotFoundUser();
+    if (user === undefined || user === null) {
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+      };
+    }
 
     const oldPasswordVO = new PasswordHashedVO(
       user.password,
       this.passwordHasher,
     );
     if (!oldPasswordVO.comparePassword(oldPassword)) {
-      throw new FieldInvalid(
-        'A senha atual informada está incorreta.',
-        'oldPassword',
-      );
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.FIELD_INVALID,
+        messsage: 'A senha atual informada está incorreta.',
+        result: 'oldPassword',
+      };
     }
+
     await this.updatePassword(user.userID, newPassword);
+    return { ok: true };
   }
 
-  async executeReset(email: string, newPassword: string): Promise<void> {
+  async executeReset(
+    email: string,
+    newPassword: string,
+  ): Promise<ExecuteResetReturn> {
     const user = await this.userRepository.findOne({
       email,
     });
 
-    if (user === undefined || user === null)
-      throw new WrongCredentials('Token inválido ou expirado');
+    if (user === undefined || user === null) {
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Token inválido ou expirado',
+      };
+    }
 
     await this.updatePassword(user.userID, newPassword);
+    return { ok: true };
   }
 
   private async updatePassword(userID: string, newPassword: string) {

@@ -21,6 +21,8 @@ import { ConfigService } from '@nestjs/config';
 import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
+import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -125,11 +127,14 @@ describe('AuthController', () => {
       );
 
       vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
+        ok: true,
         result: {
-          accessToken: `<accessToken>`,
-          refreshToken: `<refreshToken>`,
+          tokens: {
+            accessToken: `<accessToken>`,
+            refreshToken: `<refreshToken>`,
+          },
+          newUser: undefined,
         },
-        newUser: undefined,
       });
     });
 
@@ -147,11 +152,14 @@ describe('AuthController', () => {
 
     it('should call userQueueService.send with fields for create user in other service', async () => {
       vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
+        ok: true,
         result: {
-          accessToken: `<accessToken>`,
-          refreshToken: `<refreshToken>`,
+          tokens: {
+            accessToken: `<accessToken>`,
+            refreshToken: `<refreshToken>`,
+          },
+          newUser: userModel,
         },
-        newUser: userModel,
       });
 
       await controller.googleAuthRedirect(request, response, ip);
@@ -241,8 +249,11 @@ describe('AuthController', () => {
       );
 
       vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        accessToken: `<accessToken>`,
-        refreshToken: `<refreshToken>`,
+        ok: true,
+        result: {
+          accessToken: `<accessToken>`,
+          refreshToken: `<refreshToken>`,
+        },
       });
     });
 
@@ -285,6 +296,40 @@ describe('AuthController', () => {
       });
     });
 
+    it('should return WrongCredentials on not found error', async () => {
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'message',
+      });
+
+      const result = await controller.login(dto, response, ip);
+
+      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(result).toBeInstanceOf(WrongCredentials);
+      expect(result).toEqual({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'message',
+      });
+    });
+
+    it('should return WrongCredentials on wrong credentials', async () => {
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
+        message: 'message',
+      });
+
+      const result = await controller.login(dto, response, ip);
+
+      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(result).toBeInstanceOf(WrongCredentials);
+      expect(result).toEqual({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'message',
+      });
+    });
+
     it('should throw error if createSessionUseCase throws error', async () => {
       vi.spyOn(createSessionUseCase, 'execute').mockRejectedValue(
         new Error('Erro no use case'),
@@ -318,9 +363,10 @@ describe('AuthController', () => {
 
   describe('getAccessToken', () => {
     beforeEach(() => {
-      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue(
-        '<accessToken>',
-      );
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue({
+        ok: true,
+        result: '<accessToken>',
+      });
     });
 
     it('should call getAccessToken.execute with userId and tokenid', async () => {
@@ -351,6 +397,23 @@ describe('AuthController', () => {
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Seu token de acesso foi renovado',
+      });
+    });
+
+    it('should return WrongCredentials on NOT_FOUND reason', async () => {
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'message',
+      });
+
+      const result = await controller.getAccessToken(response, userID, tokenID);
+
+      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
+      expect(result).toBeInstanceOf(WrongCredentials);
+      expect(result).toEqual({
+        statusCode: HttpStatus.UNAUTHORIZED,
+        message: 'message',
       });
     });
 

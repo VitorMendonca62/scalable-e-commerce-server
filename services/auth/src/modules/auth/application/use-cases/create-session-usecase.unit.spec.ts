@@ -2,7 +2,6 @@ vi.mock('uuid', () => {
   return { v7: vi.fn() };
 });
 
-// Mocks
 import {
   GoogleUserFactory,
   LoginUserFactory,
@@ -10,21 +9,17 @@ import {
 } from '@auth/infrastructure/helpers/tests/user-factory';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
-// Dependences
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 
-// Ports
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
-
-// Function
 import { CreateSessionUseCase } from './create-session.usecase';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { v7 } from 'uuid';
 
 import { type Mock } from 'vitest';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -114,37 +109,32 @@ describe('CreateSessionUseCase', () => {
     it('should return what generateAccessAndRefreshToken returns', async () => {
       const result = await useCase.execute(loginUserEntity);
 
-      expect(result).toEqual(generateAccessAndRefreshTokenResult);
+      expect(result).toEqual({
+        ok: true,
+        result: generateAccessAndRefreshTokenResult,
+      });
     });
 
-    it('should throw WrongCredentials exception when user does not exists', async () => {
+    it('should return not found reason and ok false  when user does not exists', async () => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
 
-      try {
-        await useCase.execute(loginUserEntity);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe(
-          'Suas credenciais estão incorretas. Tente novamente',
-        );
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(loginUserEntity);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      });
     });
 
-    it('should throw WrongCredentials if password is incorrect', async () => {
+    it('should return WrongCredentials reason and ok is false if password is incorrect', async () => {
       vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(false);
 
-      try {
-        await useCase.execute(loginUserEntity);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe(
-          'Suas credenciais estão incorretas. Tente novamente',
-        );
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(loginUserEntity);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      });
     });
   });
 
@@ -202,8 +192,10 @@ describe('CreateSessionUseCase', () => {
       it('should return accessToken and refreshToken in result and newUser undefined', async () => {
         const result = await useCase.executeWithGoogle(userGoogleLogin);
 
-        expect(result.result).toEqual(generateAccessAndRefreshTokenResult);
-        expect(result.newUser).toBeUndefined();
+        expect(result.result.tokens).toEqual(
+          generateAccessAndRefreshTokenResult,
+        );
+        expect(result.result.newUser).toBeUndefined();
       });
     });
 
@@ -237,8 +229,10 @@ describe('CreateSessionUseCase', () => {
       it('should return accessToken and refreshToken in result and newUser', async () => {
         const result = await useCase.executeWithGoogle(userGoogleLogin);
 
-        expect(result.result).toEqual(generateAccessAndRefreshTokenResult);
-        expect(result.newUser).toEqual(googleUserModel);
+        expect(result.result.tokens).toEqual(
+          generateAccessAndRefreshTokenResult,
+        );
+        expect(result.result.newUser).toEqual(googleUserModel);
       });
     });
   });
