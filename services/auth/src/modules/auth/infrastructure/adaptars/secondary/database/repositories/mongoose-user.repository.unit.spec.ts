@@ -31,7 +31,8 @@ describe('MongooseUserRepository', () => {
 
     beforeEach(() => {
       mockedExecFindOne = vi.fn().mockReturnValue(user);
-      userModel.findOne = vi.fn().mockReturnValue({
+      userModel.findOne = vi.fn();
+      (userModel.findOne as Mock).mockReturnValue({
         exec: mockedExecFindOne,
       });
     });
@@ -41,8 +42,11 @@ describe('MongooseUserRepository', () => {
         email: EmailConstants.EXEMPLE,
       });
 
-      expect(userModel.findOne).toHaveBeenCalled();
-      expect(mockedExecFindOne).toHaveBeenCalledWith();
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        email: EmailConstants.EXEMPLE,
+        deletedAt: null,
+      });
+      expect(mockedExecFindOne).toHaveBeenCalled();
       expect(response).toEqual(user);
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
@@ -50,10 +54,15 @@ describe('MongooseUserRepository', () => {
     it('should return user with many fields', async () => {
       const response = await repository.findOne({
         email: EmailConstants.EXEMPLE,
+        userID: IDConstants.EXEMPLE,
       });
 
-      expect(userModel.findOne).toHaveBeenCalled();
-      expect(mockedExecFindOne).toHaveBeenCalledWith();
+      expect(userModel.findOne).toHaveBeenCalledWith({
+        email: EmailConstants.EXEMPLE,
+        userID: IDConstants.EXEMPLE,
+        deletedAt: null,
+      });
+      expect(mockedExecFindOne).toHaveBeenCalled();
       expect(response).toEqual(user);
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
@@ -87,6 +96,7 @@ describe('MongooseUserRepository', () => {
       expect(userModel.updateOne).toHaveBeenCalledWith(
         {
           userID: IDConstants.EXEMPLE,
+          deletedAt: null,
         },
         { $set: { password: PasswordConstants.EXEMPLE } },
       );
@@ -109,6 +119,31 @@ describe('MongooseUserRepository', () => {
       expect(result).toEqual(user);
       expect(userModel).toHaveBeenCalledWith(user);
       expect(mockedSavePrototype).toHaveBeenCalled();
+    });
+  });
+
+  describe('delete', () => {
+    let mockedExecDelete: Mock;
+
+    beforeEach(() => {
+      mockedExecDelete = vi.fn();
+      userModel.updateOne = vi.fn().mockReturnValue({
+        exec: mockedExecDelete,
+      });
+    });
+
+    it('should call all functions with correct parameters and delete', async () => {
+      const deletedAt = new Date();
+      await repository.delete(IDConstants.EXEMPLE, deletedAt);
+
+      expect(userModel.updateOne).toHaveBeenCalledWith(
+        {
+          userID: IDConstants.EXEMPLE,
+          deletedAt: null,
+        },
+        { $set: { deletedAt: deletedAt } },
+      );
+      expect(mockedExecDelete).toHaveBeenCalled();
     });
   });
 });

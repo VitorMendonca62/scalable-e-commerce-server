@@ -13,16 +13,26 @@ export class MongooseUserRepository implements UserRepository {
   async findOne(
     options: Partial<UserModel>,
   ): Promise<UserModel | undefined | null> {
-    return await this.UserModel.findOne(options).exec();
+    return await this.UserModel.findOne({ ...options, deletedAt: null }).exec();
   }
 
   async update(userID: string, newFields: Partial<UserModel>): Promise<void> {
-    await this.UserModel.updateOne({ userID }, { $set: newFields }).exec();
+    await this.UserModel.updateOne(
+      { userID, deletedAt: null },
+      { $set: newFields },
+    ).exec();
   }
 
   async create(user: UserModel): Promise<UserModel> {
     const userModel = new this.UserModel(user);
     await userModel.save();
     return user;
+  }
+
+  async delete(userID: string, deletedAt: Date): Promise<void> {
+    await this.UserModel.updateOne(
+      { userID, deletedAt: null },
+      { $set: { deletedAt } },
+    ).exec();
   }
 }
