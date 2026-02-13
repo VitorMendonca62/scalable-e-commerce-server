@@ -23,14 +23,12 @@ import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-h
 import { PasswordController } from './infrastructure/adaptars/primary/http/password.controller';
 import { EmailSender } from './domain/ports/secondary/mail-sender.port';
 import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
-import SendCodeForForgotPasswordUseCase from './application/use-cases/send-code-for-forgot-password.usecase';
 import {
   EmailCodeModel,
   EmailCodeSchema,
 } from './infrastructure/adaptars/secondary/database/models/email-code.model';
 import EmailCodeRepository from './domain/ports/secondary/email-code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
-import ValidateCodeForForgotPasswordUseCase from './application/use-cases/validate-code-for-forgot-password.usecase';
 import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase';
 import { TokenRepository } from './domain/ports/secondary/token-repository.port';
 import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
@@ -41,6 +39,7 @@ import * as path from 'path';
 import CertsController from './infrastructure/adaptars/primary/http/certs.controller';
 import GetCertsUseCase from './application/use-cases/get-certs.usecase';
 import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategies/google.strategy';
+import ForgotPasswordUseCase from './application/use-cases/forgot-password.usecase';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -94,8 +93,7 @@ import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategie
     UserMapper,
     UsersQueueService,
     CookieService,
-    SendCodeForForgotPasswordUseCase,
-    ValidateCodeForForgotPasswordUseCase,
+    ForgotPasswordUseCase,
     ChangePasswordUseCase,
     GetCertsUseCase,
     GoogleStrategy,

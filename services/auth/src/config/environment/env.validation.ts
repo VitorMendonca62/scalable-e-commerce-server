@@ -1,3 +1,5 @@
+import 'reflect-metadata';
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -25,6 +27,7 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'HOST cannot be empty.' })
   HOST: string;
 
+  @Type(() => Number)
   @IsNumber({}, { message: 'PORT must be a number.' })
   @Min(1, { message: 'PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
@@ -83,6 +86,7 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
   SMTP_HOST: string;
 
+  @Type(() => Number)
   @IsNumber({}, { message: 'SMTP_PORT must be a number.' })
   @Min(1, { message: 'SMTP_PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'SMTP_PORT must be less than or equal to 65535.' })
