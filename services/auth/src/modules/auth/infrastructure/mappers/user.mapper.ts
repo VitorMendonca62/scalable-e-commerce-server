@@ -47,7 +47,7 @@ export class UserMapper {
       accountProviderID: json.accountProviderID,
       createdAt: json.createdAt,
       updatedAt: json.updatedAt,
-      active: json.active,
+      deletedAt: json.deletedAt,
     });
   }
 
@@ -61,7 +61,7 @@ export class UserMapper {
       accountProviderID: user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
-      active: true,
+      deletedAt: null,
     };
   }
 }

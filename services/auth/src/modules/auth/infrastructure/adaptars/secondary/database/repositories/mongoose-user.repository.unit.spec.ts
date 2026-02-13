@@ -25,7 +25,7 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('findOne', () => {
-    const user = new UserFactory().likeModel();
+    const user = UserFactory.createModel();
 
     let mockedExecFindOne: Mock;
 
@@ -95,7 +95,7 @@ describe('MongooseUserRepository', () => {
   });
 
   describe('create', () => {
-    const user = new UserFactory().likeModel();
+    const user = UserFactory.createModel();
     let mockedSavePrototype: Mock;
 
     beforeEach(() => {

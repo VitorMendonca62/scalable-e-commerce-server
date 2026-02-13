@@ -1,3 +1,5 @@
+vi.unmock('@auth/domain/values-objects/email/email-vo');
+
 import { EmailConstants } from '../constants';
 import EmailVO from './email-vo';
 

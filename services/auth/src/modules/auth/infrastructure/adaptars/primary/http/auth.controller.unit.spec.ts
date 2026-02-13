@@ -108,10 +108,10 @@ describe('AuthController', () => {
   });
 
   describe('googleAuthRedirect', () => {
-    const userModel = new UserFactory().likeModel();
-    const userGoogleInCallback = new GoogleUserFactory().likeUserInCallbBack();
+    const userModel = UserFactory.createModel();
+    const userGoogleInCallback = GoogleUserFactory.createUserInCallbBack();
     const ip = '120.0.0.0';
-    const userGoogleLogin = new GoogleUserFactory().likeEntity();
+    const userGoogleLogin = GoogleUserFactory.createEntity();
 
     let request: FastifyRequest & { user: UserGoogleInCallBack };
 
@@ -231,8 +231,8 @@ describe('AuthController', () => {
   });
 
   describe('login', () => {
-    const loginUserEntity = new LoginUserFactory().likeEntity();
-    const dto = new LoginUserFactory().likeDTO();
+    const loginUserEntity = LoginUserFactory.createEntity();
+    const dto = LoginUserFactory.createDTO();
     const ip = '120.0.0.0';
 
     beforeEach(() => {

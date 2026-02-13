@@ -41,7 +41,7 @@ describe('GetAccessTokenUseCase', () => {
   });
 
   describe('execute', () => {
-    const user = new UserFactory().likeModel();
+    const user = UserFactory.createModel();
     const accessToken = 'ACCESSTOKEN';
     const tokenID = IDConstants.EXEMPLE;
 

@@ -24,7 +24,10 @@ import {
   PasswordHashedVO,
   PasswordVO,
 } from '@auth/domain/values-objects';
-import { IDConstants } from '@auth/domain/values-objects/constants';
+import {
+  IDConstants,
+  PasswordHashedConstants,
+} from '@auth/domain/values-objects/constants';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -41,7 +44,7 @@ describe('UserMapper', () => {
   });
 
   describe('loginDTOForEntity', () => {
-    const dto = new LoginUserFactory().likeDTO();
+    const dto = LoginUserFactory.createDTO();
     const ip = '120.0.0.0';
 
     it('should call VOs with correct parameters', async () => {
@@ -94,7 +97,7 @@ describe('UserMapper', () => {
   });
 
   describe('googleLoginDTOForEntity', () => {
-    const dto = new GoogleUserFactory().likeUserInCallbBack();
+    const dto = GoogleUserFactory.createUserInCallbBack();
     const ip = '120.0.0.0';
 
     it('should call VOs with correct parameters', async () => {
@@ -143,7 +146,9 @@ describe('UserMapper', () => {
   });
 
   describe('modelToEntity', () => {
-    const userModel = new UserFactory().likeModel();
+    const userModel = UserFactory.createModel({
+      password: PasswordHashedConstants.EXEMPLE,
+    });
 
     it('should call VOs with correct parameters', async () => {
       mapper.modelToEntity(userModel);
@@ -180,7 +185,7 @@ describe('UserMapper', () => {
   });
 
   describe('googleEntityForModel', () => {
-    const userGoogleLogin = new GoogleUserFactory().likeEntity();
+    const userGoogleLogin = GoogleUserFactory.createEntity();
 
     it('should return user like json', async () => {
       const result = mapper.googleEntityForModel(
@@ -197,7 +202,7 @@ describe('UserMapper', () => {
         accountProviderID: userGoogleLogin.id,
         createdAt: new Date(),
         updatedAt: new Date(),
-        active: true,
+        deletedAt: null,
       });
     });
   });

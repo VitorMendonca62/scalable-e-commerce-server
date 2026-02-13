@@ -49,7 +49,7 @@ describe('ChangePasswordUseCase', () => {
 
   const userID = IDConstants.EXEMPLE;
   const newPassword = `new-${PasswordConstants.EXEMPLE}`;
-  const user = new UserFactory().likeModel();
+  const user = UserFactory.createModel();
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();

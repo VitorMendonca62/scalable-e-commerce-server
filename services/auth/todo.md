@@ -39,3 +39,5 @@ https://www.reddit.com/r/webdev/comments/1bgs7bi/best_practices_for_forgot_passw
 https://www.reddit.com/r/brdev/comments/1ik45oi/duvida_sobre_jwt_token_e_refresh_token/
 https://www.reddit.com/r/brdev/comments/164yah1/como_vcs_invalidam_um_access_tokenrefresh_token/?chainedPosts=t3_1ik45oi
 https://www.descope.com/blog/post/refresh-token-rotation
+
+[X] Melhorar o docker file

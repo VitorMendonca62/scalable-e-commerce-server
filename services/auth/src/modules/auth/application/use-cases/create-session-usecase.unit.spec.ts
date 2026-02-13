@@ -63,7 +63,7 @@ describe('CreateSessionUseCase', () => {
     );
   });
 
-  const userModel = new UserFactory().likeModel();
+  const userModel = UserFactory.createModel();
 
   const generateAccessAndRefreshTokenResult = {
     accessToken: 'TOKEN',
@@ -79,8 +79,8 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('execute', () => {
-    const userEntity = new UserFactory().likeEntity();
-    const loginUserEntity = new LoginUserFactory().likeEntity();
+    const userEntity = UserFactory.createEntity();
+    const loginUserEntity = LoginUserFactory.createEntity();
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
@@ -146,33 +146,12 @@ describe('CreateSessionUseCase', () => {
         expect(error.data).toBeUndefined();
       }
     });
-
-    it('should throw WrongCredentials if user is not active', async () => {
-      vi.spyOn(userMapper, 'modelToEntity').mockReturnValue({
-        ...userEntity,
-        active: false,
-      });
-
-      try {
-        await useCase.execute(loginUserEntity);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
-        expect(error.message).toBe(
-          'Suas credenciais estão incorretas. Tente novamente',
-        );
-        expect(error.data).toBeUndefined();
-      }
-    });
   });
 
   describe('executeWithGoogle', () => {
-    const userModelFactory: UserFactory = new UserFactory();
-    const googleUserFactory: GoogleUserFactory = new GoogleUserFactory();
-
-    const googleUserModel = googleUserFactory.likeModel();
-    const defautlUserModel = userModelFactory.likeModel();
-    const userGoogleLogin = new GoogleUserFactory().likeEntity();
+    const googleUserModel = UserFactory.createModel();
+    const defautlUserModel = UserFactory.createModel();
+    const userGoogleLogin = GoogleUserFactory.createEntity();
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUserModel);
@@ -225,24 +204,6 @@ describe('CreateSessionUseCase', () => {
 
         expect(result.result).toEqual(generateAccessAndRefreshTokenResult);
         expect(result.newUser).toBeUndefined();
-      });
-
-      it('should throw WrongCredentials if user is not active', async () => {
-        vi.spyOn(userRepository, 'findOne').mockResolvedValue({
-          ...defautlUserModel,
-          active: false,
-        });
-
-        try {
-          await useCase.executeWithGoogle(userGoogleLogin);
-          expect.fail('Should have thrown an error');
-        } catch (error: any) {
-          expect(error).toBeInstanceOf(WrongCredentials);
-          expect(error.message).toBe(
-            'Suas credenciais estão incorretas. Tente novamente',
-          );
-          expect(error.data).toBeUndefined();
-        }
       });
     });
 

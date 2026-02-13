@@ -97,7 +97,7 @@ describe('JwtTokenService', () => {
       vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
     });
 
-    const userModel = new UserFactory().likeModel();
+    const userModel = UserFactory.createModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {
@@ -138,7 +138,7 @@ describe('JwtTokenService', () => {
       vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
     });
 
-    const userModel = new UserFactory().likeModel();
+    const userModel = UserFactory.createModel();
 
     it('should call jwt sign function with correct parameters', async () => {
       const props = {

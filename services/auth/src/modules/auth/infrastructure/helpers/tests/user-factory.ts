@@ -1,61 +1,59 @@
-import { defaultRoles, defaultGoogleRoles } from '@auth/domain/constants/roles';
+import {  defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserEntity } from '@auth/domain/entities/user.entity';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
-import {
-  EmailVO,
-  IDVO,
-  PasswordHashedVO,
-  PasswordVO,
-} from '@auth/domain/values-objects';
+import { EmailVO, IDVO, PasswordVO } from '@auth/domain/values-objects';
 import {
   EmailConstants,
   IDConstants,
   PasswordConstants,
-  PasswordHashedConstants,
 } from '@auth/domain/values-objects/constants';
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
+import BcryptPasswordHasher from '@auth/infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
 import { PasswordHasherFactory } from './password-factory';
 
 export class UserFactory {
-  likeModel(overrides: Partial<UserModel> = {}): UserModel {
+  static createEntity(overrides: Partial<UserEntity> = {}): UserEntity {
+    return new UserEntity({
+      userID: new IDVO(IDConstants.EXEMPLE),
+      email: new EmailVO(EmailConstants.EXEMPLE),
+      accountProvider: AccountsProvider.DEFAULT,
+      accountProviderID: null,
+      roles: defaultRoles,
+      password: new PasswordVO(
+        PasswordConstants.EXEMPLE,
+        false,
+        new BcryptPasswordHasher(),
+      ),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: new Date(),
+      ...overrides,
+    });
+  }
+
+  static createModel(
+    overrides: Partial<UserModel> = {},
+  ): Omit<UserModel, 'id'> {
     return {
       userID: IDConstants.EXEMPLE,
       email: EmailConstants.EXEMPLE,
-      password: PasswordHashedConstants.EXEMPLE,
-      roles: defaultRoles,
-      createdAt: new Date('2025-02-16T17:21:05.370Z'),
-      updatedAt: new Date('2025-02-16T17:21:05.370Z'),
+      password: PasswordConstants.EXEMPLE,
       accountProvider: AccountsProvider.DEFAULT,
-      accountProviderID: undefined,
-      active: true,
+      accountProviderID: null,
+      roles: defaultRoles,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      deletedAt: null,
       ...overrides,
     };
   }
-
-  likeEntity(overrides: Partial<UserModel> = {}) {
-    const userModel = this.likeModel(overrides);
-
-    return new UserEntity({
-      userID: new IDVO(userModel.userID),
-      email: new EmailVO(userModel.email),
-      password: new PasswordHashedVO(
-        userModel.password,
-        new PasswordHasherFactory().default(),
-      ),
-      roles: defaultRoles,
-      createdAt: new Date('2025-02-16T17:21:05.370Z'),
-      updatedAt: new Date('2025-02-16T17:21:05.370Z'),
-      accountProvider: AccountsProvider.DEFAULT,
-      accountProviderID: undefined,
-      active: true,
-    });
-  }
 }
+
 export class LoginUserFactory {
-  likeDTO(overrides: Partial<LoginUserDTO> = {}): LoginUserDTO {
+  static createDTO(overrides: Partial<LoginUserDTO> = {}): LoginUserDTO {
     return {
       email: EmailConstants.EXEMPLE,
       password: PasswordConstants.EXEMPLE,
@@ -63,7 +61,9 @@ export class LoginUserFactory {
     };
   }
 
-  likeDTOLikeInstance(overrides: Partial<LoginUserDTO> = {}): LoginUserDTO {
+  static createDTOLikeInstance(
+    overrides: Partial<LoginUserDTO> = {},
+  ): LoginUserDTO {
     const dto = new LoginUserDTO();
     const keys = Object.keys(overrides);
 
@@ -76,8 +76,8 @@ export class LoginUserFactory {
     return dto;
   }
 
-  likeEntity(overrides: Partial<LoginUserDTO> = {}): UserLogin {
-    const dto = this.likeDTO(overrides);
+  static createEntity(overrides: Partial<LoginUserDTO> = {}): UserLogin {
+    const dto = this.createDTO(overrides);
     return new UserLogin({
       email: new EmailVO(dto.email),
       password: new PasswordVO(
@@ -91,17 +91,7 @@ export class LoginUserFactory {
 }
 
 export class GoogleUserFactory {
-  likeModel(overrides: Partial<UserModel> = {}): UserModel {
-    return new UserFactory().likeModel({
-      password: undefined,
-      roles: defaultGoogleRoles,
-      accountProvider: AccountsProvider.GOOGLE,
-      accountProviderID: `google-${IDConstants.EXEMPLE}`,
-      ...overrides,
-    });
-  }
-
-  likeUserInCallbBack(
+  static createUserInCallbBack(
     overrides: Partial<UserGoogleInCallBack> = {},
   ): UserGoogleInCallBack {
     return {
@@ -113,7 +103,9 @@ export class GoogleUserFactory {
     };
   }
 
-  likeEntity(overrides: Partial<UserGoogleLogin> = {}): UserGoogleLogin {
+  static createEntity(
+    overrides: Partial<UserGoogleLogin> = {},
+  ): UserGoogleLogin {
     return {
       email: new EmailVO(EmailConstants.EXEMPLE),
       id: IDConstants.EXEMPLE,

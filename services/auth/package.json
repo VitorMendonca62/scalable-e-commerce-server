@@ -18,10 +18,11 @@
     "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts --testPathPattern=\".unit.spec.ts\"",
     "jwt:keys:auth": "openssl genrsa -out ./certs/auth-private.pem 2048 && openssl rsa -in ./certs/auth-private.pem -pubout -out ./certs/auth-public.pem",
     "jwt:keys:reset-pass": "openssl genrsa -out ./certs/reset-pass-private.pem 2048 && openssl rsa -in ./certs/reset-pass-private.pem -pubout -out ./certs/reset-pass-public.pem",
-    "jwt:keys:generate": "pnpm run jwt:keys:auth && pnpm run jwt:keys:reset-pass",
+    "jwt:keys:generate": "bun run jwt:keys:auth && bun run jwt:keys:reset-pass",
     "jwt:keys:clean": "rm ./certs/*.pem"
   },
   "dependencies": {
+    "@nestjs/cli": "^10.4.9",
     "@fastify/cookie": "^10.0.0",
     "@fastify/static": "^9.0.0",
     "@nestjs-modules/ioredis": "^2.0.2",
@@ -56,7 +57,6 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
-    "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^11.1.12",
     "@types/bcrypt": "^5.0.2",
@@ -81,9 +81,6 @@
     "vitest": "^4.0.17"
   },
   "pnpm": {
-    "overrides": {
-      "fastify": "5.7.1"
-    },
     "onlyBuiltDependencies": [
       "@nestjs/core",
       "@scarf/scarf",
@@ -107,5 +104,15 @@
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
   },
-  "packageManager": "pnpm@10.25.0+sha512.5e82639027af37cf832061bcc6d639c219634488e0f2baebe785028a793de7b525ffcd3f7ff574f5e9860654e098fe852ba8ac5dd5cefe1767d23a020a92f501"
+  "packageManager": "pnpm@10.25.0+sha512.5e82639027af37cf832061bcc6d639c219634488e0f2baebe785028a793de7b525ffcd3f7ff574f5e9860654e098fe852ba8ac5dd5cefe1767d23a020a92f501",
+  "overrides": {
+    "fastify": "5.7.1",
+    "glob@>=10.2.0 <10.5.0": ">=10.5.0",
+    "js-yaml@>=4.0.0 <4.1.1": ">=4.1.1",
+    "nodemailer@<7.0.11": ">=7.0.11",
+    "nodemailer@<7.0.7": ">=7.0.7",
+    "nodemailer@<=7.0.10": ">=7.0.11",
+    "qs@<6.14.1": ">=6.14.1",
+    "tmp@<=0.2.3": ">=0.2.4"
+  }
 }

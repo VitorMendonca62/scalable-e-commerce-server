@@ -14,7 +14,7 @@ describe('LoginUserDTO', () => {
 
   it('should sucess validation when all fields are valid', async () => {
     const errors = await validationObjectFactory.validateObject(
-      new LoginUserFactory().likeDTOLikeInstance(),
+      LoginUserFactory.createDTOLikeInstance(),
     );
     expect(errors).toHaveLength(0);
   });
@@ -27,7 +27,7 @@ describe('LoginUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = new LoginUserFactory().likeDTOLikeInstance({
+      const dto = LoginUserFactory.createDTOLikeInstance({
         [key]: undefined,
       });
 
@@ -49,7 +49,7 @@ describe('LoginUserDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = new LoginUserFactory().likeDTOLikeInstance({ [key]: 12345 });
+      const dto = LoginUserFactory.createDTOLikeInstance({ [key]: 12345 });
 
       const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
@@ -60,7 +60,7 @@ describe('LoginUserDTO', () => {
   });
 
   it('should return error when any field is shorter than the allowed length', async () => {
-    const dto = new LoginUserFactory().likeDTOLikeInstance({ password: 'a' });
+    const dto = LoginUserFactory.createDTOLikeInstance({ password: 'a' });
 
     const errors = await validationObjectFactory.validateObject(dto);
     const fieldError = errors[0];
@@ -72,7 +72,7 @@ describe('LoginUserDTO', () => {
   });
 
   it('should return error when email is invalid', async () => {
-    const dto = new LoginUserFactory().likeDTOLikeInstance({
+    const dto = LoginUserFactory.createDTOLikeInstance({
       email: EmailConstants.WRONG_EXEMPLE,
     });
 

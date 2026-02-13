@@ -49,8 +49,6 @@ export class CreateSessionUseCase {
       throw new WrongCredentials();
     }
 
-    if (user.active === false) throw new WrongCredentials();
-
     return await this.generateAccessAndRefreshToken(userJSON, inputUser.ip);
   }
 
@@ -67,10 +65,6 @@ export class CreateSessionUseCase {
     }
 
     if (newUserModel === undefined) {
-      if (userModel.active === false) {
-        throw new WrongCredentials();
-      }
-
       if (userModel.accountProvider === AccountsProvider.DEFAULT) {
         await this.userRepository.update(userModel.userID, {
           accountProvider: AccountsProvider.GOOGLE,

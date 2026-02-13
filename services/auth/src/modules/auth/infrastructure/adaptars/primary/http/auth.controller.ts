@@ -14,17 +14,13 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
-import { LoginUserDTO } from './dtos/login-user.dto';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
-import { CreateSessionUseCase } from '@auth/application/use-cases/create-session.usecase';
-import { GetAccessTokenUseCase } from '@auth/application/use-cases/get-access-token.usecase';
 import {
   HttpResponseOutbound,
   HttpCreatedResponse,
   HttpOKResponse,
   HttpNoContentResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
-import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
@@ -35,6 +31,12 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { FastifyReply, FastifyRequest } from 'fastify';
+import {
+  CreateSessionUseCase,
+  FinishSessionUseCase,
+  GetAccessTokenUseCase,
+} from '@auth/application/use-cases/use-cases';
+import { LoginUserDTO } from './dtos/dtos';
 
 @Controller('auth')
 @ApiTags('AuthController')

@@ -25,9 +25,6 @@ export class UserModel {
   })
   roles: PermissionsSystem[];
 
-  @Prop({ required: true, type: Boolean, default: true })
-  active: boolean;
-
   @Prop({
     required: true,
     type: String,
@@ -46,6 +43,9 @@ export class UserModel {
 
   @Prop({ required: true, type: Date, default: Date.now })
   updatedAt: Date;
+
+  @Prop({ required: false, type: Date })
+  deletedAt: Date;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserModel);
