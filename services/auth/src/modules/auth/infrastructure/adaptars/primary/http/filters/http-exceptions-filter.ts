@@ -14,7 +14,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
-
+    console.error(exception)
     if (
       exception instanceof HttpError ||
       exception instanceof UnauthorizedException ||

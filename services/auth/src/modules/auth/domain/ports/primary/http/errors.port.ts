@@ -84,3 +84,15 @@ export class ExternalServiceError<T = unknown> extends HttpError {
     this.data = data;
   }
 }
+
+export class InvalidToken<T = unknown> extends HttpError {
+  constructor(
+    message: string = 'Suas credenciais estão incorretas. Tente novamente',
+    data: T = undefined as T,
+  ) {
+    super(HttpStatus.UNAUTHORIZED, message, data);
+    this.statusCode = HttpStatus.UNAUTHORIZED;
+    this.message = message;
+    this.data = data;
+  }
+}

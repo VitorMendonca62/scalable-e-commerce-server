@@ -1,7 +1,7 @@
 import { ExecutionContext } from '@nestjs/common';
 import RevocationGuard from './revocation.guard';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { InvalidToken } from '@auth/domain/ports/primary/http/errors.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 
 describe('RevocationGuard', () => {
@@ -42,7 +42,7 @@ describe('RevocationGuard', () => {
       expect(result).toBe(true);
     });
 
-    it('should throw WrongCredentials if token is empyt', async () => {
+    it('should throw InvalidToken if token is empyt', async () => {
       try {
         getRequestMock.mockReturnValue({
           headers: { 'x-token-id': '' },
@@ -50,7 +50,7 @@ describe('RevocationGuard', () => {
         await guard.canActivate(executionContext);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error).toBeInstanceOf(InvalidToken);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
         expect(error.data).toBeUndefined();
       }
@@ -62,7 +62,7 @@ describe('RevocationGuard', () => {
         await guard.canActivate(executionContext);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error).toBeInstanceOf(InvalidToken);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
         expect(error.data).toBeUndefined();
       }
@@ -74,12 +74,12 @@ describe('RevocationGuard', () => {
         await guard.canActivate(executionContext);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error).toBeInstanceOf(InvalidToken);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
         expect(error.data).toBeUndefined();
       }
     });
-    it('should throw WrongCredentials if token is revoked', async () => {
+    it('should throw InvalidToken if token is revoked', async () => {
       const tokenID = IDConstants.EXEMPLE;
 
       getRequestMock.mockReturnValue({
@@ -93,7 +93,7 @@ describe('RevocationGuard', () => {
         expect(tokenRepository.isRevoked).toHaveBeenCalledWith(tokenID);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
-        expect(error).toBeInstanceOf(WrongCredentials);
+        expect(error).toBeInstanceOf(InvalidToken);
         expect(error.message).toBe('Sessão inválida. Faça login novamente.');
         expect(error.data).toBeUndefined();
       }

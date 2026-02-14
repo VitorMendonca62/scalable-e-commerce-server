@@ -81,7 +81,7 @@ describe('GetAccessTokenUseCase', () => {
       expect(result).toEqual({
         ok: false,
         reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'Token inválido ou expirado',
+        message: 'Sessão inválida. Faça login novamente.',
       });
     });
   });
