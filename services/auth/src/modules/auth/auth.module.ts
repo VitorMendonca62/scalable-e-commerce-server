@@ -40,6 +40,7 @@ import CertsController from './infrastructure/adaptars/primary/http/certs.contro
 import GetCertsUseCase from './application/use-cases/get-certs.usecase';
 import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategies/google.strategy';
 import ForgotPasswordUseCase from './application/use-cases/forgot-password.usecase';
+import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -85,7 +86,12 @@ import ForgotPasswordUseCase from './application/use-cases/forgot-password.useca
       },
     ]),
   ],
-  controllers: [AuthController, PasswordController, CertsController],
+  controllers: [
+    AuthController,
+    PasswordController,
+    CertsController,
+    UserExternalController,
+  ],
   providers: [
     CreateSessionUseCase,
     GetAccessTokenUseCase,

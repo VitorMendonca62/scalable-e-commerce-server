@@ -20,6 +20,7 @@ import { v7 } from 'uuid';
 
 import { type Mock } from 'vitest';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
+import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
@@ -28,6 +29,7 @@ describe('CreateSessionUseCase', () => {
   let tokenService: TokenService;
   let userMapper: UserMapper;
   let tokenRepository: TokenRepository;
+  let passwordHasher: PasswordHasher;
 
   beforeEach(async () => {
     userRepository = {
@@ -50,11 +52,16 @@ describe('CreateSessionUseCase', () => {
       saveSession: vi.fn(),
     } as any;
 
+    passwordHasher = {
+      compare: vi.fn(),
+    } as any;
+
     useCase = new CreateSessionUseCase(
       userRepository,
       tokenRepository,
       tokenService,
       userMapper,
+      passwordHasher,
     );
   });
 
@@ -71,16 +78,15 @@ describe('CreateSessionUseCase', () => {
     expect(tokenRepository).toBeDefined();
     expect(tokenService).toBeDefined();
     expect(userMapper).toBeDefined();
+    expect(passwordHasher).toBeDefined();
   });
 
   describe('execute', () => {
-    const userEntity = UserFactory.createEntity();
     const loginUserEntity = LoginUserFactory.createEntity();
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
-      vi.spyOn(userMapper, 'modelToEntity').mockReturnValue(userEntity);
-      vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(true);
+      vi.spyOn(passwordHasher, 'compare').mockReturnValue(true);
 
       vi.spyOn(
         useCase as any,
@@ -95,10 +101,9 @@ describe('CreateSessionUseCase', () => {
         email: loginUserEntity.email.getValue(),
       });
 
-      expect(userMapper.modelToEntity).toHaveBeenCalledWith(userModel);
-
-      expect(userEntity.password.comparePassword).toHaveBeenCalledWith(
+      expect(passwordHasher.compare).toHaveBeenCalledWith(
         loginUserEntity.password.getValue(),
+        userModel.password,
       );
 
       expect(
@@ -115,19 +120,33 @@ describe('CreateSessionUseCase', () => {
       });
     });
 
-    it('should return not found reason and ok false  when user does not exists', async () => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
+    it('should return WRONG_CREDENTIALS reason and ok false  when user does not exists', async () => {
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue(null);
 
       const result = await useCase.execute(loginUserEntity);
       expect(result).toEqual({
         ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
         message: 'Suas credenciais estão incorretas. Tente novamente',
       });
     });
 
     it('should return WrongCredentials reason and ok is false if password is incorrect', async () => {
-      vi.spyOn(userEntity.password, 'comparePassword').mockReturnValue(false);
+      vi.spyOn(passwordHasher, 'compare').mockReturnValue(false);
+
+      const result = await useCase.execute(loginUserEntity);
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
+        message: 'Suas credenciais estão incorretas. Tente novamente',
+      });
+    });
+
+    it('should return WrongCredentials reason and ok is false if password is undefined', async () => {
+      vi.spyOn(userRepository, 'findOne').mockResolvedValue({
+        ...userModel,
+        password: undefined,
+      });
 
       const result = await useCase.execute(loginUserEntity);
       expect(result).toEqual({

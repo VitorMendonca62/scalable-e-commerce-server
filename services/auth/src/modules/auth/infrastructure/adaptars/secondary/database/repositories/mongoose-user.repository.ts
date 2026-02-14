@@ -10,9 +10,7 @@ export class MongooseUserRepository implements UserRepository {
     @InjectModel(UserModel.name) private UserModel: Model<UserDocument>,
   ) {}
 
-  async findOne(
-    options: Partial<UserModel>,
-  ): Promise<UserModel | undefined | null> {
+  async findOne(options: Partial<UserModel>): Promise<UserModel | null> {
     return await this.UserModel.findOne({ ...options, deletedAt: null }).exec();
   }
 

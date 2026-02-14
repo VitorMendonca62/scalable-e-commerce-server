@@ -4,7 +4,6 @@ import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import { UserLogin } from '../../domain/entities/user-login.entity';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
-import PasswordHashedVO from '@auth/domain/values-objects/password-hashed/password-hashed-vo';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
@@ -15,6 +14,7 @@ import {
   ExecuteWithGoogleReturn,
 } from '@auth/domain/ports/application/create-session.port';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
+import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 
 @Injectable()
 export class CreateSessionUseCase implements CreateSesssionPort {
@@ -23,6 +23,7 @@ export class CreateSessionUseCase implements CreateSesssionPort {
     private readonly tokenRepository: TokenRepository,
     private readonly tokenService: TokenService,
     private readonly userMapper: UserMapper,
+    private readonly passwordHasher: PasswordHasher,
   ) {}
 
   async execute(inputUser: UserLogin): Promise<ExecuteReturn> {
@@ -30,19 +31,17 @@ export class CreateSessionUseCase implements CreateSesssionPort {
       email: inputUser.email.getValue(),
     });
 
-    if (userJSON === undefined || userJSON === null) {
-      return {
-        ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'Suas credenciais estão incorretas. Tente novamente',
-      };
-    }
+    const passwordToCompare = userJSON?.password ?? this.getDummyHash();
 
-    const user = this.userMapper.modelToEntity(userJSON);
+    const isPasswordValid = this.passwordHasher.compare(
+      inputUser.password.getValue(),
+      passwordToCompare,
+    );
+
     if (
-      !(user.password as PasswordHashedVO).comparePassword(
-        inputUser.password.getValue(),
-      )
+      userJSON === null ||
+      userJSON.password === undefined ||
+      !isPasswordValid
     ) {
       return {
         ok: false,
@@ -110,5 +109,9 @@ export class CreateSessionUseCase implements CreateSesssionPort {
       accessToken: accessToken,
       refreshToken: refreshToken,
     };
+  }
+
+  private getDummyHash(): string {
+    return '$2b$10$vorH1nYFz83im3JmINcCzOCEfopiqn0WF5mN6VtMNjrLz5riU/WKi';
   }
 }

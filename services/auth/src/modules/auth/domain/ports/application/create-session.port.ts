@@ -10,9 +10,7 @@ export interface CreateSesssionPort {
   ) => Promise<ExecuteWithGoogleReturn>;
 }
 
-type ExecuteResultReasons =
-  | ApplicationResultReasons.WRONG_CREDENTIALS
-  | ApplicationResultReasons.NOT_FOUND;
+type ExecuteResultReasons = ApplicationResultReasons.WRONG_CREDENTIALS;
 
 export type ExecuteReturn =
   | {
