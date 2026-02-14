@@ -5,10 +5,17 @@ export class UserLogin {
   email: EmailVO;
   password: PasswordVO;
   ip: string;
+  userAgent: string;
 
-  constructor(props: { email: EmailVO; password: PasswordVO; ip: string }) {
+  constructor(props: {
+    email: EmailVO;
+    password: PasswordVO;
+    ip: string;
+    userAgent: string;
+  }) {
     this.email = props.email;
     this.password = props.password;
     this.ip = props.ip;
+    this.userAgent = props.userAgent;
   }
 }

@@ -108,7 +108,11 @@ describe('CreateSessionUseCase', () => {
 
       expect(
         (useCase as any).generateAccessAndRefreshToken,
-      ).toHaveBeenCalledWith(userModel, loginUserEntity.ip);
+      ).toHaveBeenCalledWith(
+        userModel,
+        loginUserEntity.ip,
+        loginUserEntity.userAgent,
+      );
     });
 
     it('should return what generateAccessAndRefreshToken returns', async () => {
@@ -193,7 +197,11 @@ describe('CreateSessionUseCase', () => {
 
         expect(
           (useCase as any).generateAccessAndRefreshToken,
-        ).toHaveBeenCalledWith(userModel, userGoogleLogin.ip);
+        ).toHaveBeenCalledWith(
+          userModel,
+          userGoogleLogin.ip,
+          userGoogleLogin.userAgent,
+        );
       });
 
       it('should no call userRepository.update when account provider not is default', async () => {
@@ -242,7 +250,11 @@ describe('CreateSessionUseCase', () => {
 
         expect(
           (useCase as any).generateAccessAndRefreshToken,
-        ).toHaveBeenCalledWith(googleUserModel, userGoogleLogin.ip);
+        ).toHaveBeenCalledWith(
+          googleUserModel,
+          userGoogleLogin.ip,
+          userGoogleLogin.userAgent,
+        );
       });
 
       it('should return accessToken and refreshToken in result and newUser', async () => {
@@ -280,7 +292,11 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should call all functions with correct parameters', async () => {
-      await (useCase as any).generateAccessAndRefreshToken(userModel, ip);
+      await (useCase as any).generateAccessAndRefreshToken(
+        userModel,
+        ip,
+        'agent',
+      );
 
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith({
         email: userModel.email,
@@ -294,6 +310,7 @@ describe('CreateSessionUseCase', () => {
         IDConstants.EXEMPLE,
         IDConstants.EXEMPLE,
         ip,
+        'agent',
       );
     });
   });

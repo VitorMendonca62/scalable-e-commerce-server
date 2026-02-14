@@ -32,17 +32,19 @@ describe('RedisTokenRepository', () => {
   const tokenID = `token-${IDConstants.EXEMPLE}`;
   const userID = IDConstants.EXEMPLE;
   const ip = '122.0.0.0';
+  const userAgent = 'agent';
 
   describe('saveSession', () => {
     it('should call all functions with correct parameters', async () => {
       const tokenKey = `token:${tokenID}`;
-      await repository.saveSession(tokenID, userID, ip);
+      await repository.saveSession(tokenID, userID, ip, userAgent);
 
       expect(redis.hset).toHaveBeenCalledWith(tokenKey, {
         userID: userID,
         ip: ip,
         lastAccess: new Date().getTime(),
         createdAt: new Date().getTime(),
+        userAgent,
       });
       expect(redis.sadd).toHaveBeenCalledWith(`session:${userID}`, tokenKey);
       expect(redis.expire).toHaveBeenCalledWith(tokenKey, 604800);

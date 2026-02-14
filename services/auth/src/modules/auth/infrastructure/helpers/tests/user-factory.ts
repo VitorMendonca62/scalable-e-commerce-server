@@ -1,4 +1,4 @@
-import {  defaultRoles } from '@auth/domain/constants/roles';
+import { defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserEntity } from '@auth/domain/entities/user.entity';
@@ -86,6 +86,7 @@ export class LoginUserFactory {
         new PasswordHasherFactory().default(),
       ),
       ip: '122.0.0.0',
+      userAgent: 'agent',
     });
   }
 }
@@ -111,6 +112,7 @@ export class GoogleUserFactory {
       id: IDConstants.EXEMPLE,
       name: 'test',
       ip: '122.0.0.0',
+      userAgent: 'agent',
       ...overrides,
     };
   }

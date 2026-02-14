@@ -52,7 +52,11 @@ export class CreateSessionUseCase implements CreateSesssionPort {
 
     return {
       ok: true,
-      result: await this.generateAccessAndRefreshToken(userJSON, inputUser.ip),
+      result: await this.generateAccessAndRefreshToken(
+        userJSON,
+        inputUser.ip,
+        inputUser.userAgent,
+      ),
     };
   }
 
@@ -86,13 +90,18 @@ export class CreateSessionUseCase implements CreateSesssionPort {
         tokens: await this.generateAccessAndRefreshToken(
           newUserModel || userModel,
           inputUser.ip,
+          inputUser.userAgent,
         ),
         newUser: newUserModel,
       },
     };
   }
 
-  private async generateAccessAndRefreshToken(user: UserModel, ip: string) {
+  private async generateAccessAndRefreshToken(
+    user: UserModel,
+    ip: string,
+    userAgent: string,
+  ) {
     const accessToken = this.tokenService.generateAccessToken({
       email: user.email,
       userID: user.userID,
@@ -103,7 +112,7 @@ export class CreateSessionUseCase implements CreateSesssionPort {
       user.userID,
     );
 
-    await this.tokenRepository.saveSession(tokenID, user.userID, ip);
+    await this.tokenRepository.saveSession(tokenID, user.userID, ip, userAgent);
 
     return {
       accessToken: accessToken,

@@ -10,6 +10,7 @@ export class RedisTokenRepository implements TokenRepository {
     tokenID: string,
     userID: string,
     ip: string,
+    userAgent: string,
   ): Promise<void> {
     const tokenKey = `token:${tokenID}`;
 
@@ -18,6 +19,7 @@ export class RedisTokenRepository implements TokenRepository {
       ip: ip,
       lastAccess: new Date().getTime(),
       createdAt: new Date().getTime(),
+      userAgent: userAgent,
     });
 
     await this.redis.sadd(`session:${userID}`, tokenKey);

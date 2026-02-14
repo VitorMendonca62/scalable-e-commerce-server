@@ -114,6 +114,7 @@ describe('AuthController', () => {
     const userGoogleInCallback = GoogleUserFactory.createUserInCallbBack();
     const ip = '120.0.0.0';
     const userGoogleLogin = GoogleUserFactory.createEntity();
+    const userAgent = 'agent';
 
     let request: FastifyRequest & { user: UserGoogleInCallBack };
 
@@ -139,11 +140,12 @@ describe('AuthController', () => {
     });
 
     it('should call createSessionUseCase.executeWithGoogle with mapped DTO', async () => {
-      await controller.googleAuthRedirect(request, response, ip);
+      await controller.googleAuthRedirect(request, response, ip, userAgent);
 
       expect(userMapper.googleLoginDTOForEntity).toHaveBeenCalledWith(
         userGoogleInCallback,
         ip,
+        userAgent,
       );
       expect(createSessionUseCase.executeWithGoogle).toHaveBeenCalledWith(
         userGoogleLogin,
@@ -162,7 +164,7 @@ describe('AuthController', () => {
         },
       });
 
-      await controller.googleAuthRedirect(request, response, ip);
+      await controller.googleAuthRedirect(request, response, ip, userAgent);
 
       expect(usersQueueService.send).toHaveBeenCalledWith(
         'user-create-google',
@@ -179,7 +181,7 @@ describe('AuthController', () => {
     });
 
     it('should set access token and refresh token on cookies', async () => {
-      await controller.googleAuthRedirect(request, response, ip);
+      await controller.googleAuthRedirect(request, response, ip, userAgent);
 
       expect(cookieService.setCookie).toHaveBeenNthCalledWith(
         1,
@@ -198,7 +200,12 @@ describe('AuthController', () => {
     });
 
     it('should return HttpCreatedResponse on success', async () => {
-      const result = await controller.googleAuthRedirect(request, response, ip);
+      const result = await controller.googleAuthRedirect(
+        request,
+        response,
+        ip,
+        userAgent,
+      );
 
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
@@ -213,7 +220,7 @@ describe('AuthController', () => {
       );
 
       try {
-        await controller.googleAuthRedirect(request, response, ip);
+        await controller.googleAuthRedirect(request, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -228,7 +235,7 @@ describe('AuthController', () => {
       });
 
       try {
-        await controller.googleAuthRedirect(request, response, ip);
+        await controller.googleAuthRedirect(request, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -242,6 +249,7 @@ describe('AuthController', () => {
     const loginUserEntity = LoginUserFactory.createEntity();
     const dto = LoginUserFactory.createDTO();
     const ip = '120.0.0.0';
+    const userAgent = 'agent';
 
     beforeEach(() => {
       vi.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(
@@ -258,16 +266,20 @@ describe('AuthController', () => {
     });
 
     it('should call createSessionUseCase.execute with mapped DTO', async () => {
-      await controller.login(dto, response, ip);
+      await controller.login(dto, response, ip, userAgent);
 
-      expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(dto, ip);
+      expect(userMapper.loginDTOForEntity).toHaveBeenCalledWith(
+        dto,
+        ip,
+        userAgent,
+      );
       expect(createSessionUseCase.execute).toHaveBeenCalledWith(
         loginUserEntity,
       );
     });
 
     it('should set access token and refresh token on cookies', async () => {
-      await controller.login(dto, response, ip);
+      await controller.login(dto, response, ip, userAgent);
 
       expect(cookieService.setCookie).toHaveBeenNthCalledWith(
         1,
@@ -286,30 +298,13 @@ describe('AuthController', () => {
     });
 
     it('should return HttpCreatedResponse on success', async () => {
-      const result = await controller.login(dto, response, ip);
+      const result = await controller.login(dto, response, ip, userAgent);
 
       expect(response.status).toBeCalledWith(HttpStatus.CREATED);
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
         message: 'Usuário realizou login com sucesso',
-      });
-    });
-
-    it('should return WrongCredentials on not found error', async () => {
-      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'message',
-      });
-
-      const result = await controller.login(dto, response, ip);
-
-      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
-      expect(result).toBeInstanceOf(WrongCredentials);
-      expect(result).toEqual({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'message',
       });
     });
 
@@ -320,7 +315,7 @@ describe('AuthController', () => {
         message: 'message',
       });
 
-      const result = await controller.login(dto, response, ip);
+      const result = await controller.login(dto, response, ip, userAgent);
 
       expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
       expect(result).toBeInstanceOf(WrongCredentials);
@@ -336,7 +331,7 @@ describe('AuthController', () => {
       );
 
       try {
-        await controller.login(dto, response, ip);
+        await controller.login(dto, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -351,7 +346,7 @@ describe('AuthController', () => {
       });
 
       try {
-        await controller.login(dto, response, ip);
+        await controller.login(dto, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

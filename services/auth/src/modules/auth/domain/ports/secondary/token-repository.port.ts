@@ -3,6 +3,7 @@ export abstract class TokenRepository {
     tokenID: string,
     userID: string,
     ip: string,
+    userAgent: string,
   ): Promise<void>;
 
   abstract revokeOneSession(tokenID: string, userID: string): Promise<void>;

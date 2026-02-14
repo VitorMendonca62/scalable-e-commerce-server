@@ -68,9 +68,14 @@ export class AuthController {
     @Req() request: FastifyRequest & { user: UserGoogleInCallBack },
     @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
   ) {
     const user = request.user;
-    const googleLoginDTO = this.userMapper.googleLoginDTOForEntity(user, ip);
+    const googleLoginDTO = this.userMapper.googleLoginDTOForEntity(
+      user,
+      ip,
+      userAgent,
+    );
 
     const useCaseResult =
       await this.createSessionUseCase.executeWithGoogle(googleLoginDTO);
@@ -113,9 +118,10 @@ export class AuthController {
     @Body() dto: LoginUserDTO,
     @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
+    @Headers('user-agent') userAgent: string,
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.createSessionUseCase.execute(
-      this.userMapper.loginDTOForEntity(dto, ip),
+      this.userMapper.loginDTOForEntity(dto, ip, userAgent),
     );
 
     if (useCaseResult.ok === false) {
