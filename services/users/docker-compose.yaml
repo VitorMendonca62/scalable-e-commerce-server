@@ -25,6 +25,7 @@ services:
       - postgres_data:/data/db
     networks:
       - api-net
+
   redis:
       image: redis:7.2
       container_name: redis-users
@@ -35,4 +36,19 @@ services:
       volumes:
         - redis_data:/data
       networks:
-        - api-net
+      - api-net
+  api:
+    container_name: scalable-e-commerce-users-api
+    build: .
+    ports:
+      - "$PORT:$PORT"
+    depends_on:
+      - database
+    restart: always
+    networks:
+      - rabbit_connection_net
+      - api-net
+    develop:
+      watch:
+        - action: rebuild
+          path: .

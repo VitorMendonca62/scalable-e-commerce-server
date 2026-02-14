@@ -31,7 +31,7 @@ async function bootstrap() {
   const PORT = configService.get<number>('PORT') ?? 3333;
   const HOST = configService.get<string>('HOST');
 
-  await app.register(fastifyCookie, {
+  await app.register(fastifyCookie as any, {
     secret: configService.get<string>('COOKIE_SECRET'),
   });
 

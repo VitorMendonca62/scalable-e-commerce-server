@@ -1,15 +1,24 @@
-FROM node:24-alpine
-
+FROM oven/bun:canary-alpine AS base
 WORKDIR /app
 
-RUN npm install pnpm -g
+FROM base AS install
+RUN mkdir -p /temp
+COPY package.json bun.lock /temp/
+RUN cd /temp && bun install --frozen-lockfile 
 
-COPY package*.json /app
+FROM base AS builder
+COPY --from=install /temp/node_modules node_modules
+COPY . .
+RUN bun run build
 
-RUN pnpm install
+FROM base AS release
+ENV NODE_ENV=production
+WORKDIR /app
 
-COPY . /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/package.json ./package.json
+COPY --from=install /temp/node_modules ./node_modules
 
+USER bun
 EXPOSE 8082
-
-CMD [ "pnpm", "start" ]
+CMD ["bun", "run", "dist/main.js"]
