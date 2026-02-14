@@ -13,6 +13,7 @@ import {
   PasswordVO,
   PasswordHashedVO,
 } from '@auth/domain/values-objects';
+import { CreateExternalUserDTO } from '../adaptars/primary/microservices/dtos/create-user.dto';
 
 @Injectable()
 export class UserMapper {
@@ -61,6 +62,20 @@ export class UserMapper {
       accountProviderID: user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
+      deletedAt: null,
+    };
+  }
+
+  externalUserForModel(user: CreateExternalUserDTO): UserModel {
+    return {
+      userID: user.userID,
+      email: user.email,
+      password: user.password,
+      roles: user.roles,
+      accountProvider: AccountsProvider.DEFAULT,
+      accountProviderID: undefined,
+      createdAt: new Date(user.createdAt),
+      updatedAt: new Date(user.updatedAt),
       deletedAt: null,
     };
   }

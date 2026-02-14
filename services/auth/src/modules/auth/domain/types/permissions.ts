@@ -1,4 +1,6 @@
 export enum PermissionsSystem {
+  ENTER = 'enter',
+
   READ_ITEMS = 'read_items',
 
   CHANGE_PASSWORD = 'change_password',

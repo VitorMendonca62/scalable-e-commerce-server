@@ -102,110 +102,7 @@ POST /auth/logout (com x-user-id + x-token-id)
 
 ---
 
-#### **P-01: Rate Limiting Não Implementado**
-
-| Aspecto | Detalhes |
-|---------|----------|
-| **Severidade** | 🔴 CRÍTICA |
-| **Requisito Violado** | RNF-A02 (Limitação de Tentativas) |
-| **Risco** | Vulnerabilidade a ataques de força bruta (brute force attacks) |
-| **Localização** | `auth.controller.ts` (endpoints `/login`, `/pass/send-code`) |
-
-**Problema:**
-Não há implementação de rate limiting nos endpoints sensíveis. Um atacante pode fazer infinite login attempts sem restrição, aumentando a superfície de ataque.
-
-**Código Atual (Vulnerável):**
-```typescript
-@Controller('auth')
-export class AuthController {
-  @Post('/login')
-  @ApiLoginUser()
-  async login(
-    @Body() dto: LoginUserDTO,
-    @Res({ passthrough: true }) response: FastifyReply,
-    @Ip() ip: string,
-  ): Promise<HttpResponseOutbound> {
-    // ❌ Sem rate limiting
-    const useCaseResult = await this.createSessionUseCase.execute(
-      this.userMapper.loginDTOForEntity(dto, ip),
-    );
-    // ...
-  }
-}
-```
-
-**Solução Recomendada:**
-
-1. Instalar `@nestjs/throttler`:
-```bash
-npm install @nestjs/throttler
-```
-
-2. Configurar no `auth.module.ts`:
-```typescript
-import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
-import { APP_GUARD } from '@nestjs/core';
-
-@Module({
-  imports: [
-    ThrottlerModule.forRoot([
-      {
-        name: 'short',
-        ttl: 60000,    // 1 minuto
-        limit: 5,      // 5 tentativas
-      },
-      {
-        name: 'long',
-        ttl: 900000,   // 15 minutos
-        limit: 20,     // 20 tentativas
-      },
-    ]),
-  ],
-  providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
-  ],
-})
-export class AuthModule {}
-```
-
-3. Aplicar guardião aos controllers:
-```typescript
-import { ThrottlerSkip } from '@nestjs/throttler';
-
-@Controller('auth')
-export class AuthController {
-  @Post('/login')
-  @Throttle('short', '5-1m') // 5 por minuto
-  async login(
-    @Body() dto: LoginUserDTO,
-    @Res({ passthrough: true }) response: FastifyReply,
-    @Ip() ip: string,
-  ): Promise<HttpResponseOutbound> {
-    // ...
-  }
-
-  @Post('/pass/send-code')
-  @Throttle('long', '3-15m') // 3 por 15 minutos
-  async sendCode(
-    @Body() dto: SendCodeForForgotPasswordDTO,
-  ): Promise<HttpResponseOutbound> {
-    // ...
-  }
-}
-```
-
-**Benefícios:**
-- ✅ Mitigação de brute force attacks
-- ✅ Proteção contra DoS
-- ✅ Controle granular por endpoint
-- ✅ Reutilizável via decoradores
-
----
-
-#### **P-02: Ausência de Logging e Auditoria Completos**
+#### **P-01: Ausência de Logging e Auditoria Completos**
 
 | Aspecto | Detalhes |
 |---------|----------|
@@ -437,7 +334,7 @@ export class AppModule {}
 
 ---
 
-#### **P-03: Vulnerabilidade de Timing Attack em PasswordVO**
+#### **P-02: Vulnerabilidade de Timing Attack em PasswordVO**
 
 | Aspecto | Detalhes |
 |---------|----------|
