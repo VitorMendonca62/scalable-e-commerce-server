@@ -35,6 +35,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-email-code.repository';
 import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
+import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
+import { PasswordHasher } from './domain/ports/secondary/password-hasher.port';
 @Module({
   imports: [
     HttpModule,
@@ -112,6 +114,10 @@ import UserExternalController from './infrastructure/adaptars/primary/microservi
     {
       provide: TokenService,
       useClass: JwtTokenService,
+    },
+    {
+      provide: PasswordHasher,
+      useClass: BcryptPasswordHasher,
     },
   ],
 })

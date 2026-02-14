@@ -11,15 +11,17 @@ import {
   ExecuteReturn,
 } from '@modules/user/domain/ports/application/user/create-user.port';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { PasswordHasher } from '@modules/user/domain/ports/secondary/password-hasher.port';
 
 @Injectable()
 export class CreateUserUseCase implements CreateUserPort {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly userMapper: UserMapper,
+    private readonly passwordHashser: PasswordHasher,
   ) {}
 
-  async execute(user: UserEntity): Promise<ExecuteReturn> {
+  async execute(user: UserEntity, password: string): Promise<ExecuteReturn> {
     const userExists = await this.userRepository.findOneWithOR(
       [
         {
@@ -59,6 +61,7 @@ export class CreateUserUseCase implements CreateUserPort {
         roles: userModel.roles,
         createdAt: userModel.createdAt,
         updatedAt: userModel.updatedAt,
+        password: this.passwordHashser.hash(password),
       },
     };
   }

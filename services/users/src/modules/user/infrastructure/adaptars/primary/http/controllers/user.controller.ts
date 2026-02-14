@@ -115,6 +115,7 @@ export class UserController {
     const userID = v7();
     const useCaseResult = await this.createUserUseCase.execute(
       this.userMapper.createDTOForEntity(dto, email, userID),
+      dto.password,
     );
 
     if (useCaseResult.ok === false) {
@@ -128,7 +129,7 @@ export class UserController {
     this.usersQueueService.send('user-created', {
       userID,
       email: email,
-      password: dto.password,
+      password: useCaseResult.result.password,
       roles: useCaseResult.result.roles,
       createdAt: useCaseResult.result.createdAt,
       updatedAt: useCaseResult.result.updatedAt,

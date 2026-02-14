@@ -8,11 +8,14 @@ import {
   UsernameConstants,
 } from '@modules/user/domain/values-objects/user/constants';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { PasswordHasher } from '@modules/user/domain/ports/secondary/password-hasher.port';
+import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
   let userRepository: UserRepository;
   let userMapper: UserMapper;
+  let passwordHashser: PasswordHasher;
 
   beforeEach(async () => {
     userRepository = {
@@ -24,7 +27,15 @@ describe('CreateUserUseCase', () => {
       entityToModel: vi.fn(),
     } as any;
 
-    useCase = new CreateUserUseCase(userRepository, userMapper);
+    passwordHashser = {
+      hash: vi.fn().mockReturnValue('hashedPassword'),
+    } as any;
+
+    useCase = new CreateUserUseCase(
+      userRepository,
+      userMapper,
+      passwordHashser,
+    );
   });
 
   it('should be defined', () => {
@@ -36,6 +47,7 @@ describe('CreateUserUseCase', () => {
   describe('execute', () => {
     const user = UserFactory.createModel();
     const userEntity = UserFactory.createEntity();
+    const password = PasswordConstants.EXEMPLE;
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOneWithOR').mockResolvedValue(undefined);
@@ -43,7 +55,7 @@ describe('CreateUserUseCase', () => {
     });
 
     it('should call userRepository.findOneWithOR with correct parameters', async () => {
-      await useCase.execute(userEntity);
+      await useCase.execute(userEntity, password);
       expect(userRepository.findOneWithOR).toHaveBeenCalledWith(
         [
           {
@@ -58,21 +70,22 @@ describe('CreateUserUseCase', () => {
     });
 
     it('should call userMapper.entityToModel with correct parameters', async () => {
-      await useCase.execute(userEntity);
+      await useCase.execute(userEntity, password);
       expect(userMapper.entityToModel).toHaveBeenCalledWith(userEntity);
     });
 
     it('should call userRepository.create with correct parameters', async () => {
-      await useCase.execute(userEntity);
+      await useCase.execute(userEntity, password);
       expect(userRepository.create).toHaveBeenCalledWith(user);
     });
 
-    it('should return ok and role,createdAt and updatedAT on sucess', async () => {
-      const result = await useCase.execute(userEntity);
+    it('should return ok and role,createdAt and updatedAT and hashed passoword on sucess', async () => {
+      const result = await useCase.execute(userEntity, password);
       expect(result).toEqual({
         ok: true,
         result: {
           roles: user.roles,
+          password: 'hashedPassword',
           createdAt: user.createdAt,
           updatedAt: user.updatedAt,
         },
@@ -82,7 +95,7 @@ describe('CreateUserUseCase', () => {
     it('should return FIELD_ALREADY_EXISTS with email if email is already use', async () => {
       vi.spyOn(userRepository, 'findOneWithOR').mockResolvedValue(user);
 
-      const result = await useCase.execute(userEntity);
+      const result = await useCase.execute(userEntity, password);
       expect(result).toEqual({
         ok: false,
         message: EmailConstants.ERROR_ALREADY_EXISTS,
@@ -96,7 +109,7 @@ describe('CreateUserUseCase', () => {
         UserFactory.createModel({ email: `no-use.${EmailConstants.EXEMPLE}` }),
       );
 
-      const result = await useCase.execute(userEntity);
+      const result = await useCase.execute(userEntity, password);
       expect(result).toEqual({
         ok: false,
         message: UsernameConstants.ERROR_ALREADY_EXISTS,
@@ -111,7 +124,7 @@ describe('CreateUserUseCase', () => {
       );
 
       try {
-        await useCase.execute(userEntity);
+        await useCase.execute(userEntity, password);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -126,7 +139,7 @@ describe('CreateUserUseCase', () => {
       });
 
       try {
-        await useCase.execute(userEntity);
+        await useCase.execute(userEntity, password);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -139,7 +152,7 @@ describe('CreateUserUseCase', () => {
       vi.spyOn(userRepository, 'create').mockRejectedValue(new Error('Error'));
 
       try {
-        await useCase.execute(userEntity);
+        await useCase.execute(userEntity, password);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

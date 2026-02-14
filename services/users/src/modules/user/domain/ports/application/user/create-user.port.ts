@@ -3,7 +3,7 @@ import { ApplicationResultReasons } from '@modules/user/domain/enums/application
 import { PermissionsSystem } from '@modules/user/domain/types/permissions';
 
 export interface CreateUserPort {
-  execute: (user: UserEntity) => Promise<ExecuteReturn>;
+  execute: (user: UserEntity, password: string) => Promise<ExecuteReturn>;
 }
 
 type ExecuteResultReasons = ApplicationResultReasons.FIELD_ALREADY_EXISTS;
@@ -11,7 +11,12 @@ type ExecuteResultReasons = ApplicationResultReasons.FIELD_ALREADY_EXISTS;
 export type ExecuteReturn =
   | {
       ok: true;
-      result: { roles: PermissionsSystem[]; createdAt: Date; updatedAt: Date };
+      result: {
+        roles: PermissionsSystem[];
+        createdAt: Date;
+        updatedAt: Date;
+        password: string;
+      };
     }
   | {
       ok: false;

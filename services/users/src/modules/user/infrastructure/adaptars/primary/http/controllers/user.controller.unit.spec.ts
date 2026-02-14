@@ -236,6 +236,7 @@ describe('UserController', () => {
           createdAt: userModel.createdAt,
           roles: userModel.roles,
           updatedAt: userModel.updatedAt,
+          password: 'hashedPassword',
         },
       });
       vi.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(userEntity);
@@ -255,7 +256,10 @@ describe('UserController', () => {
       await controller.create(dto, email, response);
 
       expect(v7).toBeCalled();
-      expect(createUserUseCase.execute).toHaveBeenCalledWith(userEntity);
+      expect(createUserUseCase.execute).toHaveBeenCalledWith(
+        userEntity,
+        dto.password,
+      );
     });
 
     it('should send user-created event with correct payload', async () => {
@@ -264,7 +268,7 @@ describe('UserController', () => {
       expect(usersQueueService.send).toHaveBeenCalledWith('user-created', {
         userID,
         email: email,
-        password: dto.password,
+        password: 'hashedPassword',
         roles: userModel.roles,
         createdAt: userModel.createdAt,
         updatedAt: userModel.updatedAt,
