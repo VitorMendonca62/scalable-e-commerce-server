@@ -8,7 +8,7 @@ import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { UserMapper } from './user.mapper';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
-import { defaultGoogleRoles } from '@auth/domain/constants/roles';
+import { defaultGoogleRoles, defaultRoles } from '@auth/domain/constants/roles';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { type Mock } from 'vitest';
 import {
@@ -25,9 +25,12 @@ import {
   PasswordVO,
 } from '@auth/domain/values-objects';
 import {
+  EmailConstants,
   IDConstants,
+  PasswordConstants,
   PasswordHashedConstants,
 } from '@auth/domain/values-objects/constants';
+import { CreateExternalUserDTO } from '../adaptars/primary/microservices/dtos/create-user.dto';
 
 describe('UserMapper', () => {
   let mapper: UserMapper;
@@ -202,6 +205,33 @@ describe('UserMapper', () => {
         accountProviderID: userGoogleLogin.id,
         createdAt: new Date(),
         updatedAt: new Date(),
+        deletedAt: null,
+      });
+    });
+  });
+
+  describe('externalUserForModel', () => {
+    const payload: CreateExternalUserDTO = {
+      createdAt: new Date().toDateString(),
+      updatedAt: new Date().toDateString(),
+      email: EmailConstants.EXEMPLE,
+      password: PasswordConstants.EXEMPLE,
+      roles: defaultRoles,
+      userID: IDConstants.EXEMPLE,
+    };
+
+    it('should return user like json', async () => {
+      const result = mapper.externalUserForModel(payload);
+
+      expect(result).toEqual({
+        userID: payload.userID,
+        email: payload.email,
+        password: payload.password,
+        roles: payload.roles,
+        accountProvider: AccountsProvider.DEFAULT,
+        accountProviderID: undefined,
+        createdAt: new Date(payload.createdAt),
+        updatedAt: new Date(payload.updatedAt),
         deletedAt: null,
       });
     });
