@@ -24,6 +24,7 @@ export const addRabbitMQClient = async (
         exclusive: false,
         autoDelete: false,
         arguments: null,
+        noAck: false,
         durable: false,
       },
     },

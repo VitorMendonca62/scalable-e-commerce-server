@@ -83,15 +83,19 @@ export class AuthController {
     const { newUser, tokens } = useCaseResult.result;
 
     if (newUser != undefined) {
-      this.usersQueueService.send('user-create-google', {
-        userID: newUser.userID,
-        name: user.name,
-        username: user.username,
-        email: newUser.email,
-        roles: newUser.roles,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt,
-      });
+      this.usersQueueService.send(
+        'user-create-google',
+        {
+          userID: newUser.userID,
+          name: user.name,
+          username: user.username,
+          email: newUser.email,
+          roles: newUser.roles,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
+        },
+        true,
+      );
     }
 
     const { accessToken, refreshToken } = tokens;

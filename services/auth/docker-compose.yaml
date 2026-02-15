@@ -38,7 +38,7 @@ services:
       networks:
         - api-net
   api:
-    container_name: scalable-e-commerce-api
+    container_name: scalable-e-commerce-auth-api
     build: .
     ports:
       - "$PORT:$PORT"

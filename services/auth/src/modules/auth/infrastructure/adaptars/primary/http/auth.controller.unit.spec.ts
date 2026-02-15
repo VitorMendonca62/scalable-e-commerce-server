@@ -177,6 +177,7 @@ describe('AuthController', () => {
           createdAt: userModel.createdAt,
           updatedAt: userModel.updatedAt,
         },
+        true,
       );
     });
 

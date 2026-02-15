@@ -10,6 +10,7 @@ import { configMongoDB } from '@config/database/mongo.config';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { configRedisdDB } from '@config/database/redis.config';
 import { RedisModule } from '@nestjs-modules/ioredis';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { RedisModule } from '@nestjs-modules/ioredis';
       },
       inject: [ConfigService],
     }),
+    ScheduleModule.forRoot(),
     AuthModule,
   ],
   controllers: [],

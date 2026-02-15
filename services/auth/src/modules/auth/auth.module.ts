@@ -41,11 +41,18 @@ import GetCertsUseCase from './application/use-cases/get-certs.usecase';
 import { GoogleStrategy } from './infrastructure/adaptars/primary/http/strategies/google.strategy';
 import ForgotPasswordUseCase from './application/use-cases/forgot-password.usecase';
 import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
+import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository.port';
+import { MongooseDQLRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-dql.repository';
+import DeadLetterMessageModel, {
+  DeadLetterMessageSchema,
+} from './infrastructure/adaptars/secondary/database/models/dlq.model';
+import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
       { name: UserModel.name, schema: UserSchema },
       { name: EmailCodeModel.name, schema: EmailCodeSchema },
+      { name: DeadLetterMessageModel.name, schema: DeadLetterMessageSchema },
     ]),
     JwtModule.register({
       privateKey: fs.readFileSync(
@@ -77,6 +84,7 @@ import UserExternalController from './infrastructure/adaptars/primary/microservi
               queueOptions: {
                 exclusive: false,
                 autoDelete: false,
+                noAck: false,
                 arguments: null,
                 durable: false,
               },
@@ -103,9 +111,14 @@ import UserExternalController from './infrastructure/adaptars/primary/microservi
     ChangePasswordUseCase,
     GetCertsUseCase,
     GoogleStrategy,
+    DQLService,
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,
+    },
+    {
+      provide: DeadLetterMessageRepository,
+      useClass: MongooseDQLRepository,
     },
     {
       provide: EmailCodeRepository,
