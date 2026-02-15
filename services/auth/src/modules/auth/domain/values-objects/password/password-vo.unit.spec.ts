@@ -5,6 +5,7 @@ import { type Mock } from 'vitest';
 import PasswordConstants from './password-constants';
 import { PasswordHashedConstants } from '../constants';
 import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
+import PasswordHashedVO from '../password-hashed/password-hashed-vo';
 
 describe('PasswordVO', () => {
   let passwordHasher: PasswordHasher;
@@ -14,52 +15,60 @@ describe('PasswordVO', () => {
   });
 
   describe('Constructor', () => {
-    it('should store the value hashed', () => {
+    it('should store the value', () => {
       const valueObject = new PasswordVO(
         PasswordConstants.EXEMPLE,
-        true,
         passwordHasher,
       );
-      expect(passwordHasher.hash).toHaveBeenCalled();
-      expect(valueObject.getValue()).toBe(PasswordHashedConstants.EXEMPLE);
-    });
-
-    it('should store the value default if canHashPassword is false', () => {
-      const valueObject = new PasswordVO(
-        PasswordConstants.EXEMPLE,
-        false,
-        passwordHasher,
-      );
-      expect(passwordHasher.hash).not.toHaveBeenCalled();
       expect(valueObject.getValue()).toBe(PasswordConstants.EXEMPLE);
     });
   });
 
-  describe('comparePassword', () => {
-    it('should call passwordHasher.compare with hashed password and default password', () => {
-      const valueObject = new PasswordVO(
-        PasswordConstants.EXEMPLE,
-        true,
-        passwordHasher,
-      );
+  describe('create', () => {
+    it('should call hashed function', async () => {
+      await PasswordVO.createAndHash(PasswordConstants.EXEMPLE, passwordHasher);
 
-      valueObject.comparePassword(PasswordConstants.EXEMPLE);
-
-      expect(passwordHasher.compare).toHaveBeenCalledWith(
+      expect(passwordHasher.hash).toHaveBeenCalledWith(
         PasswordConstants.EXEMPLE,
-        PasswordHashedConstants.EXEMPLE,
       );
     });
 
-    it('should return passwordHasher.compare result', () => {
-      (passwordHasher.compare as Mock).mockReturnValue(false);
-      const valueObject = new PasswordVO(
+    it('should return PasswordHashedVO with hashed password', async () => {
+      const valueObject = await PasswordVO.createAndHash(
         PasswordConstants.EXEMPLE,
-        true,
         passwordHasher,
       );
 
-      const result = valueObject.comparePassword(PasswordConstants.EXEMPLE);
+      expect(valueObject).toBeInstanceOf(PasswordHashedVO);
+      expect(valueObject.getValue()).toBe(PasswordHashedConstants.EXEMPLE);
+    });
+  });
+
+  describe('comparePassword', () => {
+    it('should call passwordHasher.compare with hashed password and default password', async () => {
+      const valueObject = new PasswordVO(
+        PasswordConstants.EXEMPLE,
+        passwordHasher,
+      );
+
+      await valueObject.comparePassword(PasswordHashedConstants.EXEMPLE);
+
+      expect(passwordHasher.compare).toHaveBeenCalledWith(
+        PasswordHashedConstants.EXEMPLE,
+        PasswordConstants.EXEMPLE,
+      );
+    });
+
+    it('should return passwordHasher.compare result', async () => {
+      (passwordHasher.compare as Mock).mockReturnValue(false);
+      const valueObject = new PasswordVO(
+        PasswordConstants.EXEMPLE,
+        passwordHasher,
+      );
+
+      const result = await valueObject.comparePassword(
+        PasswordConstants.EXEMPLE,
+      );
 
       expect(result).toBe(false);
 
@@ -67,12 +76,12 @@ describe('PasswordVO', () => {
 
       const valueObject2 = new PasswordVO(
         PasswordConstants.EXEMPLE,
-
-        true,
         passwordHasher,
       );
 
-      const result2 = valueObject2.comparePassword(PasswordConstants.EXEMPLE);
+      const result2 = await valueObject2.comparePassword(
+        PasswordConstants.EXEMPLE,
+      );
 
       expect(result2).toBe(true);
     });

@@ -1,12 +1,11 @@
 import { PasswordConstants } from '@auth/domain/values-objects/constants';
 import BcryptPasswordHasher from './bcrypt-password-hasher';
 import * as bcrypt from 'bcryptjs';
-import { type Mock } from 'vitest';
 
-vi.mock('bcryptjs', () => {
+vi.mock('bcryptjs', async () => {
   return {
-    hashSync: vi.fn(),
-    compareSync: vi.fn(),
+    hash: vi.fn(),
+    compare: vi.fn(),
   };
 });
 
@@ -17,27 +16,26 @@ describe('BcryptPasswordHasher', () => {
     service = new BcryptPasswordHasher();
   });
 
-  it('should be defined', () => {
+  it('should be defined', async () => {
     expect(service).toBeDefined();
   });
 
   describe('hash', () => {
     beforeEach(() => {
-      (bcrypt.hashSync as Mock).mockReturnValue('PasswordHashed');
-    });
-
-    it('should call bcrypt.hashSync with the correct parameters', () => {
-      service.hash(PasswordConstants.EXEMPLE);
-
-      expect(bcrypt.hashSync).toHaveBeenCalledWith(
-        PasswordConstants.EXEMPLE,
-        10,
+      vi.spyOn(bcrypt, 'hash').mockImplementation(() =>
+        Promise.resolve('PasswordHashed'),
       );
-      expect(bcrypt.hashSync).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the result from bcrypt.hashSync', () => {
-      const result = service.hash(PasswordConstants.EXEMPLE);
+    it('should call bcrypt.hash with the correct parameters', async () => {
+      await service.hash(PasswordConstants.EXEMPLE);
+
+      expect(bcrypt.hash).toHaveBeenCalledWith(PasswordConstants.EXEMPLE, 10);
+      expect(bcrypt.hash).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return the result from bcrypt.hash', async () => {
+      const result = await service.hash(PasswordConstants.EXEMPLE);
 
       expect(typeof result).toBe('string');
       expect(result).toBe('PasswordHashed');
@@ -46,21 +44,23 @@ describe('BcryptPasswordHasher', () => {
 
   describe('compare', () => {
     beforeEach(() => {
-      (bcrypt.compareSync as Mock).mockReturnValue(true);
+      vi.spyOn(bcrypt, 'compare').mockImplementation(() =>
+        Promise.resolve(true),
+      );
     });
 
-    it('should call bcrypt.compareSync with the correct parameters', () => {
-      service.compare(PasswordConstants.EXEMPLE, 'PasswordHashed');
+    it('should call bcrypt.compare with the correct parameters', async () => {
+      await service.compare(PasswordConstants.EXEMPLE, 'PasswordHashed');
 
-      expect(bcrypt.compareSync).toHaveBeenCalledWith(
+      expect(bcrypt.compare).toHaveBeenCalledWith(
         PasswordConstants.EXEMPLE,
         'PasswordHashed',
       );
-      expect(bcrypt.compareSync).toHaveBeenCalledTimes(1);
+      expect(bcrypt.compare).toHaveBeenCalledTimes(1);
     });
 
-    it('should return true when the plain password matches the hash', () => {
-      const result = service.compare(
+    it('should return true when the plain password matches the hash', async () => {
+      const result = await service.compare(
         PasswordConstants.EXEMPLE,
         'PasswordHashed',
       );
@@ -69,10 +69,12 @@ describe('BcryptPasswordHasher', () => {
       expect(result).toBe(true);
     });
 
-    it('should return false when the plain password does not match the hash', () => {
-      vi.spyOn(bcrypt, 'compareSync').mockReturnValue(false);
+    it('should return false when the plain password does not match the hash', async () => {
+      vi.spyOn(bcrypt, 'compare').mockImplementation(() =>
+        Promise.resolve(false),
+      );
 
-      const result = service.compare(
+      const result = await service.compare(
         PasswordConstants.EXEMPLE,
         'PasswordHashed',
       );

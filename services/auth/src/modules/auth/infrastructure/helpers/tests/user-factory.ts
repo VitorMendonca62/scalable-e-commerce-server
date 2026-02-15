@@ -11,7 +11,6 @@ import {
 } from '@auth/domain/values-objects/constants';
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
-import BcryptPasswordHasher from '@auth/infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
 import { PasswordHasherFactory } from './password-factory';
 
 export class UserFactory {
@@ -24,8 +23,7 @@ export class UserFactory {
       roles: defaultRoles,
       password: new PasswordVO(
         PasswordConstants.EXEMPLE,
-        false,
-        new BcryptPasswordHasher(),
+        new PasswordHasherFactory().default(),
       ),
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -82,7 +80,6 @@ export class LoginUserFactory {
       email: new EmailVO(dto.email),
       password: new PasswordVO(
         dto.password,
-        false,
         new PasswordHasherFactory().default(),
       ),
       ip: '122.0.0.0',

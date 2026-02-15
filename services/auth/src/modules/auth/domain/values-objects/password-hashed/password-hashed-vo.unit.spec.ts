@@ -23,13 +23,13 @@ describe('PasswordHashedVO', () => {
     });
 
     describe('comparePassword', () => {
-      it('should call passwordHasher.compare with hashed password and default password', () => {
+      it('should call passwordHasher.compare with hashed password and default password', async () => {
         const valueObject = new PasswordHashedVO(
           PasswordHashedConstants.EXEMPLE,
           passwordHasher,
         );
 
-        valueObject.comparePassword(PasswordConstants.EXEMPLE);
+        await valueObject.comparePassword(PasswordConstants.EXEMPLE);
 
         expect(passwordHasher.compare).toHaveBeenCalledWith(
           PasswordConstants.EXEMPLE,
@@ -37,14 +37,16 @@ describe('PasswordHashedVO', () => {
         );
       });
 
-      it('should return passwordHasher.compare result', () => {
+      it('should return passwordHasher.compare result', async () => {
         (passwordHasher.compare as Mock).mockReturnValue(false);
         const valueObject = new PasswordHashedVO(
           PasswordHashedConstants.EXEMPLE,
           passwordHasher,
         );
 
-        const result = valueObject.comparePassword(PasswordConstants.EXEMPLE);
+        const result = await valueObject.comparePassword(
+          PasswordConstants.EXEMPLE,
+        );
 
         expect(result).toBe(false);
 
@@ -54,7 +56,9 @@ describe('PasswordHashedVO', () => {
           passwordHasher,
         );
 
-        const result2 = valueObject2.comparePassword(PasswordConstants.EXEMPLE);
+        const result2 = await valueObject2.comparePassword(
+          PasswordConstants.EXEMPLE,
+        );
 
         expect(result2).toBe(true);
       });

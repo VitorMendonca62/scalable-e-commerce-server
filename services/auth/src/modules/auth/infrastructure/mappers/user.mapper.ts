@@ -18,6 +18,7 @@ import { CreateExternalUserDTO } from '../adaptars/primary/microservices/dtos/cr
 @Injectable()
 export class UserMapper {
   constructor(private passwordHasher: PasswordHasher) {}
+
   loginDTOForEntity(
     dto: LoginUserDTO,
     ip: string,
@@ -25,7 +26,7 @@ export class UserMapper {
   ): UserLogin {
     return new UserLogin({
       email: new EmailVO(dto.email),
-      password: new PasswordVO(dto.password, false, this.passwordHasher),
+      password: new PasswordVO(dto.password, this.passwordHasher),
       ip,
       userAgent,
     });

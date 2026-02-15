@@ -9,8 +9,8 @@ export class PasswordHasherFactory {
       compare: vi.fn(),
     };
 
-    passwordHasher.hash.mockReturnValue(PasswordHashedConstants.EXEMPLE);
-    passwordHasher.compare.mockReturnValue(true);
+    passwordHasher.hash.mockResolvedValue(PasswordHashedConstants.EXEMPLE);
+    passwordHasher.compare.mockResolvedValue(true);
 
     return passwordHasher;
   }

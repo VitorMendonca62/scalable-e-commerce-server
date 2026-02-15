@@ -49,20 +49,20 @@ describe('UserMapper', () => {
   describe('loginDTOForEntity', () => {
     const dto = LoginUserFactory.createDTO();
     const ip = '120.0.0.0';
+    const agent = 'agent';
 
     it('should call VOs with correct parameters', async () => {
-      mapper.loginDTOForEntity(dto, ip);
+      mapper.loginDTOForEntity(dto, ip, agent);
 
       expect(mockEmailConstructor).toHaveBeenCalledWith(dto.email);
       expect(mockPasswordConstructor).toHaveBeenCalledWith(
         dto.password,
-        false,
         passwordHasher,
       );
     });
 
     it('should return User with correct types', async () => {
-      const user = mapper.loginDTOForEntity(dto, ip);
+      const user = mapper.loginDTOForEntity(dto, ip, agent);
 
       expect(user).toBeInstanceOf(UserLogin);
       expect(user.email).toBeInstanceOf(EmailVO);
@@ -71,7 +71,7 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct fields', async () => {
-      const user = mapper.loginDTOForEntity(dto, ip);
+      const user = mapper.loginDTOForEntity(dto, ip, agent);
 
       expect(user.email.getValue()).toBe(dto.email);
       expect(user.password.getValue()).toBe(dto.password);
@@ -87,7 +87,7 @@ describe('UserMapper', () => {
         });
 
         try {
-          mapper.loginDTOForEntity(dto, ip);
+          mapper.loginDTOForEntity(dto, ip, agent);
           expect.fail('Should have thrown an error');
         } catch (error: any) {
           expect(error).toBeInstanceOf(Error);
@@ -102,15 +102,16 @@ describe('UserMapper', () => {
   describe('googleLoginDTOForEntity', () => {
     const dto = GoogleUserFactory.createUserInCallbBack();
     const ip = '120.0.0.0';
+    const agent = 'agent';
 
     it('should call VOs with correct parameters', async () => {
-      mapper.googleLoginDTOForEntity(dto, ip);
+      mapper.googleLoginDTOForEntity(dto, ip, agent);
 
       expect(mockEmailConstructor).toHaveBeenCalledWith(dto.email);
     });
 
     it('should return User with correct types', async () => {
-      const user = mapper.googleLoginDTOForEntity(dto, ip);
+      const user = mapper.googleLoginDTOForEntity(dto, ip, agent);
 
       expect(user).toBeInstanceOf(UserGoogleLogin);
       expect(typeof user.name).toBe('string');
@@ -119,7 +120,7 @@ describe('UserMapper', () => {
     });
 
     it('should return User with correct fields', async () => {
-      const user = mapper.googleLoginDTOForEntity(dto, ip);
+      const user = mapper.googleLoginDTOForEntity(dto, ip, agent);
 
       expect(user.email.getValue()).toBe(dto.email);
       expect(user.name).toBe('test');
@@ -136,7 +137,7 @@ describe('UserMapper', () => {
         });
 
         try {
-          mapper.googleLoginDTOForEntity(dto, ip);
+          mapper.googleLoginDTOForEntity(dto, ip, agent);
           expect.fail('Should have thrown an error');
         } catch (error: any) {
           expect(error).toBeInstanceOf(Error);

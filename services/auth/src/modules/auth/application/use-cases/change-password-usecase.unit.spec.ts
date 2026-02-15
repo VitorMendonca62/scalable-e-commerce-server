@@ -10,13 +10,14 @@ import {
   PasswordHashedConstants,
 } from '@auth/domain/values-objects/constants';
 import {
-  mockPasswordConstructor,
-  mockPasswordGetValue,
+  MockHashedPassword,
+  mockPasswordCreate,
   mockPasswordHashedCompare,
   mockPasswordHashedConstructor,
   mockPasswordHashedGetValue,
 } from '@auth/infrastructure/helpers/tests/values-objects-mock';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
+import { PasswordHasherFactory } from '@auth/infrastructure/helpers/tests/password-factory';
 
 describe('ChangePasswordUseCase', () => {
   let useCase: ChangePasswordUseCase;
@@ -26,6 +27,14 @@ describe('ChangePasswordUseCase', () => {
   let tokenRepository: TokenRepository;
 
   beforeEach(async () => {
+    mockPasswordHashedGetValue.mockReturnValue(PasswordHashedConstants.EXEMPLE);
+    mockPasswordCreate.mockResolvedValue(
+      new MockHashedPassword(
+        PasswordHashedConstants.EXEMPLE,
+        new PasswordHasherFactory().default(),
+      ),
+    );
+
     userRepository = {
       findOne: vi.fn(),
       update: vi.fn(),
@@ -203,19 +212,17 @@ describe('ChangePasswordUseCase', () => {
     beforeEach(() => {
       vi.spyOn(userRepository, 'update');
       vi.spyOn(tokenRepository, 'revokeAllSessions');
-      mockPasswordGetValue.mockReturnValue(newPassword);
     });
 
     it('should call functions with correct parameters', async () => {
       await (useCase as any).updatePassword(userID, newPassword);
 
-      expect(mockPasswordConstructor).toHaveBeenCalledWith(
+      expect(mockPasswordCreate).toHaveBeenCalledWith(
         newPassword,
-        true,
         passwordHasher,
       );
       expect(userRepository.update).toHaveBeenCalledWith(user.userID, {
-        password: newPassword,
+        password: PasswordHashedConstants.EXEMPLE,
       });
 
       expect(tokenRepository.revokeAllSessions).toHaveBeenCalledWith(
@@ -223,8 +230,8 @@ describe('ChangePasswordUseCase', () => {
       );
     });
 
-    it('should rethrow error if PasswordVO throw error', async () => {
-      mockPasswordConstructor.mockImplementationOnce(() => {
+    it('should rethrow error if PasswordVO.createAndHash throw error', async () => {
+      mockPasswordCreate.mockImplementationOnce(() => {
         throw new Error('Error PasswordVO');
       });
 

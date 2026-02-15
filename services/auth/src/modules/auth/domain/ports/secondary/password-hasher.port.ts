@@ -1,4 +1,4 @@
 export abstract class PasswordHasher {
-  abstract hash(password: string): string;
-  abstract compare(password: string, hashed: string): boolean;
+  abstract hash(password: string): Promise<string>;
+  abstract compare(password: string, hashed: string): Promise<boolean>;
 }

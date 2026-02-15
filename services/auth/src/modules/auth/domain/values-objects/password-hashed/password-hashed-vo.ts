@@ -9,7 +9,7 @@ export default class PasswordHashedVO extends ValueObject<string> {
     this.passwordHasher = passwordHasher;
   }
 
-  public comparePassword(inputPassword: string) {
-    return this.passwordHasher.compare(inputPassword, this.value);
+  public async comparePassword(inputPassword: string) {
+    return await this.passwordHasher.compare(inputPassword, this.value);
   }
 }

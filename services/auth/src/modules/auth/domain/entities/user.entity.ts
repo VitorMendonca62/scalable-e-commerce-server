@@ -1,10 +1,10 @@
 import { PermissionsSystem } from '../types/permissions';
-import { EmailVO, IDVO, PasswordHashedVO, PasswordVO } from '../values-objects';
+import { EmailVO, IDVO, PasswordHashedVO } from '../values-objects';
 
 export class UserEntity {
   userID: IDVO;
   email: EmailVO;
-  password: PasswordVO | PasswordHashedVO;
+  password: PasswordHashedVO;
   roles: PermissionsSystem[];
   accountProvider: string;
   accountProviderID: string;
@@ -15,7 +15,7 @@ export class UserEntity {
   constructor(props: {
     userID: IDVO;
     email: EmailVO;
-    password: PasswordVO | PasswordHashedVO;
+    password: PasswordHashedVO;
     roles: PermissionsSystem[];
     accountProvider: string;
     accountProviderID: string;

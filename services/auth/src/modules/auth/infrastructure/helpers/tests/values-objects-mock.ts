@@ -24,30 +24,6 @@ vi.mock('@auth/domain/values-objects/email/email-vo', () => ({
   default: MockEmail,
 }));
 
-// Mock Password
-
-export const mockPasswordConstructor: Mock = vi.fn();
-export const mockPasswordGetValue: Mock = vi
-  .fn()
-  .mockReturnValue(PasswordConstants.EXEMPLE);
-export const mockPasswordCompare: Mock = vi.fn().mockResolvedValue(true);
-
-class MockPassword {
-  constructor(
-    value: string,
-    canHashPassword: boolean,
-    passwordHasher: PasswordHasher,
-  ) {
-    mockPasswordConstructor(value, canHashPassword, passwordHasher);
-  }
-  getValue = mockPasswordGetValue;
-  comparePassword = mockPasswordCompare;
-}
-
-vi.mock('@auth/domain/values-objects/password/password-vo', () => ({
-  default: MockPassword,
-}));
-
 // Mock HashedPassword
 
 export const mockPasswordHashedConstructor: Mock = vi.fn();
@@ -55,7 +31,7 @@ export const mockPasswordHashedGetValue: Mock = vi
   .fn()
   .mockReturnValue(PasswordHashedConstants.EXEMPLE);
 export const mockPasswordHashedCompare: Mock = vi.fn().mockResolvedValue(true);
-class MockHashedPassword {
+export class MockHashedPassword {
   constructor(value: string, passwordHasher: PasswordHasher) {
     mockPasswordHashedConstructor(value, passwordHasher);
   }
@@ -69,6 +45,28 @@ vi.mock(
     default: MockHashedPassword,
   }),
 );
+
+// Mock Password
+
+export const mockPasswordConstructor: Mock = vi.fn();
+export const mockPasswordGetValue: Mock = vi
+  .fn()
+  .mockReturnValue(PasswordConstants.EXEMPLE);
+export const mockPasswordCreate: Mock = vi.fn();
+export const mockPasswordCompare: Mock = vi.fn().mockResolvedValue(true);
+
+class MockPassword {
+  constructor(value: string, passwordHasher: PasswordHasher) {
+    mockPasswordConstructor(value, passwordHasher);
+  }
+  getValue = mockPasswordGetValue;
+  comparePassword = mockPasswordCompare;
+  static createAndHash = mockPasswordCreate;
+}
+
+vi.mock('@auth/domain/values-objects/password/password-vo', () => ({
+  default: MockPassword,
+}));
 
 // Mock ID
 

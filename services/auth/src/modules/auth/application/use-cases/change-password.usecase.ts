@@ -39,7 +39,7 @@ export class ChangePasswordUseCase implements ChangePasswordPort {
       user.password,
       this.passwordHasher,
     );
-    if (!oldPasswordVO.comparePassword(oldPassword)) {
+    if (!(await oldPasswordVO.comparePassword(oldPassword))) {
       return {
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
@@ -73,9 +73,8 @@ export class ChangePasswordUseCase implements ChangePasswordPort {
   }
 
   private async updatePassword(userID: string, newPassword: string) {
-    const newPasswordVO = new PasswordVO(
+    const newPasswordVO = await PasswordVO.createAndHash(
       newPassword,
-      true,
       this.passwordHasher,
     );
 
