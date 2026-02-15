@@ -1,27 +1,9 @@
 import { PasswordConstants } from '@auth/domain/values-objects/constants';
 import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 import { applyDecorators } from '@nestjs/common';
-import {
-  IsNotEmpty,
-  IsString,
-  IsStrongPassword,
-  MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export function Password(
-  type: 'default' | 'new' | 'old' = 'default',
-  canStrongPassword = true,
-) {
-  const decorators = [];
-
-  if (canStrongPassword) {
-    decorators.push(
-      IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
-        message: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, type),
-      }),
-    );
-  }
-
+export function Password(type: 'default' | 'new' | 'old' = 'default') {
   return applyDecorators(
     IsNotEmpty({
       message: addPrefix(PasswordConstants.ERROR_REQUIRED, type),
@@ -30,6 +12,5 @@ export function Password(
     MinLength(PasswordConstants.MIN_LENGTH, {
       message: addPrefix(PasswordConstants.ERROR_MIN_LENGTH, type),
     }),
-    ...decorators,
   );
 }

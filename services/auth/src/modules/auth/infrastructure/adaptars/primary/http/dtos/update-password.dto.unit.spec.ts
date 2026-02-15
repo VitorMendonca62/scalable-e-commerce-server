@@ -85,7 +85,6 @@ describe('UpdatePasswordDTO', () => {
   it('should return error when password is weak', async () => {
     const requiredFields = {
       newPassword: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, 'new'),
-      oldPassword: addPrefix(PasswordConstants.ERROR_WEAK_PASSWORD, 'old'),
     };
 
     Object.entries(requiredFields).forEach(async (field) => {
@@ -96,7 +95,6 @@ describe('UpdatePasswordDTO', () => {
 
       const errors = await validationObjectFactory.validateObject(dto);
       const fieldError = errors[0];
-
       expect(errors).toHaveLength(1);
       expect(fieldError.constraints.isStrongPassword).toBe(message);
     });
