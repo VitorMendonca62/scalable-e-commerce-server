@@ -1,9 +1,8 @@
 import { defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
-import { UserEntity } from '@auth/domain/entities/user.entity';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
-import { EmailVO, IDVO, PasswordVO } from '@auth/domain/values-objects';
+import { EmailVO, PasswordVO } from '@auth/domain/values-objects';
 import {
   EmailConstants,
   IDConstants,
@@ -14,24 +13,6 @@ import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/mode
 import { PasswordHasherFactory } from './password-factory';
 
 export class UserFactory {
-  static createEntity(overrides: Partial<UserEntity> = {}): UserEntity {
-    return new UserEntity({
-      userID: new IDVO(IDConstants.EXEMPLE),
-      email: new EmailVO(EmailConstants.EXEMPLE),
-      accountProvider: AccountsProvider.DEFAULT,
-      accountProviderID: null,
-      roles: defaultRoles,
-      password: new PasswordVO(
-        PasswordConstants.EXEMPLE,
-        new PasswordHasherFactory().default(),
-      ),
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      deletedAt: new Date(),
-      ...overrides,
-    });
-  }
-
   static createModel(
     overrides: Partial<UserModel> = {},
   ): Omit<UserModel, 'id'> {

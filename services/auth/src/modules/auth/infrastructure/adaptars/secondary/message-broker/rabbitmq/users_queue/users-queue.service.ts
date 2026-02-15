@@ -1,7 +1,7 @@
 import { Injectable, Inject, OnModuleInit, Logger } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
-import { lastValueFrom, throwError } from 'rxjs';
-import { retry, timeout, catchError, map } from 'rxjs/operators';
+import { lastValueFrom } from 'rxjs';
+import { retry, timeout, map } from 'rxjs/operators';
 import CircuitBreaker from 'opossum';
 import { MessageBroker } from '@auth/domain/ports/secondary/message-broker.port';
 import DeadLetterMessageRepository from '@auth/domain/ports/secondary/dql.repository.port';
@@ -33,9 +33,6 @@ export class UsersQueueService implements MessageBroker, OnModuleInit {
             timeout(3000),
             retry({ count: 3, delay: 1000 }),
             map(() => true),
-            catchError((error) => {
-              return throwError(() => error);
-            }),
           ),
         );
       },

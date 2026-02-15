@@ -28,13 +28,18 @@ export class DQLService {
 
     const results = await Promise.allSettled(
       pendingMessages.map((message) =>
-        limit(() =>
-          this.usersQueueService.send(
-            message.originalEvent,
-            message.originalPayload,
-            false,
-          ),
-        ),
+        limit(() => {
+          try {
+            return this.usersQueueService.send(
+              message.originalEvent,
+              message.originalPayload,
+              false,
+            );
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          } catch (_) {
+            return false;
+          }
+        }),
       ),
     );
 
@@ -44,7 +49,7 @@ export class DQLService {
     results.forEach((result, index) => {
       const messageId = pendingMessages[index]._id.toString();
 
-      if (result) {
+      if (result.status === 'fulfilled' && result.value) {
         successfulIDs.push(messageId);
       } else {
         unsuccessfulIDs.push(messageId);
