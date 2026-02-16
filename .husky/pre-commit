@@ -11,7 +11,7 @@ cd services
 for service in $CHANGED_SERVICES; do
   cd $service
   echo "> Starting $service's tests."
-  (bun test || {
+  (bun run test || {
       echo "❌ Tests failed in $service"
       exit 1
     })
