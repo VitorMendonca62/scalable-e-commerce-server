@@ -14,15 +14,13 @@ import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
 
-describe('ForgorPasswordUseCase', () => {
+describe('ForgotPasswordUseCase', () => {
   let useCase: ForgotPasswordUseCase;
 
   let emailCodeRepository: EmailCodeRepository;
   let tokenService: TokenService;
   let emailSender: EmailSender;
   let configService: ConfigService<EnvironmentVariables>;
-
-  let emailCodeModelFactory: EmailCodeModelFactory;
 
   beforeEach(async () => {
     emailCodeRepository = {
@@ -50,8 +48,6 @@ describe('ForgorPasswordUseCase', () => {
       emailSender,
       configService,
     );
-
-    emailCodeModelFactory = new EmailCodeModelFactory();
   });
 
   it('should be defined', () => {
@@ -151,7 +147,7 @@ describe('ForgorPasswordUseCase', () => {
 
     beforeEach(() => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(
-        emailCodeModelFactory.likeOBject(),
+        EmailCodeModelFactory.createModel(),
       );
 
       vi.useFakeTimers();
@@ -188,7 +184,7 @@ describe('ForgorPasswordUseCase', () => {
 
     it('should return field invalid when the code expired', async () => {
       vi.spyOn(emailCodeRepository, 'findOne').mockResolvedValue(
-        emailCodeModelFactory.likeOBject({
+        EmailCodeModelFactory.createModel({
           expiresIn: new Date('2024-01-01T10:10:00z'),
         }),
       );

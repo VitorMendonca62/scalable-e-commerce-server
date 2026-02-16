@@ -3,7 +3,7 @@ import { addPrefix } from '@auth/infrastructure/helpers/string-helper';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export function Password(type: 'default' | 'new' | 'old' = 'default') {
+export function Password(type: 'default' | 'new' | 'old') {
   return applyDecorators(
     IsNotEmpty({
       message: addPrefix(PasswordConstants.ERROR_REQUIRED, type),

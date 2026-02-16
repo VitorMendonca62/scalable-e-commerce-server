@@ -26,14 +26,10 @@ describe('MongooseEmailCodeRepository', () => {
   });
 
   describe('findOne', () => {
-    let emailCodeModelFactory: EmailCodeModelFactory;
-
     beforeEach(() => {
-      emailCodeModelFactory = new EmailCodeModelFactory();
-
       mockedExecFindOne = vi
         .fn()
-        .mockReturnValue(emailCodeModelFactory.likeOBject());
+        .mockReturnValue(EmailCodeModelFactory.createModel());
       EmailCodeModel.findOne = vi.fn().mockReturnValue({
         exec: mockedExecFindOne,
       });
@@ -48,7 +44,7 @@ describe('MongooseEmailCodeRepository', () => {
         email: EmailConstants.EXEMPLE,
       });
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(emailCodeModelFactory.likeOBject());
+      expect(response).toEqual(EmailCodeModelFactory.createModel());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
     });
 
@@ -60,7 +56,7 @@ describe('MongooseEmailCodeRepository', () => {
 
       expect(EmailCodeModel.findOne).toHaveBeenCalled();
       expect(mockedExecFindOne).toHaveBeenCalledWith();
-      expect(response).toEqual(emailCodeModelFactory.likeOBject());
+      expect(response).toEqual(EmailCodeModelFactory.createModel());
       expect(response.email).toBe(EmailConstants.EXEMPLE);
       expect(response.code).toBe('AAAAAA');
     });
@@ -77,8 +73,7 @@ describe('MongooseEmailCodeRepository', () => {
   });
 
   describe('save', () => {
-    let emailCodeModelFactory = new EmailCodeModelFactory();
-    const emailCode = emailCodeModelFactory.likeOBject();
+    const emailCode = EmailCodeModelFactory.createModel();
 
     beforeEach(() => {
       mockedSavePrototype = vi.fn().mockReturnValue(undefined);

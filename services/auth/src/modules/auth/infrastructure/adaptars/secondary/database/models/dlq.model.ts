@@ -8,13 +8,13 @@ export type DeadLetterMessageDocument = DeadLetterMessageModel & Document;
   collection: 'dead_letter_queue',
 })
 export default class DeadLetterMessageModel extends Document {
-  @Prop({ required: true })
+  @Prop({ required: true, type: String })
   originalEvent: string;
 
   @Prop({ type: Object, required: true })
   originalPayload: Record<string, any>;
 
-  @Prop()
+  @Prop({ type: String })
   errorMessage: string;
 
   failedAt: Date;

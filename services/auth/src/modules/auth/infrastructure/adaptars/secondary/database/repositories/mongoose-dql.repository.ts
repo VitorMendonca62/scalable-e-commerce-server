@@ -33,13 +33,13 @@ export class MongooseDQLRepository implements DeadLetterMessageRepository {
   }
 
   async remove(ids: string[]): Promise<void> {
-    await this.DQLModel.deleteMany({ _id: { $in: ids } });
+    await this.DQLModel.deleteMany({ _id: { $in: ids } }).exec();
   }
 
   async updateLastRetry(ids: string[]): Promise<void> {
     await this.DQLModel.updateMany(
       { _id: { $in: ids } },
       { lastRetryAt: new Date() },
-    );
+    ).exec();
   }
 }

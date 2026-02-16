@@ -28,18 +28,13 @@ export class DQLService {
 
     const results = await Promise.allSettled(
       pendingMessages.map((message) =>
-        limit(() => {
-          try {
-            return this.usersQueueService.send(
-              message.originalEvent,
-              message.originalPayload,
-              false,
-            );
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          } catch (_) {
-            return false;
-          }
-        }),
+        limit(() =>
+          this.usersQueueService.send(
+            message.originalEvent,
+            message.originalPayload,
+            false,
+          ),
+        ),
       ),
     );
 
