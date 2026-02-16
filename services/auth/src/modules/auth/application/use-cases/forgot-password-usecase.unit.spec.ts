@@ -160,7 +160,7 @@ describe('ForgotPasswordUseCase', () => {
 
     it('should return reset pass token', async () => {
       const token = 'RESET-PASS-TOKEN';
-      vi.spyOn(tokenService, 'generateResetPassToken').mockReturnValue(token);
+      vi.spyOn(tokenService, 'generateResetPassToken').mockResolvedValue(token);
 
       const result = await useCase.validateCode(code, email);
       expect(result).toEqual({ ok: true, result: token });

@@ -48,17 +48,20 @@ export class JwtTokenService implements TokenService {
     });
   }
 
-  generateResetPassToken(props: { email: string }): string {
+  async generateResetPassToken(props: { email: string }): Promise<string> {
     const payload: Omit<JWTResetPassTokenPayLoad, 'iat' | 'exp'> = {
       sub: props.email,
       type: 'reset-pass' as const,
     };
 
+    const privateKey = await fs.promises.readFile(
+      path.join(process.cwd(), `certs/reset-pass-private.pem`),
+      'utf-8',
+    );
+
     return this.jwtService.sign(payload, {
       expiresIn: '10m',
-      privateKey: fs.readFileSync(
-        path.join(process.cwd(), `certs/reset-pass-private.pem`),
-      ),
+      privateKey: privateKey,
       keyid: this.configService.get<string>('RESET_PASS_KEYID'),
     });
   }

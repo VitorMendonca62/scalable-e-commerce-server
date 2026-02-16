@@ -10,5 +10,5 @@ export abstract class TokenService {
     email: string;
     roles: PermissionsSystem[];
   }): string;
-  abstract generateResetPassToken(props: { email: string }): string;
+  abstract generateResetPassToken(props: { email: string }): Promise<string>;
 }

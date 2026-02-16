@@ -10,7 +10,7 @@ vi.mock('uuid', () => {
 
 vi.mock('fs', () => {
   return {
-    readFileSync: vi.fn(),
+    promises: { readFile: vi.fn() },
   };
 });
 
@@ -135,7 +135,7 @@ describe('JwtTokenService', () => {
       vi.spyOn(jwtService, 'sign').mockReturnValue(token);
       vi.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
       vi.spyOn(path, 'join').mockReturnValue(mockPath);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPrivateKey);
+      vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockPrivateKey);
     });
 
     const userModel = UserFactory.createModel();
@@ -145,7 +145,7 @@ describe('JwtTokenService', () => {
         email: userModel.email,
       };
 
-      service.generateResetPassToken({ ...props });
+      await service.generateResetPassToken({ ...props });
 
       const playload = {
         sub: userModel.email,
@@ -153,7 +153,7 @@ describe('JwtTokenService', () => {
       };
 
       expect(path.join).toHaveBeenCalled();
-      expect(fs.readFileSync).toHaveBeenCalledWith(mockPath);
+      expect(fs.promises.readFile).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '10m',
@@ -163,7 +163,7 @@ describe('JwtTokenService', () => {
     });
 
     it('should return token', async () => {
-      const result = service.generateResetPassToken(userModel);
+      const result = await service.generateResetPassToken(userModel);
 
       expect(typeof result).toBe('string');
       expect(result).toBe(token);

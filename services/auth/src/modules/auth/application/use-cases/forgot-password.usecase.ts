@@ -75,7 +75,7 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
 
     return {
       ok: true,
-      result: this.tokenService.generateResetPassToken({ email }),
+      result: await this.tokenService.generateResetPassToken({ email }),
     };
   }
 }

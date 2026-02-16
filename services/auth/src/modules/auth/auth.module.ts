@@ -54,12 +54,19 @@ import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.
       { name: EmailCodeModel.name, schema: EmailCodeSchema },
       { name: DeadLetterMessageModel.name, schema: DeadLetterMessageSchema },
     ]),
-    JwtModule.register({
-      privateKey: fs.readFileSync(
-        path.join(process.cwd(), 'certs/auth-private.pem'),
-      ),
-      signOptions: {
-        algorithm: 'RS256',
+    JwtModule.registerAsync({
+      useFactory: async () => {
+        const privateKey = await fs.promises.readFile(
+          path.join(process.cwd(), 'certs/auth-private.pem'),
+          'utf-8',
+        );
+
+        return {
+          privateKey,
+          signOptions: {
+            algorithm: 'RS256',
+          },
+        };
       },
     }),
     ClientsModule.registerAsync([
