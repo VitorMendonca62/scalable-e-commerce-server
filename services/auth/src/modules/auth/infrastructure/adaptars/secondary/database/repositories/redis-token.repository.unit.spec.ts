@@ -9,22 +9,23 @@ describe('RedisTokenRepository', () => {
   let redis: Redis;
 
   let mockPipelineExec: Mock;
-  let mockPipelineDel: Mock;
+  let mockPipelineUnlinkl: Mock;
 
   beforeEach(async () => {
     mockPipelineExec = vi.fn();
-    mockPipelineDel = vi.fn();
+    mockPipelineUnlinkl = vi.fn();
     redis = {
       hset: vi.fn(),
       sadd: vi.fn(),
       expire: vi.fn(),
       del: vi.fn(),
+      unlink: vi.fn(),
       srem: vi.fn(),
       exists: vi.fn(),
       smembers: vi.fn(),
       pipeline: vi.fn(() => {
         return {
-          del: mockPipelineDel,
+          unlink: mockPipelineUnlinkl,
           exec: mockPipelineExec,
         };
       }),
@@ -87,25 +88,24 @@ describe('RedisTokenRepository', () => {
       expect(redis.smembers).toHaveBeenCalledTimes(1);
       expect(redis.pipeline).toHaveBeenCalled();
       expect(redis.pipeline).toHaveBeenCalledTimes(1);
-      expect(mockPipelineDel).toHaveBeenCalledWith(...tokensKeys);
-      expect(mockPipelineDel).toHaveBeenCalledTimes(1);
+      expect(mockPipelineUnlinkl).toHaveBeenNthCalledWith(1, tokensKeys);
+      expect(mockPipelineUnlinkl).toHaveBeenNthCalledWith(2, sessionsKey);
+      expect(mockPipelineUnlinkl).toHaveBeenCalledTimes(2);
       expect(mockPipelineExec).toHaveBeenCalled();
       expect(mockPipelineExec).toHaveBeenCalledTimes(1);
-      expect(redis.del).toHaveBeenCalledWith(sessionsKey);
-      expect(redis.del).toHaveBeenCalledTimes(1);
     });
 
     it('should delete in chunks', async () => {
-      const tokensKeys = Array.from({ length: 750 }, (_, i) => `token:${i}`);
+      const tokensKeys = Array.from({ length: 1250 }, (_, i) => `token:${i}`);
 
       const expectFirstChunkTokensKeys = Array.from(
-        { length: 500 },
+        { length: 1000 },
         (_, i) => `token:${i}`,
       );
 
       const expecSecondChunkTokensKeys = Array.from(
         { length: 250 },
-        (_, i) => `token:${i + 500}`,
+        (_, i) => `token:${i + 1000}`,
       );
 
       vi.spyOn(redis, 'smembers').mockResolvedValue(tokensKeys);
@@ -117,20 +117,19 @@ describe('RedisTokenRepository', () => {
       expect(redis.smembers).toHaveBeenCalledWith(sessionsKey);
       expect(redis.smembers).toHaveBeenCalledTimes(1);
       expect(redis.pipeline).toHaveBeenCalled();
-      expect(redis.pipeline).toHaveBeenCalledTimes(2);
-      expect(mockPipelineDel).toHaveBeenNthCalledWith(
+      expect(redis.pipeline).toHaveBeenCalledTimes(1);
+      expect(mockPipelineUnlinkl).toHaveBeenNthCalledWith(
         1,
-        ...expectFirstChunkTokensKeys,
+        expectFirstChunkTokensKeys,
       );
-      expect(mockPipelineDel).toHaveBeenNthCalledWith(
+      expect(mockPipelineUnlinkl).toHaveBeenNthCalledWith(
         2,
-        ...expecSecondChunkTokensKeys,
+        expecSecondChunkTokensKeys,
       );
-      expect(mockPipelineDel).toHaveBeenCalledTimes(2);
+      expect(mockPipelineUnlinkl).toHaveBeenNthCalledWith(3, sessionsKey);
+      expect(mockPipelineUnlinkl).toHaveBeenCalledTimes(3);
       expect(mockPipelineExec).toHaveBeenCalled();
-      expect(mockPipelineExec).toHaveBeenCalledTimes(2);
-      expect(redis.del).toHaveBeenCalledWith(sessionsKey);
-      expect(redis.del).toHaveBeenCalledTimes(1);
+      expect(mockPipelineExec).toHaveBeenCalledTimes(1);
     });
 
     it('should no call redis.del if tokens length is 0', async () => {
@@ -145,9 +144,9 @@ describe('RedisTokenRepository', () => {
       expect(redis.smembers).toHaveBeenCalledWith(sessionsKey);
       expect(redis.smembers).toHaveBeenCalledTimes(1);
       expect(redis.pipeline).not.toHaveBeenCalled();
-      expect(mockPipelineDel).not.toHaveBeenCalled();
+      expect(redis.del).toHaveBeenCalledWith(sessionsKey);
+      expect(mockPipelineUnlinkl).not.toHaveBeenCalled();
       expect(mockPipelineExec).not.toHaveBeenCalled();
-      expect(redis.del).toHaveBeenCalled();
     });
   });
 

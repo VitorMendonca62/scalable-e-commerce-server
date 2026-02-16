@@ -20,6 +20,6 @@ export default class MongooseEmailCodeRepository implements EmailCodeRepository 
   }
 
   async deleteMany(email: string): Promise<void> {
-    this.EmailCodeModel.deleteMany({ email }).exec();
+    await this.EmailCodeModel.deleteMany({ email }).exec();
   }
 }
