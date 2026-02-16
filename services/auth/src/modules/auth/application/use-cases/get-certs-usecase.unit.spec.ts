@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { type Mock } from 'vitest';
 vi.mock('fs', () => {
   return {
-    readFileSync: vi.fn(),
+    promises: { readFile: vi.fn() },
   };
 });
 
@@ -58,7 +58,7 @@ describe('GetCertsUseCase', () => {
   describe('getAuthCert', () => {
     beforeEach(() => {
       vi.spyOn(path, 'join').mockReturnValue(mockPath);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
+      vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockPemContent);
       (importSPKI as Mock).mockResolvedValue(mockPublicKey);
       (exportJWK as Mock).mockResolvedValue(mockJwk);
       vi.spyOn(configService, 'get').mockReturnValue(authKeyID);
@@ -71,7 +71,7 @@ describe('GetCertsUseCase', () => {
         expect.any(String),
         'certs/auth-public.pem',
       );
-      expect(fs.readFileSync).toHaveBeenCalledWith(mockPath, 'utf-8');
+      expect(fs.promises.readFile).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
       expect(exportJWK).toHaveBeenCalledWith(mockPublicKey);
       expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
@@ -88,10 +88,10 @@ describe('GetCertsUseCase', () => {
       });
     });
 
-    it('should rethrow error if fs.readFileSync throws error', async () => {
-      vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
-        throw new Error('Error reading file');
-      });
+    it('should rethrow error if fs.readFile throws error', async () => {
+      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
+        new Error('Error reading file'),
+      );
 
       try {
         await useCase.getAuthCert();
@@ -137,7 +137,7 @@ describe('GetCertsUseCase', () => {
   describe('getResetPassCert', () => {
     beforeEach(() => {
       vi.spyOn(path, 'join').mockReturnValue(mockPath);
-      vi.spyOn(fs, 'readFileSync').mockReturnValue(mockPemContent);
+      vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockPemContent);
       (importSPKI as Mock).mockResolvedValue(mockPublicKey);
       (exportJWK as Mock).mockResolvedValue(mockJwk);
       vi.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
@@ -150,7 +150,7 @@ describe('GetCertsUseCase', () => {
         expect.any(String),
         'certs/reset-pass-public.pem',
       );
-      expect(fs.readFileSync).toHaveBeenCalledWith(mockPath, 'utf-8');
+      expect(fs.promises.readFile).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
       expect(exportJWK).toHaveBeenCalledWith(mockPublicKey);
       expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
@@ -167,10 +167,10 @@ describe('GetCertsUseCase', () => {
       });
     });
 
-    it('should rethrow error if fs.readFileSync throws error', async () => {
-      vi.spyOn(fs, 'readFileSync').mockImplementationOnce(() => {
-        throw new Error('Error reading file');
-      });
+    it('should rethrow error if fs.readFile throws error', async () => {
+      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
+        new Error('Error reading file'),
+      );
 
       try {
         await useCase.getResetPassCert();

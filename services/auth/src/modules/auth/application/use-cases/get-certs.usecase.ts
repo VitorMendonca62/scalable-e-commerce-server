@@ -12,7 +12,7 @@ export default class GetCertsUseCase {
   ) {}
 
   private async getJwk(file: `${string}.pem`) {
-    const publicPem = fs.readFileSync(
+    const publicPem = await fs.promises.readFile(
       path.join(process.cwd(), `certs/${file}`),
       'utf-8',
     );
