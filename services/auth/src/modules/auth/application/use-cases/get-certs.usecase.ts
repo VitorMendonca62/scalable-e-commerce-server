@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as fs from 'fs';
 import * as path from 'path';
-import { exportJWK, importSPKI } from 'jose';
+import { exportJWK, importSPKI, JWK } from 'jose';
 
 @Injectable()
 export default class GetCertsUseCase {
@@ -11,13 +11,19 @@ export default class GetCertsUseCase {
     private readonly configService: ConfigService<EnvironmentVariables>,
   ) {}
 
+  private jwkCache: Record<string, JWK> = {};
+
   private async getJwk(file: `${string}.pem`) {
+    if (this.jwkCache[file] !== undefined) return this.jwkCache[file];
+
     const publicPem = await fs.promises.readFile(
       path.join(process.cwd(), `certs/${file}`),
       'utf-8',
     );
     const publicKey = await importSPKI(publicPem, 'RS256');
-    return await exportJWK(publicKey);
+    const jwk = await exportJWK(publicKey);
+    this.jwkCache[file] = jwk;
+    return jwk;
   }
 
   async getAuthCert() {

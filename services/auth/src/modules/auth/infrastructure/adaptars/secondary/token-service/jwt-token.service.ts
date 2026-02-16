@@ -1,17 +1,17 @@
 import { PermissionsSystem } from '@auth/domain/types/permissions';
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { v7 } from 'uuid';
-import * as fs from 'fs';
-import * as path from 'path';
 @Injectable()
 export class JwtTokenService implements TokenService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService<EnvironmentVariables>,
+    @Inject('RESET_PASS_PRIVATE_KEY')
+    private readonly resetPassPrivateKey: string,
   ) {}
 
   generateRefreshToken(id: string): { refreshToken: string; tokenID: string } {
@@ -54,14 +54,9 @@ export class JwtTokenService implements TokenService {
       type: 'reset-pass' as const,
     };
 
-    const privateKey = await fs.promises.readFile(
-      path.join(process.cwd(), `certs/reset-pass-private.pem`),
-      'utf-8',
-    );
-
     return this.jwtService.sign(payload, {
       expiresIn: '10m',
-      privateKey: privateKey,
+      privateKey: this.resetPassPrivateKey,
       keyid: this.configService.get<string>('RESET_PASS_KEYID'),
     });
   }

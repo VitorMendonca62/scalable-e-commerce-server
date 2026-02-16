@@ -147,6 +147,14 @@ import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.
       provide: EmailSender,
       useClass: NodemailerEmailSender,
     },
+    {
+      provide: 'RESET_PASS_PRIVATE_KEY',
+      useFactory: async () => {
+        return await fs.promises.readFile(
+          path.join(process.cwd(), 'certs/reset-pass-private.pem'),
+        );
+      },
+    },
   ],
 })
 export class AuthModule {}

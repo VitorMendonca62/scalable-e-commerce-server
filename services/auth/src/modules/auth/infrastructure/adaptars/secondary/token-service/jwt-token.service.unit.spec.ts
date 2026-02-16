@@ -8,21 +8,7 @@ vi.mock('uuid', () => {
   return { v7: vi.fn() };
 });
 
-vi.mock('fs', () => {
-  return {
-    promises: { readFile: vi.fn() },
-  };
-});
-
-vi.mock('path', () => {
-  return {
-    join: vi.fn(),
-  };
-});
-
 import { v7 } from 'uuid';
-import * as fs from 'fs';
-import * as path from 'path';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
@@ -36,6 +22,7 @@ describe('JwtTokenService', () => {
   const token = 'T0K3n';
   const resetPassKeyID = 'SECRET';
   const authKeyID = 'SECRET';
+  const mockPrivateKey = 'mock-private-key-content';
 
   beforeEach(async () => {
     jwtService = {
@@ -47,7 +34,7 @@ describe('JwtTokenService', () => {
       get: vi.fn(),
     } as any;
 
-    service = new JwtTokenService(jwtService, configService);
+    service = new JwtTokenService(jwtService, configService, mockPrivateKey);
   });
 
   it('should be defined', () => {
@@ -128,14 +115,9 @@ describe('JwtTokenService', () => {
   });
 
   describe('generateResetPassToken', () => {
-    const mockPrivateKey = 'mock-private-key-content';
-    const mockPath = '/mock/path/to/reset-pass-private.pem';
-
     beforeEach(async () => {
       vi.spyOn(jwtService, 'sign').mockReturnValue(token);
       vi.spyOn(configService, 'get').mockReturnValue(resetPassKeyID);
-      vi.spyOn(path, 'join').mockReturnValue(mockPath);
-      vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockPrivateKey);
     });
 
     const userModel = UserFactory.createModel();
@@ -152,8 +134,6 @@ describe('JwtTokenService', () => {
         type: 'reset-pass',
       };
 
-      expect(path.join).toHaveBeenCalled();
-      expect(fs.promises.readFile).toHaveBeenCalledWith(mockPath, 'utf-8');
       expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
         expiresIn: '10m',
