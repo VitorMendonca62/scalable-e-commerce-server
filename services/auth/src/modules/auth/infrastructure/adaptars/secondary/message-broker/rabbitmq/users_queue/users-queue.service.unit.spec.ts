@@ -41,6 +41,7 @@ describe('UsersQueueService', () => {
   beforeEach(async () => {
     clientProxy = {
       emit: vi.fn(),
+      connect: vi.fn(),
     } as any;
 
     dlqRepository = {

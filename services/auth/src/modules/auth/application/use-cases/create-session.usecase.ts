@@ -34,7 +34,7 @@ export class CreateSessionUseCase implements CreateSesssionPort {
     const passwordToCompare =
       userJSON === null ? this.getDummyHash() : userJSON.password;
 
-    const isPasswordValid = this.passwordHasher.compare(
+    const isPasswordValid = await this.passwordHasher.compare(
       inputUser.password.getValue(),
       passwordToCompare,
     );
