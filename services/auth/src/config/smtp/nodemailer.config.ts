@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 
 export const configNodeMailer = (
   configService: ConfigService<EnvironmentVariables>,
-) => {
+): MailerOptions => {
   return {
     transport: {
       host: configService.get('SMTP_HOST'),
@@ -27,5 +27,5 @@ export const configNodeMailer = (
         strict: true,
       },
     },
-  } as MailerOptions;
+  };
 };

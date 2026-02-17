@@ -7,7 +7,10 @@ import { UserRepository } from './domain/ports/secondary/user-repository.port';
 import { AuthController } from './infrastructure/adaptars/primary/http/auth.controller';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { UserMapper } from './infrastructure/mappers/user.mapper';
-import { EnvironmentVariables } from 'src/config/environment/env.validation';
+import {
+  EnvironmentVariables,
+  NodeEnv,
+} from 'src/config/environment/env.validation';
 import {
   UserModel,
   UserSchema,
@@ -77,23 +80,25 @@ import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.
         useFactory: async (
           configService: ConfigService<EnvironmentVariables>,
         ) => {
-          const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
-          const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
-          const host = configService.get<string>('RABBITMQ_HOST');
-
-          const uri = `amqp://${user}:${password}@${host}`;
-
           return {
             transport: Transport.RMQ,
             options: {
-              urls: [uri],
+              urls: [
+                {
+                  protocol: 'amqp',
+                  hostname: configService.get('RABBITMQ_HOST'),
+                  port: 5672,
+                  username: configService.get('RABBITMQ_DEFAULT_USER'),
+                  password: configService.get('RABBITMQ_DEFAULT_PASS'),
+                },
+              ],
               queue: 'users_queue',
               queueOptions: {
                 exclusive: false,
                 autoDelete: false,
-                noAck: false,
                 arguments: null,
-                durable: false,
+                noAck: false,
+                durable: configService.get('NODE_ENV') === NodeEnv.Production,
               },
             },
           };

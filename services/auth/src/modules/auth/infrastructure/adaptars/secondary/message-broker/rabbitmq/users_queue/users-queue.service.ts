@@ -14,7 +14,9 @@ export class UsersQueueService implements MessageBroker, OnModuleInit {
   constructor(
     @Inject('USERS_BROKER_SERVICE') private client: ClientProxy,
     private readonly dlqRepository: DeadLetterMessageRepository,
-  ) {}
+  ) {
+    client.connect();
+  }
 
   onModuleInit() {
     const options: CircuitBreaker.Options = {

@@ -86,7 +86,7 @@ describe('CreateSessionUseCase', () => {
 
     beforeEach(() => {
       vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
-      vi.spyOn(passwordHasher, 'compare').mockReturnValue(true);
+      vi.spyOn(passwordHasher, 'compare').mockResolvedValue(true);
 
       vi.spyOn(
         useCase as any,
@@ -136,7 +136,7 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should return WrongCredentials reason and ok is false if password is incorrect', async () => {
-      vi.spyOn(passwordHasher, 'compare').mockReturnValue(false);
+      vi.spyOn(passwordHasher, 'compare').mockResolvedValue(false);
 
       const result = await useCase.execute(loginUserEntity);
       expect(result).toEqual({

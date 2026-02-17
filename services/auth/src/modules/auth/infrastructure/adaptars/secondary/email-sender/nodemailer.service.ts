@@ -1,10 +1,12 @@
 import { ExternalServiceError } from '@auth/domain/ports/primary/http/errors.port';
 import { EmailSender } from '@auth/domain/ports/secondary/mail-sender.port';
 import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export default class NodemailerEmailSender implements EmailSender {
+  private logger: Logger = new Logger(NodemailerEmailSender.name);
+
   constructor(private readonly mailerService: MailerService) {}
 
   async send(
@@ -23,7 +25,8 @@ export default class NodemailerEmailSender implements EmailSender {
         context,
       });
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
+    } catch (error) {
+      this.logger.error(`Email send failed: ${error.message}`, error.stack);
       throw new ExternalServiceError(
         'Erro ao comunicar com serviço de email. Tente novamente mais tarde',
       );
