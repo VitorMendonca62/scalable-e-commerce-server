@@ -133,7 +133,7 @@ describe('ChangePasswordUseCase', () => {
       expect(result).toEqual({
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
-        messsage: 'A senha atual informada está incorreta.',
+        message: 'A senha atual informada está incorreta.',
         result: 'oldPassword',
       });
     });

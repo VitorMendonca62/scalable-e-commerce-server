@@ -19,7 +19,7 @@ export type ExecuteUpdateReturn =
   | {
       ok: false;
       reason: ApplicationResultReasons.FIELD_INVALID;
-      messsage: string;
+      message: string;
       result: string;
     };
 

@@ -319,7 +319,7 @@ describe('PasswordController', () => {
       vi.spyOn(changePasswordUseCase, 'executeUpdate').mockResolvedValue({
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
-        messsage: 'Senha inválida',
+        message: 'Senha inválida',
         result: 'oldPassword',
       });
 

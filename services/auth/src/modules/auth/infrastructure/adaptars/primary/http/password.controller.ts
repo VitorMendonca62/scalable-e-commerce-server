@@ -127,7 +127,7 @@ export class PasswordController {
       }
 
       response.status(HttpStatus.BAD_REQUEST);
-      return new FieldInvalid(useCaseResult.messsage, useCaseResult.result);
+      return new FieldInvalid(useCaseResult.message, useCaseResult.result);
     }
 
     return new HttpOKResponse('A senha do usuário foi atualizada!');

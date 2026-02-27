@@ -10,7 +10,7 @@ import { UserMapper } from './infrastructure/mappers/user.mapper';
 import {
   EnvironmentVariables,
   NodeEnv,
-} from 'src/config/environment/env.validation';
+} from '../../config/environment/env.validation';
 import {
   UserModel,
   UserSchema,
