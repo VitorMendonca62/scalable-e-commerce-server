@@ -3,7 +3,7 @@ import { EnvironmentVariables, NodeEnv } from './environment/env.validation';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
-import { FieldInvalid } from '@auth/domain/ports/primary/http/errors.port';
+import { FieldInvalidException } from '@auth/domain/ports/primary/http/errors.port';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 
 export default class AppConfig {
@@ -82,7 +82,7 @@ export default class AppConfig {
         transform: false,
         exceptionFactory: (errors) => {
           if (errors.length === 0) {
-            return new FieldInvalid('Unknown error', 'Error');
+            return new FieldInvalidException('Unknown error', 'Error');
           }
 
           const firstError = errors[0];
@@ -90,7 +90,10 @@ export default class AppConfig {
             ? Object.values(firstError.constraints)[0]
             : 'Unknown error';
 
-          return new FieldInvalid(firstConstraintMessage, firstError.property);
+          return new FieldInvalidException(
+            firstConstraintMessage,
+            firstError.property,
+          );
         },
       }),
     );

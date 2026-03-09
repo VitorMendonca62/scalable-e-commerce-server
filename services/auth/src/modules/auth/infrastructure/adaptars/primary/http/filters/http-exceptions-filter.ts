@@ -1,4 +1,7 @@
-import { HttpError } from '@auth/domain/ports/primary/http/errors.port';
+import {
+  FieldInvalidException,
+  HttpError,
+} from '@auth/domain/ports/primary/http/errors.port';
 import {
   ExceptionFilter,
   Catch,
@@ -18,6 +21,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     if (
       exception instanceof HttpError ||
       exception instanceof UnauthorizedException ||
+      exception instanceof FieldInvalidException ||
       exception instanceof NotFoundException
     ) {
       const exceptionResponse = exception.getResponse();

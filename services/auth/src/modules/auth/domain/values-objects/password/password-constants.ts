@@ -21,10 +21,10 @@ export default class PasswordConstants {
   };
 
   // ERRORS
-  static readonly ERROR_REQUIRED = 'A senha é obrigatória.';
-  static readonly ERROR_STRING = 'A senha deve ser uma string válida.';
+  static readonly ERROR_REQUIRED = 'A senha é obrigatória';
+  static readonly ERROR_STRING = 'A senha deve ser uma string válida';
   static readonly ERROR_MIN_LENGTH =
-    'A senha está muito curta. O mínimo são 8 caracteres.';
+    'A senha está muito curta. O mínimo são 8 caracteres';
   static readonly ERROR_WEAK_PASSWORD =
-    'A senha está muito fraca. Ela deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.';
+    'A senha está muito fraca. Ela deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial';
 }

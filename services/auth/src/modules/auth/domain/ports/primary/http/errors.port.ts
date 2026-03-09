@@ -96,3 +96,12 @@ export class InvalidToken<T = unknown> extends HttpError {
     this.data = data;
   }
 }
+
+export class FieldInvalidException extends HttpError {
+  constructor(message: string = 'Há um campo inválido.', field: string) {
+    super(HttpStatus.BAD_REQUEST, message, field);
+    this.statusCode = HttpStatus.BAD_REQUEST;
+    this.message = message;
+    this.data = field;
+  }
+}
