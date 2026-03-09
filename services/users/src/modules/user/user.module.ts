@@ -26,7 +26,10 @@ import CookieService from './infrastructure/adaptars/primary/http/services/cooki
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { EnvironmentVariables } from '@config/environment/env.validation';
+import {
+  EnvironmentVariables,
+  NodeEnv,
+} from '@config/environment/env.validation';
 import { ValidateEmailUseCase } from './application/use-cases/user/validate-email-usecase';
 import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
@@ -61,22 +64,25 @@ import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository
         useFactory: async (
           configService: ConfigService<EnvironmentVariables>,
         ) => {
-          const user = configService.get<string>('RABBITMQ_DEFAULT_USER');
-          const password = configService.get<string>('RABBITMQ_DEFAULT_PASS');
-          const host = configService.get<string>('RABBITMQ_HOST');
-
-          const uri = `amqp://${user}:${password}@${host}`;
-
           return {
             transport: Transport.RMQ,
             options: {
-              urls: [uri],
+              urls: [
+                {
+                  protocol: 'amqp',
+                  hostname: configService.get('RABBITMQ_HOST'),
+                  port: 5672,
+                  username: configService.get('RABBITMQ_DEFAULT_USER'),
+                  password: configService.get('RABBITMQ_DEFAULT_PASS'),
+                },
+              ],
               queue: 'users_queue',
               queueOptions: {
                 exclusive: false,
                 autoDelete: false,
                 arguments: null,
-                durable: false,
+                noAck: false,
+                durable: configService.get('NODE_ENV') === NodeEnv.Production,
               },
             },
           };
