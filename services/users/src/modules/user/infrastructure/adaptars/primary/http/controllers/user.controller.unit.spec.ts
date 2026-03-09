@@ -265,14 +265,18 @@ describe('UserController', () => {
     it('should send user-created event with correct payload', async () => {
       await controller.create(dto, email, response);
 
-      expect(usersQueueService.send).toHaveBeenCalledWith('user-created', {
-        userID,
-        email: email,
-        password: 'hashedPassword',
-        roles: userModel.roles,
-        createdAt: userModel.createdAt,
-        updatedAt: userModel.updatedAt,
-      });
+      expect(usersQueueService.send).toHaveBeenCalledWith(
+        'user-created',
+        {
+          userID,
+          email: email,
+          password: 'hashedPassword',
+          roles: userModel.roles,
+          createdAt: userModel.createdAt,
+          updatedAt: userModel.updatedAt,
+        },
+        true,
+      );
     });
 
     it('should return HttpCreatedResponse on success', async () => {

@@ -126,14 +126,18 @@ export class UserController {
       );
     }
 
-    this.usersQueueService.send('user-created', {
-      userID,
-      email: email,
-      password: useCaseResult.result.password,
-      roles: useCaseResult.result.roles,
-      createdAt: useCaseResult.result.createdAt,
-      updatedAt: useCaseResult.result.updatedAt,
-    });
+    this.usersQueueService.send(
+      'user-created',
+      {
+        userID,
+        email: email,
+        password: useCaseResult.result.password,
+        roles: useCaseResult.result.roles,
+        createdAt: useCaseResult.result.createdAt,
+        updatedAt: useCaseResult.result.updatedAt,
+      },
+      true,
+    );
 
     response.status(HttpStatus.CREATED);
     return new HttpCreatedResponse('Usuário criado com sucesso');
@@ -196,10 +200,14 @@ export class UserController {
       return new NotFoundItem(useCaseResult.message);
     }
 
-    this.usersQueueService.send('user-updated', {
-      userID,
-      ...dto,
-    });
+    this.usersQueueService.send(
+      'user-updated',
+      {
+        userID,
+        ...dto,
+      },
+      true,
+    );
 
     return new HttpOKResponse('Usuário atualizado com sucesso', dto);
   }
@@ -217,9 +225,13 @@ export class UserController {
       return new NotFoundItem(useCaseResult.message);
     }
 
-    this.usersQueueService.send('user-deleted', {
-      userID,
-    });
+    this.usersQueueService.send(
+      'user-deleted',
+      {
+        userID,
+      },
+      true,
+    );
 
     return new HttpOKResponse('Usuário deletado com sucesso');
   }

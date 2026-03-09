@@ -12,6 +12,7 @@ import AddressModel from '@modules/user/infrastructure/adaptars/secondary/databa
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { configRedisdDB } from '@config/database/redis.config';
+import DeadLetterMessageModel from '@modules/user/infrastructure/adaptars/secondary/database/models/dlq.model';
 
 @Module({
   imports: [
@@ -41,7 +42,7 @@ import { configRedisdDB } from '@config/database/redis.config';
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
-          entities: [UserModel, AddressModel],
+          entities: [UserModel, AddressModel, DeadLetterMessageModel],
           synchronize: true,
         };
       },

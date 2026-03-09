@@ -37,10 +37,14 @@ import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/da
 import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
 import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
 import { PasswordHasher } from './domain/ports/secondary/password-hasher.port';
+import DeadLetterMessageModel from './infrastructure/adaptars/secondary/database/models/dlq.model';
+import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
+import { TypeOrmDQLRepository } from './infrastructure/adaptars/secondary/database/repositories/typeorm-dql.repository';
+import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository.port';
 @Module({
   imports: [
     HttpModule,
-    TypeOrmModule.forFeature([UserModel, AddressModel]),
+    TypeOrmModule.forFeature([UserModel, AddressModel, DeadLetterMessageModel]),
     JwtModule.register({
       privateKey: fs.readFileSync(
         path.join(process.cwd(), 'certs/sign-up-private.pem'),
@@ -84,6 +88,7 @@ import { PasswordHasher } from './domain/ports/secondary/password-hasher.port';
   controllers: [UserController, AddressController, UserExternalController],
   providers: [
     UserMapper,
+    DQLService,
     CookieService,
     AddressMapper,
     CreateUserUseCase,
@@ -118,6 +123,10 @@ import { PasswordHasher } from './domain/ports/secondary/password-hasher.port';
     {
       provide: PasswordHasher,
       useClass: BcryptPasswordHasher,
+    },
+    {
+      provide: DeadLetterMessageRepository,
+      useClass: TypeOrmDQLRepository,
     },
   ],
 })

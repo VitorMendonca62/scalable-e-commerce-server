@@ -28,6 +28,15 @@ export class ExternalServiceException<T = unknown> extends HttpError {
   }
 }
 
+export class FieldInvalidException extends HttpResponseOutbound {
+  constructor(message: string = 'Há um campo inválido.', field: string) {
+    super(HttpStatus.BAD_REQUEST, message, field);
+    this.statusCode = HttpStatus.BAD_REQUEST;
+    this.message = message;
+    this.data = field;
+  }
+}
+
 export class FieldInvalid extends HttpResponseOutbound {
   constructor(message: string = 'Há um campo inválido.', field: string) {
     super(HttpStatus.BAD_REQUEST, message, field);
