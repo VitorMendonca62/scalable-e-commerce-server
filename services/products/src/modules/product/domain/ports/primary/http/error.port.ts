@@ -58,27 +58,6 @@ export class BusinessRuleFailure<T = unknown> extends HttpResponseOutbound {
   }
 }
 
-export class WrongCredentials<T = unknown> extends HttpResponseOutbound {
-  constructor(
-    message: string = 'Suas credenciais estão incorretas. Tente novamente',
-    data: T = undefined as T,
-  ) {
-    super(HttpStatus.UNAUTHORIZED, message, data);
-    this.statusCode = HttpStatus.UNAUTHORIZED;
-    this.message = message;
-    this.data = data;
-  }
-}
-
-export class FieldAlreadyExists<T = unknown> extends HttpResponseOutbound {
-  constructor(message: string = 'Valor já existe de outro usuário', data: T) {
-    super(HttpStatus.CONFLICT, message, data);
-    this.statusCode = HttpStatus.CONFLICT;
-    this.message = message;
-    this.data = data;
-  }
-}
-
 export class NotFoundItem<T = unknown> extends HttpResponseOutbound {
   constructor(
     message: string = 'Não foi possivel encontrar o usuário',
@@ -86,6 +65,15 @@ export class NotFoundItem<T = unknown> extends HttpResponseOutbound {
   ) {
     super(HttpStatus.NOT_FOUND, message, data);
     this.statusCode = HttpStatus.NOT_FOUND;
+    this.message = message;
+    this.data = data;
+  }
+}
+
+export class NotPossible<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Não foi possivel.', data: T = undefined as T) {
+    super(HttpStatus.BAD_REQUEST, message, undefined);
+    this.statusCode = HttpStatus.BAD_REQUEST;
     this.message = message;
     this.data = data;
   }

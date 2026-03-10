@@ -4,7 +4,6 @@ import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
 import { EnvironmentVariables } from './config/environment/env.validation';
 import { HttpExceptionFilter } from '@product/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
-import { addRabbitMQClient } from '@config/message-broker/rabbitmq.config';
 import {
   FastifyAdapter,
   NestFastifyApplication,
@@ -32,7 +31,6 @@ async function bootstrap() {
 
   const appConfig = new AppConfig(configService, app);
 
-  addRabbitMQClient(app, configService);
   appConfig.configSwagger();
   appConfig.configValidationPipe();
   appConfig.configCors();

@@ -7,6 +7,8 @@ import { EnvironmentVariables } from '@config/environment/env.validation';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ProductModule } from '@product/product.module';
+import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 
 @Module({
   imports: [
@@ -30,13 +32,14 @@ import { ScheduleModule } from '@nestjs/schedule';
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
-          entities: [],
+          entities: [ProductModel],
           synchronize: true,
         };
       },
       inject: [ConfigService],
     }),
     ScheduleModule.forRoot(),
+    ProductModule,
   ],
   controllers: [],
 })

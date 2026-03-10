@@ -1,4 +1,4 @@
-import IDConstants from '@modules/product/domain/values-objects/id/id-constants';
+import IDConstants from '@product/domain/values-objects/id/id-constants';
 import { type Mock } from 'vitest';
 
 // Mock ID

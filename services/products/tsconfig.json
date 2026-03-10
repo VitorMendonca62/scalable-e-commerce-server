@@ -20,7 +20,6 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@modules/*": ["src/modules/*"],
       "@product/*": ["src/modules/product/*"],
       "@config/*": ["src/config/*"],
       "@common/*": ["src/common/*"]

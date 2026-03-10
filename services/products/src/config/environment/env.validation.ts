@@ -30,18 +30,6 @@ export class EnvironmentVariables {
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
   PORT: number;
 
-  @IsString({ message: 'RABBITMQ_DEFAULT_USER must be a string.' })
-  @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_USER cannot be empty.' })
-  RABBITMQ_DEFAULT_USER: string;
-
-  @IsString({ message: 'RABBITMQ_DEFAULT_PASS must be a string.' })
-  @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_PASS cannot be empty.' })
-  RABBITMQ_DEFAULT_PASS: string;
-
-  @IsString({ message: 'RABBITMQ_HOST must be a string.' })
-  @IsNotEmpty({ message: 'RABBITMQ_HOST cannot be empty.' })
-  RABBITMQ_HOST: string;
-
   @IsString({ message: 'SMTP_HOST must be a string.' })
   @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
   SMTP_HOST: string;

@@ -1,5 +1,5 @@
-import { ExternalServiceException } from '@modules/product/domain/ports/primary/http/error.port';
-import { EmailSender } from '@modules/product/domain/ports/secondary/mail-sender.port';
+import { ExternalServiceException } from '@product/domain/ports/primary/http/error.port';
+import { EmailSender } from '@product/domain/ports/secondary/mail-sender.port';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 

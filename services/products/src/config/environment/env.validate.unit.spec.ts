@@ -10,18 +10,12 @@ describe('validateENV', () => {
     NODE_ENV: NodeEnv.Development,
     HOST: 'localhost',
     PORT: 8080,
-    RABBITMQ_HOST: 'scalable-commerce-net',
-    RABBITMQ_DEFAULT_USER: 'default',
-    RABBITMQ_DEFAULT_PASS: '1234',
   };
 
   const mockInstance = new EnvironmentVariables();
   mockInstance.NODE_ENV = NodeEnv.Development;
   mockInstance.HOST = 'localhost';
   mockInstance.PORT = 8080;
-  mockInstance.RABBITMQ_HOST = 'scalable-commerce-net';
-  mockInstance.RABBITMQ_DEFAULT_USER = 'default';
-  mockInstance.RABBITMQ_DEFAULT_PASS = '1234';
 
   let plainToInstanceMocked: Mock;
   let validateSyncMocked: Mock;
