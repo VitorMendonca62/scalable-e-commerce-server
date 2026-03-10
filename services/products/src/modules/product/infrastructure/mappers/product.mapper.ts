@@ -2,11 +2,13 @@ import ProductEntity from '@product/domain/entities/product.entity';
 import CreateProductDTO from '../adaptars/primary/http/dtos/create-product.dto';
 import { Injectable } from '@nestjs/common';
 import ProductModel from '../adaptars/secondary/database/models/product.model';
+import { v7 } from 'uuid';
 
 @Injectable()
 export default class ProductMapper {
   createDTOForEntity(dto: CreateProductDTO, userID: string): ProductEntity {
     return new ProductEntity({
+      publicID: v7(),
       active: dto.active,
       description: dto.description,
       payments: dto.payments,
@@ -24,6 +26,7 @@ export default class ProductMapper {
   ): Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'> {
     return {
       title: entity.title,
+      publicID: entity.publicID,
       price: entity.price,
       overview: entity.overview,
       description: entity.description,

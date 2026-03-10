@@ -9,8 +9,11 @@ import {
 
 @Entity('products')
 export default class ProductModel {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn('increment')
   id: string;
+
+  @Column({ type: 'uuid', nullable: false })
+  publicID: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })
   title: string;

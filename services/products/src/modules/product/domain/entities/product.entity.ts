@@ -10,8 +10,10 @@ export default class ProductEntity {
   active: boolean;
   stock: number;
   owner: string;
+  publicID: string;
 
   constructor(props: {
+    publicID: string;
     title: string;
     price: number;
     overview: string;
@@ -22,6 +24,7 @@ export default class ProductEntity {
     stock: number;
     owner: string;
   }) {
+    this.publicID = props.publicID;
     this.title = props.title;
     this.price = props.price;
     this.overview = props.overview;
