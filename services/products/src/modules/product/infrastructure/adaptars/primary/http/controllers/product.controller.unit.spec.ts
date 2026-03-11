@@ -1,18 +1,26 @@
 import CreateProductUseCase from '@product/application/use-cases/create-product-use-case';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
-import { NotPossible } from '@product/domain/ports/primary/http/error.port';
-import { HttpCreatedResponse } from '@product/domain/ports/primary/http/sucess.port';
+import {
+  NotFoundItem,
+  NotPossible,
+} from '@product/domain/ports/primary/http/error.port';
+import {
+  HttpCreatedResponse,
+  HttpOKResponse,
+} from '@product/domain/ports/primary/http/sucess.port';
 import { IDConstants } from '@product/domain/values-objects/constants';
 import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import { HttpStatus } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import ProductController from './product.controller';
 import { ProductFactory } from '@product/infrastructure/helpers/factories/product-factory';
+import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
 
 describe('ProductController', () => {
   let controller: ProductController;
   let productMapper: ProductMapper;
   let createProductUseCase: CreateProductUseCase;
+  let getProductUseCase: GetProductUseCase;
   let response: FastifyReply;
 
   beforeEach(async () => {
@@ -24,7 +32,15 @@ describe('ProductController', () => {
       execute: vi.fn(),
     } as any;
 
-    controller = new ProductController(productMapper, createProductUseCase);
+    getProductUseCase = {
+      getByID: vi.fn(),
+    } as any;
+
+    controller = new ProductController(
+      productMapper,
+      createProductUseCase,
+      getProductUseCase,
+    );
 
     response = {
       status: vi.fn(),
@@ -37,6 +53,7 @@ describe('ProductController', () => {
     expect(controller).toBeDefined();
     expect(productMapper).toBeDefined();
     expect(createProductUseCase).toBeDefined();
+    expect(getProductUseCase).toBeDefined();
   });
 
   describe('create', () => {
@@ -117,6 +134,85 @@ describe('ProductController', () => {
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
         expect(error.message).toBe('Erro no mapper');
+        expect(error.data).toBeUndefined();
+      }
+    });
+  });
+
+  describe('getByID', () => {
+    const productID = IDConstants.EXEMPLE;
+    const productModel = ProductFactory.createModel();
+
+    beforeEach(() => {
+      vi.spyOn(getProductUseCase, 'getByID').mockResolvedValue({
+        ok: true,
+        result: productModel,
+      });
+    });
+
+    it('should call getProductUseCase.getByID with product ID', async () => {
+      await controller.getByID(productID, response);
+
+      expect(getProductUseCase.getByID).toHaveBeenCalledWith(productID);
+    });
+
+    it('should return HttpOKResponse on success', async () => {
+      const result = await controller.getByID(productID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produto encontrado com sucesso',
+        data: productModel,
+      });
+    });
+
+    it('should return NotFoundItem when product is not found', async () => {
+      vi.spyOn(getProductUseCase, 'getByID').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Produto não encontrado',
+      });
+
+      const result = await controller.getByID(productID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+      expect(result).toBeInstanceOf(NotFoundItem);
+      expect(result).toEqual({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Produto não encontrado',
+      });
+    });
+
+    it('should return NotPossible on other failures', async () => {
+      vi.spyOn(getProductUseCase, 'getByID').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'ID inválido',
+      });
+
+      const result = await controller.getByID(productID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'ID inválido',
+      });
+    });
+
+    it('should throw error if getProductUseCase throws error', async () => {
+      vi.spyOn(getProductUseCase, 'getByID').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
+
+      try {
+        await controller.getByID(productID, response);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
         expect(error.data).toBeUndefined();
       }
     });

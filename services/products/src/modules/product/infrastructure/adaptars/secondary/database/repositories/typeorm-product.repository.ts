@@ -11,6 +11,15 @@ export default class TypeOrmProductRepository implements ProductRepository {
     private productReposiory: Repository<ProductModel>,
   ) {}
 
+  getOne(
+    fields: Partial<Pick<ProductModel, 'id' | 'publicID'>>,
+  ): Promise<ProductModel | null> {
+    return this.productReposiory.findOne({
+      where: fields,
+      select: { id: false },
+    });
+  }
+
   async add(
     product: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<void> {

@@ -34,6 +34,7 @@ export class ProductFactory {
   ): ProductEntity {
     return new ProductEntity({
       title: TitleConstants.EXEMPLE,
+      publicID: IDConstants.EXEMPLE,
       price: PriceConstants.EXEMPLE,
       description: DescriptionConstants.EXEMPLE,
       photos: PhotosConstants.EXEMPLE,
@@ -50,6 +51,7 @@ export class ProductFactory {
     const model = new ProductModel();
 
     model.id = IDConstants.EXEMPLE;
+    model.publicID = IDConstants.EXEMPLE;
     model.title = TitleConstants.EXEMPLE;
     model.price = PriceConstants.EXEMPLE;
     model.description = DescriptionConstants.EXEMPLE;

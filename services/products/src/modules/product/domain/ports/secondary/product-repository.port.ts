@@ -4,4 +4,6 @@ export default abstract class ProductRepository {
   abstract add(
     newProduct: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<void>;
+
+  abstract getOne(fields: Partial<ProductModel>): Promise<ProductModel | null>;
 }
