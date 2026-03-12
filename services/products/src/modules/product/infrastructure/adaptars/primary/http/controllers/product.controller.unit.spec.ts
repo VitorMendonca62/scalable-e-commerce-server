@@ -8,7 +8,11 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@product/domain/ports/primary/http/sucess.port';
-import { IDConstants } from '@product/domain/values-objects/constants';
+import {
+  IDConstants,
+  PriceConstants,
+  StockConstants,
+} from '@product/domain/values-objects/constants';
 import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import { HttpStatus } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
@@ -19,6 +23,7 @@ import {
 } from '@product/infrastructure/helpers/factories/product-factory';
 import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
 import UpdateProductUseCase from '@product/application/use-cases/update-product-use-case';
+import GetProductsUseCase from '@product/application/use-cases/get-products-use-case';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -26,6 +31,7 @@ describe('ProductController', () => {
   let createProductUseCase: CreateProductUseCase;
   let getProductUseCase: GetProductUseCase;
   let updateProductUseCase: UpdateProductUseCase;
+  let getProductsUseCase: GetProductsUseCase;
   let response: FastifyReply;
 
   beforeEach(async () => {
@@ -45,10 +51,15 @@ describe('ProductController', () => {
       execute: vi.fn(),
     } as any;
 
+    getProductsUseCase = {
+      getByFilter: vi.fn(),
+    } as any;
+
     controller = new ProductController(
       productMapper,
       createProductUseCase,
       getProductUseCase,
+      getProductsUseCase,
       updateProductUseCase,
     );
 
@@ -65,6 +76,7 @@ describe('ProductController', () => {
     expect(createProductUseCase).toBeDefined();
     expect(getProductUseCase).toBeDefined();
     expect(updateProductUseCase).toBeDefined();
+    expect(getProductsUseCase).toBeDefined();
   });
 
   describe('create', () => {
@@ -308,6 +320,473 @@ describe('ProductController', () => {
         expect(error.message).toBe('Erro no use case');
         expect(error.data).toBeUndefined();
       }
+    });
+  });
+
+  describe('getProductsByFilter', () => {
+    const mockProducts = [
+      ProductFactory.createModel(),
+      ProductFactory.createModel({ title: 'Product 2' }),
+    ];
+
+    beforeEach(() => {
+      vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
+        ok: true,
+        result: mockProducts,
+      });
+    });
+
+    it('should call getProductsUseCase.getByFilter with correct parameters', async () => {
+      const category = 'electronics,smartphones';
+      const price = '1000-5000';
+      const payments = 'pix,credit_card';
+      const stock = '10-100';
+
+      await controller.getProductsByFilter(
+        category,
+        price,
+        payments,
+        stock,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics', 'smartphones'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix', 'credit_card'],
+      });
+    });
+
+    it('should return HttpOKResponse with products on success', async () => {
+      const result = await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produtos encontrados com sucesso',
+        data: mockProducts,
+      });
+    });
+
+    it('should handle empty max price (use MAX_VALUE)', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-' as any,
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: PriceConstants.MAX_VALUE },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle empty max stock (use MAX_VALUE)', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-' as any,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: StockConstants.MAX_VALUE },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle empty min price (use 0)', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '-111' as any,
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 0, max: 111 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle empty max stock (use 0)', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '-10' as any,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 0, max: 10 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle both empty min values', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '-1000' as any,
+        'pix',
+        '-10' as any,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 0, max: 1000 },
+        stock: { min: 0, max: 10 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle both empty max values', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-' as any,
+        'pix',
+        '10-' as any,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: PriceConstants.MAX_VALUE },
+        stock: { min: 10, max: StockConstants.MAX_VALUE },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle both empty max and min values', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '-' as any,
+        'pix',
+        '-' as any,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 0, max: PriceConstants.MAX_VALUE },
+        stock: { min: 0, max: StockConstants.MAX_VALUE },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle multiple categories', async () => {
+      await controller.getProductsByFilter(
+        'electronics,smartphones,accessories',
+        '1000-5000',
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics', 'smartphones', 'accessories'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle multiple payment methods', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix,credit_card,debit_card,boleto',
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix', 'credit_card', 'debit_card', 'boleto'],
+      });
+    });
+
+    it('should handle single category', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle minimum price and stock values', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '0-1000',
+        'pix',
+        '0-50',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 0, max: 1000 },
+        stock: { min: 0, max: 50 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should handle large price and stock ranges', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '100000-999999',
+        'pix',
+        '1000-10000',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+        price: { min: 100000, max: 999999 },
+        stock: { min: 1000, max: 10000 },
+        payments: ['pix'],
+      });
+    });
+
+    it('should return NotPossible on use case failure', async () => {
+      vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Parâmetros inválidos',
+      });
+
+      const result = await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-100',
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Parâmetros inválidos',
+      });
+    });
+
+    it('should throw error if getProductsUseCase throws error', async () => {
+      vi.spyOn(getProductsUseCase, 'getByFilter').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
+
+      try {
+        await controller.getProductsByFilter(
+          'electronics',
+          '1000-5000',
+          'pix',
+          '10-100',
+          response,
+        );
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+      }
+    });
+
+    it('should parse price range correctly', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '5000-10000',
+        'pix',
+        '10-100',
+        response,
+      );
+
+      const callArgs = (getProductsUseCase.getByFilter as any).mock.calls[0][0];
+
+      expect(callArgs.price).toEqual({ min: 5000, max: 10000 });
+      expect(typeof callArgs.price.min).toBe('number');
+      expect(typeof callArgs.price.max).toBe('number');
+    });
+
+    it('should parse stock range correctly', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '50-200',
+        response,
+      );
+
+      const callArgs = (getProductsUseCase.getByFilter as any).mock.calls[0][0];
+
+      expect(callArgs.stock).toEqual({ min: 50, max: 200 });
+      expect(typeof callArgs.stock.min).toBe('number');
+      expect(typeof callArgs.stock.max).toBe('number');
+    });
+
+    it('should return empty array when no products match filter', async () => {
+      vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
+        ok: true,
+        result: [],
+      });
+
+      const result = await controller.getProductsByFilter(
+        'nonexistent',
+        '1000000-2000000',
+        'pix',
+        '1000-2000',
+        response,
+      );
+
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produtos encontrados com sucesso',
+        data: [],
+      });
+    });
+
+    it('should filter only by category when other params are undefined', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        undefined,
+        undefined,
+        undefined,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        category: ['electronics'],
+      });
+    });
+
+    it('should filter only by price when other params are undefined', async () => {
+      await controller.getProductsByFilter(
+        undefined,
+        '1000-5000',
+        undefined,
+        undefined,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        price: { min: 1000, max: 5000 },
+      });
+    });
+
+    it('should filter only by payments when other params are undefined', async () => {
+      await controller.getProductsByFilter(
+        undefined,
+        undefined,
+        'pix,credit_card',
+        undefined,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        payments: ['pix', 'credit_card'],
+      });
+    });
+
+    it('should filter only by stock when other params are undefined', async () => {
+      await controller.getProductsByFilter(
+        undefined,
+        undefined,
+        undefined,
+        '10-100',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        stock: { min: 10, max: 100 },
+      });
+    });
+
+    it('should send empty filters object when all params are undefined', async () => {
+      const result = await controller.getProductsByFilter(
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum filtro para que possa filtrar produtos',
+      });
+      expect(getProductsUseCase.getByFilter).not.toHaveBeenCalled();
+    });
+
+    it('should return products when filtering with partial filters', async () => {
+      const result = await controller.getProductsByFilter(
+        'electronics',
+        undefined,
+        undefined,
+        undefined,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produtos encontrados com sucesso',
+        data: mockProducts,
+      });
+    });
+
+    it('should return empty array when no products match partial filters', async () => {
+      vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
+        ok: true,
+        result: [],
+      });
+
+      const result = await controller.getProductsByFilter(
+        undefined,
+        undefined,
+        undefined,
+        '10000-20000',
+        response,
+      );
+
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produtos encontrados com sucesso',
+        data: [],
+      });
     });
   });
 });

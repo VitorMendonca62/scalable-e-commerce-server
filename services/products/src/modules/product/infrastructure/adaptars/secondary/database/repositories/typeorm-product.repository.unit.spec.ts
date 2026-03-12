@@ -1,9 +1,16 @@
 import { IDConstants } from '@product/domain/values-objects/constants';
 import { ProductFactory } from '@product/infrastructure/helpers/factories/product-factory';
-import { Repository } from 'typeorm';
+import {
+  And,
+  ArrayContains,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 import ProductModel from '../models/product.model';
 import TypeOrmProductRepository from './typeorm-product.repository';
 import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
+import { ProductFilters } from '@product/domain/ports/application/get-products.port';
 
 describe('TypeOrmProductRepository', () => {
   let repository: TypeOrmProductRepository;
@@ -12,6 +19,7 @@ describe('TypeOrmProductRepository', () => {
   beforeEach(() => {
     productRepository = {
       findOne: vi.fn(),
+      find: vi.fn(),
       save: vi.fn(),
       update: vi.fn(),
     } as any;
@@ -378,6 +386,166 @@ describe('TypeOrmProductRepository', () => {
         { publicID: productID, owner: userID },
         textUpdates,
       );
+    });
+  });
+
+  describe('findWithFilters', () => {
+    const mockProducts = [
+      ProductFactory.createModel(),
+      ProductFactory.createModel({ title: 'Product 2' }),
+    ];
+
+    beforeEach(() => {
+      vi.spyOn(productRepository, 'find').mockResolvedValue(mockProducts);
+    });
+
+    it('should filter by price range', async () => {
+      const filters: ProductFilters = {
+        price: { min: 1000, max: 5000 },
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should filter by stock range', async () => {
+      const filters: ProductFilters = {
+        stock: { min: 10, max: 100 },
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should filter by payments array', async () => {
+      const filters: ProductFilters = {
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should filter by all available filters', async () => {
+      const filters: ProductFilters = {
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
+          stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
+          payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should return products matching filters', async () => {
+      const filters: ProductFilters = {
+        price: { min: 1000, max: 5000 },
+      };
+
+      const result = await repository.findWithFilters(filters);
+
+      expect(result).toEqual(mockProducts);
+    });
+
+    it('should return empty array when no products match', async () => {
+      vi.spyOn(productRepository, 'find').mockResolvedValue([]);
+
+      const filters: ProductFilters = {
+        price: { min: 100000, max: 200000 },
+      };
+
+      const result = await repository.findWithFilters(filters);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should not include id in select', async () => {
+      await repository.findWithFilters({});
+
+      const callArgs = (productRepository.find as any).mock.calls[0][0];
+
+      expect(callArgs.select).toEqual({ id: false });
+    });
+
+    it('should handle undefined category filter (not implemented)', async () => {
+      const filters: ProductFilters = {
+        category: ['electronics'],
+        price: { min: 1000, max: 5000 },
+      };
+
+      await repository.findWithFilters(filters);
+
+      // Category não deve aparecer no where pois não está implementado
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should only apply implemented filters', async () => {
+      const filters: ProductFilters = {
+        category: ['electronics', 'smartphones'], // Não implementado
+        price: { min: 1000, max: 5000 },
+        payments: [PaymentTypes.PIX],
+        stock: { min: 10, max: 100 },
+      };
+
+      await repository.findWithFilters(filters);
+
+      const callArgs = (productRepository.find as any).mock.calls[0][0];
+
+      expect(callArgs.where).not.toHaveProperty('category');
+      expect(callArgs.where).toHaveProperty('price');
+      expect(callArgs.where).toHaveProperty('payments');
+      expect(callArgs.where).toHaveProperty('stock');
+    });
+
+    it('should return products with all properties except id', async () => {
+      const result = await repository.findWithFilters({
+        price: { min: 1000, max: 5000 },
+      });
+
+      expect(result).toEqual(mockProducts);
+      result.forEach((product) => {
+        expect(product).toHaveProperty('publicID');
+        expect(product).toHaveProperty('title');
+        expect(product).toHaveProperty('price');
+        expect(product).toHaveProperty('overview');
+        expect(product).toHaveProperty('description');
+        expect(product).toHaveProperty('photos');
+        expect(product).toHaveProperty('payments');
+        expect(product).toHaveProperty('active');
+        expect(product).toHaveProperty('stock');
+        expect(product).toHaveProperty('owner');
+      });
     });
   });
 });

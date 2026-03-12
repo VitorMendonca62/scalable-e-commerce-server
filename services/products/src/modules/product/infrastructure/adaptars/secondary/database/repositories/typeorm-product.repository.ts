@@ -2,14 +2,55 @@ import ProductRepository from '@product/domain/ports/secondary/product-repositor
 import ProductModel from '../models/product.model';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-
+import {
+  And,
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+  ArrayContains,
+} from 'typeorm';
+import { ProductFilters } from '@product/domain/ports/application/get-products.port';
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
     @InjectRepository(ProductModel)
     private productRepository: Repository<ProductModel>,
   ) {}
+
+  findWithFilters(filters: ProductFilters): Promise<ProductModel[]> {
+    const whereFilters: FindOptionsWhere<ProductModel> = {};
+
+    // TODO ADICIOINAR ISSO AQ
+    // if (filters.category !== undefined) {
+    //   whereFilters.push({
+    //     category: In(filters.category),
+    //   });
+    // }
+
+    if (filters.price !== undefined) {
+      whereFilters.price = And(
+        MoreThanOrEqual(filters.price.min),
+        LessThanOrEqual(filters.price.max),
+      );
+    }
+
+    if (filters.stock !== undefined) {
+      whereFilters.stock = And(
+        MoreThanOrEqual(filters.stock.min),
+        LessThanOrEqual(filters.stock.max),
+      );
+    }
+
+    if (filters.payments !== undefined) {
+      whereFilters.payments = ArrayContains(filters.payments);
+    }
+
+    return this.productRepository.find({
+      where: whereFilters,
+      select: { id: false },
+    });
+  }
 
   getOne(
     fields: Partial<Pick<ProductModel, 'id' | 'publicID'>>,
