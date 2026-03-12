@@ -5,46 +5,61 @@ import {
   OverviewConstants,
   PhotosConstants,
   PaymentsConstants,
-  ActiveConstants,
   StockConstants,
+  ActiveConstants,
 } from '@product/domain/values-objects/constants';
 import { ValidationObjectFactory } from '@product/infrastructure/helpers/dto-helper';
 import { ProductDTOFactory } from '@product/infrastructure/helpers/factories/product-factory';
-
-describe('CreateProductDTO', () => {
+describe('UpdateProductDTO', () => {
   it('should success validation when all fields are valid', async () => {
     const errors = await ValidationObjectFactory.validateObject(
-      ProductDTOFactory.createProductDTOLikeInstance(),
+      ProductDTOFactory.createUpdateProductDTO({
+        title: TitleConstants.EXEMPLE,
+        price: PriceConstants.EXEMPLE,
+        description: DescriptionConstants.EXEMPLE,
+        overview: OverviewConstants.EXEMPLE,
+        photos: PhotosConstants.EXEMPLE,
+        payments: PaymentsConstants.EXEMPLE,
+        active: true,
+        stock: StockConstants.EXEMPLE,
+      }),
     );
     expect(errors).toHaveLength(0);
   });
 
-  it('should return error when any field is empty', async () => {
-    const requiredFields = {
-      title: TitleConstants.ERROR_REQUIRED,
-      price: PriceConstants.ERROR_REQUIRED,
-      description: DescriptionConstants.ERROR_REQUIRED,
-      overview: OverviewConstants.ERROR_REQUIRED,
-      photos: PhotosConstants.ERROR_REQUIRED,
-      payments: PaymentsConstants.ERROR_REQUIRED,
-      active: ActiveConstants.ERROR_REQUIRED,
-      stock: StockConstants.ERROR_REQUIRED,
-    };
+  it('should success validation when all fields are undefined (partial update)', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO(),
+    );
+    expect(errors).toHaveLength(0);
+  });
 
-    Object.entries(requiredFields).forEach(async (field) => {
-      const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
-        [key]: '',
-      });
+  it('should success validation when only title is provided', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO({
+        title: TitleConstants.EXEMPLE,
+      }),
+    );
+    expect(errors).toHaveLength(0);
+  });
 
-      const errors = await ValidationObjectFactory.validateObject(dto);
-      const fieldError = errors[0];
+  it('should success validation when only price is provided', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO({
+        price: PriceConstants.EXEMPLE,
+      }),
+    );
+    expect(errors).toHaveLength(0);
+  });
 
-      expect(errors).toHaveLength(1);
-      expect(fieldError.value).toBe('');
-      expect(fieldError.property).toBe(key);
-      expect(fieldError.constraints.isNotEmpty).toBe(message);
-    });
+  it('should success validation when only some fields are provided', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO({
+        title: TitleConstants.EXEMPLE,
+        stock: 100,
+      }),
+    );
+    expect(errors).toHaveLength(0);
   });
 
   it('should return error when string fields are not string', async () => {
@@ -56,7 +71,7 @@ describe('CreateProductDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      const dto = ProductDTOFactory.createUpdateProductDTO({
         [key]: 12345,
       });
 
@@ -75,7 +90,7 @@ describe('CreateProductDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      const dto = ProductDTOFactory.createUpdateProductDTO({
         [key]: 'not-a-number',
       });
 
@@ -87,7 +102,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when active is not boolean', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       active: ActiveConstants.ERROR_BOOLEAN_EXEMPLE,
     });
 
@@ -107,7 +122,7 @@ describe('CreateProductDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      const dto = ProductDTOFactory.createUpdateProductDTO({
         [key]: 'not-an-array',
       });
 
@@ -127,7 +142,7 @@ describe('CreateProductDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      const dto = ProductDTOFactory.createUpdateProductDTO({
         [key]: 'ab',
       });
 
@@ -147,7 +162,7 @@ describe('CreateProductDTO', () => {
 
     Object.entries(requiredFields).forEach(async (field) => {
       const [key, message] = field;
-      const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      const dto = ProductDTOFactory.createUpdateProductDTO({
         [key]: 'a'.repeat(10000),
       });
 
@@ -159,7 +174,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when price is not integer', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       price: PriceConstants.ERROR_INTEGER_EXEMPLE,
     });
 
@@ -170,7 +185,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when stock is not integer', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       stock: StockConstants.ERROR_INTEGER_EXEMPLE,
     });
 
@@ -181,7 +196,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when price is less than minimum value', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       price: PriceConstants.ERROR_MIN_VALUE_EXEMPLE,
     });
 
@@ -192,7 +207,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when price is greater than maximum value', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       price: PriceConstants.ERROR_MAX_VALUE_EXEMPLE,
     });
 
@@ -203,7 +218,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when stock is less than minimum value', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       stock: StockConstants.ERROR_MIN_VALUE_EXEMPLE,
     });
 
@@ -214,7 +229,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when stock is greater than maximum value', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       stock: StockConstants.ERROR_MAX_VALUE_EXEMPLE,
     });
 
@@ -225,7 +240,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when photos array is empty', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       photos: PhotosConstants.ERROR_MIN_LENGTH_EXEMPLE,
     });
 
@@ -238,7 +253,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when photos array exceeds maximum size', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       photos: PhotosConstants.ERROR_MAX_LENGTH_EXEMPLE,
     });
 
@@ -251,7 +266,7 @@ describe('CreateProductDTO', () => {
   });
 
   it('should return error when payments array is empty', async () => {
-    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+    const dto = ProductDTOFactory.createUpdateProductDTO({
       payments: PaymentsConstants.ERROR_MIN_LENGTH_EXEMPLE,
     });
 
@@ -261,5 +276,23 @@ describe('CreateProductDTO', () => {
     expect(fieldError.constraints.arrayMinSize).toBe(
       PaymentsConstants.ERROR_MIN_LENGTH,
     );
+  });
+
+  it('should validate correctly when updating only active status', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO({
+        active: false,
+      }),
+    );
+    expect(errors).toHaveLength(0);
+  });
+
+  it('should validate correctly when updating only stock to zero', async () => {
+    const errors = await ValidationObjectFactory.validateObject(
+      ProductDTOFactory.createUpdateProductDTO({
+        stock: 0,
+      }),
+    );
+    expect(errors).toHaveLength(0);
   });
 });

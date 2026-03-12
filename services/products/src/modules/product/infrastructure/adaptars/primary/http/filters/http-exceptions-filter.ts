@@ -13,6 +13,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
 
+    console.error(exception);
+
     if (exception instanceof HttpError) {
       const exceptionResponse = exception.getResponse();
       return response.status(exception.getStatus()).send(exceptionResponse);

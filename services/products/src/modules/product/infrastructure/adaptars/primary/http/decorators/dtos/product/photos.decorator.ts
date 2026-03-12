@@ -5,8 +5,8 @@ import {
   IsNotEmpty,
   ArrayMinSize,
   ArrayMaxSize,
-  IsBase64,
 } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export function Photos() {
   return applyDecorators(
@@ -22,12 +22,10 @@ export function Photos() {
     ArrayMaxSize(10, {
       message: PhotosConstants.ERROR_MAX_LENGTH,
     }),
-    IsBase64(
-      {},
-      {
-        each: true,
-        message: PhotosConstants.ERROR_INVALID_URL,
-      },
-    ),
+    Transform(({ value }) => {
+      return value.map((item) =>
+        Buffer.isBuffer(item) ? item.toString('base64') : item,
+      );
+    }),
   );
 }

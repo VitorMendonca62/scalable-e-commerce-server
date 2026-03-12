@@ -13,14 +13,19 @@ import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import { HttpStatus } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import ProductController from './product.controller';
-import { ProductFactory } from '@product/infrastructure/helpers/factories/product-factory';
+import {
+  ProductDTOFactory,
+  ProductFactory,
+} from '@product/infrastructure/helpers/factories/product-factory';
 import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
+import UpdateProductUseCase from '@product/application/use-cases/update-product-use-case';
 
 describe('ProductController', () => {
   let controller: ProductController;
   let productMapper: ProductMapper;
   let createProductUseCase: CreateProductUseCase;
   let getProductUseCase: GetProductUseCase;
+  let updateProductUseCase: UpdateProductUseCase;
   let response: FastifyReply;
 
   beforeEach(async () => {
@@ -36,10 +41,15 @@ describe('ProductController', () => {
       getByID: vi.fn(),
     } as any;
 
+    updateProductUseCase = {
+      execute: vi.fn(),
+    } as any;
+
     controller = new ProductController(
       productMapper,
       createProductUseCase,
       getProductUseCase,
+      updateProductUseCase,
     );
 
     response = {
@@ -54,6 +64,7 @@ describe('ProductController', () => {
     expect(productMapper).toBeDefined();
     expect(createProductUseCase).toBeDefined();
     expect(getProductUseCase).toBeDefined();
+    expect(updateProductUseCase).toBeDefined();
   });
 
   describe('create', () => {
@@ -209,6 +220,88 @@ describe('ProductController', () => {
 
       try {
         await controller.getByID(productID, response);
+        expect.fail('Should have thrown an error');
+      } catch (error: any) {
+        expect(error).toBeInstanceOf(Error);
+        expect(error.message).toBe('Erro no use case');
+        expect(error.data).toBeUndefined();
+      }
+    });
+  });
+
+  describe('update', () => {
+    const productID = IDConstants.EXEMPLE;
+    const userID = IDConstants.EXEMPLE;
+    const dto = ProductDTOFactory.createUpdateProductDTO();
+
+    beforeEach(() => {
+      vi.spyOn(updateProductUseCase, 'execute').mockResolvedValue({
+        ok: true,
+      });
+    });
+
+    it('should call updateProductUseCase.execute with correct parameters', async () => {
+      await controller.update(productID, dto, userID, response);
+
+      expect(updateProductUseCase.execute).toHaveBeenCalledWith(
+        productID,
+        userID,
+        dto,
+      );
+    });
+
+    it('should return HttpOKResponse on success', async () => {
+      const result = await controller.update(productID, dto, userID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Produto atualizado com sucesso',
+      });
+    });
+
+    it('should return NotFoundItem when product is not found', async () => {
+      vi.spyOn(updateProductUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Produto não encontrado',
+      });
+
+      const result = await controller.update(productID, dto, userID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
+      expect(result).toBeInstanceOf(NotFoundItem);
+      expect(result).toEqual({
+        statusCode: HttpStatus.NOT_FOUND,
+        message: 'Produto não encontrado',
+      });
+    });
+
+    it('should return NotPossible on other failures', async () => {
+      vi.spyOn(updateProductUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Dados inválidos',
+      });
+
+      const result = await controller.update(productID, dto, userID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Dados inválidos',
+      });
+    });
+
+    it('should throw error if updateProductUseCase throws error', async () => {
+      vi.spyOn(updateProductUseCase, 'execute').mockRejectedValue(
+        new Error('Erro no use case'),
+      );
+
+      try {
+        await controller.update(productID, dto, userID, response);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

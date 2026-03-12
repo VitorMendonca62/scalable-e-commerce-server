@@ -9,6 +9,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import AppConfig from '@config/app.config';
+import multipart from '@fastify/multipart';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -18,6 +19,18 @@ async function bootstrap() {
       logger: false,
     }),
   );
+
+  await app.register(multipart, {
+    attachFieldsToBody: 'keyValues',
+    limits: {
+      fieldNameSize: 100,
+      fieldSize: 100,
+      fields: 10,
+      fileSize: 10485760,
+      files: 5,
+      headerPairs: 2000,
+    },
+  });
 
   app.useGlobalFilters(new HttpExceptionFilter());
 

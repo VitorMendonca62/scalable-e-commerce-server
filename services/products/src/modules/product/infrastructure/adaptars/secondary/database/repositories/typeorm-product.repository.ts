@@ -7,14 +7,14 @@ import { Repository } from 'typeorm';
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
-    @InjectRepository(ProductRepository)
-    private productReposiory: Repository<ProductModel>,
+    @InjectRepository(ProductModel)
+    private productRepository: Repository<ProductModel>,
   ) {}
 
   getOne(
     fields: Partial<Pick<ProductModel, 'id' | 'publicID'>>,
   ): Promise<ProductModel | null> {
-    return this.productReposiory.findOne({
+    return this.productRepository.findOne({
       where: fields,
       select: { id: false },
     });
@@ -23,6 +23,21 @@ export default class TypeOrmProductRepository implements ProductRepository {
   async add(
     product: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<void> {
-    await this.productReposiory.save(product);
+    await this.productRepository.save(product);
+  }
+
+  async update(
+    productID: string,
+    userID: string,
+    updates: Partial<ProductModel>,
+  ): Promise<boolean> {
+    return (
+      (
+        await this.productRepository.update(
+          { publicID: productID, owner: userID },
+          updates,
+        )
+      ).affected >= 1
+    );
   }
 }

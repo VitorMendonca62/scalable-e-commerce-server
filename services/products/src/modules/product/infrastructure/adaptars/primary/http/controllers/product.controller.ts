@@ -7,6 +7,7 @@ import {
   Body,
   Param,
   Get,
+  Patch,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
 import CreateProductDTO from '../dtos/create-product.dto';
@@ -22,6 +23,8 @@ import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import CreateProductUseCase from '@product/application/use-cases/create-product-use-case';
 import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
+import UpdateProductUseCase from '@product/application/use-cases/update-product-use-case';
+import UpdateProductDTO from '../dtos/update-product.dto';
 
 @Controller('product')
 export default class ProductController {
@@ -29,6 +32,7 @@ export default class ProductController {
     private readonly productMapper: ProductMapper,
     private readonly createProductUseCase: CreateProductUseCase,
     private readonly getProductUseCase: GetProductUseCase,
+    private readonly updateProductUseCase: UpdateProductUseCase,
   ) {}
 
   @Post('/')
@@ -72,5 +76,32 @@ export default class ProductController {
       'Produto encontrado com sucesso',
       useCaseResult.result,
     );
+  }
+
+  @Patch('/:id')
+  async update(
+    @Param('id') productID,
+    @Body() dto: UpdateProductDTO,
+    @Headers('x-user-id') userID: string,
+    @Res({ passthrough: true }) response: FastifyReply,
+  ) {
+    const useCaseResult = await this.updateProductUseCase.execute(
+      productID,
+      userID,
+      dto,
+    );
+
+    if (useCaseResult.ok === false) {
+      if (useCaseResult.reason == ApplicationResultReasons.NOT_FOUND) {
+        response.status(HttpStatus.NOT_FOUND);
+        return new NotFoundItem(useCaseResult.message);
+      }
+
+      response.status(HttpStatus.BAD_REQUEST);
+      return new NotPossible(useCaseResult.message);
+    }
+
+    response.status(HttpStatus.OK);
+    return new HttpOKResponse('Produto atualizado com sucesso');
   }
 }

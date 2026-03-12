@@ -21,7 +21,10 @@ export default class PaymentsConstants {
   // Errors examples
   static readonly ERROR_REQUIRED_EXEMPLE = [];
   static readonly ERROR_ARRAY_EXEMPLE = 'not-an-array' as any;
-  static readonly ERROR_INVALID_TYPE_EXEMPLE = ['invalid_payment', 'cash'];
+  static readonly ERROR_INVALID_TYPE_EXEMPLE = [
+    'invalid_payment',
+    'cash',
+  ] as any;
   static readonly ERROR_MIN_LENGTH_EXEMPLE = [];
   static readonly ERROR_EMPTY_EXEMPLE = [];
   static readonly ERROR_DUPLICATE_EXEMPLE = ['pix', 'pix', 'credit_card'];

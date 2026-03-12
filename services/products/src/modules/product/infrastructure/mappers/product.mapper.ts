@@ -3,7 +3,6 @@ import CreateProductDTO from '../adaptars/primary/http/dtos/create-product.dto';
 import { Injectable } from '@nestjs/common';
 import ProductModel from '../adaptars/secondary/database/models/product.model';
 import { v7 } from 'uuid';
-
 @Injectable()
 export default class ProductMapper {
   createDTOForEntity(dto: CreateProductDTO, userID: string): ProductEntity {

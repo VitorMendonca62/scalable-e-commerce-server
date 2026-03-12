@@ -6,4 +6,10 @@ export default abstract class ProductRepository {
   ): Promise<void>;
 
   abstract getOne(fields: Partial<ProductModel>): Promise<ProductModel | null>;
+
+  abstract update(
+    productID: string,
+    userID: string,
+    updates: Partial<ProductModel>,
+  ): Promise<boolean>;
 }

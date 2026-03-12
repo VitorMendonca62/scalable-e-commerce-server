@@ -12,6 +12,7 @@ import {
 } from '@product/domain/values-objects/constants';
 import CreateProductDTO from '../../adaptars/primary/http/dtos/create-product.dto';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
+import UpdateProductDTO from '@product/infrastructure/adaptars/primary/http/dtos/update-product.dto';
 
 export class ProductFactory {
   static createDTO(overrides?: Partial<CreateProductDTO>): CreateProductDTO {
@@ -82,6 +83,24 @@ export class ProductDTOFactory {
     dto.payments = overrides?.payments ?? PaymentsConstants.EXEMPLE;
     dto.active = overrides?.active ?? true;
     dto.stock = overrides?.stock ?? StockConstants.EXEMPLE;
+
+    return dto;
+  }
+
+  static createUpdateProductDTO(
+    overrides?: Partial<UpdateProductDTO>,
+  ): UpdateProductDTO {
+    const dto = new UpdateProductDTO();
+
+    if (overrides?.title !== undefined) dto.title = overrides.title;
+    if (overrides?.price !== undefined) dto.price = overrides.price;
+    if (overrides?.description !== undefined)
+      dto.description = overrides.description;
+    if (overrides?.overview !== undefined) dto.overview = overrides.overview;
+    if (overrides?.photos !== undefined) dto.photos = overrides.photos;
+    if (overrides?.payments !== undefined) dto.payments = overrides.payments;
+    if (overrides?.active !== undefined) dto.active = overrides.active;
+    if (overrides?.stock !== undefined) dto.stock = overrides.stock;
 
     return dto;
   }

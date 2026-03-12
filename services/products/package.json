@@ -19,11 +19,13 @@
     "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.unit.ts"
   },
   "dependencies": {
+    "@fastify/multipart": "^9.0.0",
     "@fastify/static": "^9.0.0",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.1.12",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.12",
+    "@nestjs/mapped-types": "^2.1.0",
     "@nestjs/microservices": "^11.1.12",
     "@nestjs/platform-fastify": "^11.1.12",
     "@nestjs/schedule": "^6.1.0",
@@ -48,8 +50,8 @@
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^11.1.12",
     "@types/node": "^20.19.27",
-    "@types/opossum": "^8.1.9",
     "@types/nodemailer": "^7.0.4",
+    "@types/opossum": "^8.1.9",
     "@types/otp-generator": "^4.0.2",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",

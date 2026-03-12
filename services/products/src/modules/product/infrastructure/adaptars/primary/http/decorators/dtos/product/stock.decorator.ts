@@ -1,12 +1,14 @@
 import { StockConstants } from '@product/domain/values-objects/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsNumber, IsInt, Min, Max } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export function Stock() {
   return applyDecorators(
     IsNotEmpty({
       message: StockConstants.ERROR_REQUIRED,
     }),
+    Type(() => Number),
     IsNumber(
       {},
       {
