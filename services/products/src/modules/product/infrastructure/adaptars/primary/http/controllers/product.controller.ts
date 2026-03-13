@@ -65,10 +65,14 @@ export default class ProductController {
 
   @Get('/:id')
   async getByID(
-    @Param('id') productID,
+    @Param('id') productID: string,
     @Res({ passthrough: true }) response: FastifyReply,
+    @Headers('x-user-id') userID: string,
   ) {
-    const useCaseResult = await this.getProductUseCase.getByID(productID);
+    const useCaseResult = await this.getProductUseCase.getByID(
+      productID,
+      userID,
+    );
 
     if (useCaseResult.ok === false) {
       if (useCaseResult.reason == ApplicationResultReasons.NOT_FOUND) {

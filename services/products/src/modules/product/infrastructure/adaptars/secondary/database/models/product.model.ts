@@ -12,7 +12,7 @@ export default class ProductModel {
   @PrimaryGeneratedColumn('increment')
   id: string;
 
-  @Column({ type: 'uuid', nullable: false, name: 'public_id' })
+  @Column({ type: 'uuid', nullable: false, name: 'public_id', unique: true })
   publicID: string;
 
   @Column({ type: 'varchar', length: 255, nullable: false })

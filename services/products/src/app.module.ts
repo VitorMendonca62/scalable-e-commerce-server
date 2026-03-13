@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ProductModule } from '@product/product.module';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
+import ProductFavoriteModel from '@product/infrastructure/adaptars/secondary/database/models/favorite.model';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import ProductModel from '@product/infrastructure/adaptars/secondary/database/mo
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
-          entities: [ProductModel],
+          entities: [ProductModel, ProductFavoriteModel],
           synchronize: true,
         };
       },

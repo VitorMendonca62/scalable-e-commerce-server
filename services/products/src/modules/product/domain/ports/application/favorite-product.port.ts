@@ -1,8 +1,8 @@
-import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import { ApplicationResultReasons } from '../../enums/application-result-reasons';
 
-export interface GetProductPort {
-  getByID: (productID: string, userID: string) => Promise<ExecuteReturn>;
+export interface FavoriteProductPort {
+  favorite: (productID: string, userID: string) => Promise<ExecuteReturn>;
+  unfavorite: (productID: string, userID: string) => Promise<ExecuteReturn>;
 }
 
 type ExecuteResultReasons =
@@ -12,7 +12,6 @@ type ExecuteResultReasons =
 export type ExecuteReturn =
   | {
       ok: true;
-      result: Omit<ProductModel & { isFavorited: boolean }, 'id'>;
     }
   | {
       ok: false;

@@ -8,9 +8,9 @@ import {
   Repository,
 } from 'typeorm';
 import ProductModel from '../models/product.model';
-import TypeOrmProductRepository from './typeorm-product.repository';
 import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
 import { ProductFilters } from '@product/domain/ports/application/get-products.port';
+import TypeOrmProductRepository from './typeorm-product.repository';
 
 describe('TypeOrmProductRepository', () => {
   let repository: TypeOrmProductRepository;
@@ -22,6 +22,7 @@ describe('TypeOrmProductRepository', () => {
       find: vi.fn(),
       save: vi.fn(),
       update: vi.fn(),
+      createQueryBuilder: vi.fn(),
     } as any;
 
     repository = new TypeOrmProductRepository(productRepository);
@@ -67,89 +68,138 @@ describe('TypeOrmProductRepository', () => {
   });
 
   describe('getOne', () => {
-    const productModel = ProductFactory.createModel();
+    const mockQueryBuilder = {
+      select: vi.fn(),
+      where: vi.fn(),
+      leftJoin: vi.fn(),
+      addSelect: vi.fn(),
+      getRawAndEntities: vi.fn(),
+    };
 
     beforeEach(() => {
-      vi.spyOn(productRepository, 'findOne').mockResolvedValue(productModel);
+      vi.spyOn(productRepository, 'createQueryBuilder').mockReturnValue(
+        mockQueryBuilder,
+      );
+      mockQueryBuilder.select.mockReturnThis();
+      mockQueryBuilder.where.mockReturnThis();
+      mockQueryBuilder.leftJoin.mockReturnThis();
+      mockQueryBuilder.addSelect.mockReturnThis();
     });
 
-    it('should call findOne with publicID field', async () => {
-      const publicID = IDConstants.EXEMPLE;
+    const publicID = 'test-public-id';
+    const userID = 'test-user-id';
 
-      await repository.getOne({ publicID });
+    const mockProduct: ProductModel = {
+      id: '1',
+      publicID: 'test-public-id',
+      title: 'Test Product',
+      price: 1000,
+      overview: 'Test overview',
+      description: 'Test description',
+      photos: ['photo1.jpg'],
+      payments: [],
+      active: true,
+      stock: 10,
+      owner: 'owner-id',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
 
-      expect(productRepository.findOne).toHaveBeenCalledWith({
-        where: { publicID },
-        select: { id: false },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...mockProductWithID } = mockProduct;
+
+    it('should return product with isFavorited true when user has favorited', async () => {
+      const mockResult = {
+        entities: [mockProduct],
+        raw: [{ isFavorited: true }],
+      };
+
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue(mockResult);
+
+      const result = await repository.getOne(publicID, userID);
+
+      expect(productRepository.createQueryBuilder).toHaveBeenCalledWith(
+        'product',
+      );
+      expect(mockQueryBuilder.select).toHaveBeenCalled();
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'product.active = :active AND product.publicID = :publicID',
+        { active: true, publicID: publicID },
+      );
+      expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith(
+        'product_favorites',
+        'favorite',
+        'favorite.product_id = product.public_id AND favorite.user_id = :userID',
+        { userID },
+      );
+      expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith(
+        'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
+        'isFavorited',
+      );
+      expect(mockQueryBuilder.getRawAndEntities).toHaveBeenCalled();
+
+      expect(result).toEqual({
+        ...mockProductWithID,
+        isFavorited: true,
       });
     });
 
-    it('should call findOne with id field', async () => {
-      const id = 'database-id';
+    it('should return product with isFavorited false when user has not favorited', async () => {
+      const mockResult = {
+        entities: [mockProduct],
+        raw: [{ isFavorited: false }],
+      };
 
-      await repository.getOne({ id });
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue(mockResult);
 
-      expect(productRepository.findOne).toHaveBeenCalledWith({
-        where: { id },
-        select: { id: false },
+      const result = await repository.getOne(publicID, userID);
+
+      expect(result).toEqual({
+        ...mockProductWithID,
+        isFavorited: false,
       });
-    });
-
-    it('should call findOne with both id and publicID', async () => {
-      const id = 'database-id';
-      const publicID = IDConstants.EXEMPLE;
-
-      await repository.getOne({ id, publicID });
-
-      expect(productRepository.findOne).toHaveBeenCalledWith({
-        where: { id, publicID },
-        select: { id: false },
-      });
-    });
-
-    it('should return product when found', async () => {
-      const result = await repository.getOne({ publicID: IDConstants.EXEMPLE });
-
-      expect(result).toEqual(productModel);
     });
 
     it('should return null when product is not found', async () => {
-      vi.spyOn(productRepository, 'findOne').mockResolvedValue(null);
+      const mockResult = {
+        entities: [],
+        raw: [],
+      };
 
-      const result = await repository.getOne({ publicID: 'non-existent-id' });
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue(mockResult);
 
-      expect(result).toBeNull();
+      const result = await repository.getOne(publicID, userID);
+
+      expect(result).toBe(null);
     });
 
-    it('should return correct product details when found', async () => {
-      const customProduct = ProductFactory.createModel({
-        title: 'Found Product',
-        price: 15000,
-        stock: 50,
-      });
+    it('should handle inactive products correctly', async () => {
+      const mockResult = {
+        entities: [],
+        raw: [],
+      };
 
-      vi.spyOn(productRepository, 'findOne').mockResolvedValue(customProduct);
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue(mockResult);
 
-      const result = await repository.getOne({ publicID: IDConstants.EXEMPLE });
+      const result = await repository.getOne('inactive-id', userID);
 
-      expect(result).toEqual(customProduct);
-      expect(result?.title).toBe('Found Product');
-      expect(result?.price).toBe(15000);
-      expect(result?.stock).toBe(50);
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith(
+        'product.active = :active AND product.publicID = :publicID',
+        { active: true, publicID: 'inactive-id' },
+      );
+      expect(result).toBe(null);
     });
 
-    it('should handle empty fields object', async () => {
-      await repository.getOne({});
+    it('should return products with all properties except id', async () => {
+      const mockResult = {
+        entities: [mockProduct],
+        raw: [{ isFavorited: false }],
+      };
 
-      expect(productRepository.findOne).toHaveBeenCalledWith({
-        where: {},
-        select: { id: false },
-      });
-    });
+      mockQueryBuilder.getRawAndEntities.mockResolvedValue(mockResult);
+      const result = await repository.getOne('inactive-id', userID);
 
-    it('should return product model with all properties', async () => {
-      const result = await repository.getOne({ publicID: IDConstants.EXEMPLE });
-
+      expect(result).not.toHaveProperty('id');
       expect(result).toHaveProperty('publicID');
       expect(result).toHaveProperty('title');
       expect(result).toHaveProperty('price');
@@ -160,8 +210,6 @@ describe('TypeOrmProductRepository', () => {
       expect(result).toHaveProperty('active');
       expect(result).toHaveProperty('stock');
       expect(result).toHaveProperty('owner');
-      expect(result).toHaveProperty('createdAt');
-      expect(result).toHaveProperty('updatedAt');
     });
   });
 
@@ -408,6 +456,7 @@ describe('TypeOrmProductRepository', () => {
 
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
         select: { id: false },
@@ -423,6 +472,7 @@ describe('TypeOrmProductRepository', () => {
 
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
         },
         select: { id: false },
@@ -438,6 +488,7 @@ describe('TypeOrmProductRepository', () => {
 
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
         },
         select: { id: false },
@@ -455,6 +506,7 @@ describe('TypeOrmProductRepository', () => {
 
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
@@ -504,6 +556,7 @@ describe('TypeOrmProductRepository', () => {
       // Category não deve aparecer no where pois não está implementado
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
         select: { id: false },

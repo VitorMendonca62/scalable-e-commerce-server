@@ -6,7 +6,10 @@ export default abstract class ProductRepository {
     newProduct: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
   ): Promise<void>;
 
-  abstract getOne(fields: Partial<ProductModel>): Promise<ProductModel | null>;
+  abstract getOne(
+    publicID: string,
+    userID: string,
+  ): Promise<(Omit<ProductModel, 'id'> & { isFavorited: boolean }) | null>;
 
   abstract findWithFilters(filters: ProductFilters): Promise<ProductModel[]>;
 

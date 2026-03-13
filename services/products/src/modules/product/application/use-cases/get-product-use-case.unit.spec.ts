@@ -24,21 +24,20 @@ describe('GetProductUseCase', () => {
   describe('getByID', () => {
     const productID = IDConstants.EXEMPLE;
     const productModel = ProductFactory.createModel();
+    const userID = `user${IDConstants.EXEMPLE}`;
 
     beforeEach(() => {
       vi.spyOn(productRepository, 'getOne').mockResolvedValue(productModel);
     });
 
     it('should call productRepository.getOne with correct parameters', async () => {
-      await useCase.getByID(productID);
+      await useCase.getByID(productID, userID);
 
-      expect(productRepository.getOne).toHaveBeenCalledWith({
-        publicID: productID,
-      });
+      expect(productRepository.getOne).toHaveBeenCalledWith(productID, userID);
     });
 
     it('should return ok with product on success', async () => {
-      const result = await useCase.getByID(productID);
+      const result = await useCase.getByID(productID, userID);
 
       expect(result).toEqual({
         ok: true,
@@ -49,7 +48,7 @@ describe('GetProductUseCase', () => {
     it('should return NOT_FOUND when product does not exist', async () => {
       vi.spyOn(productRepository, 'getOne').mockResolvedValue(null);
 
-      const result = await useCase.getByID(productID);
+      const result = await useCase.getByID(productID, userID);
 
       expect(result).toEqual({
         ok: false,
@@ -63,7 +62,7 @@ describe('GetProductUseCase', () => {
         new Error('Database error'),
       );
 
-      const result = await useCase.getByID(productID);
+      const result = await useCase.getByID(productID, userID);
 
       expect(result).toEqual({
         ok: false,
@@ -81,7 +80,7 @@ describe('GetProductUseCase', () => {
 
       vi.spyOn(productRepository, 'getOne').mockResolvedValue(customProduct);
 
-      const result = await useCase.getByID(productID);
+      const result = await useCase.getByID(productID, userID);
 
       expect(result.ok).toBe(true);
       if (result.ok) {
@@ -93,14 +92,12 @@ describe('GetProductUseCase', () => {
     });
 
     it('should handle multiple consecutive calls', async () => {
-      await useCase.getByID(productID);
-      await useCase.getByID(productID);
-      await useCase.getByID(productID);
+      await useCase.getByID(productID, userID);
+      await useCase.getByID(productID, userID);
+      await useCase.getByID(productID, userID);
 
       expect(productRepository.getOne).toHaveBeenCalledTimes(3);
-      expect(productRepository.getOne).toHaveBeenCalledWith({
-        publicID: productID,
-      });
+      expect(productRepository.getOne).toHaveBeenCalledWith(productID, userID);
     });
   });
 });

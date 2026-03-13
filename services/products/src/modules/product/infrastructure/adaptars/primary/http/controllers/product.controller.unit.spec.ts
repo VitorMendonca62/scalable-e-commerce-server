@@ -165,6 +165,7 @@ describe('ProductController', () => {
   describe('getByID', () => {
     const productID = IDConstants.EXEMPLE;
     const productModel = ProductFactory.createModel();
+    const userID = `user${IDConstants.EXEMPLE}`;
 
     beforeEach(() => {
       vi.spyOn(getProductUseCase, 'getByID').mockResolvedValue({
@@ -174,13 +175,13 @@ describe('ProductController', () => {
     });
 
     it('should call getProductUseCase.getByID with product ID', async () => {
-      await controller.getByID(productID, response);
+      await controller.getByID(productID, response, userID);
 
-      expect(getProductUseCase.getByID).toHaveBeenCalledWith(productID);
+      expect(getProductUseCase.getByID).toHaveBeenCalledWith(productID, userID);
     });
 
     it('should return HttpOKResponse on success', async () => {
-      const result = await controller.getByID(productID, response);
+      const result = await controller.getByID(productID, response, userID);
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
@@ -198,7 +199,7 @@ describe('ProductController', () => {
         message: 'Produto não encontrado',
       });
 
-      const result = await controller.getByID(productID, response);
+      const result = await controller.getByID(productID, response, userID);
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(result).toBeInstanceOf(NotFoundItem);
@@ -215,7 +216,7 @@ describe('ProductController', () => {
         message: 'ID inválido',
       });
 
-      const result = await controller.getByID(productID, response);
+      const result = await controller.getByID(productID, response, userID);
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
       expect(result).toBeInstanceOf(NotPossible);
@@ -231,7 +232,7 @@ describe('ProductController', () => {
       );
 
       try {
-        await controller.getByID(productID, response);
+        await controller.getByID(productID, response, userID);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

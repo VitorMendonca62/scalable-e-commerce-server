@@ -10,11 +10,9 @@ import ProductRepository from '@product/domain/ports/secondary/product-repositor
 export default class GetProductUseCase implements GetProductPort {
   constructor(private readonly productRepository: ProductRepository) {}
 
-  async getByID(productID: string): Promise<ExecuteReturn> {
+  async getByID(productID: string, userID: string): Promise<ExecuteReturn> {
     try {
-      const product = await this.productRepository.getOne({
-        publicID: productID,
-      });
+      const product = await this.productRepository.getOne(productID, userID);
 
       if (product === null) {
         return {

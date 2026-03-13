@@ -47,18 +47,45 @@ export default class TypeOrmProductRepository implements ProductRepository {
     }
 
     return this.productRepository.find({
-      where: whereFilters,
+      where: { ...whereFilters, active: true },
       select: { id: false },
     });
   }
 
-  getOne(
-    fields: Partial<Pick<ProductModel, 'id' | 'publicID'>>,
-  ): Promise<ProductModel | null> {
-    return this.productRepository.findOne({
-      where: fields,
-      select: { id: false },
-    });
+  async getOne(
+    publicID: string,
+    userID: string,
+  ): Promise<(Omit<ProductModel, 'id'> & { isFavorited: boolean }) | null> {
+    const query = this.productRepository
+      .createQueryBuilder('product')
+      .select()
+      .where('product.active = :active AND product.publicID = :publicID', {
+        active: true,
+        publicID,
+      });
+
+    query
+      .leftJoin(
+        'product_favorites',
+        'favorite',
+        'favorite.product_id = product.public_id AND favorite.user_id = :userID',
+        { userID },
+      )
+      .addSelect(
+        'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
+        'isFavorited',
+      );
+
+    const result = await query.getRawAndEntities();
+
+    if (result.entities.length === 0) return null;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { id, ...product } = result.entities[0];
+    return {
+      ...(product as Omit<ProductModel, 'id'>),
+      isFavorited: result.raw[0].isFavorited,
+    };
   }
 
   async add(
