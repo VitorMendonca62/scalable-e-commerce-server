@@ -17,11 +17,12 @@
     "test:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts",
     "test:unit": "cross-env NODE_ENV=test vitest --config vitest.config.unit.ts",
     "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.unit.ts",
-    "typeorm": "typeorm-ts-node-commonjs -d src/config/database/data-source.ts",
-    "migration:generate": "npm run typeorm migration:generate src/database/migrations/migration",
-    "migration:create": "npm run typeorm migration:create src/database/migrations/migration",
-    "migration:run": "npm run typeorm migration:run",
-    "migration:revert": "npm run typeorm migration:revert"
+    "typeorm:base": "typeorm-ts-node-commonjs",
+    "typeorm": "npm run typeorm:base -- -d src/config/database/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/migration",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "migration:create": "npm run typeorm:base -- migration:create"
   },
   "dependencies": {
     "@fastify/multipart": "^9.0.0",

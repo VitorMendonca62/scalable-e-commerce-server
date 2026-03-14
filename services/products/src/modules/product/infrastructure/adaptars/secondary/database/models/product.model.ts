@@ -5,7 +5,10 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  JoinColumn,
+  ManyToOne,
 } from 'typeorm';
+import CategoryModel from './categories.model';
 
 @Entity('products')
 export default class ProductModel {
@@ -41,6 +44,13 @@ export default class ProductModel {
 
   @Column({ type: 'uuid', nullable: false })
   owner: string;
+
+  @Column({ type: 'uuid', nullable: false, name: 'category_id' })
+  categoryId: string;
+
+  @ManyToOne(() => CategoryModel, (category) => category.products)
+  @JoinColumn({ name: 'category_id' })
+  category: CategoryModel;
 
   @CreateDateColumn()
   createdAt: Date;
