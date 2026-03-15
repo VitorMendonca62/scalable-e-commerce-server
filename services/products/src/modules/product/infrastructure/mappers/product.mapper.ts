@@ -17,12 +17,13 @@ export default class ProductMapper {
       stock: dto.stock,
       title: dto.title,
       owner: userID,
+      categoryID: dto.categoryID,
     });
   }
 
   entityForModel(
     entity: ProductEntity,
-  ): Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'> {
+  ): Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt' | 'category'> {
     return {
       title: entity.title,
       publicID: entity.publicID,
@@ -34,6 +35,7 @@ export default class ProductMapper {
       active: entity.active,
       stock: entity.stock,
       owner: entity.owner,
+      categoryID: entity.categoryID,
     };
   }
 }

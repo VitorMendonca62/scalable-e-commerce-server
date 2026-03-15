@@ -10,7 +10,6 @@ export default defineConfig({
     globals: true,
     setupFiles: [
       './tests/setup.ts',
-      './src/modules/product/infrastructure/helpers/values-objects-mock.ts',
     ],
     coverage: {
       provider: 'istanbul',
@@ -29,6 +28,7 @@ export default defineConfig({
         'src/**/types/*.ts',
         'src/**/constants/*.ts',
         'src/**/enums/*.ts',
+        'src/config/database/**/*.ts'
       ],
     },
     isolate: false,

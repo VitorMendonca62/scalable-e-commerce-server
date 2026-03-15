@@ -3,6 +3,7 @@ import { ProductFactory } from '@product/infrastructure/helpers/factories/produc
 import {
   And,
   ArrayContains,
+  In,
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
@@ -74,7 +75,7 @@ describe('TypeOrmProductRepository', () => {
       leftJoin: vi.fn(),
       addSelect: vi.fn(),
       getRawAndEntities: vi.fn(),
-    };
+    } as any;
 
     beforeEach(() => {
       vi.spyOn(productRepository, 'createQueryBuilder').mockReturnValue(
@@ -89,21 +90,7 @@ describe('TypeOrmProductRepository', () => {
     const publicID = 'test-public-id';
     const userID = 'test-user-id';
 
-    const mockProduct: ProductModel = {
-      id: '1',
-      publicID: 'test-public-id',
-      title: 'Test Product',
-      price: 1000,
-      overview: 'Test overview',
-      description: 'Test description',
-      photos: ['photo1.jpg'],
-      payments: [],
-      active: true,
-      stock: 10,
-      owner: 'owner-id',
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
+    const mockProduct: ProductModel = ProductFactory.createModel();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, ...mockProductWithID } = mockProduct;
@@ -495,17 +482,35 @@ describe('TypeOrmProductRepository', () => {
       });
     });
 
-    it('should filter by all available filters', async () => {
+    it('should filter by category array', async () => {
       const filters: ProductFilters = {
-        price: { min: 1000, max: 5000 },
-        stock: { min: 10, max: 100 },
-        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+        categoryID: ['electronics'],
       };
 
       await repository.findWithFilters(filters);
 
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
+          active: true,
+          categoryID: In(['electronics']),
+        },
+        select: { id: false },
+      });
+    });
+
+    it('should filter by all available filters', async () => {
+      const filters: ProductFilters = {
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+        categoryID: ['electronics'],
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(productRepository.find).toHaveBeenCalledWith({
+        where: {
+          categoryID: In(['electronics']),
           active: true,
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
@@ -545,9 +550,9 @@ describe('TypeOrmProductRepository', () => {
       expect(callArgs.select).toEqual({ id: false });
     });
 
-    it('should handle undefined category filter (not implemented)', async () => {
+    it('should handle undefined category filter', async () => {
       const filters: ProductFilters = {
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
       };
 
@@ -557,6 +562,7 @@ describe('TypeOrmProductRepository', () => {
       expect(productRepository.find).toHaveBeenCalledWith({
         where: {
           active: true,
+          categoryID: In(['electronics']),
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
         select: { id: false },
@@ -565,7 +571,7 @@ describe('TypeOrmProductRepository', () => {
 
     it('should only apply implemented filters', async () => {
       const filters: ProductFilters = {
-        category: ['electronics', 'smartphones'], // Não implementado
+        categoryID: ['electronics', 'smartphones'], // Não implementado
         price: { min: 1000, max: 5000 },
         payments: [PaymentTypes.PIX],
         stock: { min: 10, max: 100 },

@@ -9,6 +9,7 @@ import {
   MoreThanOrEqual,
   Repository,
   ArrayContains,
+  In,
 } from 'typeorm';
 import { ProductFilters } from '@product/domain/ports/application/get-products.port';
 @Injectable()
@@ -21,12 +22,9 @@ export default class TypeOrmProductRepository implements ProductRepository {
   findWithFilters(filters: ProductFilters): Promise<ProductModel[]> {
     const whereFilters: FindOptionsWhere<ProductModel> = {};
 
-    // TODO ADICIOINAR ISSO AQ
-    // if (filters.category !== undefined) {
-    //   whereFilters.push({
-    //     category: In(filters.category),
-    //   });
-    // }
+    if (filters.categoryID !== undefined) {
+      whereFilters.categoryID = In(filters.categoryID);
+    }
 
     if (filters.price !== undefined) {
       whereFilters.price = And(
@@ -89,7 +87,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
   }
 
   async add(
-    product: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
+    product: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt' | 'category'>,
   ): Promise<void> {
     await this.productRepository.save(product);
   }

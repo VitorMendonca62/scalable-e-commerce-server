@@ -46,7 +46,7 @@ export default class ProductModel {
   owner: string;
 
   @Column({ type: 'uuid', nullable: false, name: 'category_id' })
-  categoryId: string;
+  categoryID: string;
 
   @ManyToOne(() => CategoryModel, (category) => category.products)
   @JoinColumn({ name: 'category_id' })

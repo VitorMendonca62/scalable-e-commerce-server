@@ -1,6 +1,7 @@
 import EmailConstants from './email/email-constants';
 import IDConstants from './id/id-constants';
 import ActiveConstants from './product/active/active.constants';
+import CategoryConstants from './product/category/category.constants';
 import DescriptionConstants from './product/description/description.constants';
 import OverviewConstants from './product/overview/overview.constants';
 import PaymentsConstants from './product/payments/payments.constants';
@@ -20,4 +21,5 @@ export {
   PaymentsConstants,
   ActiveConstants,
   StockConstants,
+  CategoryConstants,
 };

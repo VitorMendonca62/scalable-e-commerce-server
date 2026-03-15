@@ -31,6 +31,7 @@ export default defineConfig({
         'src/**/types/*.ts',
         'src/**/constants/*.ts',
         'src/**/enums/*.ts',
+        'src/config/database/**/*.ts'
       ],
     },
     // isolate: false,

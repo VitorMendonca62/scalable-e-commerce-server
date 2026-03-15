@@ -37,7 +37,7 @@ describe('GetProductsUseCase', () => {
 
     it('should call productRepository.findWithFilters with correct filters', async () => {
       const filters: ProductFilters = {
-        category: ['electronics', 'smartphones'],
+        categoryID: ['electronics', 'smartphones'],
         price: { min: 1000, max: 5000 },
         payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
         stock: { min: 10, max: 100 },
@@ -50,7 +50,7 @@ describe('GetProductsUseCase', () => {
 
     it('should return ok with products on success', async () => {
       const filters: ProductFilters = {
-        category: ['electronics'],
+        categoryID: ['electronics'],
       };
 
       const result = await useCase.getByFilter(filters);
@@ -65,7 +65,7 @@ describe('GetProductsUseCase', () => {
       vi.spyOn(productRepository, 'findWithFilters').mockResolvedValue([]);
 
       const filters: ProductFilters = {
-        category: ['nonexistent'],
+        categoryID: ['nonexistent'],
       };
 
       const result = await useCase.getByFilter(filters);
@@ -78,7 +78,7 @@ describe('GetProductsUseCase', () => {
 
     it('should handle filter with only category', async () => {
       const filters: ProductFilters = {
-        category: ['electronics', 'smartphones'],
+        categoryID: ['electronics', 'smartphones'],
       };
 
       await useCase.getByFilter(filters);
@@ -118,7 +118,7 @@ describe('GetProductsUseCase', () => {
 
     it('should handle filter with multiple categories', async () => {
       const filters: ProductFilters = {
-        category: ['electronics', 'smartphones', 'accessories'],
+        categoryID: ['electronics', 'smartphones', 'accessories'],
       };
 
       await useCase.getByFilter(filters);
@@ -142,7 +142,7 @@ describe('GetProductsUseCase', () => {
       );
 
       const filters: ProductFilters = {
-        category: ['electronics'],
+        categoryID: ['electronics'],
       };
 
       const result = await useCase.getByFilter(filters);
@@ -156,7 +156,7 @@ describe('GetProductsUseCase', () => {
 
     it('should return products matching complex filters', async () => {
       const complexFilters: ProductFilters = {
-        category: ['electronics', 'smartphones'],
+        categoryID: ['electronics', 'smartphones'],
         price: { min: 1000, max: 5000 },
         payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
         stock: { min: 10, max: 100 },
@@ -172,7 +172,7 @@ describe('GetProductsUseCase', () => {
 
     it('should preserve filter object structure when calling repository', async () => {
       const filters: ProductFilters = {
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
         payments: [PaymentTypes.PIX],
         stock: { min: 10, max: 100 },
@@ -184,7 +184,7 @@ describe('GetProductsUseCase', () => {
         .calls[0][0];
 
       expect(callArgs).toEqual(filters);
-      expect(callArgs.category).toEqual(['electronics']);
+      expect(callArgs.categoryID).toEqual(['electronics']);
       expect(callArgs.price).toEqual({ min: 1000, max: 5000 });
       expect(callArgs.payments).toEqual([PaymentTypes.PIX]);
       expect(callArgs.stock).toEqual({ min: 10, max: 100 });

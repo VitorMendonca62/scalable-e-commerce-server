@@ -129,7 +129,7 @@ export default class ProductController {
     const filters: ProductFilters = {};
 
     if (category !== undefined) {
-      filters.category = category?.split(',');
+      filters.categoryID = category?.split(',');
     }
 
     if (payments !== undefined) {

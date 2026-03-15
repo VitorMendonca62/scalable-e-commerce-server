@@ -9,6 +9,7 @@ export default class ProductEntity {
   payments: PaymentTypes[];
   active: boolean;
   stock: number;
+  categoryID: string;
   owner: string;
   publicID: string;
 
@@ -23,6 +24,7 @@ export default class ProductEntity {
     active: boolean;
     stock: number;
     owner: string;
+    categoryID: string;
   }) {
     this.publicID = props.publicID;
     this.title = props.title;
@@ -34,5 +36,6 @@ export default class ProductEntity {
     this.active = props.active;
     this.stock = props.stock;
     this.owner = props.owner;
+    this.categoryID = props.categoryID;
   }
 }

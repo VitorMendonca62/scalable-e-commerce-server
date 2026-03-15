@@ -7,7 +7,7 @@ export interface GetProductsPort {
 }
 
 export interface ProductFilters {
-  category?: string[];
+  categoryID?: string[];
   price?: { min: number | undefined; max: number | undefined };
   stock?: { min: number | undefined; max: number | undefined };
   payments?: PaymentTypes[];

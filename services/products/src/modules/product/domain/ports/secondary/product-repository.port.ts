@@ -3,7 +3,10 @@ import { ProductFilters } from '../application/get-products.port';
 
 export default abstract class ProductRepository {
   abstract add(
-    newProduct: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt'>,
+    newProduct: Omit<
+      ProductModel,
+      'id' | 'createdAt' | 'updatedAt' | 'category'
+    >,
   ): Promise<void>;
 
   abstract getOne(

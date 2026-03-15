@@ -12,6 +12,6 @@ export default class ActiveConstants {
 
   // Errors examples
   static readonly ERROR_REQUIRED_EXEMPLE = undefined;
-  static readonly ERROR_BOOLEAN_EXEMPLE = 'truae' as any;
+  static readonly ERROR_BOOLEAN_EXEMPLE = 'adwaawdawd' as any;
   static readonly ERROR_INVALID_EXEMPLE = 1 as any;
 }

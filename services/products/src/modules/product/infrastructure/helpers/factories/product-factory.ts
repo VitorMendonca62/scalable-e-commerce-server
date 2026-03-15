@@ -9,6 +9,7 @@ import {
   ActiveConstants,
   StockConstants,
   OverviewConstants,
+  CategoryConstants,
 } from '@product/domain/values-objects/constants';
 import CreateProductDTO from '../../adaptars/primary/http/dtos/create-product.dto';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
@@ -23,6 +24,7 @@ export class ProductFactory {
       photos: PhotosConstants.EXEMPLE,
       payments: PaymentsConstants.EXEMPLE,
       overview: OverviewConstants.EXEMPLE,
+      categoryID: CategoryConstants.EXEMPLE,
       active: true,
       stock: 50,
       ...overrides,
@@ -44,11 +46,14 @@ export class ProductFactory {
       overview: OverviewConstants.EXEMPLE,
       stock: StockConstants.EXEMPLE,
       owner: owner || IDConstants.EXEMPLE,
+      categoryID: CategoryConstants.EXEMPLE,
       ...overrides,
     });
   }
 
-  static createModel(overrides?: Partial<ProductModel>): ProductModel {
+  static createModel(
+    overrides?: Partial<ProductModel>,
+  ): ProductModel & { isFavorited: boolean } {
     const model = new ProductModel();
 
     model.id = IDConstants.EXEMPLE;
@@ -65,24 +70,42 @@ export class ProductFactory {
     model.createdAt = new Date();
     model.updatedAt = new Date();
 
-    return Object.assign(model, overrides);
+    return Object.assign(model, overrides, { isFavorited: true });
   }
 }
 
 export class ProductDTOFactory {
   static createProductDTOLikeInstance(
     overrides?: Partial<CreateProductDTO>,
+    undefinedField?: keyof CreateProductDTO,
   ): CreateProductDTO {
     const dto = new CreateProductDTO();
 
-    dto.title = overrides?.title ?? TitleConstants.EXEMPLE;
-    dto.price = overrides?.price ?? PriceConstants.EXEMPLE;
-    dto.description = overrides?.description ?? DescriptionConstants.EXEMPLE;
-    dto.overview = overrides?.overview ?? OverviewConstants.EXEMPLE;
-    dto.photos = overrides?.photos ?? PhotosConstants.EXEMPLE;
-    dto.payments = overrides?.payments ?? PaymentsConstants.EXEMPLE;
-    dto.active = overrides?.active ?? true;
-    dto.stock = overrides?.stock ?? StockConstants.EXEMPLE;
+    if (undefinedField !== 'title')
+      dto.title = overrides?.title ?? TitleConstants.EXEMPLE;
+
+    if (undefinedField !== 'price')
+      dto.price = overrides?.price ?? PriceConstants.EXEMPLE;
+
+    if (undefinedField !== 'description')
+      dto.description = overrides?.description ?? DescriptionConstants.EXEMPLE;
+
+    if (undefinedField !== 'overview')
+      dto.overview = overrides?.overview ?? OverviewConstants.EXEMPLE;
+
+    if (undefinedField !== 'photos')
+      dto.photos = overrides?.photos ?? PhotosConstants.EXEMPLE;
+
+    if (undefinedField !== 'payments')
+      dto.payments = overrides?.payments ?? PaymentsConstants.EXEMPLE;
+
+    if (undefinedField !== 'active') dto.active = overrides?.active ?? true;
+
+    if (undefinedField !== 'stock')
+      dto.stock = overrides?.stock ?? StockConstants.EXEMPLE;
+
+    if (undefinedField !== 'categoryID')
+      dto.categoryID = overrides?.categoryID ?? CategoryConstants.EXEMPLE;
 
     return dto;
   }

@@ -9,6 +9,7 @@ import {
   Stock,
   Title,
 } from '../decorators/dtos/product';
+import { Category } from '../decorators/dtos/product/category.decorator';
 
 export default class CreateProductDTO {
   @Title()
@@ -34,4 +35,7 @@ export default class CreateProductDTO {
 
   @Stock()
   stock: number;
+
+  @Category()
+  categoryID: string;
 }

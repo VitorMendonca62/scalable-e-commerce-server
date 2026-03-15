@@ -1,8 +1,6 @@
 import 'dotenv/config';
 import { DataSource } from 'typeorm';
 
-console.log(__dirname + '/migrations/*.ts');
-
 export const AppDataSource = new DataSource({
   type: 'postgres',
   host: process.env.POSTGRES_HOST,

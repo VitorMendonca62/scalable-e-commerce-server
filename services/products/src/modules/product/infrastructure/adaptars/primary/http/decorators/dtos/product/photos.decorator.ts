@@ -10,6 +10,15 @@ import { Transform } from 'class-transformer';
 
 export function Photos() {
   return applyDecorators(
+    Transform(({ value }) => {
+      if (!Array.isArray(value)) {
+        return value;
+      }
+
+      return value.map((item) => {
+        return Buffer.isBuffer(item) ? item.toString('base64') : item;
+      });
+    }),
     IsNotEmpty({
       message: PhotosConstants.ERROR_REQUIRED,
     }),
@@ -21,11 +30,6 @@ export function Photos() {
     }),
     ArrayMaxSize(10, {
       message: PhotosConstants.ERROR_MAX_LENGTH,
-    }),
-    Transform(({ value }) => {
-      return value.map((item) =>
-        Buffer.isBuffer(item) ? item.toString('base64') : item,
-      );
     }),
   );
 }

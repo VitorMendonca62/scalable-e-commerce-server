@@ -352,7 +352,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics', 'smartphones'],
+        categoryID: ['electronics', 'smartphones'],
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix', 'credit_card'],
@@ -387,7 +387,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: PriceConstants.MAX_VALUE },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
@@ -404,7 +404,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
@@ -421,7 +421,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 0, max: 111 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
@@ -438,7 +438,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
         stock: { min: 0, max: 10 },
         payments: ['pix'],
@@ -455,7 +455,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 0, max: 1000 },
         stock: { min: 0, max: 10 },
         payments: ['pix'],
@@ -472,7 +472,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: PriceConstants.MAX_VALUE },
         stock: { min: 10, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
@@ -489,7 +489,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 0, max: PriceConstants.MAX_VALUE },
         stock: { min: 0, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
@@ -506,7 +506,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics', 'smartphones', 'accessories'],
+        categoryID: ['electronics', 'smartphones', 'accessories'],
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
@@ -523,7 +523,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix', 'credit_card', 'debit_card', 'boleto'],
@@ -540,7 +540,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
@@ -557,7 +557,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 0, max: 1000 },
         stock: { min: 0, max: 50 },
         payments: ['pix'],
@@ -574,7 +574,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
         price: { min: 100000, max: 999999 },
         stock: { min: 1000, max: 10000 },
         payments: ['pix'],
@@ -687,7 +687,7 @@ describe('ProductController', () => {
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
-        category: ['electronics'],
+        categoryID: ['electronics'],
       });
     });
 
