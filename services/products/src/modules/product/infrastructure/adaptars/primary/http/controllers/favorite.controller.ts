@@ -29,7 +29,6 @@ export class FavoriteController {
     @Param('productId') productID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
-    // TODO COLocar isos no teste
     if (!userID) {
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
@@ -55,8 +54,7 @@ export class FavoriteController {
     @Param('productId') productID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
-    // TODO COLOCALR ISSO NO TES T
-    if (!userID) {
+    if (userID === undefined) {
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
     }

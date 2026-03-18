@@ -3,6 +3,7 @@ import { ApplicationResultReasons } from '@product/domain/enums/application-resu
 import {
   NotPossible,
   NotFoundItem,
+  FieldInvalid,
 } from '@product/domain/ports/primary/http/error.port';
 import { HttpOKResponse } from '@product/domain/ports/primary/http/sucess.port';
 import { IDConstants } from '@product/domain/values-objects/constants';
@@ -40,6 +41,22 @@ describe('FavoriteController', () => {
     beforeEach(() => {
       vi.spyOn(favoriteProductUseCase, 'favorite').mockResolvedValue({
         ok: true,
+      });
+    });
+
+    it('should return FieldInvalid when x-user-id header is missing', async () => {
+      const result = await controller.favorite(
+        undefined as any,
+        productID,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Header x-user-id é obrigatório',
+        data: 'x-user-id',
       });
     });
 
@@ -130,6 +147,22 @@ describe('FavoriteController', () => {
     beforeEach(() => {
       vi.spyOn(favoriteProductUseCase, 'unfavorite').mockResolvedValue({
         ok: true,
+      });
+    });
+
+    it('should return FieldInvalid when x-user-id header is missing', async () => {
+      const result = await controller.unfavorite(
+        undefined as any,
+        productID,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Header x-user-id é obrigatório',
+        data: 'x-user-id',
       });
     });
 

@@ -96,6 +96,18 @@ describe('ProductController', () => {
       });
     });
 
+    it('should return FieldInvalid when x-user-id header is missing', async () => {
+      const result = await controller.create(dto, undefined as any, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Header x-user-id é obrigatório',
+        data: 'x-user-id',
+      });
+    });
+
     it('should call createProductUseCase.execute with mapped entity', async () => {
       await controller.create(dto, userID, response);
 
@@ -176,6 +188,22 @@ describe('ProductController', () => {
       vi.spyOn(getProductUseCase, 'getByID').mockResolvedValue({
         ok: true,
         result: productModel,
+      });
+    });
+
+    it('should return FieldInvalid when x-user-id header is missing', async () => {
+      const result = await controller.getByID(
+        productID,
+        response,
+        undefined as any,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Header x-user-id é obrigatório',
+        data: 'x-user-id',
       });
     });
 
@@ -264,6 +292,23 @@ describe('ProductController', () => {
       vi.spyOn(productMapper, 'updateDTOToEntityPartial').mockReturnValue(
         productEntity,
       );
+    });
+
+    it('should return FieldInvalid when x-user-id header is missing', async () => {
+      const result = await controller.update(
+        productID,
+        dto,
+        undefined as any,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Header x-user-id é obrigatório',
+        data: 'x-user-id',
+      });
     });
 
     it('should call updateProductUseCase.execute with correct parameters', async () => {
