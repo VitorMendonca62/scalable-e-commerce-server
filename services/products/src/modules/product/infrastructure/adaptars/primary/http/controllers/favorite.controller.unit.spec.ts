@@ -1,5 +1,4 @@
 import { HttpStatus } from '@nestjs/common';
-import FavoriteProductUseCase from '@product/application/use-cases/favorite-product-use-case';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
 import {
   NotPossible,
@@ -9,6 +8,7 @@ import { HttpOKResponse } from '@product/domain/ports/primary/http/sucess.port';
 import { IDConstants } from '@product/domain/values-objects/constants';
 import { FastifyReply } from 'fastify';
 import { FavoriteController } from './favorite.controller';
+import FavoriteProductUseCase from '@product/application/use-cases/products/favorite-product-use-case';
 
 describe('FavoriteController', () => {
   let controller: FavoriteController;

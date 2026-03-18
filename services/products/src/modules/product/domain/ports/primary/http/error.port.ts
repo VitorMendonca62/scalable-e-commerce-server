@@ -79,6 +79,15 @@ export class NotPossible<T = unknown> extends HttpResponseOutbound {
   }
 }
 
+export class AlreadyExists<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Já existe.', data: T = undefined as T) {
+    super(HttpStatus.CONFLICT, message, undefined);
+    this.statusCode = HttpStatus.CONFLICT;
+    this.message = message;
+    this.data = data;
+  }
+}
+
 export class BusinessRuleViolation<T = unknown> extends HttpResponseOutbound {
   constructor(
     message: string = 'Regra de negócio violada',

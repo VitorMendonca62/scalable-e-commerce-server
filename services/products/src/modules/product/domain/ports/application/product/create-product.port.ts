@@ -1,5 +1,5 @@
-import ProductEntity from '../../entities/product.entity';
-import { ApplicationResultReasons } from '../../enums/application-result-reasons';
+import ProductEntity from '../../../entities/product.entity';
+import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
 
 export interface CreateProductPort {
   execute: (product: ProductEntity) => Promise<ExecuteReturn>;

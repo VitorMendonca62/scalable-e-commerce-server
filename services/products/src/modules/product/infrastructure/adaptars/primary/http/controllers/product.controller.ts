@@ -1,38 +1,39 @@
 import {
   Controller,
   Post,
-  Res,
-  Headers,
-  HttpStatus,
   Body,
-  Param,
+  Res,
+  HttpStatus,
   Get,
+  Param,
   Patch,
   Query,
+  Headers,
 } from '@nestjs/common';
-import { FastifyReply } from 'fastify';
-import CreateProductDTO from '../dtos/create-product.dto';
+import CreateProductUseCase from '@product/application/use-cases/products/create-product-use-case';
+import GetProductUseCase from '@product/application/use-cases/products/get-product-use-case';
+import GetProductsUseCase from '@product/application/use-cases/products/get-products-use-case';
+import UpdateProductUseCase from '@product/application/use-cases/products/update-product-use-case';
+import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
+import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
+import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
 import {
-  NotFoundItem,
   NotPossible,
+  NotFoundItem,
+  FieldInvalid,
 } from '@product/domain/ports/primary/http/error.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@product/domain/ports/primary/http/sucess.port';
-import ProductMapper from '@product/infrastructure/mappers/product.mapper';
-import CreateProductUseCase from '@product/application/use-cases/create-product-use-case';
-import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
-import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
-import UpdateProductUseCase from '@product/application/use-cases/update-product-use-case';
-import UpdateProductDTO from '../dtos/update-product.dto';
-import GetProductsUseCase from '@product/application/use-cases/get-products-use-case';
-import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
 import {
   PriceConstants,
   StockConstants,
 } from '@product/domain/values-objects/constants';
-import { ProductFilters } from '@product/domain/ports/application/get-products.port';
+import ProductMapper from '@product/infrastructure/mappers/product.mapper';
+import { FastifyReply } from 'fastify';
+import CreateProductDTO from '../dtos/create-product.dto';
+import UpdateProductDTO from '../dtos/update-product.dto';
 
 @Controller('product')
 export default class ProductController {
@@ -98,10 +99,18 @@ export default class ProductController {
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
+    if (Object.keys(dto).length === 0) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid(
+        'Adicione algum campo para o produto ser atualizado',
+        'all',
+      );
+    }
+
     const useCaseResult = await this.updateProductUseCase.execute(
       productID,
       userID,
-      dto,
+      this.productMapper.updateDTOToEntityPartial(dto),
     );
 
     if (useCaseResult.ok === false) {

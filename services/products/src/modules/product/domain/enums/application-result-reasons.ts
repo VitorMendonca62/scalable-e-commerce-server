@@ -4,4 +4,5 @@ export enum ApplicationResultReasons {
   FIELD_ALREADY_EXISTS = 'field_already_exists',
   FIELD_INVALID = 'field_invalid',
   NOT_POSSIBLE = 'not_possible',
+  ALREADY_EXISTS = 'alread_exists',
 }

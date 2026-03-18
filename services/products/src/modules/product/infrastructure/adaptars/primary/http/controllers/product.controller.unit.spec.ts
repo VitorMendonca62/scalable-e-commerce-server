@@ -1,6 +1,6 @@
-import CreateProductUseCase from '@product/application/use-cases/create-product-use-case';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
 import {
+  FieldInvalid,
   NotFoundItem,
   NotPossible,
 } from '@product/domain/ports/primary/http/error.port';
@@ -12,6 +12,7 @@ import {
   IDConstants,
   PriceConstants,
   StockConstants,
+  TitleConstants,
 } from '@product/domain/values-objects/constants';
 import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import { HttpStatus } from '@nestjs/common';
@@ -21,9 +22,10 @@ import {
   ProductDTOFactory,
   ProductFactory,
 } from '@product/infrastructure/helpers/factories/product-factory';
-import GetProductUseCase from '@product/application/use-cases/get-product-use-case';
-import UpdateProductUseCase from '@product/application/use-cases/update-product-use-case';
-import GetProductsUseCase from '@product/application/use-cases/get-products-use-case';
+import CreateProductUseCase from '@product/application/use-cases/products/create-product-use-case';
+import GetProductUseCase from '@product/application/use-cases/products/get-product-use-case';
+import GetProductsUseCase from '@product/application/use-cases/products/get-products-use-case';
+import UpdateProductUseCase from '@product/application/use-cases/products/update-product-use-case';
 
 describe('ProductController', () => {
   let controller: ProductController;
@@ -37,6 +39,7 @@ describe('ProductController', () => {
   beforeEach(async () => {
     productMapper = {
       createDTOForEntity: vi.fn(),
+      updateDTOToEntityPartial: vi.fn(),
     } as any;
 
     createProductUseCase = {
@@ -245,12 +248,18 @@ describe('ProductController', () => {
   describe('update', () => {
     const productID = IDConstants.EXEMPLE;
     const userID = IDConstants.EXEMPLE;
-    const dto = ProductDTOFactory.createUpdateProductDTO();
+    const dto = ProductDTOFactory.createUpdateProductDTO({
+      title: TitleConstants.EXEMPLE,
+    });
+    const productEntity = ProductFactory.createEntity();
 
     beforeEach(() => {
       vi.spyOn(updateProductUseCase, 'execute').mockResolvedValue({
         ok: true,
       });
+      vi.spyOn(productMapper, 'updateDTOToEntityPartial').mockReturnValue(
+        productEntity,
+      );
     });
 
     it('should call updateProductUseCase.execute with correct parameters', async () => {
@@ -259,8 +268,20 @@ describe('ProductController', () => {
       expect(updateProductUseCase.execute).toHaveBeenCalledWith(
         productID,
         userID,
-        dto,
+        productEntity,
       );
+    });
+
+    it('should return FieldInvalid when no have fields in dto', async () => {
+      const result = await controller.update(productID, {}, userID, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum campo para o produto ser atualizado',
+        data: 'all',
+      });
     });
 
     it('should return HttpOKResponse on success', async () => {

@@ -10,8 +10,11 @@ import ProductModel from './product.model';
 
 @Entity('categories')
 export default class CategoryModel {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn('increment')
+  id: number;
+
+  @Column({ type: 'uuid', nullable: false, unique: true })
+  publicID: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
   name: string;

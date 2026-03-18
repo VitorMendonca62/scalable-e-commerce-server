@@ -1,4 +1,4 @@
-import { ApplicationResultReasons } from '../../enums/application-result-reasons';
+import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
 
 export interface FavoriteProductPort {
   favorite: (productID: string, userID: string) => Promise<ExecuteReturn>;

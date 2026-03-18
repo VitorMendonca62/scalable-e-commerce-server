@@ -1,5 +1,5 @@
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
-import { ApplicationResultReasons } from '../../enums/application-result-reasons';
+import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
 
 export interface GetProductPort {
   getByID: (productID: string, userID: string) => Promise<ExecuteReturn>;

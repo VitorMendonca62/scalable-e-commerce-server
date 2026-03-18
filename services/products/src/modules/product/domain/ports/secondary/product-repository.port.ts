@@ -1,5 +1,5 @@
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
-import { ProductFilters } from '../application/get-products.port';
+import { ProductFilters } from '../application/product/get-products.port';
 
 export default abstract class ProductRepository {
   abstract add(

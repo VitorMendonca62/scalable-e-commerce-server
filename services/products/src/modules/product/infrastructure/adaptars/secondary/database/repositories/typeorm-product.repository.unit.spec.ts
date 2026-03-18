@@ -10,7 +10,7 @@ import {
 } from 'typeorm';
 import ProductModel from '../models/product.model';
 import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
-import { ProductFilters } from '@product/domain/ports/application/get-products.port';
+import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
 import TypeOrmProductRepository from './typeorm-product.repository';
 
 describe('TypeOrmProductRepository', () => {
@@ -93,11 +93,11 @@ describe('TypeOrmProductRepository', () => {
     const mockProduct: ProductModel = ProductFactory.createModel();
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...mockProductWithID } = mockProduct;
+    const { id, ...mockProductWithoutID } = mockProduct;
 
     it('should return product with isFavorited true when user has favorited', async () => {
       const mockResult = {
-        entities: [mockProduct],
+        entities: [mockProductWithoutID],
         raw: [{ isFavorited: true }],
       };
 
@@ -126,14 +126,14 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.getRawAndEntities).toHaveBeenCalled();
 
       expect(result).toEqual({
-        ...mockProductWithID,
+        ...mockProductWithoutID,
         isFavorited: true,
       });
     });
 
     it('should return product with isFavorited false when user has not favorited', async () => {
       const mockResult = {
-        entities: [mockProduct],
+        entities: [mockProductWithoutID],
         raw: [{ isFavorited: false }],
       };
 
@@ -142,7 +142,7 @@ describe('TypeOrmProductRepository', () => {
       const result = await repository.getOne(publicID, userID);
 
       expect(result).toEqual({
-        ...mockProductWithID,
+        ...mockProductWithoutID,
         isFavorited: false,
       });
     });
@@ -179,7 +179,7 @@ describe('TypeOrmProductRepository', () => {
 
     it('should return products with all properties except id', async () => {
       const mockResult = {
-        entities: [mockProduct],
+        entities: [mockProductWithoutID],
         raw: [{ isFavorited: false }],
       };
 
@@ -446,7 +446,22 @@ describe('TypeOrmProductRepository', () => {
           active: true,
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 
@@ -462,7 +477,22 @@ describe('TypeOrmProductRepository', () => {
           active: true,
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 
@@ -478,7 +508,22 @@ describe('TypeOrmProductRepository', () => {
           active: true,
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 
@@ -494,7 +539,22 @@ describe('TypeOrmProductRepository', () => {
           active: true,
           categoryID: In(['electronics']),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 
@@ -516,7 +576,22 @@ describe('TypeOrmProductRepository', () => {
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 
@@ -547,7 +622,22 @@ describe('TypeOrmProductRepository', () => {
 
       const callArgs = (productRepository.find as any).mock.calls[0][0];
 
-      expect(callArgs.select).toEqual({ id: false });
+      expect(callArgs.select).toEqual([
+        'publicID',
+        'title',
+        'price',
+        'overview',
+        'description',
+        'photos',
+        'payments',
+        'active',
+        'stock',
+        'owner',
+        'categoryID',
+        'category',
+        'createdAt',
+        'updatedAt',
+      ]);
     });
 
     it('should handle undefined category filter', async () => {
@@ -565,7 +655,22 @@ describe('TypeOrmProductRepository', () => {
           categoryID: In(['electronics']),
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
-        select: { id: false },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'description',
+          'photos',
+          'payments',
+          'active',
+          'stock',
+          'owner',
+          'categoryID',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
       });
     });
 

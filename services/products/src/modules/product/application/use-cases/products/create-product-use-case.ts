@@ -3,7 +3,7 @@ import { ApplicationResultReasons } from '@product/domain/enums/application-resu
 import {
   CreateProductPort,
   ExecuteReturn,
-} from '@product/domain/ports/application/create-product.port';
+} from '@product/domain/ports/application/product/create-product.port';
 import ProductRepository from '@product/domain/ports/secondary/product-repository.port';
 import ProductMapper from '@product/infrastructure/mappers/product.mapper';
 import { Injectable } from '@nestjs/common';

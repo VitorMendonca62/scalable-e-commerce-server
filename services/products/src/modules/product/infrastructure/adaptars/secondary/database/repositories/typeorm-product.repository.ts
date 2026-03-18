@@ -11,7 +11,7 @@ import {
   ArrayContains,
   In,
 } from 'typeorm';
-import { ProductFilters } from '@product/domain/ports/application/get-products.port';
+import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
@@ -46,7 +46,22 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     return this.productRepository.find({
       where: { ...whereFilters, active: true },
-      select: { id: false },
+      select: [
+        'publicID',
+        'title',
+        'price',
+        'overview',
+        'description',
+        'photos',
+        'payments',
+        'active',
+        'stock',
+        'owner',
+        'categoryID',
+        'category',
+        'createdAt',
+        'updatedAt',
+      ],
     });
   }
 
@@ -56,7 +71,22 @@ export default class TypeOrmProductRepository implements ProductRepository {
   ): Promise<(Omit<ProductModel, 'id'> & { isFavorited: boolean }) | null> {
     const query = this.productRepository
       .createQueryBuilder('product')
-      .select()
+      .select([
+        'publicID',
+        'title',
+        'price',
+        'overview',
+        'description',
+        'photos',
+        'payments',
+        'active',
+        'stock',
+        'owner',
+        'categoryID',
+        'category',
+        'createdAt',
+        'updatedAt',
+      ])
       .where('product.active = :active AND product.publicID = :publicID', {
         active: true,
         publicID,
@@ -78,10 +108,9 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     if (result.entities.length === 0) return null;
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { id, ...product } = result.entities[0];
+    const product = result.entities[0];
     return {
-      ...(product as Omit<ProductModel, 'id'>),
+      ...product,
       isFavorited: result.raw[0].isFavorited,
     };
   }

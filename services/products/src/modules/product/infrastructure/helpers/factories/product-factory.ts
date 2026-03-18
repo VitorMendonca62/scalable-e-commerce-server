@@ -124,6 +124,8 @@ export class ProductDTOFactory {
     if (overrides?.payments !== undefined) dto.payments = overrides.payments;
     if (overrides?.active !== undefined) dto.active = overrides.active;
     if (overrides?.stock !== undefined) dto.stock = overrides.stock;
+    if (overrides?.categoryID !== undefined)
+      dto.categoryID = overrides.categoryID;
 
     return dto;
   }

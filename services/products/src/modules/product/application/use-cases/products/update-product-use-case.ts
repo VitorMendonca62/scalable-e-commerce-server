@@ -3,7 +3,7 @@ import { ApplicationResultReasons } from '@product/domain/enums/application-resu
 import {
   ExecuteReturn,
   UpdateProductPort,
-} from '@product/domain/ports/application/update-product.port';
+} from '@product/domain/ports/application/product/update-product.port';
 import ProductRepository from '@product/domain/ports/secondary/product-repository.port';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 

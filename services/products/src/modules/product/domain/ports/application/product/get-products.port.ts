@@ -1,5 +1,5 @@
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
-import { ApplicationResultReasons } from '../../enums/application-result-reasons';
+import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
 import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
 
 export interface GetProductsPort {

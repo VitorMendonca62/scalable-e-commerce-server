@@ -4,7 +4,7 @@ import {
   ExecuteReturn,
   GetProductsPort,
   ProductFilters,
-} from '@product/domain/ports/application/get-products.port';
+} from '@product/domain/ports/application/product/get-products.port';
 import ProductRepository from '@product/domain/ports/secondary/product-repository.port';
 
 @Injectable()

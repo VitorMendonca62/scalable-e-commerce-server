@@ -3,7 +3,7 @@ import { ApplicationResultReasons } from '@product/domain/enums/application-resu
 import {
   ExecuteReturn,
   GetProductPort,
-} from '@product/domain/ports/application/get-product.port';
+} from '@product/domain/ports/application/product/get-product.port';
 import ProductRepository from '@product/domain/ports/secondary/product-repository.port';
 
 @Injectable()

@@ -275,4 +275,311 @@ describe('ProductMapper', () => {
       expect(entity.stock).toBe(model.stock);
     });
   });
+
+  describe('updateDTOToEntityPartial', () => {
+    it('should convert UpdateProductDTO with all fields to partial entity', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'Updated Title',
+        price: 500000,
+        description: 'Updated Description',
+        overview: 'Updated Overview',
+        photos: ['photo1.jpg', 'photo2.jpg'],
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+        active: false,
+        stock: 50,
+        categoryID: 'category-uuid-123',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        title: 'Updated Title',
+        price: 500000,
+        description: 'Updated Description',
+        overview: 'Updated Overview',
+        photos: ['photo1.jpg', 'photo2.jpg'],
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+        active: false,
+        stock: 50,
+        categoryID: 'category-uuid-123',
+      });
+    });
+
+    it('should only include title when only title is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'Only Title',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        title: 'Only Title',
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include price when only price is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        price: 999999,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        price: 999999,
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include description when only description is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        description: 'Only Description',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        description: 'Only Description',
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include overview when only overview is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        overview: 'Only Overview',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        overview: 'Only Overview',
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include photos when only photos are provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        photos: ['photo1.jpg'],
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        photos: ['photo1.jpg'],
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include payments when only payments are provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        payments: [PaymentTypes.BILLET],
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        payments: [PaymentTypes.BILLET],
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include active when only active is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        active: false,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        active: false,
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include stock when only stock is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        stock: 100,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        stock: 100,
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should only include categoryID when only categoryID is provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        categoryID: 'new-category-uuid',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        categoryID: 'new-category-uuid',
+      });
+      expect(Object.keys(result)).toHaveLength(1);
+    });
+
+    it('should return empty object when no fields are provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({});
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({});
+      expect(Object.keys(result)).toHaveLength(0);
+    });
+
+    it('should include multiple fields when multiple fields are provided', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'New Title',
+        price: 250000,
+        active: true,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        title: 'New Title',
+        price: 250000,
+        active: true,
+      });
+      expect(Object.keys(result)).toHaveLength(3);
+    });
+
+    it('should not include publicID in result', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'Test',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).not.toHaveProperty('publicID');
+    });
+
+    it('should not include owner in result', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'Test',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).not.toHaveProperty('owner');
+    });
+
+    it('should handle updating title and description together', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'Updated Title',
+        description: 'Updated Description',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        title: 'Updated Title',
+        description: 'Updated Description',
+      });
+      expect(Object.keys(result)).toHaveLength(2);
+    });
+
+    it('should handle updating price and stock together', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        price: 150000,
+        stock: 25,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        price: 150000,
+        stock: 25,
+      });
+      expect(Object.keys(result)).toHaveLength(2);
+    });
+
+    it('should handle updating photos and payments together', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        photos: ['new-photo.jpg'],
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        photos: ['new-photo.jpg'],
+        payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+      });
+
+      expect(Object.keys(result)).toHaveLength(2);
+    });
+
+    it('should handle active false value', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        active: false,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result.active).toBe(false);
+      expect(result).toHaveProperty('active');
+    });
+
+    it('should handle stock zero value', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        stock: 0,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result.stock).toBe(0);
+      expect(result).toHaveProperty('stock');
+    });
+
+    it('should preserve array references', () => {
+      const photosArray = ['photo1.jpg', 'photo2.jpg'];
+      const paymentsArray = [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD];
+
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        photos: photosArray,
+        payments: paymentsArray,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result.photos).toBe(photosArray);
+      expect(result.payments).toBe(paymentsArray);
+    });
+
+    it('should only include defined fields and ignore undefined fields', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        title: 'New Title',
+        price: undefined,
+        description: 'New Description',
+        overview: undefined,
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result).toEqual({
+        title: 'New Title',
+        description: 'New Description',
+      });
+      expect(result).toHaveProperty('title');
+      expect(result).toHaveProperty('description');
+      expect(result).not.toHaveProperty('price');
+      expect(result).not.toHaveProperty('overview');
+      expect(Object.keys(result)).toHaveLength(2);
+    });
+
+    it('should handle updating category to a different category', () => {
+      const dto = ProductDTOFactory.createUpdateProductDTO({
+        categoryID: 'new-category-uuid-456',
+      });
+
+      const result = mapper.updateDTOToEntityPartial(dto);
+
+      expect(result.categoryID).toBe('new-category-uuid-456');
+    });
+  });
 });
