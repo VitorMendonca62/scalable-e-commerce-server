@@ -586,7 +586,9 @@ describe('CategoryController', () => {
 
       const result = await controller.delete(categoryID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro de conexão com banco de dados',
