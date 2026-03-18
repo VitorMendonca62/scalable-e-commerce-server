@@ -135,10 +135,12 @@ describe('CategoryController', () => {
 
       const result = await controller.create(dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Não foi possível criar a categoria',
       });
     });
@@ -166,9 +168,11 @@ describe('CategoryController', () => {
 
       const result = await controller.create(dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro de conexão com banco de dados',
       });
     });
@@ -215,10 +219,12 @@ describe('CategoryController', () => {
 
       const result = await controller.getAll(page, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Não foi possível buscar as categorias',
       });
     });
@@ -314,10 +320,12 @@ describe('CategoryController', () => {
 
       const result = await controller.getBySlug(slug, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro ao buscar categoria',
       });
     });
@@ -426,10 +434,12 @@ describe('CategoryController', () => {
 
       const result = await controller.update(categoryID, dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro ao atualizar categoria',
       });
     });
@@ -543,10 +553,12 @@ describe('CategoryController', () => {
 
       const result = await controller.delete(categoryID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro ao deletar categoria',
       });
     });
@@ -574,9 +586,9 @@ describe('CategoryController', () => {
 
       const result = await controller.delete(categoryID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro de conexão com banco de dados',
       });
     });

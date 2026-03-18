@@ -72,10 +72,12 @@ describe('FavoriteController', () => {
 
       const result = await controller.favorite(userID, productID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Não foi possivel favoritar o produto',
       });
     });
@@ -114,9 +116,11 @@ describe('FavoriteController', () => {
 
       const result = await controller.favorite(userID, productID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro de conexão com banco de dados',
       });
     });
@@ -175,10 +179,12 @@ describe('FavoriteController', () => {
 
       const result = await controller.unfavorite(userID, productID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro ao desfavoritar',
       });
     });
@@ -219,9 +225,11 @@ describe('FavoriteController', () => {
 
       const result = await controller.unfavorite(userID, productID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro de conexão com banco de dados',
       });
     });

@@ -51,12 +51,17 @@ export default class ProductController {
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
+    // TODO COLOCAR ISSO NO TEST
+    if (!userID) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
+    }
     const useCaseResult = await this.createProductUseCase.execute(
       this.productMapper.createDTOForEntity(dto, userID),
     );
 
     if (useCaseResult.ok === false) {
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -70,6 +75,11 @@ export default class ProductController {
     @Res({ passthrough: true }) response: FastifyReply,
     @Headers('x-user-id') userID: string,
   ) {
+    // TODO COLOCAR ISSO NO TESTe
+    if (!userID) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
+    }
     const useCaseResult = await this.getProductUseCase.getByID(
       productID,
       userID,
@@ -81,7 +91,7 @@ export default class ProductController {
         return new NotFoundItem(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -99,6 +109,12 @@ export default class ProductController {
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
+    // TODO COLOCAR ISSO NO TEST
+    if (!userID) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
+    }
+
     if (Object.keys(dto).length === 0) {
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid(
@@ -119,7 +135,7 @@ export default class ProductController {
         return new NotFoundItem(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -165,7 +181,7 @@ export default class ProductController {
     }
 
     if (Object.keys(filters).length === 0) {
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(
         'Adicione algum filtro para que possa filtrar produtos',
       );
@@ -174,7 +190,7 @@ export default class ProductController {
     const useCaseResult = await this.getProductsUseCase.getByFilter(filters);
 
     if (useCaseResult.ok === false) {
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 

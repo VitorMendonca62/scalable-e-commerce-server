@@ -11,6 +11,7 @@ import {
 vi.mock('uuid', () => {
   return { v7: vi.fn() };
 });
+
 describe('CategoryMapper', () => {
   let mapper: CategoryMapper;
 

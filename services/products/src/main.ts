@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   );
 
-  await app.register(multipart, {
+  await app.register(multipart as any, {
     attachFieldsToBody: 'keyValues',
     limits: {
       fieldNameSize: 100,

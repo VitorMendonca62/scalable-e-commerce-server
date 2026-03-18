@@ -72,8 +72,8 @@ export class NotFoundItem<T = unknown> extends HttpResponseOutbound {
 
 export class NotPossible<T = unknown> extends HttpResponseOutbound {
   constructor(message: string = 'Não foi possivel.', data: T = undefined as T) {
-    super(HttpStatus.BAD_REQUEST, message, undefined);
-    this.statusCode = HttpStatus.BAD_REQUEST;
+    super(HttpStatus.INTERNAL_SERVER_ERROR, message, undefined);
+    this.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     this.message = message;
     this.data = data;
   }

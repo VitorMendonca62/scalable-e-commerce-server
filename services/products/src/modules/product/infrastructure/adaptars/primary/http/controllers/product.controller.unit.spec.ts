@@ -126,10 +126,12 @@ describe('ProductController', () => {
 
       const result = await controller.create(dto, userID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Dados inválidos',
       });
     });
@@ -221,10 +223,12 @@ describe('ProductController', () => {
 
       const result = await controller.getByID(productID, response, userID);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'ID inválido',
       });
     });
@@ -321,10 +325,12 @@ describe('ProductController', () => {
 
       const result = await controller.update(productID, dto, userID, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Dados inválidos',
       });
     });
@@ -617,10 +623,12 @@ describe('ProductController', () => {
         response,
       );
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Parâmetros inválidos',
       });
     });
@@ -763,10 +771,12 @@ describe('ProductController', () => {
         response,
       );
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Adicione algum filtro para que possa filtrar produtos',
       });
       expect(getProductsUseCase.getByFilter).not.toHaveBeenCalled();

@@ -7,9 +7,10 @@ import {
   HttpStatus,
   Delete,
 } from '@nestjs/common';
-import FavoriteProductUseCase from '@product/application/use-cases/favorite-product-use-case';
+import FavoriteProductUseCase from '@product/application/use-cases/products/favorite-product-use-case';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
 import {
+  FieldInvalid,
   NotFoundItem,
   NotPossible,
 } from '@product/domain/ports/primary/http/error.port';
@@ -28,13 +29,19 @@ export class FavoriteController {
     @Param('productId') productID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
+    // TODO COLocar isos no teste
+    if (!userID) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
+    }
+
     const useCaseResult = await this.favoriteProductUseCase.favorite(
       productID,
       userID,
     );
 
     if (useCaseResult.ok === false) {
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -48,6 +55,12 @@ export class FavoriteController {
     @Param('productId') productID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
+    // TODO COLOCALR ISSO NO TES T
+    if (!userID) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
+    }
+
     const useCaseResult = await this.favoriteProductUseCase.unfavorite(
       productID,
       userID,
@@ -59,7 +72,7 @@ export class FavoriteController {
         return new NotFoundItem(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 

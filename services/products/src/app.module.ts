@@ -10,6 +10,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ProductModule } from '@product/product.module';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import ProductFavoriteModel from '@product/infrastructure/adaptars/secondary/database/models/favorite.model';
+import CartModel from '@product/infrastructure/adaptars/secondary/database/models/cart.model';
+import CategoryModel from '@product/infrastructure/adaptars/secondary/database/models/categories.model';
 
 @Module({
   imports: [
@@ -33,7 +35,12 @@ import ProductFavoriteModel from '@product/infrastructure/adaptars/secondary/dat
           username: configService.get('POSTGRES_USER'),
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
-          entities: [ProductModel, ProductFavoriteModel],
+          entities: [
+            ProductModel,
+            ProductFavoriteModel,
+            CartModel,
+            CategoryModel,
+          ],
           synchronize: true,
         };
       },

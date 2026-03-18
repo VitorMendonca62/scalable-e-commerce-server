@@ -57,7 +57,7 @@ export default class CategoryController {
         return new AlreadyExists(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -73,7 +73,7 @@ export default class CategoryController {
     const useCaseResult = await this.getCategoriesUseCase.getAll(page);
 
     if (useCaseResult.ok === false) {
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -97,7 +97,7 @@ export default class CategoryController {
         return new NotFoundItem(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -137,7 +137,7 @@ export default class CategoryController {
         return new AlreadyExists(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
@@ -158,7 +158,7 @@ export default class CategoryController {
         return new NotFoundItem(useCaseResult.message);
       }
 
-      response.status(HttpStatus.BAD_REQUEST);
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 

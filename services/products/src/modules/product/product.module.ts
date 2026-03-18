@@ -4,32 +4,85 @@ import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sen
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 import ProductController from './infrastructure/adaptars/primary/http/controllers/product.controller';
+import CartController from './infrastructure/adaptars/primary/http/controllers/cart.controller';
 import ProductMapper from './infrastructure/mappers/product.mapper';
-import CreateProductUseCase from './application/use-cases/create-product-use-case';
+import CartMapper from './infrastructure/mappers/cart.mapper';
+import CreateProductUseCase from './application/use-cases/products/create-product-use-case';
+import CreateCartUseCase from './application/use-cases/carts/create-cart.usecase';
 import ProductModel from './infrastructure/adaptars/secondary/database/models/product.model';
+import CartModel from './infrastructure/adaptars/secondary/database/models/cart.model';
 import ProductRepository from './domain/ports/secondary/product-repository.port';
-import GetProductUseCase from './application/use-cases/get-product-use-case';
-import UpdateProductUseCase from './application/use-cases/update-product-use-case';
+import CartRepository from './domain/ports/secondary/cart-repository.port';
+import GetProductUseCase from './application/use-cases/products/get-product-use-case';
+import GetCartUseCase from './application/use-cases/carts/get-cart.usecase';
+import UpdateProductUseCase from './application/use-cases/products/update-product-use-case';
+import UpdateCartUseCase from './application/use-cases/carts/update-cart.usecase';
 import ProductFavoriteModel from './infrastructure/adaptars/secondary/database/models/favorite.model';
-import GetProductsUseCase from './application/use-cases/get-products-use-case';
-import FavoriteProductUseCase from './application/use-cases/favorite-product-use-case';
+import GetProductsUseCase from './application/use-cases/products/get-products-use-case';
+import GetCartsUseCase from './application/use-cases/carts/get-carts.usecase';
+import FavoriteProductUseCase from './application/use-cases/products/favorite-product-use-case';
+import DeleteCartUseCase from './application/use-cases/carts/delete-cart.usecase';
 import FavoriteRepository from './domain/ports/secondary/favorite-repository.port';
 import TypeOrmFavoriteRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-favorite.repository';
 import TypeOrmProductRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-product.repository';
+import TypeOrmCartRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-cart.repository';
 import { FavoriteController } from './infrastructure/adaptars/primary/http/controllers/favorite.controller';
+import CreateCategoryUseCase from './application/use-cases/category/create-category.usecase';
+import GetCategoryUseCase from './application/use-cases/category/get-category.usecase';
+import GetCategoriesUseCase from './application/use-cases/category/get-categories.usecase';
+import UpdateCategoryUseCase from './application/use-cases/category/update-category.usecase';
+import DeleteCategoryUseCase from './application/use-cases/category/delete-category.usecase';
+import TypeOrmCategoryRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-category.repository';
+import { CategoryRepository } from './domain/ports/secondary/category-repository.port';
+import CategoryModel from './infrastructure/adaptars/secondary/database/models/categories.model';
+import CategoryController from './infrastructure/adaptars/primary/http/controllers/category.controller';
+import CategoryMapper from './infrastructure/mappers/category.mapper';
 @Module({
-  imports: [TypeOrmModule.forFeature([ProductModel, ProductFavoriteModel])],
-  controllers: [ProductController, FavoriteController],
+  imports: [
+    TypeOrmModule.forFeature([
+      ProductModel,
+      ProductFavoriteModel,
+      CartModel,
+      CategoryModel,
+    ]),
+  ],
+  controllers: [
+    ProductController,
+    FavoriteController,
+    CartController,
+    CategoryController,
+  ],
   providers: [
     ProductMapper,
+    CartMapper,
+    CategoryMapper,
     CreateProductUseCase,
+    CreateCartUseCase,
+    CreateCategoryUseCase,
     GetProductUseCase,
+    GetCategoryUseCase,
+    GetCartUseCase,
     GetProductsUseCase,
+    GetCartsUseCase,
+    GetCategoriesUseCase,
     UpdateProductUseCase,
+    UpdateCartUseCase,
+    UpdateCategoryUseCase,
+    UpdateCategoryUseCase,
     FavoriteProductUseCase,
+    DeleteCartUseCase,
+    DeleteCategoryUseCase,
     {
       provide: ProductRepository,
       useClass: TypeOrmProductRepository,
+    },
+    {
+      provide: CartRepository,
+      useClass: TypeOrmCartRepository,
+    },
+    {
+      provide: CategoryRepository,
+      useClass: TypeOrmCategoryRepository,
     },
     {
       provide: FavoriteRepository,
