@@ -12,7 +12,10 @@ type ExecuteResultReasons =
 export type ExecuteReturn =
   | {
       ok: true;
-      result: Omit<ProductModel & { isFavorited: boolean }, 'id'>;
+      result: Omit<
+        ProductModel & { isFavorited: boolean; rating: number },
+        'id'
+      >;
     }
   | {
       ok: false;

@@ -12,9 +12,13 @@ export default abstract class ProductRepository {
   abstract getOne(
     publicID: string,
     userID: string,
-  ): Promise<(Omit<ProductModel, 'id'> & { isFavorited: boolean }) | null>;
+  ): Promise<
+    (Omit<ProductModel, 'id'> & { isFavorited: boolean; rating: number }) | null
+  >;
 
-  abstract findWithFilters(filters: ProductFilters): Promise<ProductModel[]>;
+  abstract findWithFilters(
+    filters: ProductFilters,
+  ): Promise<(ProductModel & { rating: number })[]>;
 
   abstract update(
     productID: string,

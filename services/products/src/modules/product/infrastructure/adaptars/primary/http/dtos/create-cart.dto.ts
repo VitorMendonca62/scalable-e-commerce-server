@@ -9,18 +9,19 @@ import {
 } from 'class-validator';
 
 export class CartItemDTO {
-  @IsNotEmpty()
-  @IsUUID()
+  @IsNotEmpty({ message: 'O ID do produto é obrigatório' })
+  @IsUUID('all', { message: 'O ID do produto deve ser um UUID válido' })
   productID: string;
 
-  @IsInt()
-  @Min(1)
+  @IsNotEmpty({ message: 'A quantidade é obrigatório' })
+  @IsInt({ message: 'A quantidade deve ser um inteiro' })
+  @Min(1, { message: 'A quantidade deve ser no mínimo 1' })
   quantity: number;
 }
 
 export default class CreateCartDTO {
-  @IsArray()
-  @ValidateNested({ each: true })
+  @IsArray({ message: 'Items deve ser um array' })
+  @ValidateNested({ each: true, message: 'Items devem ser válidos' })
   @Type(() => CartItemDTO)
   items: CartItemDTO[];
 }

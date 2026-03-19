@@ -49,7 +49,7 @@ export default class ProductModel {
   categoryID: string;
 
   @ManyToOne(() => CategoryModel, (category) => category.products)
-  @JoinColumn({ name: 'category_id' })
+  @JoinColumn({ name: 'category_id', referencedColumnName: 'publicID' })
   category: CategoryModel;
 
   @CreateDateColumn()

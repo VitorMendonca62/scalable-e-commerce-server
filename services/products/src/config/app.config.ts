@@ -53,7 +53,6 @@ export default class AppConfig {
         stopAtFirstError: true,
         transform: false,
         exceptionFactory: (errors) => {
-          console.log(errors)
           if (errors.length === 0) {
             return new FieldInvalidException('Unknown error', 'Error');
           }

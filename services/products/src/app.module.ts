@@ -12,6 +12,7 @@ import ProductModel from '@product/infrastructure/adaptars/secondary/database/mo
 import ProductFavoriteModel from '@product/infrastructure/adaptars/secondary/database/models/favorite.model';
 import CartModel from '@product/infrastructure/adaptars/secondary/database/models/cart.model';
 import CategoryModel from '@product/infrastructure/adaptars/secondary/database/models/categories.model';
+import ProductRatingModel from '@product/infrastructure/adaptars/secondary/database/models/rating.model';
 
 @Module({
   imports: [
@@ -40,8 +41,9 @@ import CategoryModel from '@product/infrastructure/adaptars/secondary/database/m
             ProductFavoriteModel,
             CartModel,
             CategoryModel,
+            ProductRatingModel,
           ],
-          synchronize: true,
+          synchronize: false,
         };
       },
       inject: [ConfigService],

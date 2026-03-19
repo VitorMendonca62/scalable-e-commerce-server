@@ -51,7 +51,6 @@ export default class ProductController {
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
-    // TODO COLOCAR ISSO NO TEST
     if (!userID) {
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');

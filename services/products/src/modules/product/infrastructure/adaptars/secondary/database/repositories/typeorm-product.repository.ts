@@ -8,10 +8,12 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
+  SelectQueryBuilder,
   ArrayContains,
   In,
 } from 'typeorm';
 import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
+import ProductRatingModel from '../models/rating.model';
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
@@ -19,8 +21,10 @@ export default class TypeOrmProductRepository implements ProductRepository {
     private productRepository: Repository<ProductModel>,
   ) {}
 
-  findWithFilters(filters: ProductFilters): Promise<ProductModel[]> {
-    const whereFilters: FindOptionsWhere<ProductModel> = {};
+  async findWithFilters(
+    filters: ProductFilters,
+  ): Promise<(ProductModel & { rating: number })[]> {
+    const whereFilters: FindOptionsWhere<ProductModel> = { active: true };
 
     if (filters.categoryID !== undefined) {
       whereFilters.categoryID = In(filters.categoryID);
@@ -44,66 +48,71 @@ export default class TypeOrmProductRepository implements ProductRepository {
       whereFilters.payments = ArrayContains(filters.payments);
     }
 
-    return this.productRepository.find({
-      where: { ...whereFilters, active: true },
-      select: [
-        'publicID',
-        'title',
-        'price',
-        'overview',
-        'description',
-        'photos',
-        'payments',
-        'active',
-        'stock',
-        'owner',
-        'categoryID',
-        'category',
-        'createdAt',
-        'updatedAt',
-      ],
-    });
+    const query = this.addRatingSelect(
+      this.productRepository.createQueryBuilder('product').setFindOptions({
+        where: whereFilters,
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'photos',
+          'payments',
+          'stock',
+          'owner',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
+      }),
+    );
+
+    query
+      .leftJoin('product.category', 'category')
+      .addSelect(['category.publicID', 'category.name', 'category.slug']);
+
+    const result = await query.getRawAndEntities();
+
+    return result.entities.map((product, index) => ({
+      ...product,
+      rating: Number(result.raw[index]?.rating ?? 0),
+    }));
   }
 
   async getOne(
     publicID: string,
     userID: string,
-  ): Promise<(Omit<ProductModel, 'id'> & { isFavorited: boolean }) | null> {
-    const query = this.productRepository
+  ): Promise<
+    (Omit<ProductModel, 'id'> & { isFavorited: boolean; rating: number }) | null
+  > {
+    let query = this.productRepository
       .createQueryBuilder('product')
       .select([
-        'publicID',
-        'title',
-        'price',
-        'overview',
-        'description',
-        'photos',
-        'payments',
-        'active',
-        'stock',
-        'owner',
-        'categoryID',
-        'category',
-        'createdAt',
-        'updatedAt',
+        'product.publicID',
+        'product.title',
+        'product.price',
+        'product.overview',
+        'product.description',
+        'product.photos',
+        'product.payments',
+        'product.stock',
+        'product.owner',
+        'product.category',
+        'product.createdAt',
+        'product.updatedAt',
       ])
-      .where('product.active = :active AND product.publicID = :publicID', {
+
+      .where('product.active = :active AND product.public_id = :publicID', {
         active: true,
         publicID,
       });
 
     query
-      .leftJoin(
-        'product_favorites',
-        'favorite',
-        'favorite.product_id = product.public_id AND favorite.user_id = :userID',
-        { userID },
-      )
-      .addSelect(
-        'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
-        'isFavorited',
-      );
+      .leftJoin('product.category', 'category')
+      .addSelect(['category.publicID', 'category.name', 'category.slug']);
 
+    query = this.addRatingSelect(query);
+    query = this.addFavoritedSelect(query, userID);
     const result = await query.getRawAndEntities();
 
     if (result.entities.length === 0) return null;
@@ -112,6 +121,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
     return {
       ...product,
       isFavorited: result.raw[0].isFavorited,
+      rating: Number(result.raw[0].rating),
     };
   }
 
@@ -134,5 +144,38 @@ export default class TypeOrmProductRepository implements ProductRepository {
         )
       ).affected >= 1
     );
+  }
+
+  private addRatingSelect(
+    query: SelectQueryBuilder<ProductModel>,
+  ): SelectQueryBuilder<ProductModel> {
+    return query
+      .leftJoin(
+        ProductRatingModel,
+        'rating',
+        'rating.product_id = product.public_id',
+      )
+      .addSelect('COALESCE(AVG(rating.value), 0)', 'rating')
+      .groupBy('product.id')
+      .addGroupBy('category.id')
+      .addGroupBy('favorite.id');
+  }
+
+  private addFavoritedSelect(
+    query: SelectQueryBuilder<ProductModel>,
+    userID: string,
+  ): SelectQueryBuilder<ProductModel> {
+    query
+      .leftJoin(
+        'product_favorites',
+        'favorite',
+        'favorite.product_id = product.public_id AND favorite.user_id = :userID',
+        { userID },
+      )
+      .addSelect(
+        'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
+        'isFavorited',
+      );
+    return query;
   }
 }

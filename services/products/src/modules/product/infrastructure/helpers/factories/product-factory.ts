@@ -14,6 +14,7 @@ import {
 import CreateProductDTO from '../../adaptars/primary/http/dtos/create-product.dto';
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import UpdateProductDTO from '@product/infrastructure/adaptars/primary/http/dtos/update-product.dto';
+import { CategoryFactory } from './category-factory';
 
 export class ProductFactory {
   static createDTO(overrides?: Partial<CreateProductDTO>): CreateProductDTO {
@@ -53,7 +54,7 @@ export class ProductFactory {
 
   static createModel(
     overrides?: Partial<ProductModel>,
-  ): ProductModel & { isFavorited: boolean } {
+  ): ProductModel & { isFavorited: boolean; rating: number } {
     const model = new ProductModel();
 
     model.id = IDConstants.EXEMPLE;
@@ -65,12 +66,14 @@ export class ProductFactory {
     model.photos = PhotosConstants.EXEMPLE;
     model.payments = PaymentsConstants.EXEMPLE;
     model.active = true;
-    model.stock = 50;
     model.owner = IDConstants.EXEMPLE;
+    model.stock = 50;
     model.createdAt = new Date();
     model.updatedAt = new Date();
+    model.categoryID = IDConstants.EXEMPLE;
+    model.category = CategoryFactory.createModel();
 
-    return Object.assign(model, overrides, { isFavorited: true });
+    return Object.assign(model, overrides, { isFavorited: true, rating: 0 });
   }
 }
 

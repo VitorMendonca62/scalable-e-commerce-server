@@ -13,7 +13,7 @@ export default class CategoryModel {
   @PrimaryGeneratedColumn('increment')
   id: number;
 
-  @Column({ type: 'uuid', nullable: false, unique: true })
+  @Column({ type: 'uuid', nullable: false, unique: true, name: 'public_id' })
   publicID: string;
 
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
