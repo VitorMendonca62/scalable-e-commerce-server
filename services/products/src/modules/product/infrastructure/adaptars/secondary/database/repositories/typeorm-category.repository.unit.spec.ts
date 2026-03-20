@@ -121,10 +121,9 @@ describe('TypeOrmCategoryRepository', () => {
 
     describe('without cache', () => {
       beforeEach(() => {
-        vi.spyOn(
-          cacheCategoryRepository,
-          'getCategories',
-        ).mockResolvedValue(null);
+        vi.spyOn(cacheCategoryRepository, 'getCategories').mockResolvedValue(
+          null,
+        );
       });
 
       it('should call find with correct parameters for cursor', async () => {
@@ -212,26 +211,23 @@ describe('TypeOrmCategoryRepository', () => {
 
     describe('with cache', () => {
       beforeEach(() => {
-        vi.spyOn(
-          cacheCategoryRepository,
-          'getCategories',
-        ).mockResolvedValue([CategoryFactory.createPublicWithID()]);
+        vi.spyOn(cacheCategoryRepository, 'getCategories').mockResolvedValue([
+          CategoryFactory.createPublicWithID(),
+        ]);
       });
 
       it('should call find with correct parameters for cursor', async () => {
         await repository.findAll(cursor);
 
-        expect(
-          cacheCategoryRepository.getCategories,
-        ).toHaveBeenCalledWith(cursor);
+        expect(cacheCategoryRepository.getCategories).toHaveBeenCalledWith(
+          cursor,
+        );
       });
 
       it('should call find with cursor is 0 when cursor is null', async () => {
         await repository.findAll(null);
 
-        expect(
-          cacheCategoryRepository.getCategories,
-        ).toHaveBeenCalledWith('0');
+        expect(cacheCategoryRepository.getCategories).toHaveBeenCalledWith('0');
       });
 
       it('should return categories when found and categories length is not 25', async () => {
@@ -250,10 +246,9 @@ describe('TypeOrmCategoryRepository', () => {
             });
           });
 
-        vi.spyOn(
-          cacheCategoryRepository,
-          'getCategories',
-        ).mockResolvedValue(mockCategories);
+        vi.spyOn(cacheCategoryRepository, 'getCategories').mockResolvedValue(
+          mockCategories,
+        );
 
         const categoriesWithoutID = Array(25)
           .fill(0)
