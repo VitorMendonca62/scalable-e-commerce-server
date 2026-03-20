@@ -2,7 +2,6 @@ import { HttpStatus } from '@nestjs/common';
 import CreateCategoryUseCase from '@product/application/use-cases/category/create-category.usecase';
 import DeleteCategoryUseCase from '@product/application/use-cases/category/delete-category.usecase';
 import GetCategoriesUseCase from '@product/application/use-cases/category/get-categories.usecase';
-import GetCategoryUseCase from '@product/application/use-cases/category/get-category.usecase';
 import UpdateCategoryUseCase from '@product/application/use-cases/category/update-category.usecase';
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
 import {
@@ -26,7 +25,6 @@ import CategoryController from './category.controller';
 describe('CategoryController', () => {
   let controller: CategoryController;
   let createCategoryUseCase: CreateCategoryUseCase;
-  let getCategoryUseCase: GetCategoryUseCase;
   let getCategoriesUseCase: GetCategoriesUseCase;
   let updateCategoryUseCase: UpdateCategoryUseCase;
   let deleteCategoryUseCase: DeleteCategoryUseCase;
@@ -36,10 +34,6 @@ describe('CategoryController', () => {
   beforeEach(async () => {
     createCategoryUseCase = {
       execute: vi.fn(),
-    } as any;
-
-    getCategoryUseCase = {
-      getBySlug: vi.fn(),
     } as any;
 
     getCategoriesUseCase = {
@@ -58,7 +52,6 @@ describe('CategoryController', () => {
 
     controller = new CategoryController(
       createCategoryUseCase,
-      getCategoryUseCase,
       getCategoriesUseCase,
       updateCategoryUseCase,
       deleteCategoryUseCase,
@@ -73,7 +66,6 @@ describe('CategoryController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(createCategoryUseCase).toBeDefined();
-    expect(getCategoryUseCase).toBeDefined();
     expect(getCategoriesUseCase).toBeDefined();
     expect(updateCategoryUseCase).toBeDefined();
     expect(deleteCategoryUseCase).toBeDefined();
@@ -179,7 +171,8 @@ describe('CategoryController', () => {
   });
 
   describe('getAll', () => {
-    const page = 1;
+    const cursor = '123';
+    const nextCursor = '1234';
     const mockCategories = [
       CategoryFactory.createModel(),
       CategoryFactory.createModel({ name: 'Fashion' }),
@@ -188,25 +181,52 @@ describe('CategoryController', () => {
     beforeEach(() => {
       vi.spyOn(getCategoriesUseCase, 'getAll').mockResolvedValue({
         ok: true,
-        result: mockCategories,
+        result: [mockCategories, nextCursor],
       });
     });
 
     it('should call getCategoriesUseCase.getAll with correct page', async () => {
-      await controller.getAll(page, response);
+      await controller.getAll(response, cursor);
 
-      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith(page);
+      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith(cursor);
     });
 
-    it('should return HttpOKResponse with categories on success', async () => {
-      const result = await controller.getAll(page, response);
+    it('should return HttpOKResponse with categories on success without cursor', async () => {
+      vi.spyOn(getCategoriesUseCase, 'getAll').mockResolvedValue({
+        ok: true,
+        result: [mockCategories, null],
+      });
+      const result = await controller.getAll(response, nextCursor);
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Categorias encontradas com sucesso',
-        data: mockCategories,
+        data: { categories: mockCategories, nextCursor: null },
+      });
+    });
+
+    it('should return HttpOKResponse with categories on success with cursor', async () => {
+      const mockCategories = Array(12)
+        .fill(0)
+        .map((_, index) => {
+          return CategoryFactory.createModel({ id: index });
+        });
+
+      vi.spyOn(getCategoriesUseCase, 'getAll').mockResolvedValue({
+        ok: true,
+        result: [mockCategories, '123'],
+      });
+
+      const result = await controller.getAll(response, cursor);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Categorias encontradas com sucesso',
+        data: { categories: mockCategories, nextCursor: '123' },
       });
     });
 
@@ -217,7 +237,7 @@ describe('CategoryController', () => {
         message: 'Não foi possível buscar as categorias',
       });
 
-      const result = await controller.getAll(page, response);
+      const result = await controller.getAll(response, cursor);
 
       expect(response.status).toHaveBeenCalledWith(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -235,7 +255,7 @@ describe('CategoryController', () => {
       );
 
       try {
-        await controller.getAll(page, response);
+        await controller.getAll(response, cursor);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -246,102 +266,22 @@ describe('CategoryController', () => {
     it('should handle empty categories list', async () => {
       vi.spyOn(getCategoriesUseCase, 'getAll').mockResolvedValue({
         ok: true,
-        result: [],
+        result: [[], null],
       });
 
-      const result = await controller.getAll(page, response);
+      const result = await controller.getAll(response, cursor);
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
-      expect(result.data).toEqual([]);
+      expect(result.data).toEqual({ categories: [], nextCursor: null });
     });
 
-    it('should handle different page numbers', async () => {
-      await controller.getAll(2, response);
-      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith(2);
+    it('should handle different cursor', async () => {
+      await controller.getAll(response, '2324');
+      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith('2324');
 
-      await controller.getAll(5, response);
-      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith(5);
-    });
-  });
-
-  describe('getBySlug', () => {
-    const slug = 'electronics';
-    const mockCategory = CategoryFactory.createModel();
-
-    beforeEach(() => {
-      vi.spyOn(getCategoryUseCase, 'getBySlug').mockResolvedValue({
-        ok: true,
-        result: mockCategory,
-      });
-    });
-
-    it('should call getCategoryUseCase.getBySlug with correct slug', async () => {
-      await controller.getBySlug(slug, response);
-
-      expect(getCategoryUseCase.getBySlug).toHaveBeenCalledWith(slug);
-    });
-
-    it('should return HttpOKResponse with category on success', async () => {
-      const result = await controller.getBySlug(slug, response);
-
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
-      expect(result).toBeInstanceOf(HttpOKResponse);
-      expect(result).toEqual({
-        statusCode: HttpStatus.OK,
-        message: 'Categoria encontrada com sucesso',
-        data: mockCategory,
-      });
-    });
-
-    it('should return NotFoundItem when category is not found', async () => {
-      vi.spyOn(getCategoryUseCase, 'getBySlug').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'Categoria não encontrada',
-      });
-
-      const result = await controller.getBySlug(slug, response);
-
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Categoria não encontrada',
-      });
-    });
-
-    it('should return NotPossible on other failures', async () => {
-      vi.spyOn(getCategoryUseCase, 'getBySlug').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-        message: 'Erro ao buscar categoria',
-      });
-
-      const result = await controller.getBySlug(slug, response);
-
-      expect(response.status).toHaveBeenCalledWith(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-      expect(result).toBeInstanceOf(NotPossible);
-      expect(result).toEqual({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Erro ao buscar categoria',
-      });
-    });
-
-    it('should throw error if getCategoryUseCase throws error', async () => {
-      vi.spyOn(getCategoryUseCase, 'getBySlug').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
-
-      try {
-        await controller.getBySlug(slug, response);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-      }
+      await controller.getAll(response, null);
+      expect(getCategoriesUseCase.getAll).toHaveBeenCalledWith(null);
     });
   });
 
@@ -408,23 +348,6 @@ describe('CategoryController', () => {
       });
     });
 
-    it('should return AlreadyExists when updated data conflicts', async () => {
-      vi.spyOn(updateCategoryUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.ALREADY_EXISTS,
-        message: 'Já existe uma categoria com esse slug',
-      });
-
-      const result = await controller.update(categoryID, dto, response);
-
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.CONFLICT);
-      expect(result).toBeInstanceOf(AlreadyExists);
-      expect(result).toEqual({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'Já existe uma categoria com esse slug',
-      });
-    });
-
     it('should return NotPossible on other failures', async () => {
       vi.spyOn(updateCategoryUseCase, 'execute').mockResolvedValue({
         ok: false,
@@ -468,16 +391,6 @@ describe('CategoryController', () => {
       expect(updateCategoryUseCase.execute).toHaveBeenCalled();
     });
 
-    it('should handle updating only slug', async () => {
-      const slugDto = CategoryDTOFactory.createUpdateCategoryDTO({
-        slug: 'new-slug',
-      });
-
-      await controller.update(categoryID, slugDto, response);
-
-      expect(updateCategoryUseCase.execute).toHaveBeenCalled();
-    });
-
     it('should handle updating only active status', async () => {
       const activeDto = CategoryDTOFactory.createUpdateCategoryDTO({
         active: false,
@@ -491,7 +404,6 @@ describe('CategoryController', () => {
     it('should handle updating multiple fields', async () => {
       const multiDto = CategoryDTOFactory.createUpdateCategoryDTO({
         name: 'Multi Update',
-        slug: 'multi-update',
         active: false,
       });
 

@@ -1,14 +1,15 @@
 import { IDConstants } from '@product/domain/values-objects/constants';
 import { CategoryFactory } from '@product/infrastructure/helpers/factories/category-factory';
-import { Repository, And, MoreThanOrEqual, LessThan } from 'typeorm';
+import { Repository, MoreThan } from 'typeorm';
 import CategoryModel from '../models/categories.model';
 import TypeOrmCategoryRepository from './typeorm-category.repository';
 import CategoryNameConstants from '@product/domain/values-objects/category/name/name.constants';
-import CategorySlugConstants from '@product/domain/values-objects/category/slug/slug.constants';
+import { CacheCategoryRepository } from '@product/domain/ports/secondary/cache-category-repository.port';
 
 describe('TypeOrmCategoryRepository', () => {
   let repository: TypeOrmCategoryRepository;
   let categoryRepository: Repository<CategoryModel>;
+  let cacheCategoryRepository: CacheCategoryRepository;
 
   beforeEach(() => {
     categoryRepository = {
@@ -20,19 +21,28 @@ describe('TypeOrmCategoryRepository', () => {
       exists: vi.fn(),
     } as any;
 
-    repository = new TypeOrmCategoryRepository(categoryRepository);
+    cacheCategoryRepository = {
+      getCategories: vi.fn(),
+      add: vi.fn(),
+      removeByPublicID: vi.fn(),
+    };
+
+    repository = new TypeOrmCategoryRepository(
+      categoryRepository,
+      cacheCategoryRepository,
+    );
   });
 
   it('should be defined', () => {
     expect(repository).toBeDefined();
     expect(categoryRepository).toBeDefined();
+    expect(cacheCategoryRepository).toBeDefined();
   });
 
   describe('create', () => {
     const mockCategory = {
       publicID: IDConstants.EXEMPLE,
       name: CategoryNameConstants.EXEMPLE,
-      slug: CategorySlugConstants.EXEMPLE,
       active: true,
     };
 
@@ -64,7 +74,6 @@ describe('TypeOrmCategoryRepository', () => {
       const fullCategory = {
         publicID: 'full-id',
         name: 'Full Category',
-        slug: 'full-category',
         active: false,
       };
 
@@ -88,7 +97,6 @@ describe('TypeOrmCategoryRepository', () => {
       const inactiveCategory = {
         publicID: 'inactive-id',
         name: 'Inactive Category',
-        slug: 'inactive-category',
         active: false,
       };
 
@@ -98,163 +106,170 @@ describe('TypeOrmCategoryRepository', () => {
     });
   });
 
-  describe('findBySlug', () => {
-    const slug = CategorySlugConstants.EXEMPLE;
-    const mockCategory = CategoryFactory.createModel();
-
-    beforeEach(() => {
-      vi.spyOn(categoryRepository, 'findOne').mockResolvedValue(mockCategory);
-    });
-
-    it('should call findOne with correct parameters', async () => {
-      await repository.findBySlug(slug);
-
-      expect(categoryRepository.findOne).toHaveBeenCalledWith({
-        where: { slug },
-        select: ['id', 'name', 'slug', 'active', 'createdAt', 'updatedAt'],
-      });
-    });
-
-    it('should return category when found', async () => {
-      const result = await repository.findBySlug(slug);
-
-      expect(result).toEqual(mockCategory);
-    });
-
-    it('should return null when category is not found', async () => {
-      vi.spyOn(categoryRepository, 'findOne').mockResolvedValue(null);
-
-      const result = await repository.findBySlug('non-existent-slug');
-
-      expect(result).toBeNull();
-    });
-
-    it('should select only specific fields', async () => {
-      await repository.findBySlug(slug);
-
-      const callArgs = (categoryRepository.findOne as any).mock.calls[0][0];
-
-      expect(callArgs.select).toEqual([
-        'id',
-        'name',
-        'slug',
-        'active',
-        'createdAt',
-        'updatedAt',
-      ]);
-      expect(callArgs.select).not.toContain('publicID');
-      expect(callArgs.select).not.toContain('products');
-    });
-
-    it('should verify where clause contains only slug', async () => {
-      await repository.findBySlug(slug);
-
-      const callArgs = (categoryRepository.findOne as any).mock.calls[0][0];
-
-      expect(callArgs.where).toHaveProperty('slug', slug);
-      expect(Object.keys(callArgs.where)).toHaveLength(1);
-    });
-  });
-
   describe('findAll', () => {
-    const page = 1;
+    const cursor = '123';
     const mockCategories = [
-      CategoryFactory.createModel(),
-      CategoryFactory.createModel({ name: 'Fashion' }),
+      CategoryFactory.createPublicWithID(),
+      CategoryFactory.createPublicWithID({ name: 'Fashion', id: 12 }),
     ];
 
     beforeEach(() => {
-      vi.spyOn(categoryRepository, 'find').mockResolvedValue(mockCategories);
+      vi.spyOn(categoryRepository, 'find').mockResolvedValue(
+        mockCategories as any,
+      );
     });
 
-    it('should call find with correct parameters for page 1', async () => {
-      await repository.findAll(1);
+    describe('without cache', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          cacheCategoryRepository,
+          'getCategories',
+        ).mockResolvedValue(null);
+      });
 
-      expect(categoryRepository.find).toHaveBeenCalledWith({
-        select: [
-          'publicID',
-          'name',
-          'slug',
-          'active',
-          'createdAt',
-          'updatedAt',
-        ],
-        where: { id: And(MoreThanOrEqual(25), LessThan(50)) },
-        order: { id: 'ASC' },
+      it('should call find with correct parameters for cursor', async () => {
+        await repository.findAll(cursor);
+
+        expect(categoryRepository.find).toHaveBeenCalledWith({
+          select: ['publicID', 'name', 'id'],
+          where: { id: MoreThan(parseInt(cursor)), active: true },
+          order: { id: 'ASC' },
+          take: 25,
+        });
+
+        expect(cacheCategoryRepository.add).toHaveBeenCalledWith(
+          cursor,
+          mockCategories,
+        );
+      });
+
+      it('should call find with cursor is 0 when cursor is null', async () => {
+        await repository.findAll(null);
+
+        expect(categoryRepository.find).toHaveBeenCalledWith({
+          select: ['publicID', 'name', 'id'],
+          where: { id: MoreThan(0), active: true },
+          order: { id: 'ASC' },
+          take: 25,
+        });
+        expect(cacheCategoryRepository.add).toHaveBeenCalledWith(
+          '0',
+          mockCategories,
+        );
+      });
+
+      it('should return categories without id when found and categories length is not 25', async () => {
+        const categoriesWithoutID = [
+          CategoryFactory.createPublic(),
+          CategoryFactory.createPublic({ name: 'Fashion' }),
+        ];
+        const result = await repository.findAll(cursor);
+
+        expect(result).toEqual([categoriesWithoutID, null]);
+      });
+
+      it('should return categories without id when found and categories length is 25', async () => {
+        const mockCategories = Array(25)
+          .fill(0)
+          .map((_, index) => {
+            return CategoryFactory.createPublicWithID({
+              id: index,
+              name: `fashion-${index}`,
+            });
+          });
+
+        const categoriesWithoutID = Array(25)
+          .fill(0)
+          .map((_, index) => {
+            return CategoryFactory.createPublic({
+              name: `fashion-${index}`,
+            });
+          });
+
+        vi.spyOn(categoryRepository, 'find').mockResolvedValue(
+          mockCategories as any,
+        );
+
+        const result = await repository.findAll(cursor);
+
+        expect(result).toEqual([categoriesWithoutID, '24']);
+      });
+
+      it('should select only specific fields including publicId, name, id', async () => {
+        await repository.findAll(cursor);
+
+        const callArgs = (categoryRepository.find as any).mock.calls[0][0];
+
+        expect(callArgs.select).toEqual(['publicID', 'name', 'id']);
+        expect(callArgs.select).toContain('id');
+        expect(callArgs.select).toContain('publicID');
+        expect(callArgs.select).toContain('name');
+        expect(callArgs.select).not.toContain('createdAt');
+        expect(callArgs.select).not.toContain('updatedAt');
+        expect(callArgs.select).not.toContain('products');
       });
     });
 
-    it('should call find with correct parameters for page 0', async () => {
-      await repository.findAll(0);
-
-      expect(categoryRepository.find).toHaveBeenCalledWith({
-        select: [
-          'publicID',
-          'name',
-          'slug',
-          'active',
-          'createdAt',
-          'updatedAt',
-        ],
-        where: { id: And(MoreThanOrEqual(0), LessThan(25)) },
-        order: { id: 'ASC' },
+    describe('with cache', () => {
+      beforeEach(() => {
+        vi.spyOn(
+          cacheCategoryRepository,
+          'getCategories',
+        ).mockResolvedValue([CategoryFactory.createPublicWithID()]);
       });
-    });
 
-    it('should call find with correct parameters for page 2', async () => {
-      await repository.findAll(2);
+      it('should call find with correct parameters for cursor', async () => {
+        await repository.findAll(cursor);
 
-      expect(categoryRepository.find).toHaveBeenCalledWith({
-        select: [
-          'publicID',
-          'name',
-          'slug',
-          'active',
-          'createdAt',
-          'updatedAt',
-        ],
-        where: { id: And(MoreThanOrEqual(50), LessThan(75)) },
-        order: { id: 'ASC' },
+        expect(
+          cacheCategoryRepository.getCategories,
+        ).toHaveBeenCalledWith(cursor);
       });
-    });
 
-    it('should return categories when found', async () => {
-      const result = await repository.findAll(page);
+      it('should call find with cursor is 0 when cursor is null', async () => {
+        await repository.findAll(null);
 
-      expect(result).toEqual(mockCategories);
-    });
+        expect(
+          cacheCategoryRepository.getCategories,
+        ).toHaveBeenCalledWith('0');
+      });
 
-    it('should return empty array when no categories found', async () => {
-      vi.spyOn(categoryRepository, 'find').mockResolvedValue([]);
+      it('should return categories when found and categories length is not 25', async () => {
+        const result = await repository.findAll(cursor);
 
-      const result = await repository.findAll(page);
+        expect(result).toEqual([[CategoryFactory.createPublic()], null]);
+      });
 
-      expect(result).toEqual([]);
-    });
+      it('should return categories when found and categories length is 25', async () => {
+        const mockCategories = Array(25)
+          .fill(0)
+          .map((_, index) => {
+            return CategoryFactory.createPublicWithID({
+              id: index,
+              name: `fashion-${index}`,
+            });
+          });
 
-    it('should select only specific fields excluding id and products', async () => {
-      await repository.findAll(page);
+        vi.spyOn(
+          cacheCategoryRepository,
+          'getCategories',
+        ).mockResolvedValue(mockCategories);
 
-      const callArgs = (categoryRepository.find as any).mock.calls[0][0];
+        const categoriesWithoutID = Array(25)
+          .fill(0)
+          .map((_, index) => {
+            return CategoryFactory.createPublic({
+              name: `fashion-${index}`,
+            });
+          });
+        vi.spyOn(categoryRepository, 'find').mockResolvedValue(
+          mockCategories as any,
+        );
 
-      expect(callArgs.select).toEqual([
-        'publicID',
-        'name',
-        'slug',
-        'active',
-        'createdAt',
-        'updatedAt',
-      ]);
-      expect(callArgs.select).not.toContain('id');
-      expect(callArgs.select).not.toContain('products');
-    });
+        const result = await repository.findAll(cursor);
 
-    it('should order by id in ascending order', async () => {
-      await repository.findAll(page);
-
-      const callArgs = (categoryRepository.find as any).mock.calls[0][0];
-
-      expect(callArgs.order).toEqual({ id: 'ASC' });
+        expect(result).toEqual([categoriesWithoutID, '24']);
+      });
     });
   });
 
@@ -262,7 +277,6 @@ describe('TypeOrmCategoryRepository', () => {
     const categoryUpdate = {
       publicID: IDConstants.EXEMPLE,
       name: 'Updated Name',
-      slug: 'updated-slug',
     };
 
     beforeEach(() => {
@@ -278,7 +292,7 @@ describe('TypeOrmCategoryRepository', () => {
 
       expect(categoryRepository.update).toHaveBeenCalledWith(
         { publicID: IDConstants.EXEMPLE },
-        { name: 'Updated Name', slug: 'updated-slug' },
+        { name: 'Updated Name' },
       );
     });
 
@@ -331,7 +345,6 @@ describe('TypeOrmCategoryRepository', () => {
 
       expect(callArgs).not.toHaveProperty('publicID');
       expect(callArgs).toHaveProperty('name');
-      expect(callArgs).toHaveProperty('slug');
     });
 
     it('should handle partial updates with only name', async () => {
@@ -345,20 +358,6 @@ describe('TypeOrmCategoryRepository', () => {
       expect(categoryRepository.update).toHaveBeenCalledWith(
         { publicID: IDConstants.EXEMPLE },
         { name: 'Only Name' },
-      );
-    });
-
-    it('should handle partial updates with only slug', async () => {
-      const partialUpdate = {
-        publicID: IDConstants.EXEMPLE,
-        slug: 'only-slug',
-      };
-
-      await repository.update(partialUpdate);
-
-      expect(categoryRepository.update).toHaveBeenCalledWith(
-        { publicID: IDConstants.EXEMPLE },
-        { slug: 'only-slug' },
       );
     });
 
@@ -380,7 +379,6 @@ describe('TypeOrmCategoryRepository', () => {
       const fullUpdate = {
         publicID: IDConstants.EXEMPLE,
         name: 'Full Update',
-        slug: 'full-update',
         active: false,
       };
 
@@ -388,7 +386,7 @@ describe('TypeOrmCategoryRepository', () => {
 
       expect(categoryRepository.update).toHaveBeenCalledWith(
         { publicID: IDConstants.EXEMPLE },
-        { name: 'Full Update', slug: 'full-update', active: false },
+        { name: 'Full Update', active: false },
       );
     });
 
@@ -524,74 +522,6 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.delete('non-existent-id');
 
       expect(result).toBe(false);
-    });
-  });
-
-  describe('exists', () => {
-    const slug = CategorySlugConstants.EXEMPLE;
-
-    beforeEach(() => {
-      vi.spyOn(categoryRepository, 'exists').mockResolvedValue(true);
-    });
-
-    it('should call exists with correct parameters', async () => {
-      await repository.exists(slug);
-
-      expect(categoryRepository.exists).toHaveBeenCalledWith({
-        where: { slug },
-      });
-    });
-
-    it('should return true when category exists', async () => {
-      const result = await repository.exists(slug);
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false when category does not exist', async () => {
-      vi.spyOn(categoryRepository, 'exists').mockResolvedValue(false);
-
-      const result = await repository.exists('non-existent-slug');
-
-      expect(result).toBe(false);
-    });
-
-    it('should verify where clause contains only slug', async () => {
-      await repository.exists(slug);
-
-      const callArgs = (categoryRepository.exists as any).mock.calls[0][0];
-
-      expect(callArgs.where).toHaveProperty('slug', slug);
-      expect(Object.keys(callArgs.where)).toHaveLength(1);
-    });
-
-    it('should check multiple slugs', async () => {
-      const slugs = ['electronics', 'fashion', 'home-decor'];
-
-      vi.spyOn(categoryRepository, 'exists')
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-
-      const results = await Promise.all(
-        slugs.map((slug) => repository.exists(slug)),
-      );
-
-      expect(results).toEqual([true, false, true]);
-      expect(categoryRepository.exists).toHaveBeenCalledTimes(3);
-    });
-
-    it('should handle duplicate slug checks', async () => {
-      vi.spyOn(categoryRepository, 'exists')
-        .mockResolvedValueOnce(false)
-        .mockResolvedValueOnce(true);
-
-      const firstCheck = await repository.exists(slug);
-      const secondCheck = await repository.exists(slug);
-
-      expect(firstCheck).toBe(false);
-      expect(secondCheck).toBe(true);
-      expect(categoryRepository.exists).toHaveBeenCalledTimes(2);
     });
   });
 });

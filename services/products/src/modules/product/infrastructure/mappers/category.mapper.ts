@@ -11,7 +11,6 @@ export default class CategoryMapper {
     return new CategoryEntity({
       publicID: v7(),
       name: dto.name,
-      slug: dto.slug,
       active: dto.active,
     });
   }
@@ -26,10 +25,6 @@ export default class CategoryMapper {
       partial.name = dto.name;
     }
 
-    if (dto.slug !== undefined) {
-      partial.slug = dto.slug;
-    }
-
     if (dto.active !== undefined) {
       partial.active = dto.active;
     }
@@ -42,7 +37,6 @@ export default class CategoryMapper {
     return {
       publicID: entity.publicID,
       name: entity.name,
-      slug: entity.slug,
       active: entity.active,
     };
   }

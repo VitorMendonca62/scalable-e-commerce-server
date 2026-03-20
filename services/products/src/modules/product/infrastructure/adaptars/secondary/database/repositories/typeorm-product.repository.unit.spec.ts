@@ -104,7 +104,6 @@ describe('TypeOrmProductRepository', () => {
 
     const mockProduct: ProductModel = ProductFactory.createModel();
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { id, categoryID, active, ...mockProductWithoutSameFields } =
       mockProduct;
 
@@ -146,7 +145,6 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith([
         'category.publicID',
         'category.name',
-        'category.slug',
       ]);
       expect((repository as any).addRatingSelect).toHaveBeenCalledWith(
         mockQueryBuilder,
@@ -240,8 +238,7 @@ describe('TypeOrmProductRepository', () => {
       expect(result).toHaveProperty('isFavorited');
     });
 
-    it('should return category product with publicID, name and slug', async () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    it('should return category product with publicID, name', async () => {
       const { id, active, createdAt, updatedAt, products, ...category } =
         mockProductWithoutSameFields.category;
 
@@ -260,7 +257,6 @@ describe('TypeOrmProductRepository', () => {
       expect(result.category).not.toHaveProperty('products');
       expect(result.category).toHaveProperty('publicID');
       expect(result.category).toHaveProperty('name');
-      expect(result.category).toHaveProperty('slug');
     });
 
     it('should return products with all properties except id, active,categoryOD', async () => {
@@ -588,7 +584,6 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.addSelect).toHaveBeenCalledWith([
         'category.publicID',
         'category.name',
-        'category.slug',
       ]);
       expect(mockQueryBuilder.getRawAndEntities).toHaveBeenCalled();
     });

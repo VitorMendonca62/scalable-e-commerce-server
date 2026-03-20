@@ -1,6 +1,6 @@
 import CategoryEntity from '@product/domain/entities/category.entity';
+import { PublicCategory } from '@product/domain/types/category';
 import CategoryNameConstants from '@product/domain/values-objects/category/name/name.constants';
-import CategorySlugConstants from '@product/domain/values-objects/category/slug/slug.constants';
 import {
   IDConstants,
   ActiveConstants,
@@ -14,7 +14,6 @@ export class CategoryFactory {
     return new CategoryEntity({
       publicID: IDConstants.EXEMPLE,
       name: CategoryNameConstants.EXEMPLE,
-      slug: CategorySlugConstants.EXEMPLE,
       active: ActiveConstants.EXEMPLE,
       ...overrides,
     });
@@ -25,10 +24,28 @@ export class CategoryFactory {
     model.id = 1;
     model.publicID = IDConstants.EXEMPLE;
     model.name = CategoryNameConstants.EXEMPLE;
-    model.slug = CategorySlugConstants.EXEMPLE;
     model.active = true;
     model.createdAt = new Date();
     model.updatedAt = new Date();
+
+    return Object.assign(model, overrides);
+  }
+  static createPublic(overrides?: Partial<PublicCategory>): PublicCategory {
+    const model: PublicCategory = {
+      publicID: IDConstants.EXEMPLE,
+      name: CategoryNameConstants.EXEMPLE,
+    };
+    return Object.assign(model, overrides);
+  }
+
+  static createPublicWithID(
+    overrides?: Partial<PublicCategory & { id: number }>,
+  ): PublicCategory & { id: number } {
+    const model: PublicCategory & { id: number } = {
+      publicID: IDConstants.EXEMPLE,
+      name: CategoryNameConstants.EXEMPLE,
+      id: 1,
+    };
 
     return Object.assign(model, overrides);
   }
@@ -44,9 +61,6 @@ export class CategoryDTOFactory {
     if (undefinedField !== 'name')
       dto.name = overrides?.name ?? CategoryNameConstants.EXEMPLE;
 
-    if (undefinedField !== 'slug')
-      dto.slug = overrides?.slug ?? CategorySlugConstants.EXEMPLE;
-
     if (undefinedField !== 'active') dto.active = overrides?.active ?? true;
 
     return dto;
@@ -58,7 +72,6 @@ export class CategoryDTOFactory {
     const dto = new UpdateCategoryDTO();
 
     if (overrides?.name !== undefined) dto.name = overrides.name;
-    if (overrides?.slug !== undefined) dto.slug = overrides.slug;
     if (overrides?.active !== undefined) dto.active = overrides.active;
 
     return dto;

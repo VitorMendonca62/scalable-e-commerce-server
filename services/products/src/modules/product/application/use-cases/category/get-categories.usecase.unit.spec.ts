@@ -21,39 +21,43 @@ describe('GetCategoriesUseCase', () => {
   });
 
   describe('getAll', () => {
-    const page = 1;
+    const cursor = '123';
+    const nextCursor = '1234';
     const categories = [
       CategoryFactory.createModel(),
       CategoryFactory.createModel({ name: 'Fashion' }),
     ];
 
     beforeEach(() => {
-      vi.spyOn(categoryRepository, 'findAll').mockResolvedValue(categories);
+      vi.spyOn(categoryRepository, 'findAll').mockResolvedValue([
+        categories,
+        nextCursor,
+      ]);
     });
 
     it('should call findAll with page', async () => {
-      await useCase.getAll(page);
+      await useCase.getAll(cursor);
 
-      expect(categoryRepository.findAll).toHaveBeenCalledWith(page);
+      expect(categoryRepository.findAll).toHaveBeenCalledWith(cursor);
     });
 
     it('should return ok with categories on success', async () => {
-      const result = await useCase.getAll(page);
+      const result = await useCase.getAll(cursor);
 
       expect(result).toEqual({
         ok: true,
-        result: categories,
+        result: [categories, nextCursor],
       });
     });
 
     it('should return empty array when no categories exist', async () => {
-      vi.spyOn(categoryRepository, 'findAll').mockResolvedValue([]);
+      vi.spyOn(categoryRepository, 'findAll').mockResolvedValue([[], null]);
 
-      const result = await useCase.getAll(page);
+      const result = await useCase.getAll(cursor);
 
       expect(result).toEqual({
         ok: true,
-        result: [],
+        result: [[], null],
       });
     });
 
@@ -62,7 +66,7 @@ describe('GetCategoriesUseCase', () => {
         new Error('Database error'),
       );
 
-      const result = await useCase.getAll(page);
+      const result = await useCase.getAll(cursor);
 
       expect(result).toEqual({
         ok: false,

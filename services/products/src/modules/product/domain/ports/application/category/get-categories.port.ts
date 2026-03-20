@@ -6,7 +6,7 @@ type ExecuteResultReasons = ApplicationResultReasons.NOT_POSSIBLE;
 export type ExecuteReturn =
   | {
       ok: true;
-      result: PublicCategory[];
+      result: [PublicCategory[], string | null];
     }
   | {
       ok: false;
@@ -15,5 +15,5 @@ export type ExecuteReturn =
     };
 
 export interface GetCategoriesPort {
-  getAll: (page: number) => Promise<ExecuteReturn>;
+  getAll: (cursor: string | null) => Promise<ExecuteReturn>;
 }

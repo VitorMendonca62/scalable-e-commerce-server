@@ -13,6 +13,8 @@ import ProductFavoriteModel from '@product/infrastructure/adaptars/secondary/dat
 import CartModel from '@product/infrastructure/adaptars/secondary/database/models/cart.model';
 import CategoryModel from '@product/infrastructure/adaptars/secondary/database/models/categories.model';
 import ProductRatingModel from '@product/infrastructure/adaptars/secondary/database/models/rating.model';
+import { RedisModule } from '@nestjs-modules/ioredis';
+import { configRedisdDB } from '@config/database/redis.config';
 
 @Module({
   imports: [
@@ -24,6 +26,12 @@ import ProductRatingModel from '@product/infrastructure/adaptars/secondary/datab
     MailerModule.forRootAsync({
       useFactory: (configService: ConfigService<EnvironmentVariables>) => {
         return configNodeMailer(configService);
+      },
+      inject: [ConfigService],
+    }),
+    RedisModule.forRootAsync({
+      useFactory: (configService: ConfigService<EnvironmentVariables>) => {
+        return configRedisdDB(configService);
       },
       inject: [ConfigService],
     }),

@@ -25,7 +25,6 @@ import { FastifyReply } from 'fastify';
 import CreateCategoryDTO from '../dtos/create-category.dto';
 import UpdateCategoryDTO from '../dtos/update-category.dto';
 import CreateCategoryUseCase from '@product/application/use-cases/category/create-category.usecase';
-import GetCategoryUseCase from '@product/application/use-cases/category/get-category.usecase';
 import DeleteCategoryUseCase from '@product/application/use-cases/category/delete-category.usecase';
 import GetCategoriesUseCase from '@product/application/use-cases/category/get-categories.usecase';
 import UpdateCategoryUseCase from '@product/application/use-cases/category/update-category.usecase';
@@ -35,7 +34,6 @@ import CategoryMapper from '@product/infrastructure/mappers/category.mapper';
 export default class CategoryController {
   constructor(
     private readonly createCategoryUseCase: CreateCategoryUseCase,
-    private readonly getCategoryUseCase: GetCategoryUseCase,
     private readonly getCategoriesUseCase: GetCategoriesUseCase,
     private readonly updateCategoryUseCase: UpdateCategoryUseCase,
     private readonly deleteCategoryUseCase: DeleteCategoryUseCase,
@@ -67,45 +65,23 @@ export default class CategoryController {
 
   @Get()
   async getAll(
-    @Query('page') page: number,
     @Res({ passthrough: true }) response: FastifyReply,
+    @Query('cursor') cursor?: string,
   ) {
-    const useCaseResult = await this.getCategoriesUseCase.getAll(page);
+    const useCaseResult = await this.getCategoriesUseCase.getAll(cursor);
 
     if (useCaseResult.ok === false) {
       response.status(HttpStatus.INTERNAL_SERVER_ERROR);
       return new NotPossible(useCaseResult.message);
     }
 
-    response.status(HttpStatus.OK);
-    return new HttpOKResponse(
-      'Categorias encontradas com sucesso',
-      useCaseResult.result,
-    );
-  }
-
-  @Get('/slug/:slug')
-  async getBySlug(
-    @Param('slug') slug: string,
-    @Res({ passthrough: true }) response: FastifyReply,
-  ) {
-    const useCaseResult = await this.getCategoryUseCase.getBySlug(slug);
-
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_FOUND) {
-        response.status(HttpStatus.NOT_FOUND);
-        return new NotFoundItem(useCaseResult.message);
-      }
-
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(useCaseResult.message);
-    }
+    const [categories, lastSeenID] = useCaseResult.result;
 
     response.status(HttpStatus.OK);
-    return new HttpOKResponse(
-      'Categoria encontrada com sucesso',
-      useCaseResult.result,
-    );
+    return new HttpOKResponse('Categorias encontradas com sucesso', {
+      categories,
+      nextCursor: lastSeenID,
+    });
   }
 
   @Patch('/:id')
@@ -130,11 +106,6 @@ export default class CategoryController {
       if (useCaseResult.reason === ApplicationResultReasons.NOT_FOUND) {
         response.status(HttpStatus.NOT_FOUND);
         return new NotFoundItem(useCaseResult.message);
-      }
-
-      if (useCaseResult.reason === ApplicationResultReasons.ALREADY_EXISTS) {
-        response.status(HttpStatus.CONFLICT);
-        return new AlreadyExists(useCaseResult.message);
       }
 
       response.status(HttpStatus.INTERNAL_SERVER_ERROR);

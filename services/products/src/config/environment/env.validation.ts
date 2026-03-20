@@ -74,4 +74,12 @@ export class EnvironmentVariables {
   @IsString({ message: 'POSTGRES_DB must be a string.' })
   @IsNotEmpty({ message: 'POSTGRES_DB cannot be empty.' })
   POSTGRES_DB: string;
+
+  @IsString({ message: 'REDIS_HOST must be a string.' })
+  @IsNotEmpty({ message: 'REDIS_HOST cannot be empty.' })
+  REDIS_HOST: string;
+
+  @IsString({ message: 'REDIS_PASSWORD must be a string.' })
+  @IsNotEmpty({ message: 'REDIS_PASSWORD cannot be empty.' })
+  REDIS_PASSWORD: string;
 }

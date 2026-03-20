@@ -1,6 +1,19 @@
 import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import { ProductFilters } from '../application/product/get-products.port';
 
+type NoPublicFields = 'id' | 'active' | 'categoryID';
+
+export interface GetOneReturn extends Omit<ProductModel, NoPublicFields> {
+  isFavorited: boolean;
+  rating: number;
+}
+
+export interface FindWithFiltersReturn extends Omit<
+  ProductModel,
+  NoPublicFields | 'description'
+> {
+  rating: number;
+}
 export default abstract class ProductRepository {
   abstract add(
     newProduct: Omit<
@@ -12,13 +25,11 @@ export default abstract class ProductRepository {
   abstract getOne(
     publicID: string,
     userID: string,
-  ): Promise<
-    (Omit<ProductModel, 'id'> & { isFavorited: boolean; rating: number }) | null
-  >;
+  ): Promise<GetOneReturn | null>;
 
   abstract findWithFilters(
     filters: ProductFilters,
-  ): Promise<(ProductModel & { rating: number })[]>;
+  ): Promise<FindWithFiltersReturn[]>;
 
   abstract update(
     productID: string,

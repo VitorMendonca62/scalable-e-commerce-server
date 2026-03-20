@@ -3,9 +3,7 @@ import { PublicCategory } from '@product/domain/types/category';
 
 export abstract class CategoryRepository {
   abstract create(category: PublicCategory): Promise<void>;
-  abstract findBySlug(slug: string): Promise<PublicCategory | null>;
-  abstract findAll(page: number): Promise<PublicCategory[]>;
+  abstract findAll(cursor?: string | null): Promise<[PublicCategory[], string]>;
   abstract update(updates: Partial<CategoryEntity>): Promise<boolean>;
   abstract delete(id: string): Promise<boolean>;
-  abstract exists(slug: string): Promise<boolean>;
 }

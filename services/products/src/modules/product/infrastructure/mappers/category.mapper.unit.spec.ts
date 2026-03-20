@@ -34,7 +34,6 @@ describe('CategoryMapper', () => {
       expect(entity).toBeInstanceOf(CategoryEntity);
       expect(typeof entity.publicID).toBe('string');
       expect(typeof entity.name).toBe('string');
-      expect(typeof entity.slug).toBe('string');
       expect(typeof entity.active).toBe('boolean');
     });
 
@@ -42,7 +41,6 @@ describe('CategoryMapper', () => {
       const entity = mapper.createDTOToEntity(dto);
 
       expect(entity.name).toBe(dto.name);
-      expect(entity.slug).toBe(dto.slug);
       expect(entity.active).toBe(dto.active);
     });
 
@@ -55,14 +53,12 @@ describe('CategoryMapper', () => {
     it('should map all fields correctly', () => {
       const customDTO = CategoryDTOFactory.createCategoryDTOLikeInstance({
         name: 'Custom Category',
-        slug: 'custom-category',
         active: false,
       });
 
       const entity = mapper.createDTOToEntity(customDTO);
 
       expect(entity.name).toBe('Custom Category');
-      expect(entity.slug).toBe('custom-category');
       expect(entity.active).toBe(false);
     });
 
@@ -95,12 +91,10 @@ describe('CategoryMapper', () => {
 
       expect(model.publicID).toBe(categoryEntity.publicID);
       expect(model.name).toBe(categoryEntity.name);
-      expect(model.slug).toBe(categoryEntity.slug);
       expect(model.active).toBe(categoryEntity.active);
       expect(model).toEqual({
         publicID: categoryEntity.publicID,
         name: categoryEntity.name,
-        slug: categoryEntity.slug,
         active: categoryEntity.active,
       });
     });
@@ -119,7 +113,6 @@ describe('CategoryMapper', () => {
 
       expect(model).toHaveProperty('publicID');
       expect(model).toHaveProperty('name');
-      expect(model).toHaveProperty('slug');
       expect(model).toHaveProperty('active');
     });
 
@@ -150,7 +143,6 @@ describe('CategoryMapper', () => {
     it('should convert UpdateCategoryDTO with all fields to partial entity', () => {
       const dto = CategoryDTOFactory.createUpdateCategoryDTO({
         name: 'Updated Name',
-        slug: 'updated-slug',
         active: false,
       });
 
@@ -159,7 +151,6 @@ describe('CategoryMapper', () => {
       expect(result).toEqual({
         publicID: categoryID,
         name: 'Updated Name',
-        slug: 'updated-slug',
         active: false,
       });
     });
@@ -183,20 +174,6 @@ describe('CategoryMapper', () => {
       expect(result).toEqual({
         publicID: categoryID,
         name: 'Only Name',
-      });
-      expect(Object.keys(result)).toHaveLength(2);
-    });
-
-    it('should only include slug when only slug is provided', () => {
-      const dto = CategoryDTOFactory.createUpdateCategoryDTO({
-        slug: 'only-slug',
-      });
-
-      const result = mapper.updateDTOToEntityPartial(categoryID, dto);
-
-      expect(result).toEqual({
-        publicID: categoryID,
-        slug: 'only-slug',
       });
       expect(Object.keys(result)).toHaveLength(2);
     });
@@ -229,7 +206,6 @@ describe('CategoryMapper', () => {
     it('should include multiple fields when multiple fields are provided', () => {
       const dto = CategoryDTOFactory.createUpdateCategoryDTO({
         name: 'New Name',
-        slug: 'new-slug',
         active: true,
       });
 
@@ -238,10 +214,9 @@ describe('CategoryMapper', () => {
       expect(result).toEqual({
         publicID: categoryID,
         name: 'New Name',
-        slug: 'new-slug',
         active: true,
       });
-      expect(Object.keys(result)).toHaveLength(4);
+      expect(Object.keys(result)).toHaveLength(3);
     });
 
     it('should handle active false value', () => {

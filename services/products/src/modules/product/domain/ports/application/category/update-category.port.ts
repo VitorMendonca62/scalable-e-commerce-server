@@ -3,8 +3,7 @@ import { ApplicationResultReasons } from '@product/domain/enums/application-resu
 
 type ExecuteResultReasons =
   | ApplicationResultReasons.NOT_POSSIBLE
-  | ApplicationResultReasons.NOT_FOUND
-  | ApplicationResultReasons.ALREADY_EXISTS;
+  | ApplicationResultReasons.NOT_FOUND;
 
 export type ExecuteReturn =
   | {

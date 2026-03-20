@@ -1,4 +1,7 @@
-import ProductRepository from '@product/domain/ports/secondary/product-repository.port';
+import ProductRepository, {
+  FindWithFiltersReturn,
+  GetOneReturn,
+} from '@product/domain/ports/secondary/product-repository.port';
 import ProductModel from '../models/product.model';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -23,7 +26,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
   async findWithFilters(
     filters: ProductFilters,
-  ): Promise<(ProductModel & { rating: number })[]> {
+  ): Promise<FindWithFiltersReturn[]> {
     const whereFilters: FindOptionsWhere<ProductModel> = { active: true };
 
     if (filters.categoryID !== undefined) {
@@ -69,7 +72,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     query
       .leftJoin('product.category', 'category')
-      .addSelect(['category.publicID', 'category.name', 'category.slug']);
+      .addSelect(['category.publicID', 'category.name']);
 
     const result = await query.getRawAndEntities();
 
@@ -79,12 +82,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
     }));
   }
 
-  async getOne(
-    publicID: string,
-    userID: string,
-  ): Promise<
-    (Omit<ProductModel, 'id'> & { isFavorited: boolean; rating: number }) | null
-  > {
+  async getOne(publicID: string, userID: string): Promise<GetOneReturn | null> {
     let query = this.productRepository
       .createQueryBuilder('product')
       .select([
@@ -109,7 +107,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     query
       .leftJoin('product.category', 'category')
-      .addSelect(['category.publicID', 'category.name', 'category.slug']);
+      .addSelect(['category.publicID', 'category.name']);
 
     query = this.addRatingSelect(query);
     query = this.addFavoritedSelect(query, userID);

@@ -14,20 +14,9 @@ export default class CreateCategoryUseCase implements CreateCategoryPort {
 
   async execute(category: CategoryEntity): Promise<ExecuteReturn> {
     try {
-      const exists = await this.categoryRepository.exists(category.slug);
-
-      if (exists) {
-        return {
-          ok: false,
-          message: 'Já existe uma categoria com este slug',
-          reason: ApplicationResultReasons.ALREADY_EXISTS,
-        };
-      }
-
       const newCategory = {
         publicID: v7(),
         name: category.name,
-        slug: category.slug,
         active: category.active,
       };
 

@@ -10,13 +10,14 @@ import { CategoryRepository } from '@product/domain/ports/secondary/category-rep
 export default class GetCategoriesUseCase implements GetCategoriesPort {
   constructor(private readonly categoryRepository: CategoryRepository) {}
 
-  async getAll(page: number): Promise<ExecuteReturn> {
+  async getAll(cursor?: string): Promise<ExecuteReturn> {
     try {
-      const categories = await this.categoryRepository.findAll(page);
+      const [categories, nextCursor] =
+        await this.categoryRepository.findAll(cursor);
 
       return {
         ok: true,
-        result: categories,
+        result: [categories, nextCursor],
       };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (_) {

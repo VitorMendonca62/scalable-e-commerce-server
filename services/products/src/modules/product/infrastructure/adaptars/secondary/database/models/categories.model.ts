@@ -19,9 +19,6 @@ export default class CategoryModel {
   @Column({ type: 'varchar', length: 100, nullable: false, unique: true })
   name: string;
 
-  @Column({ type: 'varchar', length: 150, nullable: false, unique: true })
-  slug: string;
-
   @Column({ type: 'boolean', default: true })
   active: boolean;
 

@@ -13,18 +13,6 @@ export default class UpdateCategoryUseCase implements UpdateCategoryPort {
 
   async execute(category: Partial<CategoryEntity>): Promise<ExecuteReturn> {
     try {
-      if (category.slug) {
-        const exists = await this.categoryRepository.exists(category.slug);
-
-        if (exists) {
-          return {
-            ok: false,
-            message: 'Já existe uma categoria com este slug',
-            reason: ApplicationResultReasons.ALREADY_EXISTS,
-          };
-        }
-      }
-
       const updated = await this.categoryRepository.update(category);
 
       if (!updated) {

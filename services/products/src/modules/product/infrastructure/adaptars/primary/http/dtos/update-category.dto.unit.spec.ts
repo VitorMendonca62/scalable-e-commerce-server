@@ -1,4 +1,3 @@
-import CategorySlugConstants from '@product/domain/values-objects/category/slug/slug.constants';
 import { ValidationObjectFactory } from '@product/infrastructure/helpers/dto-helper';
 import { CategoryDTOFactory } from '@product/infrastructure/helpers/factories/category-factory';
 
@@ -21,27 +20,24 @@ describe('UpdateCategoryDTO', () => {
     expect(errors).toHaveLength(0);
   });
 
-  it('should success validation when only slug is provided', async () => {
+  it('should success validation when only active is provided', async () => {
     const errors = await ValidationObjectFactory.validateObject(
       CategoryDTOFactory.createUpdateCategoryDTO({
-        slug: 'nova-categoria',
+        active: false,
       }),
     );
 
     expect(errors).toHaveLength(0);
   });
 
-  it('should return error when slug format is invalid', async () => {
+  it('should success validation when all fields is provided', async () => {
     const errors = await ValidationObjectFactory.validateObject(
       CategoryDTOFactory.createUpdateCategoryDTO({
-        slug: CategorySlugConstants.ERROR_INVALID_FORMAT_EXEMPLE,
+        name: 'Nova Categoria',
+        active: true,
       }),
     );
 
-    expect(errors.length).toBeGreaterThan(0);
-    const fieldError = errors.find((err) => err.property === 'slug');
-    expect(fieldError?.constraints?.matches).toBe(
-      CategorySlugConstants.ERROR_INVALID_FORMAT,
-    );
+    expect(errors).toHaveLength(0);
   });
 });
