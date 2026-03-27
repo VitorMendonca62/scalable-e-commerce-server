@@ -11,6 +11,8 @@ export interface ProductFilters {
   price?: { min: number | undefined; max: number | undefined };
   stock?: { min: number | undefined; max: number | undefined };
   payments?: PaymentTypes[];
+  cursor?: number;
+  limit?: number;
 }
 
 type ExecuteResultReasons =

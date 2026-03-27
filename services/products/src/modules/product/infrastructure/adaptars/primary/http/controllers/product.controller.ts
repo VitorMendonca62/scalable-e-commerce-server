@@ -146,6 +146,8 @@ export default class ProductController {
     @Query('price') price: `${number}-${number}` | undefined,
     @Query('payments') payments: string | undefined,
     @Query('stock') stock: `${number}-${number}` | undefined,
+    @Query('cursor') cursor: string | undefined,
+    @Query('limit') limit: string | undefined,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
     const filters: ProductFilters = {};
@@ -182,6 +184,12 @@ export default class ProductController {
       return new NotPossible(
         'Adicione algum filtro para que possa filtrar produtos',
       );
+    }
+
+    const limitNumber = Math.min(Number(limit ?? 25), 100);
+    filters.limit = limitNumber;
+    if (cursor !== undefined) {
+      filters.cursor = Math.max(0, Number(cursor));
     }
 
     const useCaseResult = await this.getProductsUseCase.getByFilter(filters);

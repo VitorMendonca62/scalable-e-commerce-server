@@ -6,6 +6,7 @@ import {
   ArrayContains,
   In,
   LessThanOrEqual,
+  MoreThan,
   MoreThanOrEqual,
   Repository,
 } from 'typeorm';
@@ -517,6 +518,7 @@ describe('TypeOrmProductRepository', () => {
       ProductFactory.createModel(),
       ProductFactory.createModel({ title: 'Product 2' }),
     ];
+    const defaultPagination = { take: 25, order: { id: 'ASC' } };
 
     const mockQueryBuilder = {
       setFindOptions: vi.fn(),
@@ -547,6 +549,8 @@ describe('TypeOrmProductRepository', () => {
         stock: { min: 10, max: 100 },
         payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
         categoryID: ['electronics'],
+        cursor: 0,
+        limit: 25,
       };
 
       await repository.findWithFilters(filters);
@@ -558,6 +562,7 @@ describe('TypeOrmProductRepository', () => {
         where: {
           categoryID: In(['electronics']),
           active: true,
+          id: MoreThan(0),
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
@@ -575,6 +580,7 @@ describe('TypeOrmProductRepository', () => {
           'createdAt',
           'updatedAt',
         ],
+        ...defaultPagination,
       });
 
       expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith(
@@ -591,6 +597,8 @@ describe('TypeOrmProductRepository', () => {
     it('should filter by price range', async () => {
       const filters: ProductFilters = {
         price: { min: 1000, max: 5000 },
+        cursor: 0,
+        limit: 25,
       };
 
       await repository.findWithFilters(filters);
@@ -598,6 +606,7 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
         where: {
           active: true,
+          id: MoreThan(0),
           price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
         },
         select: [
@@ -613,12 +622,15 @@ describe('TypeOrmProductRepository', () => {
           'createdAt',
           'updatedAt',
         ],
+        ...defaultPagination,
       });
     });
 
     it('should filter by stock range', async () => {
       const filters: ProductFilters = {
         stock: { min: 10, max: 100 },
+        cursor: 0,
+        limit: 25,
       };
 
       await repository.findWithFilters(filters);
@@ -626,6 +638,7 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
         where: {
           active: true,
+          id: MoreThan(0),
           stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
         },
         select: [
@@ -641,12 +654,15 @@ describe('TypeOrmProductRepository', () => {
           'createdAt',
           'updatedAt',
         ],
+        ...defaultPagination,
       });
     });
 
     it('should filter by payments array', async () => {
       const filters: ProductFilters = {
         payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+        cursor: 0,
+        limit: 25,
       };
 
       await repository.findWithFilters(filters);
@@ -654,6 +670,7 @@ describe('TypeOrmProductRepository', () => {
       expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
         where: {
           active: true,
+          id: MoreThan(0),
           payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
         },
         select: [
@@ -669,12 +686,15 @@ describe('TypeOrmProductRepository', () => {
           'createdAt',
           'updatedAt',
         ],
+        ...defaultPagination,
       });
     });
 
     it('should filter by category array', async () => {
       const filters: ProductFilters = {
         categoryID: ['electronics'],
+        cursor: 0,
+        limit: 25,
       };
 
       await repository.findWithFilters(filters);
@@ -683,6 +703,7 @@ describe('TypeOrmProductRepository', () => {
         where: {
           active: true,
           categoryID: In(['electronics']),
+          id: MoreThan(0),
         },
         select: [
           'publicID',
@@ -697,6 +718,38 @@ describe('TypeOrmProductRepository', () => {
           'createdAt',
           'updatedAt',
         ],
+        ...defaultPagination,
+      });
+    });
+
+    it('should apply pagination with max limit 100', async () => {
+      const filters: ProductFilters = {
+        cursor: 25,
+        limit: 100,
+      };
+
+      await repository.findWithFilters(filters);
+
+      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
+        where: {
+          active: true,
+          id: MoreThan(25),
+        },
+        select: [
+          'publicID',
+          'title',
+          'price',
+          'overview',
+          'photos',
+          'payments',
+          'stock',
+          'owner',
+          'category',
+          'createdAt',
+          'updatedAt',
+        ],
+        order: { id: 'ASC' },
+        take: 100,
       });
     });
 

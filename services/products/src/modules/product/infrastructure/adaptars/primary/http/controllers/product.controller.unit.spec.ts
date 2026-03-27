@@ -401,6 +401,7 @@ describe('ProductController', () => {
       ProductFactory.createModel(),
       ProductFactory.createModel({ title: 'Product 2' }),
     ];
+    const defaultPagination = { limit: 25 };
 
     beforeEach(() => {
       vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
@@ -420,6 +421,8 @@ describe('ProductController', () => {
         price,
         payments,
         stock,
+        undefined,
+        undefined,
         response,
       );
 
@@ -428,6 +431,48 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix', 'credit_card'],
+        ...defaultPagination,
+      });
+    });
+
+    it('should apply pagination and cap limit to 100', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-100',
+        '25',
+        '200',
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        categoryID: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+        cursor: 25,
+        limit: 100,
+      });
+    });
+
+    it('should not set cursor when query is undefined', async () => {
+      await controller.getProductsByFilter(
+        'electronics',
+        '1000-5000',
+        'pix',
+        '10-100',
+        undefined,
+        undefined,
+        response,
+      );
+
+      expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
+        categoryID: ['electronics'],
+        price: { min: 1000, max: 5000 },
+        stock: { min: 10, max: 100 },
+        payments: ['pix'],
+        limit: 25,
       });
     });
 
@@ -437,6 +482,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -455,6 +502,8 @@ describe('ProductController', () => {
         '1000-' as any,
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -463,6 +512,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: PriceConstants.MAX_VALUE },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -472,6 +522,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '10-' as any,
+        undefined,
+        undefined,
         response,
       );
 
@@ -480,6 +532,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -489,6 +542,8 @@ describe('ProductController', () => {
         '-111' as any,
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -497,6 +552,7 @@ describe('ProductController', () => {
         price: { min: 0, max: 111 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -506,6 +562,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '-10' as any,
+        undefined,
+        undefined,
         response,
       );
 
@@ -514,6 +572,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 0, max: 10 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -523,6 +582,8 @@ describe('ProductController', () => {
         '-1000' as any,
         'pix',
         '-10' as any,
+        undefined,
+        undefined,
         response,
       );
 
@@ -531,6 +592,7 @@ describe('ProductController', () => {
         price: { min: 0, max: 1000 },
         stock: { min: 0, max: 10 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -540,6 +602,8 @@ describe('ProductController', () => {
         '1000-' as any,
         'pix',
         '10-' as any,
+        undefined,
+        undefined,
         response,
       );
 
@@ -548,6 +612,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: PriceConstants.MAX_VALUE },
         stock: { min: 10, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -557,6 +622,8 @@ describe('ProductController', () => {
         '-' as any,
         'pix',
         '-' as any,
+        undefined,
+        undefined,
         response,
       );
 
@@ -565,6 +632,7 @@ describe('ProductController', () => {
         price: { min: 0, max: PriceConstants.MAX_VALUE },
         stock: { min: 0, max: StockConstants.MAX_VALUE },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -574,6 +642,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -582,6 +652,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -591,6 +662,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix,credit_card,debit_card,boleto',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -599,6 +672,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix', 'credit_card', 'debit_card', 'boleto'],
+        ...defaultPagination,
       });
     });
 
@@ -608,6 +682,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -616,6 +692,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -625,6 +702,8 @@ describe('ProductController', () => {
         '0-1000',
         'pix',
         '0-50',
+        undefined,
+        undefined,
         response,
       );
 
@@ -633,6 +712,7 @@ describe('ProductController', () => {
         price: { min: 0, max: 1000 },
         stock: { min: 0, max: 50 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -642,6 +722,8 @@ describe('ProductController', () => {
         '100000-999999',
         'pix',
         '1000-10000',
+        undefined,
+        undefined,
         response,
       );
 
@@ -650,6 +732,7 @@ describe('ProductController', () => {
         price: { min: 100000, max: 999999 },
         stock: { min: 1000, max: 10000 },
         payments: ['pix'],
+        ...defaultPagination,
       });
     });
 
@@ -665,6 +748,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -689,6 +774,8 @@ describe('ProductController', () => {
           '1000-5000',
           'pix',
           '10-100',
+          undefined,
+          undefined,
           response,
         );
         expect.fail('Should have thrown an error');
@@ -704,6 +791,8 @@ describe('ProductController', () => {
         '5000-10000',
         'pix',
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
@@ -720,6 +809,8 @@ describe('ProductController', () => {
         '1000-5000',
         'pix',
         '50-200',
+        undefined,
+        undefined,
         response,
       );
 
@@ -741,6 +832,8 @@ describe('ProductController', () => {
         '1000000-2000000',
         'pix',
         '1000-2000',
+        undefined,
+        undefined,
         response,
       );
 
@@ -757,11 +850,14 @@ describe('ProductController', () => {
         undefined,
         undefined,
         undefined,
+        undefined,
+        undefined,
         response,
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
         categoryID: ['electronics'],
+        ...defaultPagination,
       });
     });
 
@@ -771,11 +867,14 @@ describe('ProductController', () => {
         '1000-5000',
         undefined,
         undefined,
+        undefined,
+        undefined,
         response,
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
         price: { min: 1000, max: 5000 },
+        ...defaultPagination,
       });
     });
 
@@ -785,11 +884,14 @@ describe('ProductController', () => {
         undefined,
         'pix,credit_card',
         undefined,
+        undefined,
+        undefined,
         response,
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
         payments: ['pix', 'credit_card'],
+        ...defaultPagination,
       });
     });
 
@@ -799,16 +901,21 @@ describe('ProductController', () => {
         undefined,
         undefined,
         '10-100',
+        undefined,
+        undefined,
         response,
       );
 
       expect(getProductsUseCase.getByFilter).toHaveBeenCalledWith({
         stock: { min: 10, max: 100 },
+        ...defaultPagination,
       });
     });
 
     it('should send empty filters object when all params are undefined', async () => {
       const result = await controller.getProductsByFilter(
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -830,6 +937,8 @@ describe('ProductController', () => {
     it('should return products when filtering with partial filters', async () => {
       const result = await controller.getProductsByFilter(
         'electronics',
+        undefined,
+        undefined,
         undefined,
         undefined,
         undefined,
@@ -856,6 +965,8 @@ describe('ProductController', () => {
         undefined,
         undefined,
         '10000-20000',
+        undefined,
+        undefined,
         response,
       );
 

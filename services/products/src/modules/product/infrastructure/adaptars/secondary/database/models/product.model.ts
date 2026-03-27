@@ -13,7 +13,7 @@ import CategoryModel from './categories.model';
 @Entity('products')
 export default class ProductModel {
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id: number;
 
   @Column({ type: 'uuid', nullable: false, name: 'public_id', unique: true })
   publicID: string;

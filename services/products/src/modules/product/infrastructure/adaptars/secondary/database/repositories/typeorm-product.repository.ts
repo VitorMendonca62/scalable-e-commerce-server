@@ -9,6 +9,7 @@ import {
   And,
   FindOptionsWhere,
   LessThanOrEqual,
+  MoreThan,
   MoreThanOrEqual,
   Repository,
   SelectQueryBuilder,
@@ -28,6 +29,8 @@ export default class TypeOrmProductRepository implements ProductRepository {
     filters: ProductFilters,
   ): Promise<FindWithFiltersReturn[]> {
     const whereFilters: FindOptionsWhere<ProductModel> = { active: true };
+    const limit = filters.limit;
+    const cursor = filters.cursor;
 
     if (filters.categoryID !== undefined) {
       whereFilters.categoryID = In(filters.categoryID);
@@ -51,6 +54,8 @@ export default class TypeOrmProductRepository implements ProductRepository {
       whereFilters.payments = ArrayContains(filters.payments);
     }
 
+    whereFilters.id = MoreThan(cursor);
+
     const query = this.addRatingSelect(
       this.productRepository.createQueryBuilder('product').setFindOptions({
         where: whereFilters,
@@ -67,6 +72,8 @@ export default class TypeOrmProductRepository implements ProductRepository {
           'createdAt',
           'updatedAt',
         ],
+        order: { id: 'ASC' },
+        take: limit,
       }),
     );
 
