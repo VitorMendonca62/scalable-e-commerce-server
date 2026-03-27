@@ -11,6 +11,7 @@ describe('RedisCacheCategoryRepository', () => {
     set: ReturnType<typeof vi.fn>;
     sadd: ReturnType<typeof vi.fn>;
     srem: ReturnType<typeof vi.fn>;
+    del: ReturnType<typeof vi.fn>;
     expire: ReturnType<typeof vi.fn>;
     exec: ReturnType<typeof vi.fn>;
   };
@@ -21,6 +22,7 @@ describe('RedisCacheCategoryRepository', () => {
       set: vi.fn().mockReturnThis(),
       sadd: vi.fn().mockReturnThis(),
       srem: vi.fn().mockReturnThis(),
+      del: vi.fn().mockReturnThis(),
       expire: vi.fn().mockReturnThis(),
       exec: vi.fn(),
     };
@@ -66,6 +68,15 @@ describe('RedisCacheCategoryRepository', () => {
       expect(redis.smembers).toHaveBeenCalledWith('category-cursor:10');
       expect(pipeline.get).toHaveBeenCalledTimes(2);
       expect(result).toEqual([second, first]);
+    });
+
+    it('should return empty array when marker is present', async () => {
+      vi.spyOn(redis, 'smembers').mockResolvedValue(['__empty__'] as any);
+
+      const result = await repository.getCategories('0');
+
+      expect(redis.smembers).toHaveBeenCalledWith('category-cursor:0');
+      expect(result).toEqual([]);
     });
 
     it('should ignore null results from pipeline', async () => {
@@ -135,6 +146,22 @@ describe('RedisCacheCategoryRepository', () => {
 
       expect(pipeline.exec).toHaveBeenCalledTimes(1);
     });
+
+    it('should cache empty page marker when categories is empty', async () => {
+      await repository.add('0', []);
+
+      expect(redis.pipeline).toHaveBeenCalledTimes(1);
+      expect(pipeline.sadd).toHaveBeenCalledWith(
+        'category-cursor:0',
+        '__empty__',
+      );
+      expect(pipeline.set).not.toHaveBeenCalled();
+      expect(pipeline.expire).toHaveBeenCalledWith(
+        'category-cursor:0',
+        CacheTime.categorySeconds,
+      );
+      expect(pipeline.exec).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('removeByPublicID', () => {
@@ -172,6 +199,32 @@ describe('RedisCacheCategoryRepository', () => {
       expect(redis.del).toHaveBeenCalledWith('category:public-2');
       expect(redis.scan).toHaveBeenCalledTimes(1);
       expect(pipeline.srem).not.toHaveBeenCalled();
+      expect(pipeline.exec).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('invalidateAll', () => {
+    it('should delete all category keys', async () => {
+      vi.spyOn(redis, 'scan')
+        .mockResolvedValueOnce(['1', ['category:1', 'category-cursor:0']] as any)
+        .mockResolvedValueOnce(['0', []] as any);
+      vi.spyOn(pipeline, 'exec').mockResolvedValue([] as any);
+
+      await repository.invalidateAll();
+
+      expect(redis.scan).toHaveBeenCalledTimes(2);
+      expect(pipeline.del).toHaveBeenCalledWith('category:1');
+      expect(pipeline.del).toHaveBeenCalledWith('category-cursor:0');
+      expect(pipeline.exec).toHaveBeenCalledTimes(1);
+    });
+
+    it('should skip pipeline when no keys found', async () => {
+      vi.spyOn(redis, 'scan').mockResolvedValueOnce(['0', []] as any);
+
+      await repository.invalidateAll();
+
+      expect(redis.scan).toHaveBeenCalledTimes(1);
+      expect(pipeline.del).not.toHaveBeenCalled();
       expect(pipeline.exec).not.toHaveBeenCalled();
     });
   });

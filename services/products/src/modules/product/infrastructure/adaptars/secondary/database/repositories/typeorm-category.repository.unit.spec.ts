@@ -25,6 +25,7 @@ describe('TypeOrmCategoryRepository', () => {
       getCategories: vi.fn(),
       add: vi.fn(),
       removeByPublicID: vi.fn(),
+      invalidateAll: vi.fn(),
     };
 
     repository = new TypeOrmCategoryRepository(
@@ -62,6 +63,7 @@ describe('TypeOrmCategoryRepository', () => {
       await repository.create(mockCategory);
 
       expect(categoryRepository.save).toHaveBeenCalledTimes(1);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return void', async () => {
@@ -103,6 +105,7 @@ describe('TypeOrmCategoryRepository', () => {
       await repository.create(inactiveCategory);
 
       expect(categoryRepository.save).toHaveBeenCalledWith(inactiveCategory);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -295,6 +298,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.update(categoryUpdate);
 
       expect(result).toBe(true);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return true when affected is greater than 1', async () => {
@@ -307,6 +311,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.update(categoryUpdate);
 
       expect(result).toBe(true);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when category is not found (affected = 0)', async () => {
@@ -319,6 +324,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.update(categoryUpdate);
 
       expect(result).toBe(false);
+      expect(cacheCategoryRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should return false when affected is undefined', async () => {
@@ -331,6 +337,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.update(categoryUpdate);
 
       expect(result).toBe(false);
+      expect(cacheCategoryRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should exclude publicID from updates', async () => {
@@ -441,6 +448,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.delete(publicID);
 
       expect(result).toBe(true);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return true when affected is greater than 1', async () => {
@@ -452,6 +460,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.delete(publicID);
 
       expect(result).toBe(true);
+      expect(cacheCategoryRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when category does not exist (affected = 0)', async () => {
@@ -463,6 +472,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.delete(publicID);
 
       expect(result).toBe(false);
+      expect(cacheCategoryRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should return false when affected is undefined', async () => {
@@ -474,6 +484,7 @@ describe('TypeOrmCategoryRepository', () => {
       const result = await repository.delete(publicID);
 
       expect(result).toBe(false);
+      expect(cacheCategoryRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should verify delete uses publicID as key', async () => {

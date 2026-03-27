@@ -33,7 +33,6 @@ import TypeOrmCartRepository from './infrastructure/adaptars/secondary/database/
 import TypeOrmRatingRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-rating.repository';
 import { FavoriteController } from './infrastructure/adaptars/primary/http/controllers/favorite.controller';
 import CreateCategoryUseCase from './application/use-cases/category/create-category.usecase';
-import GetCategoryUseCase from './application/use-cases/category/get-category.usecase';
 import GetCategoriesUseCase from './application/use-cases/category/get-categories.usecase';
 import UpdateCategoryUseCase from './application/use-cases/category/update-category.usecase';
 import DeleteCategoryUseCase from './application/use-cases/category/delete-category.usecase';
@@ -43,6 +42,8 @@ import CategoryModel from './infrastructure/adaptars/secondary/database/models/c
 import CategoryController from './infrastructure/adaptars/primary/http/controllers/category.controller';
 import CategoryMapper from './infrastructure/mappers/category.mapper';
 import RatingRepository from './domain/ports/secondary/rating-repository.port';
+import { CacheCategoryRepository } from './domain/ports/secondary/cache-category-repository.port';
+import RedisCacheCategoryRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-category.repository';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -68,7 +69,6 @@ import RatingRepository from './domain/ports/secondary/rating-repository.port';
     CreateCartUseCase,
     CreateCategoryUseCase,
     GetProductUseCase,
-    GetCategoryUseCase,
     GetCartUseCase,
     GetProductsUseCase,
     GetCartsUseCase,
@@ -105,6 +105,10 @@ import RatingRepository from './domain/ports/secondary/rating-repository.port';
     {
       provide: EmailSender,
       useClass: NodemailerEmailSender,
+    },
+    {
+      provide: CacheCategoryRepository,
+      useClass: RedisCacheCategoryRepository,
     },
   ],
 })

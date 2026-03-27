@@ -10,11 +10,12 @@ export const configRedisdDB = (
 ): RedisSingleOptions => {
   const host = configService.get('REDIS_HOST');
   const password = configService.get('REDIS_PASSWORD');
+  const port = configService.get('REDIS_PORT');
 
   return {
     type: 'single' as const,
     options: {
-      port: 6379,
+      port,
       host,
       password,
       connectionName: 'auth-service',

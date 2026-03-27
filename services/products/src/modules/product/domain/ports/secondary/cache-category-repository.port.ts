@@ -13,4 +13,6 @@ export abstract class CacheCategoryRepository {
   ): Promise<void>;
 
   abstract removeByPublicID(id: string): Promise<void>;
+
+  abstract invalidateAll(): Promise<void>;
 }

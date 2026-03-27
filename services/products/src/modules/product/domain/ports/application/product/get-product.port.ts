@@ -1,5 +1,5 @@
-import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
+import { GetOneReturn } from '../../secondary/product-repository.port';
 
 export interface GetProductPort {
   getByID: (productID: string, userID: string) => Promise<ExecuteReturn>;
@@ -12,10 +12,7 @@ type ExecuteResultReasons =
 export type ExecuteReturn =
   | {
       ok: true;
-      result: Omit<
-        ProductModel & { isFavorited: boolean; rating: number },
-        'id'
-      >;
+      result: GetOneReturn;
     }
   | {
       ok: false;

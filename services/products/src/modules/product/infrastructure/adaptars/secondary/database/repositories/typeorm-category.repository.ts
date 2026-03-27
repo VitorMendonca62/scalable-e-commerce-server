@@ -25,6 +25,7 @@ export default class TypeOrmCategoryRepository implements CategoryRepository {
     >,
   ): Promise<void> {
     await this.categoryRepository.save(category);
+    await this.cacheCategoryRepository.invalidateAll();
   }
 
   async findAll(cursor?: string): Promise<[PublicCategory[], string]> {
@@ -80,7 +81,7 @@ export default class TypeOrmCategoryRepository implements CategoryRepository {
 
     if (!wasUpdated) return false;
 
-    await this.cacheCategoryRepository.removeByPublicID(publicID);
+    await this.cacheCategoryRepository.invalidateAll();
 
     return true;
   }
@@ -89,7 +90,7 @@ export default class TypeOrmCategoryRepository implements CategoryRepository {
     const resultDelete = await this.categoryRepository.delete({ publicID });
     const result = (resultDelete.affected ?? 0) >= 1;
 
-    if (result) await this.cacheCategoryRepository.removeByPublicID(publicID);
+    if (result) await this.cacheCategoryRepository.invalidateAll();
 
     return result;
   }

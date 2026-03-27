@@ -31,8 +31,8 @@ export default defineConfig({
         'src/config/database/**/*.ts'
       ],
     },
-    isolate: false,
-    maxConcurrency: 10,
+    // isolate: false,
+    // maxConcurrency: 10,
     alias: {
       '@modules': path.resolve(__dirname, './src/modules'),
       '@product': path.resolve(__dirname, './src/modules/product'),

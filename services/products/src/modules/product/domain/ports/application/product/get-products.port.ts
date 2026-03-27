@@ -1,6 +1,6 @@
-import ProductModel from '@product/infrastructure/adaptars/secondary/database/models/product.model';
 import { ApplicationResultReasons } from '../../../enums/application-result-reasons';
 import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
+import { FindWithFiltersReturn } from '../../secondary/product-repository.port';
 
 export interface GetProductsPort {
   getByFilter: (filters: ProductFilters) => Promise<ExecuteReturn>;
@@ -20,7 +20,7 @@ type ExecuteResultReasons =
 export type ExecuteReturn =
   | {
       ok: true;
-      result: Omit<ProductModel[], 'id'>;
+      result: FindWithFiltersReturn[];
     }
   | {
       ok: false;

@@ -1,5 +1,6 @@
 volumes:
   postgres_data:
+  redis_data:
     driver: local
 
 networks:
@@ -21,26 +22,26 @@ services:
       - postgres_data:/data/db
     networks:
       - api-net
-  api:
-    container_name: scalable-e-commerce-products-api
-    build: .
-    ports:
-      - "$PORT:$PORT"
-    depends_on:
-      - database
-    restart: always
-    networks:
-      - api-net
-    develop:
-      watch:
-        - action: rebuild
-          path: .
+  # api:
+  #   container_name: scalable-e-commerce-products-api
+  #   build: .
+  #   ports:
+  #     - "$PORT:$PORT"
+  #   depends_on:
+  #     - database
+  #   restart: always
+  #   networks:
+  #     - api-net
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: .
   redis:
       image: redis:7.2
       container_name: redis-products
       restart: always
       ports:
-        - "6381:6379"
+        - "${REDIS_PORT}:6379"
       command: redis-server --requirepass ${REDIS_PASSWORD} --save 60 1
       volumes:
         - redis_data:/data

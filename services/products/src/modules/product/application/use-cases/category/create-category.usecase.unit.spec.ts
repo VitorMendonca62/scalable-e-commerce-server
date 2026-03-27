@@ -32,10 +32,6 @@ describe('CreateCategoryUseCase', () => {
       vi.spyOn(categoryRepository, 'create').mockResolvedValue(undefined);
     });
 
-    it('should check if slug already exists', async () => {
-      await useCase.execute(categoryEntity);
-    });
-
     it('should call create with mapped category data', async () => {
       await useCase.execute(categoryEntity);
 
