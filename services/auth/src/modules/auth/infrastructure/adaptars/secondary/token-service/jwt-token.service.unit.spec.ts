@@ -11,6 +11,7 @@ vi.mock('uuid', () => {
 import { v7 } from 'uuid';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { UserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 
 describe('JwtTokenService', () => {
   let service: JwtTokenService;
@@ -62,7 +63,7 @@ describe('JwtTokenService', () => {
 
       expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
-        expiresIn: '7D',
+        expiresIn: TokenExpirationConstants.REFRESH_TOKEN_SECONDS,
         keyid: authKeyID,
       });
     });
@@ -101,7 +102,7 @@ describe('JwtTokenService', () => {
 
       expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
-        expiresIn: '1h',
+        expiresIn: TokenExpirationConstants.ACCESS_TOKEN_SECONDS,
         keyid: authKeyID,
       });
     });
@@ -136,7 +137,7 @@ describe('JwtTokenService', () => {
 
       expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
       expect(jwtService.sign).toHaveBeenCalledWith(playload, {
-        expiresIn: '10m',
+        expiresIn: TokenExpirationConstants.RESET_PASS_TOKEN_SECONDS,
         privateKey: mockPrivateKey,
         keyid: resetPassKeyID,
       });

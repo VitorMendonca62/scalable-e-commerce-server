@@ -23,7 +23,7 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
   ) {}
 
   async sendCode(email: string): Promise<SendCodeReturn> {
-    const OTPCode = otpGenerator.generate(6, {
+    const otpCode = otpGenerator.generate(6, {
       upperCaseAlphabets: true,
       specialChars: false,
       digits: true,
@@ -36,16 +36,15 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
       'Seu Código de recuperação',
       'forgot-password-email',
       {
-        code: OTPCode,
+        code: otpCode,
       },
     );
 
-    const expiresIn =
-      new Date().getTime() + TokenExpirationConstants.RESET_PASS_TOKEN_MS;
+    const expiresIn = Date.now() + TokenExpirationConstants.RESET_PASS_TOKEN_MS;
 
     await this.emailCodeRepository.save({
       email,
-      code: OTPCode,
+      code: otpCode,
       expiresIn: new Date(expiresIn),
     });
 
@@ -56,19 +55,21 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
 
   async validateCode(code: string, email: string): Promise<ValidateCodeReturn> {
     const emailCode = await this.emailCodeRepository.findOne({ code, email });
+    const invalidMessage =
+      'Código de recuperação inválido ou expirado. Tente novamente';
 
     if (emailCode === undefined || emailCode === null)
       return {
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
-        message: 'Código de recuperação inválido ou expirado. Tente novamente',
+        message: invalidMessage,
       };
 
     if (emailCode.expiresIn < new Date())
       return {
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
-        message: 'Código de recuperação inválido ou expirado. Tente novamente',
+        message: invalidMessage,
       };
 
     await this.emailCodeRepository.deleteMany(email);

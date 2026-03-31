@@ -22,14 +22,11 @@ import {
   HttpNoContentResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
-import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 import RevocationGuard from './guards/revocation.guard';
 import { GoogleOAuthGuard } from './guards/google-oauth.guard';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import {
   CreateSessionUseCase,
@@ -38,6 +35,8 @@ import {
 } from '@auth/application/use-cases/use-cases';
 import { LoginUserDTO } from './dtos/dtos';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import QueueService from '../../secondary/message-broker/queue.service';
+import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -47,9 +46,8 @@ export class AuthController {
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
     private readonly finishSessionUseCase: FinishSessionUseCase,
-    private readonly cookieService: CookieService,
     private readonly configService: ConfigService<EnvironmentVariables>,
-    private readonly usersQueueService: UsersQueueService,
+    private readonly queueService: QueueService,
   ) {}
 
   @Get('google')
@@ -64,7 +62,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  async googleAuthRedirect(
+  async googleAuth(
     @Req() request: FastifyRequest & { user: UserGoogleInCallBack },
     @Res({ passthrough: true }) response: FastifyReply,
     @Ip() ip: string,
@@ -83,37 +81,24 @@ export class AuthController {
     const { newUser, tokens } = useCaseResult.result;
 
     if (newUser != undefined) {
-      this.usersQueueService.send(
-        'user-create-google',
-        {
-          userID: newUser.userID,
-          name: user.name,
-          username: user.username,
-          email: newUser.email,
-          roles: newUser.roles,
-          createdAt: newUser.createdAt,
-          updatedAt: newUser.updatedAt,
-        },
-        true,
-      );
+      this.queueService.sendUserCreatedWithGoogle({
+        userID: newUser.userID,
+        name: user.name,
+        username: user.username,
+        email: user.email,
+        roles: newUser.roles,
+        createdAt: newUser.createdAt,
+        updatedAt: newUser.updatedAt,
+      });
     }
 
     const { accessToken, refreshToken } = tokens;
 
-    this.cookieService.setCookie(
-      Cookies.RefreshToken,
-      refreshToken,
-      TokenExpirationConstants.REFRESH_TOKEN_MS,
-      response,
-    );
-    this.cookieService.setCookie(
-      Cookies.AccessToken,
-      accessToken,
-      TokenExpirationConstants.ACCESS_TOKEN_MS,
-      response,
-    );
-
-    return new HttpCreatedResponse('Usuário realizou login com sucesso');
+    response.status(HttpStatus.CREATED);
+    return new HttpCreatedResponse('Usuário realizou login com sucesso', {
+      [Cookies.RefreshToken]: refreshToken,
+      [Cookies.AccessToken]: accessToken,
+    });
   }
 
   @Post('/login')
@@ -135,21 +120,11 @@ export class AuthController {
 
     const { accessToken, refreshToken } = useCaseResult.result;
 
-    this.cookieService.setCookie(
-      Cookies.RefreshToken,
-      refreshToken,
-      TokenExpirationConstants.REFRESH_TOKEN_MS,
-      response,
-    );
-    this.cookieService.setCookie(
-      Cookies.AccessToken,
-      accessToken,
-      TokenExpirationConstants.ACCESS_TOKEN_MS,
-      response,
-    );
-
     response.status(HttpStatus.CREATED);
-    return new HttpCreatedResponse('Usuário realizou login com sucesso');
+    return new HttpCreatedResponse('Usuário realizou login com sucesso', {
+      [Cookies.RefreshToken]: refreshToken,
+      [Cookies.AccessToken]: accessToken,
+    });
   }
 
   @Get('/token')
@@ -170,15 +145,10 @@ export class AuthController {
       return new WrongCredentials(useCaseResult.message);
     }
 
-    this.cookieService.setCookie(
-      Cookies.AccessToken,
-      useCaseResult.result,
-      TokenExpirationConstants.ACCESS_TOKEN_MS,
-      response,
-    );
-
     response.status(HttpStatus.OK);
-    return new HttpOKResponse('Seu token de acesso foi renovado');
+    return new HttpOKResponse('Seu token de acesso foi renovado', {
+      [Cookies.AccessToken]: useCaseResult.result,
+    });
   }
 
   @Post('/logout')
@@ -190,8 +160,6 @@ export class AuthController {
     @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
     await this.finishSessionUseCase.execute(tokenID, userID);
-    response.clearCookie(Cookies.RefreshToken, { signed: true });
-    response.clearCookie(Cookies.AccessToken, { signed: true });
 
     response.status(HttpStatus.NO_CONTENT);
     return new HttpNoContentResponse();

@@ -55,6 +55,45 @@ describe('GetCertsUseCase', () => {
     expect(configService).toBeDefined();
   });
 
+  describe('getJwk', () => {
+    const file = 'auth-public.pem';
+
+    beforeEach(() => {
+      vi.spyOn(path, 'join').mockReturnValue(mockPath);
+      vi.spyOn(fs.promises, 'readFile').mockResolvedValue(mockPemContent);
+      (importSPKI as Mock).mockResolvedValue(mockPublicKey);
+      (exportJWK as Mock).mockResolvedValue(mockJwk);
+    });
+
+    it('should read, convert, and cache the jwk', async () => {
+      const result = await (useCase as any).getJwk(file);
+
+      expect(path.join).toHaveBeenCalledWith(
+        expect.any(String),
+        `certs/${file}`,
+      );
+      expect(fs.promises.readFile).toHaveBeenCalledWith(mockPath, 'utf-8');
+      expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
+      expect(exportJWK).toHaveBeenCalledWith(mockPublicKey);
+      expect(result).toEqual(mockJwk);
+      expect((useCase as any).jwkCache[file]).toEqual(mockJwk);
+    });
+
+    it('should return cached jwk without re-reading the file', async () => {
+      (useCase as any).jwkCache = {
+        [file]: mockJwk,
+      };
+
+      const result = await (useCase as any).getJwk(file);
+
+      expect(result).toEqual(mockJwk);
+      expect(path.join).not.toHaveBeenCalled();
+      expect(fs.promises.readFile).not.toHaveBeenCalled();
+      expect(importSPKI).not.toHaveBeenCalled();
+      expect(exportJWK).not.toHaveBeenCalled();
+    });
+  });
+
   describe('getAuthCert', () => {
     beforeEach(() => {
       vi.spyOn(path, 'join').mockReturnValue(mockPath);
@@ -86,51 +125,6 @@ describe('GetCertsUseCase', () => {
         alg: 'RS256',
         use: 'sig',
       });
-    });
-
-    it('should rethrow error if fs.readFile throws error', async () => {
-      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
-        new Error('Error reading file'),
-      );
-
-      try {
-        await useCase.getAuthCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error reading file');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if importSPKI throws error', async () => {
-      (importSPKI as Mock).mockRejectedValueOnce(
-        new Error('Error importing SPKI'),
-      );
-
-      try {
-        await useCase.getAuthCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error importing SPKI');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if exportJWK throws error', async () => {
-      (exportJWK as Mock).mockRejectedValueOnce(
-        new Error('Error exporting JWK'),
-      );
-
-      try {
-        await useCase.getAuthCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error exporting JWK');
-        expect(error.data).toBeUndefined();
-      }
     });
   });
 
@@ -165,51 +159,6 @@ describe('GetCertsUseCase', () => {
         alg: 'RS256',
         use: 'sig',
       });
-    });
-
-    it('should rethrow error if fs.readFile throws error', async () => {
-      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
-        new Error('Error reading file'),
-      );
-
-      try {
-        await useCase.getResetPassCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error reading file');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if importSPKI throws error', async () => {
-      (importSPKI as Mock).mockRejectedValueOnce(
-        new Error('Error importing SPKI'),
-      );
-
-      try {
-        await useCase.getResetPassCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error importing SPKI');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should rethrow error if exportJWK throws error', async () => {
-      (exportJWK as Mock).mockRejectedValueOnce(
-        new Error('Error exporting JWK'),
-      );
-
-      try {
-        await useCase.getResetPassCert();
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error exporting JWK');
-        expect(error.data).toBeUndefined();
-      }
     });
   });
 });

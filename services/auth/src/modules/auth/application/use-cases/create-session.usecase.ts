@@ -1,13 +1,10 @@
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
 import { Injectable } from '@nestjs/common';
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
-import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 import { UserLogin } from '../../domain/entities/user-login.entity';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
-import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
-import { v7 } from 'uuid';
 import {
   CreateSesssionPort,
   ExecuteReturn,
@@ -15,6 +12,8 @@ import {
 } from '@auth/domain/ports/application/create-session.port';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import { SessionUser } from '@auth/domain/types/session-user';
+import { ProviderSessionRegistry } from '../strategies/provider-session.registry';
 
 @Injectable()
 export class CreateSessionUseCase implements CreateSesssionPort {
@@ -22,17 +21,16 @@ export class CreateSessionUseCase implements CreateSesssionPort {
     private readonly userRepository: UserRepository,
     private readonly tokenRepository: TokenRepository,
     private readonly tokenService: TokenService,
-    private readonly userMapper: UserMapper,
     private readonly passwordHasher: PasswordHasher,
+    private readonly providerSessionRegistry: ProviderSessionRegistry,
   ) {}
 
   async execute(inputUser: UserLogin): Promise<ExecuteReturn> {
-    const userJSON = await this.userRepository.findOne({
-      email: inputUser.email.getValue(),
-    });
+    const sessionUser = await this.userRepository.findSessionUserByEmail(
+      inputUser.email.getValue(),
+    );
 
-    const passwordToCompare =
-      userJSON === null ? this.getDummyHash() : userJSON.password;
+    const passwordToCompare = sessionUser?.password ?? this.getDummyHash();
 
     const isPasswordValid = await this.passwordHasher.compare(
       inputUser.password.getValue(),
@@ -40,8 +38,8 @@ export class CreateSessionUseCase implements CreateSesssionPort {
     );
 
     if (
-      userJSON === null ||
-      userJSON.password === undefined ||
+      sessionUser === null ||
+      sessionUser.password == null ||
       !isPasswordValid
     ) {
       return {
@@ -54,7 +52,7 @@ export class CreateSessionUseCase implements CreateSesssionPort {
     return {
       ok: true,
       result: await this.generateAccessAndRefreshToken(
-        userJSON,
+        sessionUser,
         inputUser.ip,
         inputUser.userAgent,
       ),
@@ -64,42 +62,24 @@ export class CreateSessionUseCase implements CreateSesssionPort {
   async executeWithGoogle(
     inputUser: UserGoogleLogin,
   ): Promise<ExecuteWithGoogleReturn> {
-    const userModel = await this.userRepository.findOne({
-      email: inputUser.email.getValue(),
-    });
-
-    let newUserModel: UserModel;
-    if (userModel === null || userModel === undefined) {
-      const newUser = this.userMapper.googleEntityForModel(inputUser, v7());
-
-      newUserModel = await this.userRepository.create(newUser);
-    }
-
-    if (
-      newUserModel === undefined &&
-      userModel.accountProvider === AccountsProvider.DEFAULT
-    ) {
-      await this.userRepository.update(userModel.userID, {
-        accountProvider: AccountsProvider.GOOGLE,
-        accountProviderID: inputUser.id,
-      });
-    }
+    const strategy = this.providerSessionRegistry.get(AccountsProvider.GOOGLE);
+    const { baseUser, newUser } = await strategy.execute(inputUser);
 
     return {
       ok: true,
       result: {
         tokens: await this.generateAccessAndRefreshToken(
-          newUserModel || userModel,
+          baseUser,
           inputUser.ip,
           inputUser.userAgent,
         ),
-        newUser: newUserModel,
+        newUser: newUser,
       },
     };
   }
 
   private async generateAccessAndRefreshToken(
-    user: UserModel,
+    user: SessionUser,
     ip: string,
     userAgent: string,
   ) {

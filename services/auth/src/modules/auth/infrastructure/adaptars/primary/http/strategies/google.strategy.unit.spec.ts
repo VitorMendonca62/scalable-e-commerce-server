@@ -3,6 +3,7 @@ import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { ConfigService } from '@nestjs/config';
 import { GoogleStrategy } from './google.strategy';
+import { UserGoogle } from '@auth/domain/types/user-google';
 
 describe('GoogleStrategy', () => {
   let strategy: GoogleStrategy;

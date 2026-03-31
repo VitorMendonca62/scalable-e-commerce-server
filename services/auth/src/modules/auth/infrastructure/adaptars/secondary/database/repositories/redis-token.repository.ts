@@ -13,6 +13,7 @@ export class RedisTokenRepository implements TokenRepository {
     userAgent: string,
   ): Promise<void> {
     const tokenKey = `token:${tokenID}`;
+    const sessionKey = `session:${userID}`;
 
     await this.redis.hset(tokenKey, {
       userID: userID,
@@ -22,7 +23,7 @@ export class RedisTokenRepository implements TokenRepository {
       userAgent: userAgent,
     });
 
-    await this.redis.sadd(`session:${userID}`, tokenKey);
+    await this.redis.sadd(sessionKey, tokenKey);
     await this.redis.expire(
       tokenKey,
       TokenExpirationConstants.REFRESH_TOKEN_SECONDS,

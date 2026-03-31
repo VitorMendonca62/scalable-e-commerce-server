@@ -2,6 +2,7 @@ import { defaultRoles } from '@auth/domain/constants/roles';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
+import { SessionUser } from '@auth/domain/types/session-user';
 import { EmailVO, PasswordVO } from '@auth/domain/values-objects';
 import {
   EmailConstants,
@@ -11,6 +12,7 @@ import {
 import { LoginUserDTO } from '@auth/infrastructure/adaptars/primary/http/dtos/login-user.dto';
 import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
 import { PasswordHasherFactory } from './password-factory';
+import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
 
 export class UserFactory {
   static createModel(
@@ -26,6 +28,20 @@ export class UserFactory {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
+      ...overrides,
+    };
+  }
+
+  static createSessionUser(overrides: Partial<SessionUser> = {}): SessionUser {
+    return {
+      userID: IDConstants.EXEMPLE,
+      email: EmailConstants.EXEMPLE,
+      password: PasswordConstants.EXEMPLE,
+      accountProvider: AccountsProvider.DEFAULT,
+      accountProviderID: null,
+      roles: defaultRoles,
+      createdAt: new Date(),
+      updatedAt: new Date(),
       ...overrides,
     };
   }

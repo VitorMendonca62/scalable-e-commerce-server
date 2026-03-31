@@ -5,6 +5,7 @@ import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { v7 } from 'uuid';
+import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 @Injectable()
 export class JwtTokenService implements TokenService {
   constructor(
@@ -24,7 +25,7 @@ export class JwtTokenService implements TokenService {
     };
     return {
       refreshToken: this.jwtService.sign(payload, {
-        expiresIn: '7D',
+        expiresIn: TokenExpirationConstants.REFRESH_TOKEN_SECONDS,
         keyid: this.configService.get('AUTH_JWT_KEYID'),
       }),
       tokenID: jti,
@@ -43,7 +44,7 @@ export class JwtTokenService implements TokenService {
       type: 'access' as const,
     };
     return this.jwtService.sign(payload, {
-      expiresIn: '1h',
+      expiresIn: TokenExpirationConstants.ACCESS_TOKEN_SECONDS,
       keyid: this.configService.get('AUTH_JWT_KEYID'),
     });
   }
@@ -55,7 +56,7 @@ export class JwtTokenService implements TokenService {
     };
 
     return this.jwtService.sign(payload, {
-      expiresIn: '10m',
+      expiresIn: TokenExpirationConstants.RESET_PASS_TOKEN_SECONDS,
       privateKey: this.resetPassPrivateKey,
       keyid: this.configService.get<string>('RESET_PASS_KEYID'),
     });

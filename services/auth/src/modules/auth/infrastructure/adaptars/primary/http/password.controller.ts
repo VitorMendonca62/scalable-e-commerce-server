@@ -22,9 +22,7 @@ import { ChangePasswordUseCase } from '@auth/application/use-cases/change-passwo
 import { ApiUpdatePassword } from './decorators/docs/api-update-password.decorator';
 import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator';
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
-import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { TokenExpirationConstants } from '@auth/domain/constants/token-expirations';
 import { FastifyReply } from 'fastify';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import {
@@ -40,7 +38,6 @@ export class PasswordController {
   constructor(
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
-    private readonly cookieService: CookieService,
   ) {}
 
   @Post('/send-code')
@@ -73,14 +70,9 @@ export class PasswordController {
       return new FieldInvalid(useCaseResult.message, 'code');
     }
 
-    this.cookieService.setCookie(
-      Cookies.ResetPassToken,
-      useCaseResult.result,
-      TokenExpirationConstants.RESET_PASS_TOKEN_MS,
-      response,
-    );
     return new HttpOKResponse(
       'Seu código de recuperação de senha foi validado com sucesso.',
+      { [Cookies.ResetPassToken]: useCaseResult.result },
     );
   }
 
@@ -88,7 +80,7 @@ export class PasswordController {
   @ApiResetPassword()
   async resetPassword(
     @Body() dto: ResetPasswordDTO,
-    @Res() response: FastifyReply,
+    @Res({ passthrough: true }) response: FastifyReply,
     @Headers('x-user-email') email: string,
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.changePasswordUseCase.executeReset(
@@ -101,9 +93,8 @@ export class PasswordController {
       return new WrongCredentials(useCaseResult.message);
     }
 
-    response
-      .status(HttpStatus.SEE_OTHER)
-      .redirect('https://github.com/VitorMendonca62'); // Login
+    response.status(HttpStatus.OK);
+    return new HttpOKResponse('Senha atualizada com sucesso'); // Login
   }
 
   @Patch('/')

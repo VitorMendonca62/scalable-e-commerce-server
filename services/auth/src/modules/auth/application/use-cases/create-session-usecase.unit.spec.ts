@@ -1,7 +1,3 @@
-vi.mock('uuid', () => {
-  return { v7: vi.fn() };
-});
-
 import {
   GoogleUserFactory,
   LoginUserFactory,
@@ -11,41 +7,35 @@ import IDConstants from '@auth/domain/values-objects/id/id-constants';
 
 import { TokenService } from '@auth/domain/ports/secondary/token-service.port';
 import { UserRepository } from '@auth/domain/ports/secondary/user-repository.port';
-import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
 
 import { CreateSessionUseCase } from './create-session.usecase';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { AccountsProvider } from '@auth/domain/types/accounts-provider';
-import { v7 } from 'uuid';
-
-import { type Mock } from 'vitest';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import { ProviderSessionRegistry } from '../strategies/provider-session.registry';
+import { ProviderSessionStrategy } from '../strategies/provider-session.strategy';
 
 describe('CreateSessionUseCase', () => {
   let useCase: CreateSessionUseCase;
 
   let userRepository: UserRepository;
   let tokenService: TokenService;
-  let userMapper: UserMapper;
   let tokenRepository: TokenRepository;
   let passwordHasher: PasswordHasher;
+  let providerSessionRegistry: ProviderSessionRegistry;
+  let providerSessionStrategy: ProviderSessionStrategy;
 
   beforeEach(async () => {
     userRepository = {
-      findOne: vi.fn(),
-      create: vi.fn(),
-      update: vi.fn(),
+      findSessionUserByEmail: vi.fn(),
+      createGoogleUser: vi.fn(),
+      updateAccountProvider: vi.fn(),
     } as any;
 
     tokenService = {
       generateAccessToken: vi.fn(),
       generateRefreshToken: vi.fn(),
-    } as any;
-
-    userMapper = {
-      modelToEntity: vi.fn(),
-      googleEntityForModel: vi.fn(),
     } as any;
 
     tokenRepository = {
@@ -56,16 +46,25 @@ describe('CreateSessionUseCase', () => {
       compare: vi.fn(),
     } as any;
 
+    providerSessionStrategy = {
+      provider: AccountsProvider.GOOGLE,
+      execute: vi.fn(),
+    } as any;
+
+    providerSessionRegistry = {
+      get: vi.fn().mockReturnValue(providerSessionStrategy),
+    } as any;
+
     useCase = new CreateSessionUseCase(
       userRepository,
       tokenRepository,
       tokenService,
-      userMapper,
       passwordHasher,
+      providerSessionRegistry,
     );
   });
 
-  const userModel = UserFactory.createModel();
+  const sessionUser = UserFactory.createSessionUser();
 
   const generateAccessAndRefreshTokenResult = {
     accessToken: 'TOKEN',
@@ -77,7 +76,6 @@ describe('CreateSessionUseCase', () => {
     expect(userRepository).toBeDefined();
     expect(tokenRepository).toBeDefined();
     expect(tokenService).toBeDefined();
-    expect(userMapper).toBeDefined();
     expect(passwordHasher).toBeDefined();
   });
 
@@ -85,7 +83,9 @@ describe('CreateSessionUseCase', () => {
     const loginUserEntity = LoginUserFactory.createEntity();
 
     beforeEach(() => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(userModel);
+      vi.spyOn(userRepository, 'findSessionUserByEmail').mockResolvedValue(
+        sessionUser,
+      );
       vi.spyOn(passwordHasher, 'compare').mockResolvedValue(true);
 
       vi.spyOn(
@@ -97,19 +97,19 @@ describe('CreateSessionUseCase', () => {
     it('should use case call functions with correct parameters', async () => {
       await useCase.execute(loginUserEntity);
 
-      expect(userRepository.findOne).toHaveBeenCalledWith({
-        email: loginUserEntity.email.getValue(),
-      });
+      expect(userRepository.findSessionUserByEmail).toHaveBeenCalledWith(
+        loginUserEntity.email.getValue(),
+      );
 
       expect(passwordHasher.compare).toHaveBeenCalledWith(
         loginUserEntity.password.getValue(),
-        userModel.password,
+        sessionUser.password,
       );
 
       expect(
         (useCase as any).generateAccessAndRefreshToken,
       ).toHaveBeenCalledWith(
-        userModel,
+        sessionUser,
         loginUserEntity.ip,
         loginUserEntity.userAgent,
       );
@@ -125,7 +125,9 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should return WRONG_CREDENTIALS reason and ok false  when user does not exists', async () => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(null);
+      vi.spyOn(userRepository, 'findSessionUserByEmail').mockResolvedValue(
+        null,
+      );
 
       const result = await useCase.execute(loginUserEntity);
       expect(result).toEqual({
@@ -147,8 +149,8 @@ describe('CreateSessionUseCase', () => {
     });
 
     it('should return WrongCredentials reason and ok is false if password is undefined', async () => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue({
-        ...userModel,
+      vi.spyOn(userRepository, 'findSessionUserByEmail').mockResolvedValue({
+        ...sessionUser,
         password: undefined,
       });
 
@@ -162,109 +164,32 @@ describe('CreateSessionUseCase', () => {
   });
 
   describe('executeWithGoogle', () => {
-    const googleUserModel = UserFactory.createModel();
-    const defautlUserModel = UserFactory.createModel();
+    const googleSessionUser = UserFactory.createSessionUser();
     const userGoogleLogin = GoogleUserFactory.createEntity();
 
     beforeEach(() => {
-      vi.spyOn(userRepository, 'findOne').mockResolvedValue(defautlUserModel);
-      vi.spyOn(userRepository, 'create').mockResolvedValue(undefined);
-      vi.spyOn(userRepository, 'update').mockResolvedValue(undefined);
-      vi.spyOn(userMapper, 'googleEntityForModel').mockReturnValue(
-        googleUserModel,
-      );
+      vi.spyOn(providerSessionStrategy, 'execute').mockResolvedValue({
+        baseUser: googleSessionUser,
+        newUser: undefined,
+      });
 
       vi.spyOn(
         useCase as any,
         'generateAccessAndRefreshToken',
       ).mockResolvedValue(generateAccessAndRefreshTokenResult);
-
-      (v7 as Mock).mockReturnValue(IDConstants.EXEMPLE);
     });
 
-    describe('is not new user', () => {
-      it('should use case call functions with correct parameters', async () => {
-        await useCase.executeWithGoogle(userGoogleLogin);
+    it('should resolve provider strategy and return tokens', async () => {
+      const result = await useCase.executeWithGoogle(userGoogleLogin);
 
-        expect(userRepository.findOne).toHaveBeenCalledWith({
-          email: userGoogleLogin.email.getValue(),
-        });
-
-        expect(userRepository.update).toHaveBeenCalledWith(userModel.userID, {
-          accountProvider: AccountsProvider.GOOGLE,
-          accountProviderID: userGoogleLogin.id,
-        });
-
-        expect(
-          (useCase as any).generateAccessAndRefreshToken,
-        ).toHaveBeenCalledWith(
-          userModel,
-          userGoogleLogin.ip,
-          userGoogleLogin.userAgent,
-        );
-      });
-
-      it('should no call userRepository.update when account provider not is default', async () => {
-        vi.spyOn(userRepository, 'findOne').mockResolvedValue({
-          ...defautlUserModel,
-          accountProvider: AccountsProvider.GOOGLE,
-          accountProviderID: `google-${IDConstants.EXEMPLE}`,
-        });
-
-        await useCase.executeWithGoogle(userGoogleLogin);
-
-        expect(userRepository.update).not.toHaveBeenCalledWith();
-      });
-
-      it('should return accessToken and refreshToken in result and newUser undefined', async () => {
-        const result = await useCase.executeWithGoogle(userGoogleLogin);
-
-        expect(result.result.tokens).toEqual(
-          generateAccessAndRefreshTokenResult,
-        );
-        expect(result.result.newUser).toBeUndefined();
-      });
-    });
-
-    describe('is new user', () => {
-      beforeEach(() => {
-        vi.spyOn(userRepository, 'findOne').mockResolvedValue(undefined);
-        vi.spyOn(userRepository, 'create').mockResolvedValue(googleUserModel);
-      });
-
-      it('should use case call functions with correct parameters', async () => {
-        await useCase.executeWithGoogle(userGoogleLogin);
-
-        expect(userRepository.findOne).toHaveBeenCalledWith({
-          email: userGoogleLogin.email.getValue(),
-        });
-
-        expect(userMapper.googleEntityForModel).toHaveBeenCalledWith(
-          userGoogleLogin,
-          IDConstants.EXEMPLE,
-        );
-
-        expect(userRepository.create).toHaveBeenCalledWith(googleUserModel);
-
-        expect(userRepository.update).not.toHaveBeenCalled();
-
-        expect(
-          (useCase as any).generateAccessAndRefreshToken,
-        ).toHaveBeenCalledWith(
-          googleUserModel,
-          userGoogleLogin.ip,
-          userGoogleLogin.userAgent,
-        );
-      });
-
-      it('should return accessToken and refreshToken in result and newUser', async () => {
-        const result = await useCase.executeWithGoogle(userGoogleLogin);
-
-        expect(result.result.tokens).toEqual(
-          generateAccessAndRefreshTokenResult,
-        );
-        expect(result.result.newUser).toEqual(googleUserModel);
-      });
+      expect(providerSessionRegistry.get).toHaveBeenCalledWith(
+        AccountsProvider.GOOGLE,
+      );
+      expect(providerSessionStrategy.execute).toHaveBeenCalledWith(
+        userGoogleLogin,
+      );
+      expect(result.result.tokens).toEqual(generateAccessAndRefreshTokenResult);
+      expect(result.result.newUser).toBeUndefined();
     });
   });
 
@@ -281,7 +206,7 @@ describe('CreateSessionUseCase', () => {
 
     it('should return accessToken and refreshToken on sucess', async () => {
       const result = await (useCase as any).generateAccessAndRefreshToken(
-        userModel,
+        sessionUser,
         ip,
       );
 
@@ -293,15 +218,15 @@ describe('CreateSessionUseCase', () => {
 
     it('should call all functions with correct parameters', async () => {
       await (useCase as any).generateAccessAndRefreshToken(
-        userModel,
+        sessionUser,
         ip,
         'agent',
       );
 
       expect(tokenService.generateAccessToken).toHaveBeenCalledWith({
-        email: userModel.email,
-        userID: userModel.userID,
-        roles: userModel.roles,
+        email: sessionUser.email,
+        userID: sessionUser.userID,
+        roles: sessionUser.roles,
       });
       expect(tokenService.generateRefreshToken).toHaveBeenCalledWith(
         IDConstants.EXEMPLE,

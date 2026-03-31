@@ -36,7 +36,6 @@ import { ChangePasswordUseCase } from './application/use-cases/change-password.u
 import { TokenRepository } from './domain/ports/secondary/token-repository.port';
 import { RedisTokenRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-token.repository';
 import { FinishSessionUseCase } from './application/use-cases/finish-session.usecase';
-import CookieService from './infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import * as fs from 'fs';
 import * as path from 'path';
 import CertsController from './infrastructure/adaptars/primary/http/certs.controller';
@@ -50,6 +49,11 @@ import DeadLetterMessageModel, {
   DeadLetterMessageSchema,
 } from './infrastructure/adaptars/secondary/database/models/dlq.model';
 import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
+import { GoogleSessionStrategy } from './application/strategies/google-session.strategy';
+import {
+  ProviderSessionRegistry,
+  PROVIDER_SESSION_STRATEGIES,
+} from './application/strategies/provider-session.registry';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -118,12 +122,20 @@ import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.
     FinishSessionUseCase,
     UserMapper,
     UsersQueueService,
-    CookieService,
     ForgotPasswordUseCase,
     ChangePasswordUseCase,
     GetCertsUseCase,
     GoogleStrategy,
+    GoogleSessionStrategy,
+    ProviderSessionRegistry,
     DQLService,
+    {
+      provide: PROVIDER_SESSION_STRATEGIES,
+      useFactory: (googleSessionStrategy: GoogleSessionStrategy) => [
+        googleSessionStrategy,
+      ],
+      inject: [GoogleSessionStrategy],
+    },
     {
       provide: UserRepository,
       useClass: MongooseUserRepository,

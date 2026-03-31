@@ -15,14 +15,13 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from '@auth/application/use-cases/finish-session.usecase';
-import { Cookies } from '@auth/domain/enums/cookies.enum';
-import CookieService from '@auth/infrastructure/adaptars/secondary/cookie-service/cookie.service';
 import { ConfigService } from '@nestjs/config';
-import { UsersQueueService } from '../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
+import QueueService from '../../secondary/message-broker/queue.service';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -30,9 +29,8 @@ describe('AuthController', () => {
   let createSessionUseCase: CreateSessionUseCase;
   let getAccessTokenUseCase: GetAccessTokenUseCase;
   let finishSessionUseCase: FinishSessionUseCase;
-  let cookieService: CookieService;
   let configService: ConfigService<EnvironmentVariables>;
-  let usersQueueService: UsersQueueService;
+  let queueService: QueueService;
 
   let userMapper: UserMapper;
 
@@ -49,22 +47,19 @@ describe('AuthController', () => {
     } as any;
     getAccessTokenUseCase = { execute: vi.fn() } as any;
     finishSessionUseCase = { execute: vi.fn() } as any;
-    cookieService = { setCookie: vi.fn() } as any;
     configService = { get: vi.fn() } as any;
-    usersQueueService = { send: vi.fn() } as any;
+    queueService = { sendUserCreatedWithGoogle: vi.fn() } as any;
 
     controller = new AuthController(
       userMapper,
       createSessionUseCase,
       getAccessTokenUseCase,
       finishSessionUseCase,
-      cookieService,
       configService,
-      usersQueueService,
+      queueService,
     );
 
     response = {
-      clearCookie: vi.fn(),
       status: vi.fn(),
     } as any;
   });
@@ -78,9 +73,8 @@ describe('AuthController', () => {
     expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
     expect(finishSessionUseCase).toBeDefined();
-    expect(cookieService).toBeDefined();
     expect(configService).toBeDefined();
-    expect(usersQueueService).toBeDefined();
+    expect(queueService).toBeDefined();
   });
 
   describe('getGoogleURL', () => {
@@ -109,8 +103,8 @@ describe('AuthController', () => {
     });
   });
 
-  describe('googleAuthRedirect', () => {
-    const userModel = UserFactory.createModel();
+  describe('googleAuth', () => {
+    const userModel = UserFactory.createSessionUser();
     const userGoogleInCallback = GoogleUserFactory.createUserInCallbBack();
     const ip = '120.0.0.0';
     const userGoogleLogin = GoogleUserFactory.createEntity();
@@ -140,7 +134,7 @@ describe('AuthController', () => {
     });
 
     it('should call createSessionUseCase.executeWithGoogle with mapped DTO', async () => {
-      await controller.googleAuthRedirect(request, response, ip, userAgent);
+      await controller.googleAuth(request, response, ip, userAgent);
 
       expect(userMapper.googleLoginDTOForEntity).toHaveBeenCalledWith(
         userGoogleInCallback,
@@ -152,7 +146,7 @@ describe('AuthController', () => {
       );
     });
 
-    it('should call userQueueService.send with fields for create user in other service', async () => {
+    it('should call queueService.sendUserCreatedWithGoogle with fields for create user in other service', async () => {
       vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
         ok: true,
         result: {
@@ -164,44 +158,21 @@ describe('AuthController', () => {
         },
       });
 
-      await controller.googleAuthRedirect(request, response, ip, userAgent);
+      await controller.googleAuth(request, response, ip, userAgent);
 
-      expect(usersQueueService.send).toHaveBeenCalledWith(
-        'user-create-google',
-        {
-          userID: userModel.userID,
-          name: 'test',
-          username: 'test',
-          email: userModel.email,
-          roles: userModel.roles,
-          createdAt: userModel.createdAt,
-          updatedAt: userModel.updatedAt,
-        },
-        true,
-      );
-    });
-
-    it('should set access token and refresh token on cookies', async () => {
-      await controller.googleAuthRedirect(request, response, ip, userAgent);
-
-      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
-        1,
-        Cookies.RefreshToken,
-        '<refreshToken>',
-        604800000,
-        response,
-      );
-      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
-        2,
-        Cookies.AccessToken,
-        '<accessToken>',
-        3600000,
-        response,
-      );
+      expect(queueService.sendUserCreatedWithGoogle).toHaveBeenCalledWith({
+        userID: userModel.userID,
+        name: userGoogleInCallback.name,
+        username: userGoogleInCallback.username,
+        email: userGoogleInCallback.email,
+        roles: userModel.roles,
+        createdAt: userModel.createdAt,
+        updatedAt: userModel.updatedAt,
+      });
     });
 
     it('should return HttpCreatedResponse on success', async () => {
-      const result = await controller.googleAuthRedirect(
+      const result = await controller.googleAuth(
         request,
         response,
         ip,
@@ -212,6 +183,10 @@ describe('AuthController', () => {
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
         message: 'Usuário realizou login com sucesso',
+        data: {
+          refresh_token: '<refreshToken>',
+          access_token: '<accessToken>',
+        },
       });
     });
 
@@ -221,7 +196,7 @@ describe('AuthController', () => {
       );
 
       try {
-        await controller.googleAuthRedirect(request, response, ip, userAgent);
+        await controller.googleAuth(request, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -236,7 +211,7 @@ describe('AuthController', () => {
       });
 
       try {
-        await controller.googleAuthRedirect(request, response, ip, userAgent);
+        await controller.googleAuth(request, response, ip, userAgent);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);
@@ -279,25 +254,6 @@ describe('AuthController', () => {
       );
     });
 
-    it('should set access token and refresh token on cookies', async () => {
-      await controller.login(dto, response, ip, userAgent);
-
-      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
-        1,
-        Cookies.RefreshToken,
-        '<refreshToken>',
-        604800000,
-        response,
-      );
-      expect(cookieService.setCookie).toHaveBeenNthCalledWith(
-        2,
-        Cookies.AccessToken,
-        '<accessToken>',
-        3600000,
-        response,
-      );
-    });
-
     it('should return HttpCreatedResponse on success', async () => {
       const result = await controller.login(dto, response, ip, userAgent);
 
@@ -306,6 +262,10 @@ describe('AuthController', () => {
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
         message: 'Usuário realizou login com sucesso',
+        data: {
+          refresh_token: '<refreshToken>',
+          access_token: '<accessToken>',
+        },
       });
     });
 
@@ -374,17 +334,6 @@ describe('AuthController', () => {
       );
     });
 
-    it('should set access token on cookies', async () => {
-      await controller.getAccessToken(response, userID, tokenID);
-
-      expect(cookieService.setCookie).toHaveBeenCalledWith(
-        Cookies.AccessToken,
-        '<accessToken>',
-        3600000,
-        response,
-      );
-    });
-
     it('should return HttpOKResponse on success', async () => {
       const result = await controller.getAccessToken(response, userID, tokenID);
 
@@ -393,6 +342,9 @@ describe('AuthController', () => {
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Seu token de acesso foi renovado',
+        data: {
+          access_token: '<accessToken>',
+        },
       });
     });
 
@@ -439,22 +391,16 @@ describe('AuthController', () => {
       );
     });
 
-    it('should clear access token and refresh_token on cookies', async () => {
-      await controller.logout(response, userID, tokenID);
-
-      expect(response.clearCookie).toHaveBeenNthCalledWith(1, 'refresh_token', {
-        signed: true,
-      });
-      expect(response.clearCookie).toHaveBeenNthCalledWith(2, 'access_token', {
-        signed: true,
-      });
-    });
-
     it('should return HttpNoContentResponse on success', async () => {
       const result = await controller.logout(response, userID, tokenID);
 
       expect(response.status).toBeCalledWith(HttpStatus.NO_CONTENT);
       expect(result).toBeInstanceOf(HttpNoContentResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.NO_CONTENT,
+        message: undefined,
+        data: undefined,
+      });
     });
 
     it('should throw error if finishSessionUseCase throws error', async () => {

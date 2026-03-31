@@ -1,7 +1,7 @@
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { UserLogin } from '@auth/domain/entities/user-login.entity';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
-import { UserModel } from '@auth/infrastructure/adaptars/secondary/database/models/user.model';
+import { SessionUser } from '@auth/domain/types/session-user';
 
 export interface CreateSesssionPort {
   execute: (inputUser: UserLogin) => Promise<ExecuteReturn>;
@@ -30,6 +30,6 @@ export type ExecuteWithGoogleReturn = {
   ok: true;
   result: {
     tokens: { accessToken: string; refreshToken: string };
-    newUser: UserModel | undefined;
+    newUser: SessionUser | undefined;
   };
 };

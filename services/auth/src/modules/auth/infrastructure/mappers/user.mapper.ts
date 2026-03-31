@@ -7,6 +7,7 @@ import { UserModel } from '../adaptars/secondary/database/models/user.model';
 import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import { UserGoogleLogin } from '@auth/domain/entities/user-google-login.entity';
 import { defaultGoogleRoles } from '@auth/domain/constants/roles';
+import { UserRecord } from '@auth/domain/types/user-record';
 import {
   EmailVO,
   IDVO,
@@ -14,6 +15,7 @@ import {
   PasswordHashedVO,
 } from '@auth/domain/values-objects';
 import { CreateExternalUserDTO } from '../adaptars/primary/microservices/dtos/create-user.dto';
+import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
 
 @Injectable()
 export class UserMapper {
@@ -74,7 +76,7 @@ export class UserMapper {
     };
   }
 
-  externalUserForModel(user: CreateExternalUserDTO): UserModel {
+  externalUserForModel(user: CreateExternalUserDTO): UserRecord {
     return {
       userID: user.userID,
       email: user.email,

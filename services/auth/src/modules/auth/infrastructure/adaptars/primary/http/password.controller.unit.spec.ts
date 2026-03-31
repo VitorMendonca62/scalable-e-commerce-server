@@ -8,7 +8,6 @@ import { PasswordController } from './password.controller';
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { HttpOKResponse } from '@auth/domain/ports/primary/http/sucess.port';
 import { ChangePasswordUseCase } from '@auth/application/use-cases/change-password.usecase';
-import CookieService from '../../secondary/cookie-service/cookie.service';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { FastifyReply } from 'fastify';
 import { UpdatePasswordDTOFactory } from '@auth/infrastructure/helpers/tests/dtos-factory';
@@ -25,7 +24,6 @@ describe('PasswordController', () => {
 
   let forgotPasswordUseCase: ForgotPasswordUseCase;
   let changePasswordUseCase: ChangePasswordUseCase;
-  let cookiesService: CookieService;
 
   beforeEach(async () => {
     forgotPasswordUseCase = {
@@ -38,12 +36,9 @@ describe('PasswordController', () => {
       executeUpdate: vi.fn(),
     } as any;
 
-    cookiesService = { setCookie: vi.fn() } as any;
-
     controller = new PasswordController(
       forgotPasswordUseCase,
       changePasswordUseCase,
-      cookiesService,
     );
   });
 
@@ -51,7 +46,6 @@ describe('PasswordController', () => {
     expect(controller).toBeDefined();
     expect(forgotPasswordUseCase).toBeDefined();
     expect(changePasswordUseCase).toBeDefined();
-    expect(cookiesService).toBeDefined();
   });
 
   describe('sendCode', () => {
@@ -125,17 +119,6 @@ describe('PasswordController', () => {
       );
     });
 
-    it('should store reset token in cookie on success', async () => {
-      await controller.validateCode(dto, response);
-
-      expect(cookiesService.setCookie).toHaveBeenCalledWith(
-        Cookies.ResetPassToken,
-        'token',
-        600000,
-        response,
-      );
-    });
-
     it('should return HttpOKResponse on code and email are valid', async () => {
       const result = await controller.validateCode(dto, response);
 
@@ -143,6 +126,7 @@ describe('PasswordController', () => {
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Seu código de recuperação de senha foi validado com sucesso.',
+        data: { [Cookies.ResetPassToken]: 'token' },
       });
     });
 
@@ -212,12 +196,14 @@ describe('PasswordController', () => {
         ok: true,
       });
 
-      await controller.resetPassword(dto, response, email);
+      const result = await controller.resetPassword(dto, response, email);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.SEE_OTHER);
-      expect(response.redirect).toHaveBeenCalledWith(
-        'https://github.com/VitorMendonca62',
-      );
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Senha atualizada com sucesso',
+        data: undefined,
+      });
     });
 
     it('should return WrongCredentials on NOT_FOUND', async () => {
