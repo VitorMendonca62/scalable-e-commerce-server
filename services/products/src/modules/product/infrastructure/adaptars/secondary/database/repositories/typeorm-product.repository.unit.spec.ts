@@ -15,10 +15,16 @@ import { PaymentTypes } from '@product/domain/enums/payments-types.enum';
 import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
 import TypeOrmProductRepository from './typeorm-product.repository';
 import ProductRatingModel from '../models/rating.model';
+import { CacheProductRepository } from '@product/domain/ports/secondary/cache-product-repository.port';
+import { CacheFavoritesRepository } from '@product/domain/ports/secondary/cache-favorite-repository.port';
+import FavoriteRepository from '@product/domain/ports/secondary/favorite-repository.port';
 
 describe('TypeOrmProductRepository', () => {
   let repository: TypeOrmProductRepository;
   let productRepository: Repository<ProductModel>;
+  let cacheProductRepository: CacheProductRepository;
+  let cacheFavoritesRepository: CacheFavoritesRepository;
+  let favoriteRepository: FavoriteRepository;
 
   beforeEach(() => {
     productRepository = {
@@ -29,7 +35,33 @@ describe('TypeOrmProductRepository', () => {
       createQueryBuilder: vi.fn(),
     } as any;
 
-    repository = new TypeOrmProductRepository(productRepository);
+    cacheProductRepository = {
+      getProduct: vi.fn().mockResolvedValue(null),
+      addProduct: vi.fn(),
+      getProductsByFilters: vi.fn().mockResolvedValue(null),
+      addProductsByFilters: vi.fn(),
+      removeProduct: vi.fn(),
+      invalidateAll: vi.fn(),
+    } as any;
+
+    cacheFavoritesRepository = {
+      isFavorite: vi.fn().mockResolvedValue(null),
+      addFavorite: vi.fn(),
+      removeFavorite: vi.fn(),
+    } as any;
+
+    favoriteRepository = {
+      isFavorite: vi.fn().mockResolvedValue(false),
+      favorite: vi.fn(),
+      unfavorite: vi.fn(),
+    } as any;
+
+    repository = new TypeOrmProductRepository(
+      productRepository,
+      cacheProductRepository,
+      cacheFavoritesRepository,
+      favoriteRepository,
+    );
   });
 
   it('should be defined', () => {
@@ -48,6 +80,7 @@ describe('TypeOrmProductRepository', () => {
       await repository.add(product);
 
       expect(productRepository.save).toHaveBeenCalledWith(product);
+      expect(cacheProductRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should save product successfully', async () => {
@@ -56,6 +89,7 @@ describe('TypeOrmProductRepository', () => {
       await repository.add(product);
 
       expect(productRepository.save).toHaveBeenCalledTimes(1);
+      expect(cacheProductRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should handle save with inactive product', async () => {
@@ -68,6 +102,7 @@ describe('TypeOrmProductRepository', () => {
       await repository.add(inactiveProduct);
 
       expect(productRepository.save).toHaveBeenCalledWith(inactiveProduct);
+      expect(cacheProductRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
   });
 
@@ -287,6 +322,30 @@ describe('TypeOrmProductRepository', () => {
       expect(result).toHaveProperty('rating');
       expect(result).toHaveProperty('isFavorited');
     });
+
+    it('should return cached product and favorite status', async () => {
+      const cachedProduct = {
+        ...mockProductWithoutSameFields,
+        rating: 4.2,
+      };
+
+      vi.spyOn(cacheProductRepository, 'getProduct').mockResolvedValue(
+        cachedProduct,
+      );
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(true);
+
+      const result = await repository.getOne(publicID, userID);
+
+      expect(productRepository.createQueryBuilder).not.toHaveBeenCalled();
+      expect(cacheFavoritesRepository.isFavorite).toHaveBeenCalledWith(
+        userID,
+        publicID,
+      );
+      expect(result).toEqual({
+        ...cachedProduct,
+        isFavorited: true,
+      });
+    });
   });
 
   describe('update', () => {
@@ -319,6 +378,7 @@ describe('TypeOrmProductRepository', () => {
       const result = await repository.update(productID, userID, updates);
 
       expect(result).toBe(true);
+      expect(cacheProductRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return true when multiple products are affected (affected > 1)', async () => {
@@ -331,6 +391,7 @@ describe('TypeOrmProductRepository', () => {
       const result = await repository.update(productID, userID, updates);
 
       expect(result).toBe(true);
+      expect(cacheProductRepository.invalidateAll).toHaveBeenCalledTimes(1);
     });
 
     it('should return false when no product is found (affected = 0)', async () => {
@@ -343,6 +404,7 @@ describe('TypeOrmProductRepository', () => {
       const result = await repository.update(productID, userID, updates);
 
       expect(result).toBe(false);
+      expect(cacheProductRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should return false when affected is undefined', async () => {
@@ -355,6 +417,7 @@ describe('TypeOrmProductRepository', () => {
       const result = await repository.update(productID, userID, updates);
 
       expect(result).toBe(false);
+      expect(cacheProductRepository.invalidateAll).not.toHaveBeenCalled();
     });
 
     it('should return false when product exists but user is not the owner', async () => {
@@ -760,6 +823,9 @@ describe('TypeOrmProductRepository', () => {
 
       const result = await repository.findWithFilters(filters);
 
+      expect(cacheProductRepository.addProductsByFilters).toHaveBeenCalledTimes(
+        1,
+      );
       expect(result).toEqual([
         { ...mockProducts[0], rating: 4.2 },
         { ...mockProducts[1], rating: 3.7 },
@@ -778,6 +844,9 @@ describe('TypeOrmProductRepository', () => {
 
       const result = await repository.findWithFilters(filters);
 
+      expect(cacheProductRepository.addProductsByFilters).toHaveBeenCalledTimes(
+        1,
+      );
       expect(result).toEqual([]);
     });
 
@@ -855,9 +924,27 @@ describe('TypeOrmProductRepository', () => {
         expect(product).toHaveProperty('rating');
       });
     });
+
+    it('should return cached products when available', async () => {
+      const cachedProducts = [
+        { ...mockProducts[0], rating: 1.2 },
+        { ...mockProducts[1], rating: 2.3 },
+      ];
+      vi.spyOn(
+        cacheProductRepository,
+        'getProductsByFilters',
+      ).mockResolvedValue(cachedProducts);
+
+      const result = await repository.findWithFilters({
+        categoryID: ['electronics'],
+      });
+
+      expect(productRepository.createQueryBuilder).not.toHaveBeenCalled();
+      expect(result).toEqual(cachedProducts);
+    });
   });
 
-  describe('addRatingSelect', () => {
+  describe('addFavoritedSelect', () => {
     const mockQueryBuilder = {
       addSelect: vi.fn(),
       leftJoin: vi.fn(),
@@ -937,6 +1024,74 @@ describe('TypeOrmProductRepository', () => {
       const result = (repository as any).addRatingSelect(mockQueryBuilder);
 
       expect(result).toEqual(mockQueryBuilder);
+    });
+  });
+
+  describe('getIsFavorite', () => {
+    const userID = 'user-123';
+    const productID = 'product-456';
+
+    it('should return cached value when cache has data', async () => {
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(true);
+
+      const result = await (repository as any).getIsFavorite(userID, productID);
+
+      expect(cacheFavoritesRepository.isFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
+      expect(favoriteRepository.isFavorite).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(false);
+
+      const result2 = await (repository as any).getIsFavorite(
+        userID,
+        productID,
+      );
+
+      expect(cacheFavoritesRepository.isFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
+      expect(favoriteRepository.isFavorite).not.toHaveBeenCalled();
+      expect(result2).toBe(false);
+    });
+
+    it('should add to cache when favorite is true', async () => {
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(null);
+      vi.spyOn(favoriteRepository, 'isFavorite').mockResolvedValue(true);
+
+      const result = await (repository as any).getIsFavorite(userID, productID);
+
+      expect(favoriteRepository.isFavorite).toHaveBeenCalledWith(
+        productID,
+        userID,
+      );
+      expect(cacheFavoritesRepository.addFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
+      expect(cacheFavoritesRepository.removeFavorite).not.toHaveBeenCalled();
+      expect(result).toBe(true);
+    });
+
+    it('should remove from cache when favorite is false', async () => {
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(null);
+      vi.spyOn(favoriteRepository, 'isFavorite').mockResolvedValue(false);
+
+      const result = await (repository as any).getIsFavorite(userID, productID);
+
+      expect(favoriteRepository.isFavorite).toHaveBeenCalledWith(
+        productID,
+        userID,
+      );
+      expect(cacheFavoritesRepository.removeFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
+      expect(cacheFavoritesRepository.addFavorite).not.toHaveBeenCalled();
+      expect(result).toBe(false);
     });
   });
 });

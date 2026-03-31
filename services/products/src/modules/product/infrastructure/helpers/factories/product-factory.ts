@@ -57,7 +57,7 @@ export class ProductFactory {
   ): ProductModel & { isFavorited: boolean; rating: number } {
     const model = new ProductModel();
 
-    model.id = IDConstants.EXEMPLE;
+    model.id = 1;
     model.publicID = IDConstants.EXEMPLE;
     model.title = TitleConstants.EXEMPLE;
     model.price = PriceConstants.EXEMPLE;

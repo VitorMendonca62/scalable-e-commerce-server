@@ -44,6 +44,10 @@ import CategoryMapper from './infrastructure/mappers/category.mapper';
 import RatingRepository from './domain/ports/secondary/rating-repository.port';
 import { CacheCategoryRepository } from './domain/ports/secondary/cache-category-repository.port';
 import RedisCacheCategoryRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-category.repository';
+import { CacheProductRepository } from './domain/ports/secondary/cache-product-repository.port';
+import RedisCacheProductRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-product.repository';
+import { CacheFavoritesRepository } from './domain/ports/secondary/cache-favorite-repository.port';
+import RedisCacheFavoriteRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-favorite.repository';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -109,6 +113,14 @@ import RedisCacheCategoryRepository from './infrastructure/adaptars/secondary/da
     {
       provide: CacheCategoryRepository,
       useClass: RedisCacheCategoryRepository,
+    },
+    {
+      provide: CacheProductRepository,
+      useClass: RedisCacheProductRepository,
+    },
+    {
+      provide: CacheFavoritesRepository,
+      useClass: RedisCacheFavoriteRepository,
     },
   ],
 })

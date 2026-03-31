@@ -1,4 +1,5 @@
 import { IDConstants } from '@product/domain/values-objects/constants';
+import { CacheFavoritesRepository } from '@product/domain/ports/secondary/cache-favorite-repository.port';
 import { Repository } from 'typeorm';
 import ProductFavoriteModel from '../models/favorite.model';
 import TypeOrmFavoriteRepository from './typeorm-favorite.repository';
@@ -6,6 +7,7 @@ import TypeOrmFavoriteRepository from './typeorm-favorite.repository';
 describe('TypeOrmFavoriteRepository', () => {
   let repository: TypeOrmFavoriteRepository;
   let favoriteRepository: Repository<ProductFavoriteModel>;
+  let cacheFavoritesRepository: CacheFavoritesRepository;
 
   beforeEach(() => {
     favoriteRepository = {
@@ -15,7 +17,16 @@ describe('TypeOrmFavoriteRepository', () => {
       exists: vi.fn(),
     } as any;
 
-    repository = new TypeOrmFavoriteRepository(favoriteRepository);
+    cacheFavoritesRepository = {
+      isFavorite: vi.fn().mockResolvedValue(null),
+      addFavorite: vi.fn(),
+      removeFavorite: vi.fn(),
+    } as any;
+
+    repository = new TypeOrmFavoriteRepository(
+      favoriteRepository,
+      cacheFavoritesRepository,
+    );
   });
 
   it('should be defined', () => {
@@ -51,11 +62,15 @@ describe('TypeOrmFavoriteRepository', () => {
       expect(favoriteRepository.save).toHaveBeenCalledWith(mockFavorite);
     });
 
-    it('should save favorite successfully', async () => {
+    it('should save favorite successfully and cache it', async () => {
       await repository.favorite(productID, userID);
 
       expect(favoriteRepository.create).toHaveBeenCalledTimes(1);
       expect(favoriteRepository.save).toHaveBeenCalledTimes(1);
+      expect(cacheFavoritesRepository.addFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
     });
 
     it('should handle different product IDs', async () => {
@@ -136,6 +151,10 @@ describe('TypeOrmFavoriteRepository', () => {
       const result = await repository.unfavorite(productID, userID);
 
       expect(result).toBe(true);
+      expect(cacheFavoritesRepository.removeFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
     });
 
     it('should return true when affected is greater than 1', async () => {
@@ -147,6 +166,10 @@ describe('TypeOrmFavoriteRepository', () => {
       const result = await repository.unfavorite(productID, userID);
 
       expect(result).toBe(true);
+      expect(cacheFavoritesRepository.removeFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
     });
 
     it('should return false when favorite does not exist (affected = 0)', async () => {
@@ -158,6 +181,7 @@ describe('TypeOrmFavoriteRepository', () => {
       const result = await repository.unfavorite(productID, userID);
 
       expect(result).toBe(false);
+      expect(cacheFavoritesRepository.removeFavorite).not.toHaveBeenCalled();
     });
 
     it('should verify both userID and productID in delete clause', async () => {
@@ -171,21 +195,18 @@ describe('TypeOrmFavoriteRepository', () => {
     });
 
     it('should correctly evaluate affected != 0 logic', async () => {
-      // affected = 1 should return true
       vi.spyOn(favoriteRepository, 'delete').mockResolvedValue({
         affected: 1,
         raw: {},
       });
       expect(await repository.unfavorite(productID, userID)).toBe(true);
 
-      // affected = 2 should return true
       vi.spyOn(favoriteRepository, 'delete').mockResolvedValue({
         affected: 2,
         raw: {},
       });
       expect(await repository.unfavorite(productID, userID)).toBe(true);
 
-      // affected = 0 should return false
       vi.spyOn(favoriteRepository, 'delete').mockResolvedValue({
         affected: 0,
         raw: {},
@@ -194,7 +215,6 @@ describe('TypeOrmFavoriteRepository', () => {
     });
 
     it('should handle multiple unfavorite attempts on same product', async () => {
-      // First unfavorite succeeds
       vi.spyOn(favoriteRepository, 'delete').mockResolvedValue({
         affected: 1,
         raw: {},
@@ -202,7 +222,6 @@ describe('TypeOrmFavoriteRepository', () => {
       const firstResult = await repository.unfavorite(productID, userID);
       expect(firstResult).toBe(true);
 
-      // Second unfavorite fails (already removed)
       vi.spyOn(favoriteRepository, 'delete').mockResolvedValue({
         affected: 0,
         raw: {},
@@ -223,15 +242,6 @@ describe('TypeOrmFavoriteRepository', () => {
       );
 
       expect(result).toBe(false);
-    });
-
-    it('should delete using both userID and productID as composite key', async () => {
-      await repository.unfavorite(productID, userID);
-
-      expect(favoriteRepository.delete).toHaveBeenCalledWith({
-        userID,
-        productID,
-      });
     });
   });
 
@@ -265,46 +275,37 @@ describe('TypeOrmFavoriteRepository', () => {
       expect(result).toBe(false);
     });
 
-    it('should verify both userID and productID in where clause', async () => {
-      await repository.isFavorite(productID, userID);
+    it('should return cached favorite when available', async () => {
+      vi.spyOn(cacheFavoritesRepository, 'isFavorite').mockResolvedValue(true);
 
-      const callArgs = (favoriteRepository.exists as any).mock.calls[0][0];
+      const result = await repository.isFavorite(productID, userID);
 
-      expect(callArgs.where).toHaveProperty('userID', userID);
-      expect(callArgs.where).toHaveProperty('productID', productID);
-      expect(Object.keys(callArgs.where)).toHaveLength(2);
+      expect(favoriteRepository.exists).not.toHaveBeenCalled();
+      expect(result).toBe(true);
     });
 
-    it('should check multiple products for same user', async () => {
-      const productID1 = 'product-1';
-      const productID2 = 'product-2';
+    it('should cache favorite after db lookup', async () => {
+      vi.spyOn(favoriteRepository, 'exists').mockResolvedValue(true);
 
-      vi.spyOn(favoriteRepository, 'exists')
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false);
+      const result = await repository.isFavorite(productID, userID);
 
-      const result1 = await repository.isFavorite(productID1, userID);
-      const result2 = await repository.isFavorite(productID2, userID);
-
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-      expect(favoriteRepository.exists).toHaveBeenCalledTimes(2);
+      expect(result).toBe(true);
+      expect(cacheFavoritesRepository.addFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
     });
 
-    it('should check same product for multiple users', async () => {
-      const userID1 = 'user-1';
-      const userID2 = 'user-2';
+    it('should clear cache when favorite does not exist', async () => {
+      vi.spyOn(favoriteRepository, 'exists').mockResolvedValue(false);
 
-      vi.spyOn(favoriteRepository, 'exists')
-        .mockResolvedValueOnce(true)
-        .mockResolvedValueOnce(false);
+      const result = await repository.isFavorite(productID, userID);
 
-      const result1 = await repository.isFavorite(productID, userID1);
-      const result2 = await repository.isFavorite(productID, userID2);
-
-      expect(result1).toBe(true);
-      expect(result2).toBe(false);
-      expect(favoriteRepository.exists).toHaveBeenCalledTimes(2);
+      expect(result).toBe(false);
+      expect(cacheFavoritesRepository.removeFavorite).toHaveBeenCalledWith(
+        userID,
+        productID,
+      );
     });
   });
 });

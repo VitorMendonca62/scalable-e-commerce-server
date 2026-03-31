@@ -18,16 +18,28 @@ import {
 } from 'typeorm';
 import { ProductFilters } from '@product/domain/ports/application/product/get-products.port';
 import ProductRatingModel from '../models/rating.model';
+import { CacheProductRepository } from '@product/domain/ports/secondary/cache-product-repository.port';
+import { CacheFavoritesRepository } from '@product/domain/ports/secondary/cache-favorite-repository.port';
+import FavoriteRepository from '@product/domain/ports/secondary/favorite-repository.port';
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
     @InjectRepository(ProductModel)
     private productRepository: Repository<ProductModel>,
+    private cacheProductRepository: CacheProductRepository,
+    private cacheFavoritesRepository: CacheFavoritesRepository,
+    private favoriteRepository: FavoriteRepository,
   ) {}
 
   async findWithFilters(
     filters: ProductFilters,
   ): Promise<FindWithFiltersReturn[]> {
+    const cacheKey = this.buildFiltersCacheKey(filters);
+    const cachedProducts =
+      await this.cacheProductRepository.getProductsByFilters(cacheKey);
+
+    if (cachedProducts !== null) return cachedProducts;
+
     const whereFilters: FindOptionsWhere<ProductModel> = { active: true };
     const limit = filters.limit;
     const cursor = filters.cursor;
@@ -83,13 +95,28 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     const result = await query.getRawAndEntities();
 
-    return result.entities.map((product, index) => ({
+    const products = result.entities.map((product, index) => ({
       ...product,
       rating: Number(result.raw[index]?.rating ?? 0),
     }));
+
+    await this.cacheProductRepository.addProductsByFilters(cacheKey, products);
+
+    return products;
   }
 
   async getOne(publicID: string, userID: string): Promise<GetOneReturn | null> {
+    const cachedProduct =
+      await this.cacheProductRepository.getProduct(publicID);
+
+    if (cachedProduct !== null) {
+      const isFavorited = await this.getIsFavorite(userID, publicID);
+      return {
+        ...cachedProduct,
+        isFavorited,
+      };
+    }
+
     let query = this.productRepository
       .createQueryBuilder('product')
       .select([
@@ -123,10 +150,24 @@ export default class TypeOrmProductRepository implements ProductRepository {
     if (result.entities.length === 0) return null;
 
     const product = result.entities[0];
+    const rating = Number(result.raw[0].rating);
+    const isFavorited = Boolean(result.raw[0].isFavorited);
+
+    await this.cacheProductRepository.addProduct({
+      ...product,
+      rating,
+    });
+
+    if (isFavorited) {
+      await this.cacheFavoritesRepository.addFavorite(userID, publicID);
+    } else {
+      await this.cacheFavoritesRepository.removeFavorite(userID, publicID);
+    }
+
     return {
       ...product,
-      isFavorited: result.raw[0].isFavorited,
-      rating: Number(result.raw[0].rating),
+      isFavorited,
+      rating,
     };
   }
 
@@ -134,6 +175,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
     product: Omit<ProductModel, 'id' | 'createdAt' | 'updatedAt' | 'category'>,
   ): Promise<void> {
     await this.productRepository.save(product);
+    await this.cacheProductRepository.invalidateAll();
   }
 
   async update(
@@ -141,14 +183,61 @@ export default class TypeOrmProductRepository implements ProductRepository {
     userID: string,
     updates: Partial<ProductModel>,
   ): Promise<boolean> {
-    return (
+    const wasUpdated =
       (
         await this.productRepository.update(
           { publicID: productID, owner: userID },
           updates,
         )
-      ).affected >= 1
+      ).affected >= 1;
+
+    if (wasUpdated) await this.cacheProductRepository.invalidateAll();
+
+    return wasUpdated;
+  }
+
+  private buildFiltersCacheKey(filters: ProductFilters): string {
+    const categoryIDs = filters.categoryID
+      ? [...filters.categoryID].sort().join(',')
+      : '';
+    const payments = filters.payments
+      ? [...filters.payments].sort().join(',')
+      : '';
+    const price = filters.price
+      ? `${filters.price.min}-${filters.price.max}`
+      : '';
+    const stock = filters.stock
+      ? `${filters.stock.min}-${filters.stock.max}`
+      : '';
+    const cursor = filters.cursor ?? '';
+    const limit = filters.limit ?? '';
+
+    return `cursor=${cursor}|limit=${limit}|category=${categoryIDs}|price=${price}|stock=${stock}|payments=${payments}`;
+  }
+
+  private async getIsFavorite(
+    userID: string,
+    productID: string,
+  ): Promise<boolean> {
+    const cached = await this.cacheFavoritesRepository.isFavorite(
+      userID,
+      productID,
     );
+
+    if (cached !== null) return cached;
+
+    const isFavorite = await this.favoriteRepository.isFavorite(
+      productID,
+      userID,
+    );
+
+    if (isFavorite) {
+      await this.cacheFavoritesRepository.addFavorite(userID, productID);
+    } else {
+      await this.cacheFavoritesRepository.removeFavorite(userID, productID);
+    }
+
+    return isFavorite;
   }
 
   private addRatingSelect(
