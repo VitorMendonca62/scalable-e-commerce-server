@@ -11,10 +11,7 @@ import {
   EnvironmentVariables,
   NodeEnv,
 } from '../../config/environment/env.validation';
-import {
-  UserModel,
-  UserSchema,
-} from './infrastructure/adaptars/secondary/database/models/user.model';
+import { UserSchema } from './infrastructure/adaptars/secondary/database/models/user.model';
 
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseUserRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-user.repository';
@@ -26,10 +23,7 @@ import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-h
 import { PasswordController } from './infrastructure/adaptars/primary/http/password.controller';
 import { EmailSender } from './domain/ports/secondary/mail-sender.port';
 import NodemailerEmailSender from './infrastructure/adaptars/secondary/email-sender/nodemailer.service';
-import {
-  EmailCodeModel,
-  EmailCodeSchema,
-} from './infrastructure/adaptars/secondary/database/models/email-code.model';
+import { EmailCodeSchema } from './infrastructure/adaptars/secondary/database/models/email-code.model';
 import EmailCodeRepository from './domain/ports/secondary/email-code-repository.port';
 import MongooseEmailCodeRepository from './infrastructure/adaptars/secondary/database/repositories/mongoose-email-code.repository';
 import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase';
@@ -45,9 +39,7 @@ import ForgotPasswordUseCase from './application/use-cases/forgot-password.useca
 import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
 import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository.port';
 import { MongooseDQLRepository } from './infrastructure/adaptars/secondary/database/repositories/mongoose-dql.repository';
-import DeadLetterMessageModel, {
-  DeadLetterMessageSchema,
-} from './infrastructure/adaptars/secondary/database/models/dlq.model';
+import { DeadLetterMessageSchema } from './infrastructure/adaptars/secondary/database/models/dlq.model';
 import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
 import { GoogleSessionStrategy } from './application/strategies/google-session.strategy';
 import {
@@ -58,9 +50,9 @@ import QueueService from './infrastructure/adaptars/secondary/message-broker/que
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: UserModel.name, schema: UserSchema },
-      { name: EmailCodeModel.name, schema: EmailCodeSchema },
-      { name: DeadLetterMessageModel.name, schema: DeadLetterMessageSchema },
+      { name: 'UserModel', schema: UserSchema },
+      { name: 'EmailCodeModel', schema: EmailCodeSchema },
+      { name: 'DeadLetterMessageModel', schema: DeadLetterMessageSchema },
     ]),
     JwtModule.registerAsync({
       useFactory: async () => {

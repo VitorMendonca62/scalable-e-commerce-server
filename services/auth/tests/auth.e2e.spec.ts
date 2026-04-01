@@ -1,13 +1,105 @@
-import { Cookies } from '@auth/domain/enums/cookies.enum';
-import { HttpStatus } from '@nestjs/common';
+import { ExecutionContext, HttpStatus } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { Test } from '@nestjs/testing';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
+import fastifyCookie from '@fastify/cookie';
 import request from 'supertest';
+import AppConfig from '@config/app.config';
+import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
+import { AppModule } from '../src/app.module';
+import { EnvironmentVariables } from '@config/environment/env.validation';
+import { UsersQueueService } from '@auth/infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
+import {
+  EmailConstants,
+  IDConstants,
+  PasswordConstants,
+} from '@auth/domain/values-objects/constants';
+import { PermissionsSystem } from '@auth/domain/types/permissions';
+import UserExternalController from '@auth/infrastructure/adaptars/primary/microservices/user.external.controller';
+import * as bcrypt from 'bcryptjs';
+import { v7 } from 'uuid';
+import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import { GoogleOAuthGuard } from '@auth/infrastructure/adaptars/primary/http/guards/google-oauth.guard';
+import { GoogleUserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
 
 describe('AuthController (E2E)', () => {
-  const BASE_URL = `http://localhost:8081`;
+  let app: NestFastifyApplication;
+
+  beforeAll(async () => {
+    const moduleRef = await Test.createTestingModule({
+      imports: [AppModule],
+    })
+      .overrideProvider(UsersQueueService)
+      .useValue({
+        send: async () => true,
+      })
+      .overrideProvider(PasswordHasher)
+      .useValue({
+        hash: async () => 'hashed-password',
+        compare: async (password: string) =>
+          password === PasswordConstants.EXEMPLE,
+      })
+      .overrideGuard(GoogleOAuthGuard)
+      .useValue({
+        canActivate: (context: ExecutionContext) => {
+          const request = context.switchToHttp().getRequest();
+          if (request.headers['is-new-user'] !== undefined) {
+            request.user = GoogleUserFactory.createUserInCallbBack({
+              email: 'no-existing-email@exemple.com',
+            });
+            return true;
+          }
+
+          request.user = GoogleUserFactory.createUserInCallbBack();
+          return true;
+        },
+      })
+      .compile();
+
+    app = moduleRef.createNestApplication<NestFastifyApplication>(
+      new FastifyAdapter({
+        bodyLimit: 10485760,
+        logger: false,
+      }),
+    );
+
+    app.useGlobalFilters(new HttpExceptionFilter());
+
+    const configService =
+      app.get<ConfigService<EnvironmentVariables>>(ConfigService);
+
+    await app.register(fastifyCookie, {
+      secret: configService.get<string>('COOKIE_SECRET'),
+    });
+
+    const appConfig = new AppConfig(configService, app);
+    appConfig.configValidationPipe();
+    appConfig.configCors();
+
+    await app.init();
+    await app.getHttpAdapter().getInstance().ready();
+  });
+
+  beforeAll(() => {
+    app.get(UserExternalController).createUser({
+      userID: IDConstants.EXEMPLE,
+      email: EmailConstants.EXEMPLE,
+      password: bcrypt.hashSync(PasswordConstants.EXEMPLE, 10),
+      roles: [PermissionsSystem.ENTER],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    });
+  });
+
+  const httpServer = () => app.getHttpServer();
 
   describe('GET /auth/google', () => {
     it('should return Google OAuth2 URL', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/google')
         .expect(HttpStatus.OK)
         .expect((res) => {
@@ -20,7 +112,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should include client_id in the response', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/google')
         .expect(HttpStatus.OK)
         .expect((res) => {
@@ -31,7 +123,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should include redirect_uri in the response', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/google')
         .expect(HttpStatus.OK)
         .expect((res) => {
@@ -42,22 +134,36 @@ describe('AuthController (E2E)', () => {
     });
   });
 
-  describe('POST /auth/login', () => {
-    it('should handle concurrent login attempts', () => {
-      return Promise.all(
-        Array.from({ length: 5 }, (_, i) =>
-          request(BASE_URL)
-            .post('/auth/login')
-            .send({
-              email: `user${i}@example.com`,
-              password: 'Password123!',
-            }),
-        ),
-      );
+  describe('GET /auth/google/callback', () => {
+    it('should return success message with tokens', () => {
+      return request(httpServer())
+        .get('/auth/google/callback')
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          expect(res.body.message).toBe('Usuário realizou login com sucesso');
+          expect(res.body.statusCode).toBe(HttpStatus.CREATED);
+          expect(Object.keys(res.body.data)).toContain('access_token');
+          expect(Object.keys(res.body.data)).toContain('refresh_token');
+        });
     });
 
+    it('should return success message with tokens and send for messager broker', () => {
+      return request(httpServer())
+        .get('/auth/google/callback')
+        .set('is-new-user', 'true')
+        .expect(HttpStatus.CREATED)
+        .expect((res) => {
+          expect(res.body.message).toBe('Usuário realizou login com sucesso');
+          expect(res.body.statusCode).toBe(HttpStatus.CREATED);
+          expect(Object.keys(res.body.data)).toContain('access_token');
+          expect(Object.keys(res.body.data)).toContain('refresh_token');
+        });
+    });
+  });
+
+  describe('POST /auth/login', () => {
     it('should reject login with invalid email format', async () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           email: 'invalid-email',
@@ -72,7 +178,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject login with empty email', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           email: '',
@@ -86,8 +192,23 @@ describe('AuthController (E2E)', () => {
         });
     });
 
+    it('should reject login with email type is number', () => {
+      return request(httpServer())
+        .post('/auth/login')
+        .send({
+          email: 123,
+          password: 'Password123!',
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => {
+          expect(res.body.message).toBe('O email deve ser uma string');
+          expect(res.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(res.body.data).toBe('email');
+        });
+    });
+
     it('should reject login with missing email field', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           password: 'Password123!',
@@ -101,7 +222,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject login with empty password', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           email: 'user@example.com',
@@ -116,7 +237,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject login with missing password field', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           email: 'user@example.com',
@@ -129,12 +250,44 @@ describe('AuthController (E2E)', () => {
         });
     });
 
+    it('should reject login with password type is number', () => {
+      return request(httpServer())
+        .post('/auth/login')
+        .send({
+          email: 'user@example.com',
+          password: 1234,
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => {
+          expect(res.body.message).toBe('A senha deve ser uma string válida');
+          expect(res.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(res.body.data).toBe('password');
+        });
+    });
+
+    it('should reject login with password not have minimum length', () => {
+      return request(httpServer())
+        .post('/auth/login')
+        .send({
+          email: 'user@example.com',
+          password: '1234',
+        })
+        .expect(HttpStatus.BAD_REQUEST)
+        .expect((res) => {
+          expect(res.body.message).toBe(
+            'A senha está muito curta. O mínimo são 8 caracteres',
+          );
+          expect(res.body.statusCode).toBe(HttpStatus.BAD_REQUEST);
+          expect(res.body.data).toBe('password');
+        });
+    });
+
     it('should reject login with non-existent user', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
           email: 'nonexistent@example.com',
-          password: 'Password123!',
+          password: PasswordConstants.EXEMPLE,
         })
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
@@ -147,10 +300,10 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject login with invalid password', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
-          email: 'vitormsi2005@gmail.com',
+          email: EmailConstants.EXEMPLE,
           password: 'WrongPassword123!',
         })
         .expect(HttpStatus.UNAUTHORIZED)
@@ -164,54 +317,61 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should return sucess message when user and password is valid', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/login')
         .send({
-          email: 'vitormsi20052@gmail.com',
-          password: '@Vh123443',
+          email: EmailConstants.EXEMPLE,
+          password: PasswordConstants.EXEMPLE,
         })
         .expect(HttpStatus.CREATED)
         .expect((res) => {
           expect(res.body.message).toBe('Usuário realizou login com sucesso');
           expect(res.body.statusCode).toBe(HttpStatus.CREATED);
-          expect(res.body.data).toBeUndefined();
+          expect(Object.keys(res.body.data)).toContain('access_token');
+          expect(Object.keys(res.body.data)).toContain('refresh_token');
         });
     });
 
-    it('should set cookies when user and password is valid', () => {
-      return request(BASE_URL)
-        .post('/auth/login')
-        .send({
-          email: 'vitormsi20052@gmail.com',
-          password: '@Vh123443',
-        })
-        .expect(HttpStatus.CREATED)
-        .expect((res) => {
-          const cookies = res.headers['set-cookie'] as unknown as string[];
+    it('should handle concurrent login attempts', async () => {
+      Array.from({ length: 5 }, (_, i) =>
+        app.get(UserExternalController).createUser({
+          userID: v7(),
+          email: `user${i}@example.com`,
+          password: bcrypt.hashSync(PasswordConstants.EXEMPLE, 10),
+          roles: [PermissionsSystem.ENTER],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        }),
+      );
 
-          expect(cookies).toHaveLength(2);
+      const loginPromises = Array.from({ length: 5 }, (_, i) =>
+        request(httpServer())
+          .post('/auth/login')
+          .send({
+            email: `user${i}@example.com`,
+            password: PasswordConstants.EXEMPLE,
+          }),
+      );
 
-          const refreshTokenCookie = cookies.find((c) =>
-            c.startsWith('refresh_token='),
-          );
-          const accessTokenCookie = cookies.find((c) =>
-            c.startsWith('access_token='),
-          );
+      const responses = await Promise.all(loginPromises);
 
-          expect(refreshTokenCookie).toBeDefined();
-          expect(accessTokenCookie).toBeDefined();
+      expect(responses).toHaveLength(5);
 
-          expect(refreshTokenCookie).toContain('HttpOnly');
-          expect(refreshTokenCookie).toContain('SameSite=Strict');
-          expect(accessTokenCookie).toContain('HttpOnly');
-          expect(accessTokenCookie).toContain('SameSite=Strict');
-        });
+      responses.forEach((response, index) => {
+        expect(response.status).toBe(HttpStatus.CREATED);
+        expect(response.body.statusCode).toBe(HttpStatus.CREATED);
+        expect(response.body.message).toBe(
+          'Usuário realizou login com sucesso',
+        );
+        expect(Object.keys(response.body.data)).toContain('access_token');
+        expect(Object.keys(response.body.data)).toContain('refresh_token');
+      });
     });
   });
 
   describe('GET /auth/token', () => {
     it('should reject token request without x-user-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/token')
         .set('x-token-id', 'some-token-id')
         .expect(HttpStatus.UNAUTHORIZED)
@@ -225,7 +385,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request without x-token-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/token')
         .set('x-user-id', '...')
         .expect(HttpStatus.UNAUTHORIZED)
@@ -239,7 +399,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with missing both required headers', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/token')
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
@@ -252,7 +412,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with empty x-user-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/token')
         .set('x-user-id', '')
         .set('x-token-id', 'some-token-id')
@@ -267,7 +427,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with empty x-token-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .get('/auth/token')
         .set('x-user-id', 'some-user-id')
         .set('x-token-id', '')
@@ -281,10 +441,10 @@ describe('AuthController (E2E)', () => {
         });
     });
 
-    it('should reject token request with non-existent token', () => {
-      return request(BASE_URL)
+    it('should reject token request with non-existent token amd revoked token', () => {
+      return request(httpServer())
         .get('/auth/token')
-        .set('x-user-id', '507f1f77bcf86cd799439011')
+        .set('x-user-id', IDConstants.EXEMPLE)
         .set('x-token-id', 'non-existent-token-id')
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
@@ -296,11 +456,15 @@ describe('AuthController (E2E)', () => {
         });
     });
 
-    it('should reject token request with revoked token', () => {
-      return request(BASE_URL)
+    it('should reject token request with non-existent user', () => {
+      const tokenID = 'token-id-valid-2';
+      const userID = 'any-id';
+      app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
+
+      return request(httpServer())
         .get('/auth/token')
-        .set('x-user-id', '507f1f77bcf86cd799439011')
-        .set('x-token-id', 'revoked-token-id')
+        .set('x-user-id', userID)
+        .set('x-token-id', tokenID)
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
           expect(res.body.message).toBe(
@@ -308,13 +472,30 @@ describe('AuthController (E2E)', () => {
           );
           expect(res.body.statusCode).toBe(HttpStatus.UNAUTHORIZED);
           expect(res.body.data).toBeUndefined();
+        });
+    });
+
+    it('should return sucess message and data contain access token', () => {
+      const tokenID = 'token-id-valid';
+      const userID = IDConstants.EXEMPLE;
+      app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
+
+      return request(httpServer())
+        .get('/auth/token')
+        .set('x-user-id', userID)
+        .set('x-token-id', tokenID)
+        .expect(HttpStatus.OK)
+        .expect((res) => {
+          expect(res.body.message).toBe('Seu token de acesso foi renovado');
+          expect(res.body.statusCode).toBe(HttpStatus.OK);
+          expect(Object.keys(res.body.data)).toContain('access_token');
         });
     });
   });
 
   describe('POST /auth/logout', () => {
     it('should reject token request without x-user-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/logout')
         .set('x-token-id', 'some-token-id')
         .expect(HttpStatus.UNAUTHORIZED)
@@ -328,7 +509,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request without x-token-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/logout')
         .set('x-user-id', '...')
         .expect(HttpStatus.UNAUTHORIZED)
@@ -342,7 +523,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with missing both required headers', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/logout')
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
@@ -355,7 +536,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with empty x-user-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/logout')
         .set('x-user-id', '')
         .set('x-token-id', 'some-token-id')
@@ -370,7 +551,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should reject token request with empty x-token-id header', () => {
-      return request(BASE_URL)
+      return request(httpServer())
         .post('/auth/logout')
         .set('x-user-id', 'some-user-id')
         .set('x-token-id', '')
@@ -384,10 +565,10 @@ describe('AuthController (E2E)', () => {
         });
     });
 
-    it('should reject token request with non-existent token', () => {
-      return request(BASE_URL)
+    it('should reject token request with non-existent token amd revoked token', () => {
+      return request(httpServer())
         .post('/auth/logout')
-        .set('x-user-id', '507f1f77bcf86cd799439011')
+        .set('x-user-id', IDConstants.EXEMPLE)
         .set('x-token-id', 'non-existent-token-id')
         .expect(HttpStatus.UNAUTHORIZED)
         .expect((res) => {
@@ -399,19 +580,16 @@ describe('AuthController (E2E)', () => {
         });
     });
 
-    it('should reject token request with revoked token', () => {
-      return request(BASE_URL)
+    it('should return no content', () => {
+      const tokenID = 'token-id-valid-3';
+      const userID = IDConstants.EXEMPLE;
+      app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
+
+      return request(httpServer())
         .post('/auth/logout')
-        .set('x-user-id', '507f1f77bcf86cd799439011')
-        .set('x-token-id', 'revoked-token-id')
-        .expect(HttpStatus.UNAUTHORIZED)
-        .expect((res) => {
-          expect(res.body.message).toBe(
-            'Sessão inválida. Faça login novamente.',
-          );
-          expect(res.body.statusCode).toBe(HttpStatus.UNAUTHORIZED);
-          expect(res.body.data).toBeUndefined();
-        });
+        .set('x-user-id', userID)
+        .set('x-token-id', tokenID)
+        .expect(HttpStatus.NO_CONTENT);
     });
   });
 });

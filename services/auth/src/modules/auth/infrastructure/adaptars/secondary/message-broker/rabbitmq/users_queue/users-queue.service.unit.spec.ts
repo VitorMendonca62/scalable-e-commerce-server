@@ -6,6 +6,22 @@ import DeadLetterMessageRepository from '@auth/domain/ports/secondary/dql.reposi
 import CircuitBreaker from 'opossum';
 import { of } from 'rxjs';
 
+vi.mock('opossum', () => {
+  return {
+    default: class MockCircuitBreaker {
+      constructor(
+        action: CircuitBreakerCallBack,
+        options: CircuitBreaker.Options,
+      ) {
+        mockCircuitBreakerConstructor(action, options);
+      }
+      fire = mockFireFunction;
+      shutdown = mockShutdownFunction;
+      fallback = mockFallbackFunction;
+    },
+  };
+});
+
 const mockCircuitBreakerConstructor = vi.fn();
 const mockFireFunction = vi.fn();
 const mockShutdownFunction = vi.fn();
@@ -21,22 +37,6 @@ describe('UsersQueueService', () => {
 
   let clientProxy: Mocked<ClientProxy>;
   let dlqRepository: DeadLetterMessageRepository;
-
-  vi.mock('opossum', () => {
-    return {
-      default: class MockCircuitBreaker {
-        constructor(
-          action: CircuitBreakerCallBack,
-          options: CircuitBreaker.Options,
-        ) {
-          mockCircuitBreakerConstructor(action, options);
-        }
-        fire = mockFireFunction;
-        shutdown = mockShutdownFunction;
-        fallback = mockFallbackFunction;
-      },
-    };
-  });
 
   beforeEach(async () => {
     clientProxy = {

@@ -7,7 +7,7 @@ export function getCurrentNodeENV() {
     case NodeEnv.Development:
       return '.env.development.local';
     case NodeEnv.Test:
-      return '.env.test';
+      return '.env.test.local';
     default:
       return '.env';
   }

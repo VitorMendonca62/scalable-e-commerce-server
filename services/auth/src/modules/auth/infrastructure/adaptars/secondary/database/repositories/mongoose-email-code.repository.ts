@@ -5,7 +5,7 @@ import { EmailCodeDocument, EmailCodeModel } from '../models/email-code.model';
 
 export default class MongooseEmailCodeRepository implements EmailCodeRepository {
   constructor(
-    @InjectModel(EmailCodeModel.name)
+    @InjectModel('EmailCodeModel')
     private readonly EmailCodeModel: Model<EmailCodeDocument>,
   ) {}
   async findOne(
