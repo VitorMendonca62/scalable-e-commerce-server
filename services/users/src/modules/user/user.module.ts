@@ -22,7 +22,6 @@ import AddressRepository from './domain/ports/secondary/address-repository.port'
 import TypeOrmAddressRepository from './infrastructure/adaptars/secondary/database/repositories/typeorm-address.repository';
 import UserModel from './infrastructure/adaptars/secondary/database/models/user.model';
 import AddressModel from './infrastructure/adaptars/secondary/database/models/address.model';
-import CookieService from './infrastructure/adaptars/primary/http/services/cookie/cookie.service';
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -95,7 +94,6 @@ import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository
   providers: [
     UserMapper,
     DQLService,
-    CookieService,
     AddressMapper,
     CreateUserUseCase,
     AddUserAddressUseCase,

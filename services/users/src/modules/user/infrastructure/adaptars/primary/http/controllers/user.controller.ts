@@ -43,8 +43,6 @@ import {
   NotFoundItem,
 } from '@user/domain/ports/primary/http/error.port';
 import { Cookies } from '@modules/user/domain/enums/cookies.enum';
-import CookieService from '../services/cookie/cookie.service';
-import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
 import { FastifyReply } from 'fastify';
 import { isUUID } from 'class-validator';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
@@ -54,7 +52,6 @@ import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/us
 export class UserController {
   constructor(
     private readonly userMapper: UserMapper,
-    private readonly cookieService: CookieService,
     private readonly usersQueueService: UsersQueueService,
     private readonly validateEmailUseCase: ValidateEmailUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
@@ -67,12 +64,11 @@ export class UserController {
   // TODO FAZER documentacao
   async sendCode(
     @Body() dto: ValidateEmailDTO,
-    @Res() response: FastifyReply,
-  ): Promise<void> {
+    @Res({ passthrough: true }) response: FastifyReply,
+  ): Promise<HttpResponseOutbound> {
     await this.validateEmailUseCase.sendEmail(dto.email);
-    response
-      .status(HttpStatus.SEE_OTHER)
-      .redirect('https://github.com/VitorMendonca62'); //  OTP code screen
+    response.status(HttpStatus.OK);
+    return new HttpOKResponse('Código enviado com sucesso para seu email.');
   }
 
   @Post('/validate-code')
@@ -80,7 +76,7 @@ export class UserController {
   async validateCode(
     @Body() dto: ValidateCodeForValidateEmailDTO,
     @Res({ passthrough: true }) response: FastifyReply,
-  ) {
+  ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.validateEmailUseCase.validateCode(
       dto.code,
       dto.email,
@@ -93,16 +89,10 @@ export class UserController {
 
     const token = useCaseResult.result;
 
-    this.cookieService.setCookie(
-      Cookies.SignUpToken,
-      token,
-      TokenExpirationConstants.SIGN_UP_TOKEN_MS,
-      response,
-    );
-
-    response
-      .status(HttpStatus.SEE_OTHER)
-      .redirect('https://github.com/VitorMendonca62'); //  Signup screen
+    response.status(HttpStatus.OK);
+    return new HttpOKResponse('Código validado com sucesso.', {
+      [Cookies.SignUpToken]: token,
+    });
   }
 
   @Post('/')
