@@ -18,11 +18,11 @@ export default class TypeOrmCategoryRepositoryTypeOrmCartRepository implements C
   }
 
   async getOne(
-    publicID: string,
+    cartID: string,
     userID: string,
   ): Promise<Omit<CartModel, 'id' | 'userID'> | null> {
     return this.cartRepository.findOne({
-      where: { publicID, userID },
+      where: { publicID: cartID, userID },
       select: ['publicID', 'items', 'createdAt', 'updatedAt'],
     });
   }
