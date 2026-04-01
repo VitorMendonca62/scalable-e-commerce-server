@@ -20,7 +20,12 @@
     "jwt:keys:auth": "openssl genrsa -out ./certs/auth-private.pem 2048 && openssl rsa -in ./certs/auth-private.pem -pubout -out ./certs/auth-public.pem",
     "jwt:keys:reset-pass": "openssl genrsa -out ./certs/reset-pass-private.pem 2048 && openssl rsa -in ./certs/reset-pass-private.pem -pubout -out ./certs/reset-pass-public.pem",
     "jwt:keys:generate": "bun run jwt:keys:auth && bun run jwt:keys:reset-pass",
-    "jwt:keys:clean": "rm ./certs/*.pem"
+    "jwt:keys:clean": "rm ./certs/*.pem",
+    "mtls:ca": "openssl genrsa -out ./certs/ca-key.pem 4096 && openssl req -new -x509 -days 365 -key ./certs/ca-key.pem -out ./certs/ca-cert.pem -subj '/C=BR/ST=SP/L=SaoPaulo/O=MyCompany/OU=IT/CN=MyCA'",
+    "mtls:server": "openssl genrsa -out ./certs/server-key.pem 4096 && openssl req -new -key ./certs/server-key.pem -out ./certs/server-csr.pem -subj '/C=BR/ST=SP/L=SaoPaulo/O=MyCompany/OU=IT/CN=localhost' && echo 'subjectAltName = DNS:localhost,DNS:*.localhost,IP:127.0.0.1\nextendedKeyUsage = serverAuth' > ./certs/server-ext.cnf && openssl x509 -req -days 365 -in ./certs/server-csr.pem -CA ./certs/ca-cert.pem -CAkey ./certs/ca-key.pem -CAcreateserial -out ./certs/server-cert.pem -extfile ./certs/server-ext.cnf",
+    "mtls:client": "openssl genrsa -out ./certs/client-key.pem 4096 && openssl req -new -key ./certs/client-key.pem -out ./certs/client-csr.pem -subj '/C=BR/ST=SP/L=SaoPaulo/O=MyCompany/OU=IT/CN=client' && echo 'extendedKeyUsage = clientAuth' > ./certs/client-ext.cnf && openssl x509 -req -days 365 -in ./certs/client-csr.pem -CA ./certs/ca-cert.pem -CAkey ./certs/ca-key.pem -CAcreateserial -out ./certs/client-cert.pem -extfile ./certs/client-ext.cnf",
+    "mtls:generate": "bun run mtls:ca && bun run mtls:server && bun run mtls:client && rm -f ./certs/*.csr ./certs/*.cnf ./certs/*.srl && chmod 400 ./certs/ca-key.pem && chmod 600 ./certs/*-key.pem && chmod 644 ./certs/*-cert.pem",
+    "mtls:clean": "rm -f ./certs/ca-*.pem ./certs/server-*.pem ./certs/client-*.pem"
   },
   "dependencies": {
     "@fastify/cookie": "^10.0.0",

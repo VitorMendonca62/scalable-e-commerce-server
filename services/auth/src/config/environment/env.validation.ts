@@ -5,6 +5,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -131,4 +132,24 @@ export class EnvironmentVariables {
   @IsString({ message: 'GOOGLE_CALLBACK_URL must be a string.' })
   @IsNotEmpty({ message: 'GOOGLE_CALLBACK_URL cannot be empty.' })
   GOOGLE_CALLBACK_URL: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_ENABLED must be a string.' })
+  MTLS_ENABLED?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_KEY_PATH must be a string.' })
+  MTLS_KEY_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_CERT_PATH must be a string.' })
+  MTLS_CERT_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_CA_PATH must be a string.' })
+  MTLS_CA_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_ALLOWED_SUBJECTS must be a string.' })
+  MTLS_ALLOWED_SUBJECTS?: string;
 }

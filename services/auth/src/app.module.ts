@@ -11,6 +11,8 @@ import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { configRedisdDB } from '@config/database/redis.config';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { ScheduleModule } from '@nestjs/schedule';
+import { APP_GUARD } from '@nestjs/core';
+import GatewayMtlsGuard from '@auth/infrastructure/adaptars/primary/http/guards/gateway-mtls.guard';
 
 @Module({
   imports: [
@@ -41,5 +43,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     AuthModule,
   ],
   controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GatewayMtlsGuard,
+    },
+  ],
 })
 export class AppModule {}

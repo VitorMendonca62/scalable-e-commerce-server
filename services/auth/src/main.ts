@@ -11,13 +11,41 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import fastifyCookie from '@fastify/cookie';
+import { readFileSync } from 'fs';
+
+const isMtlsEnabled = (value: string | undefined) =>
+  (value ?? '').toLowerCase() === 'true';
+
+const getMtlsHttpsOptions = () => {
+  if (!isMtlsEnabled(process.env.MTLS_ENABLED)) return undefined;
+
+  const keyPath = process.env.MTLS_KEY_PATH;
+  const certPath = process.env.MTLS_CERT_PATH;
+  const caPath = process.env.MTLS_CA_PATH;
+
+  if (!keyPath || !certPath || !caPath) {
+    throw new Error(
+      'mTLS enabled but MTLS_KEY_PATH, MTLS_CERT_PATH, or MTLS_CA_PATH is missing.',
+    );
+  }
+
+  return {
+    key: readFileSync(keyPath),
+    cert: readFileSync(certPath),
+    ca: readFileSync(caPath),
+    requestCert: true,
+    rejectUnauthorized: true,
+  };
+};
 
 async function bootstrap() {
+  const httpsOptions = getMtlsHttpsOptions();
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter({
       bodyLimit: 10485760,
       logger: false,
+      https: httpsOptions,
     }),
   );
 
