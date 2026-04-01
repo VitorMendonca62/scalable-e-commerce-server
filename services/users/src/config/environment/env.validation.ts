@@ -102,4 +102,9 @@ export class EnvironmentVariables {
   @IsString({ message: 'REDIS_PASSWORD must be a string.' })
   @IsNotEmpty({ message: 'REDIS_PASSWORD cannot be empty.' })
   REDIS_PASSWORD: string;
+
+  @IsNumber({}, { message: 'REDIS_PORT must be a number.' })
+  @Min(1, { message: 'REDIS_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'REDIS_PORT must be less than or equal to 65535.' })
+  REDIS_PORT: number;
 }
