@@ -8,7 +8,7 @@ export default class QueueService {
   constructor(private readonly usersQueueService: UsersQueueService) {}
 
   async sendUserCreated(newUser: UserOutboundMessageBroker) {
-    await this.usersQueueService.send(
+    return this.usersQueueService.send(
       'user-created',
       {
         userID: newUser.userID,
@@ -23,7 +23,7 @@ export default class QueueService {
   }
 
   async sendUserUpdated(userID: string, updates: UpdateUserDTO) {
-    await this.usersQueueService.send(
+    return this.usersQueueService.send(
       'user-updated',
       {
         userID,
@@ -34,7 +34,7 @@ export default class QueueService {
   }
 
   async sendUserDeleted(userID: string) {
-    await this.usersQueueService.send(
+    return this.usersQueueService.send(
       'user-deleted',
       {
         userID,

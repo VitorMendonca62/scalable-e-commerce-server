@@ -43,6 +43,7 @@ import DeadLetterMessageModel from './infrastructure/adaptars/secondary/database
 import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
 import { TypeOrmDQLRepository } from './infrastructure/adaptars/secondary/database/repositories/typeorm-dql.repository';
 import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository.port';
+import QueueService from './infrastructure/adaptars/secondary/message-broker/queue.service';
 @Module({
   imports: [
     HttpModule,
@@ -103,6 +104,7 @@ import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository
     GetUserAddressesUseCase,
     DeleteUserAddressUseCase,
     ValidateEmailUseCase,
+    QueueService,
     {
       provide: EmailSender,
       useClass: NodemailerEmailSender,
