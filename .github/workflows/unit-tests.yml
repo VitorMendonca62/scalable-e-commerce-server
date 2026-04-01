@@ -28,7 +28,7 @@ jobs:
         
       - name: Run tests
         working-directory: services/auth
-        run: bun run test
+        run: bun run test:unit
 
   run-users-unit-tests:
     name: Run Users Unit Tests
@@ -56,4 +56,32 @@ jobs:
         
       - name: Run tests
         working-directory: services/users
-        run: bun run test
+        run: bun run test:unit
+
+  run-products-unit-tests:
+    name: Run Products Unit Tests
+    runs-on: ubuntu-22.04
+    steps:       
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with: 
+          bun-version: latest
+          
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: services/products/node_modules
+          key: ${{ runner.os }}-bun-products-${{ hashFiles('services/products/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-products-
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: services/products
+        
+      - name: Run tests
+        working-directory: services/products
+        run: bun run test:unit
