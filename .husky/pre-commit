@@ -1,21 +1,24 @@
 CHANGED_SERVICES=$(git diff --cached --name-only | grep '^services/' | cut -d/ -f2 | uniq)
 
-if [ ${#CHANGED_SERVICES[@]} -eq 0 ]; then
-    echo "> No services to test."
+echo "$CHANGED_SERVICES"
+
+if [ -z "$CHANGED_SERVICES" ]; then
+  echo "> No services to test."
+  exit 0
 else
   echo "> Starting tests"
 fi
 
-cd services
+cd services || exit 1
 
 for service in $CHANGED_SERVICES; do
-  cd $service
+  cd "$service" || exit 1
   echo "> Starting $service's tests."
   (bun --env-file=.env.test.local run test || {
       echo "❌ Tests failed in $service"
       exit 1
     })
 
-  cd ..
-  
+  cd .. || exit 1
+
 done
