@@ -476,7 +476,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should return sucess message and data contain access token', () => {
-      const tokenID = 'token-id-valid';
+      const tokenID = 'token-id-valid-';
       const userID = IDConstants.EXEMPLE;
       app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
 
