@@ -94,7 +94,7 @@ describe('UserMapper', () => {
           expect(error.message).toBe(`Campo inválido - ${index}`);
           expect(error.data).toBeUndefined();
         }
-        (VO as Mock).mockRestore();
+        (VO as Mock).mockReset();
       });
     });
   });
@@ -144,7 +144,7 @@ describe('UserMapper', () => {
           expect(error.message).toBe(`Campo inválido - ${index}`);
           expect(error.data).toBeUndefined();
         }
-        (VO as Mock).mockRestore();
+        (VO as Mock).mockReset();
       });
     });
   });
