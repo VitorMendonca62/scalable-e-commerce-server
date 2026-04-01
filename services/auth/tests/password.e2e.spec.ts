@@ -16,7 +16,6 @@ import {
   IDConstants,
   PasswordConstants,
 } from '@auth/domain/values-objects/constants';
-import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 import UserExternalController from '@auth/infrastructure/adaptars/primary/microservices/user.external.controller';
 import * as bcrypt from 'bcryptjs';
 import { PermissionsSystem } from '@auth/domain/types/permissions';
@@ -63,10 +62,10 @@ describe('PasswordController (E2E)', () => {
   });
 
   const userID = IDConstants.EXEMPLE.replace('1', '0');
-  const userEmail = EmailConstants.EXEMPLE.replace('exemple', 'exemple1');
+  const userEmail = `password-${EmailConstants.EXEMPLE}`;
 
-  beforeAll(() => {
-    app.get(UserExternalController).createUser({
+  beforeAll(async () => {
+    await app.get(UserExternalController).createUser({
       userID: userID,
       email: userEmail,
       password: bcrypt.hashSync(PasswordConstants.EXEMPLE, 10),

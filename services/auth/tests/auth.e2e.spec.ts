@@ -84,10 +84,12 @@ describe('AuthController (E2E)', () => {
     await app.getHttpAdapter().getInstance().ready();
   });
 
-  beforeAll(() => {
-    app.get(UserExternalController).createUser({
+  const userEmail = `auth-${EmailConstants.EXEMPLE}`;
+
+  beforeAll(async () => {
+    await app.get(UserExternalController).createUser({
       userID: IDConstants.EXEMPLE,
-      email: EmailConstants.EXEMPLE,
+      email: userEmail,
       password: bcrypt.hashSync(PasswordConstants.EXEMPLE, 10),
       roles: [PermissionsSystem.ENTER],
       createdAt: new Date().toISOString(),
@@ -303,7 +305,7 @@ describe('AuthController (E2E)', () => {
       return request(httpServer())
         .post('/auth/login')
         .send({
-          email: EmailConstants.EXEMPLE,
+          email: userEmail,
           password: 'WrongPassword123!',
         })
         .expect(HttpStatus.UNAUTHORIZED)
@@ -320,7 +322,7 @@ describe('AuthController (E2E)', () => {
       return request(httpServer())
         .post('/auth/login')
         .send({
-          email: EmailConstants.EXEMPLE,
+          email: userEmail,
           password: PasswordConstants.EXEMPLE,
         })
         .expect(HttpStatus.CREATED)
@@ -333,10 +335,10 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should handle concurrent login attempts', async () => {
-      Array.from({ length: 5 }, (_, i) =>
+      const createPromise = Array.from({ length: 5 }, (_, i) =>
         app.get(UserExternalController).createUser({
-          userID: v7(),
-          email: `user${i}@example.com`,
+          userID: IDConstants.EXEMPLE.replace('1', `${i + 2}`),
+          email: `user${i}@examplea.com`,
           password: bcrypt.hashSync(PasswordConstants.EXEMPLE, 10),
           roles: [PermissionsSystem.ENTER],
           createdAt: new Date().toISOString(),
@@ -344,11 +346,13 @@ describe('AuthController (E2E)', () => {
         }),
       );
 
+      await Promise.all(createPromise);
+
       const loginPromises = Array.from({ length: 5 }, (_, i) =>
         request(httpServer())
           .post('/auth/login')
           .send({
-            email: `user${i}@example.com`,
+            email: `user${i}@examplea.com`,
             password: PasswordConstants.EXEMPLE,
           }),
       );
@@ -475,10 +479,10 @@ describe('AuthController (E2E)', () => {
         });
     });
 
-    it('should return sucess message and data contain access token', () => {
+    it('should return sucess message and data contain access token', async () => {
       const tokenID = 'token-id-valid-';
       const userID = IDConstants.EXEMPLE;
-      app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
+      await app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
 
       return request(httpServer())
         .get('/auth/token')
