@@ -33,12 +33,18 @@ describe('RevocationGuard', () => {
     });
 
     it('should return the true if token not is revoked', async () => {
+      const tokenID = IDConstants.EXEMPLE;
+      const userID = IDConstants.EXEMPLE;
+
       getRequestMock.mockReturnValue({
-        headers: { 'x-token-id': IDConstants.EXEMPLE },
+        headers: { 'x-token-id': tokenID, 'x-user-id': userID },
       });
+
+      vi.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(false);
 
       const result = await guard.canActivate(executionContext);
 
+      expect(tokenRepository.isRevoked).toHaveBeenCalledWith(tokenID, userID);
       expect(result).toBe(true);
     });
 
@@ -81,16 +87,17 @@ describe('RevocationGuard', () => {
     });
     it('should throw InvalidToken if token is revoked', async () => {
       const tokenID = IDConstants.EXEMPLE;
+      const userID = IDConstants.EXEMPLE;
 
       getRequestMock.mockReturnValue({
-        headers: { 'x-token-id': tokenID },
+        headers: { 'x-token-id': tokenID, 'x-user-id': userID },
       });
 
       vi.spyOn(tokenRepository, 'isRevoked').mockResolvedValue(true);
 
       try {
         await guard.canActivate(executionContext);
-        expect(tokenRepository.isRevoked).toHaveBeenCalledWith(tokenID);
+        expect(tokenRepository.isRevoked).toHaveBeenCalledWith(tokenID, userID);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(InvalidToken);

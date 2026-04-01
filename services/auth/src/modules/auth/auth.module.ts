@@ -54,6 +54,7 @@ import {
   ProviderSessionRegistry,
   PROVIDER_SESSION_STRATEGIES,
 } from './application/strategies/provider-session.registry';
+import QueueService from './infrastructure/adaptars/secondary/message-broker/queue.service';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -122,6 +123,7 @@ import {
     FinishSessionUseCase,
     UserMapper,
     UsersQueueService,
+    QueueService,
     ForgotPasswordUseCase,
     ChangePasswordUseCase,
     GetCertsUseCase,

@@ -57,8 +57,17 @@ export class RedisTokenRepository implements TokenRepository {
     await pipeline.exec();
   }
 
-  async isRevoked(tokenID: string): Promise<boolean> {
-    return (await this.redis.exists(`token:${tokenID}`)) === 0;
+  async isRevoked(tokenID: string, userID: string): Promise<boolean> {
+    const tokenKey = `token:${tokenID}`;
+    const pipeline = this.redis.pipeline();
+    pipeline.exists(tokenKey);
+    pipeline.smismember(`session:${userID}`, tokenKey);
+
+    const result = await pipeline.exec();
+
+    const tokenExists = result[0][1] === 1;
+    const tokenBelongsToUser = result[1][1][0] === 1;
+    return !tokenExists || !tokenBelongsToUser;
   }
 
   async updateLastAcess(tokenID: string): Promise<void> {

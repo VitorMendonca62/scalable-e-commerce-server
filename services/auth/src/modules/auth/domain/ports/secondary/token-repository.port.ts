@@ -10,7 +10,7 @@ export abstract class TokenRepository {
 
   abstract revokeAllSessions(userID: string): Promise<void>;
 
-  abstract isRevoked(tokenID: string): Promise<boolean>;
+  abstract isRevoked(tokenID: string, userID: string): Promise<boolean>;
 
   abstract updateLastAcess(tokenID: string): Promise<void>;
 }

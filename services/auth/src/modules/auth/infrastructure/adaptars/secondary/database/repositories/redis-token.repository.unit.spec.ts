@@ -10,10 +10,15 @@ describe('RedisTokenRepository', () => {
 
   let mockPipelineExec: Mock;
   let mockPipelineUnlinkl: Mock;
+  let mockPipelineExists: Mock;
+  let mockPipelinesMismember: Mock;
 
   beforeEach(async () => {
     mockPipelineExec = vi.fn();
     mockPipelineUnlinkl = vi.fn();
+    mockPipelineExists = vi.fn();
+    mockPipelinesMismember = vi.fn();
+
     redis = {
       hset: vi.fn(),
       sadd: vi.fn(),
@@ -27,6 +32,8 @@ describe('RedisTokenRepository', () => {
         return {
           unlink: mockPipelineUnlinkl,
           exec: mockPipelineExec,
+          exists: mockPipelineExists,
+          smismember: mockPipelinesMismember,
         };
       }),
     } as any;
@@ -152,23 +159,68 @@ describe('RedisTokenRepository', () => {
 
   describe('isRevoked', () => {
     it('should call all functions with correct parameters', async () => {
-      await repository.isRevoked(tokenID);
+      mockPipelineExec.mockResolvedValue([
+        [null, 1],
+        [null, [1]],
+      ]);
 
-      expect(redis.exists).toHaveBeenCalledWith(`token:${tokenID}`);
+      await repository.isRevoked(tokenID, userID);
+
+      expect(mockPipelineExists).toHaveBeenCalledWith(`token:${tokenID}`);
+      expect(mockPipelinesMismember).toHaveBeenCalledWith(
+        `session:${userID}`,
+        `token:${tokenID}`,
+      );
     });
 
-    it('should return true if key not exists in database', async () => {
-      vi.spyOn(redis, 'exists').mockResolvedValue(0);
+    it('should return true if tokenId not exists in database', async () => {
+      mockPipelineExec.mockResolvedValue([
+        [null, 0],
+        [null, [1]],
+      ]);
 
-      const result = await repository.isRevoked(tokenID);
+      const result = await repository.isRevoked(tokenID, userID);
       expect(result).toBe(true);
     });
 
-    it('should return false if key exists in database', async () => {
-      vi.spyOn(redis, 'exists').mockResolvedValue(1);
+    it('should return false if tokenId exists in database', async () => {
+      mockPipelineExec.mockResolvedValue([
+        [null, 1],
+        [null, [1]],
+      ]);
 
-      const result = await repository.isRevoked(tokenID);
+      const result = await repository.isRevoked(tokenID, userID);
       expect(result).toBe(false);
+    });
+
+    it('should return true if tokenId doesnt match with userID', async () => {
+      mockPipelineExec.mockResolvedValue([
+        [null, 1],
+        [null, [0]],
+      ]);
+
+      const result = await repository.isRevoked(tokenID, userID);
+      expect(result).toBe(true);
+    });
+
+    it('should return false if tokenId does match with userID', async () => {
+      mockPipelineExec.mockResolvedValue([
+        [null, 1],
+        [null, [1]],
+      ]);
+
+      const result = await repository.isRevoked(tokenID, userID);
+      expect(result).toBe(false);
+    });
+
+    it('should return false if tokenId does match with userID and tokenId not exists in database', async () => {
+      mockPipelineExec.mockResolvedValue([
+        [null, 0],
+        [null, [0]],
+      ]);
+
+      const result = await repository.isRevoked(tokenID, userID);
+      expect(result).toBe(true);
     });
   });
 

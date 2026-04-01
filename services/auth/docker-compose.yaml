@@ -16,7 +16,7 @@ services:
     container_name: database-auth
     restart: always
     ports:
-      - "27017:27017"
+      - "${MONGO_DB_PORT}:27017"
     environment:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
@@ -31,31 +31,31 @@ services:
       container_name: redis-auth
       restart: always
       ports:
-        - "6379:6379"
+        - "${REDIS_PORT}:6379"
       command: redis-server --requirepass ${REDIS_PASSWORD} --save 60 1
       volumes:
         - redis_data:/data
       networks:
         - api-net
-  api:
-    container_name: scalable-e-commerce-auth-api
-    build: .
-    ports:
-      - "$PORT:$PORT"
-    depends_on:
-      - database
-    restart: always
-    networks:
-      - rabbit_connection_net
-      - api-net
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-      - MONGO_DB_HOST=${MONGO_DB_HOST}
-      - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-    develop:
-      watch:
-        - action: rebuild
-          path: .
+  # api:
+  #   container_name: scalable-e-commerce-auth-api
+  #   build: .
+  #   ports:
+  #     - "$PORT:$PORT"
+  #   depends_on:
+  #     - database
+  #   restart: always
+  #   networks:
+  #     - rabbit_connection_net
+  #     - api-net
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
+  #     - MONGO_DB_HOST=${MONGO_DB_HOST}
+  #     - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
+  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: .

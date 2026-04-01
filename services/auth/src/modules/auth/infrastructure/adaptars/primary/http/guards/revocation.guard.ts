@@ -11,12 +11,13 @@ export default class RevocationGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
 
     const tokenID: string | null | undefined = request.headers['x-token-id'];
+    const userID: string | null | undefined = request.headers['x-user-id'];
 
-    if (isEmpty(tokenID)) {
+    if (isEmpty(tokenID) || isEmpty(userID)) {
       throw new InvalidToken('Sessão inválida. Faça login novamente.');
     }
 
-    const isRevoked = await this.tokenRepository.isRevoked(tokenID);
+    const isRevoked = await this.tokenRepository.isRevoked(tokenID, userID);
 
     if (isRevoked) {
       throw new InvalidToken('Sessão inválida. Faça login novamente.');

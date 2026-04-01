@@ -74,6 +74,13 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'MONGO_INITDB_DATABASE cannot be empty.' })
   MONGO_INITDB_DATABASE: string;
 
+  @Type(() => Number)
+  @IsNumber({}, { message: 'MONGO_DB_PORT must be a number.' })
+  @Min(1, { message: 'MONGO_DB_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'MONGO_DB_PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'MONGO_DB_PORT cannot be empty.' })
+  MONGO_DB_PORT: number;
+
   @IsString({ message: 'REDIS_HOST must be a string.' })
   @IsNotEmpty({ message: 'REDIS_HOST cannot be empty.' })
   REDIS_HOST: string;
@@ -81,6 +88,13 @@ export class EnvironmentVariables {
   @IsString({ message: 'REDIS_PASSWORD must be a string.' })
   @IsNotEmpty({ message: 'REDIS_PASSWORD cannot be empty.' })
   REDIS_PASSWORD: string;
+
+  @Type(() => Number)
+  @IsNumber({}, { message: 'REDIS_PORT must be a number.' })
+  @Min(1, { message: 'REDIS_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'REDIS_PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'REDIS_PORT cannot be empty.' })
+  REDIS_PORT: number;
 
   @IsString({ message: 'SMTP_HOST must be a string.' })
   @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
