@@ -97,6 +97,8 @@ if [ "$1" = "--cov" ]; then
   TEST_CMD="cross-env NODE_ENV=test vitest --coverage --config vitest.config.e2e.ts"
 fi
 
+mkdir -p certs
+
 bun run jwt:keys:generate
 
 bun run $TEST_CMD
