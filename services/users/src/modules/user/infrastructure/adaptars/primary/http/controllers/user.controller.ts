@@ -46,13 +46,13 @@ import { Cookies } from '@modules/user/domain/enums/cookies.enum';
 import { FastifyReply } from 'fastify';
 import { isUUID } from 'class-validator';
 import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+import QueueService from '../../../secondary/message-broker/queue.service';
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userMapper: UserMapper,
-    private readonly usersQueueService: UsersQueueService,
+    private readonly queueService: QueueService,
     private readonly validateEmailUseCase: ValidateEmailUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
@@ -116,18 +116,14 @@ export class UserController {
       );
     }
 
-    this.usersQueueService.send(
-      'user-created',
-      {
-        userID,
-        email: email,
-        password: useCaseResult.result.password,
-        roles: useCaseResult.result.roles,
-        createdAt: useCaseResult.result.createdAt,
-        updatedAt: useCaseResult.result.updatedAt,
-      },
-      true,
-    );
+    await this.queueService.sendUserCreated({
+      userID,
+      email: email,
+      password: useCaseResult.result.password,
+      roles: useCaseResult.result.roles,
+      createdAt: useCaseResult.result.createdAt,
+      updatedAt: useCaseResult.result.updatedAt,
+    });
 
     response.status(HttpStatus.CREATED);
     return new HttpCreatedResponse('Usuário criado com sucesso');
@@ -190,14 +186,7 @@ export class UserController {
       return new NotFoundItem(useCaseResult.message);
     }
 
-    this.usersQueueService.send(
-      'user-updated',
-      {
-        userID,
-        ...dto,
-      },
-      true,
-    );
+    await this.queueService.sendUserUpdated(userID, dto);
 
     return new HttpOKResponse('Usuário atualizado com sucesso', dto);
   }
@@ -215,13 +204,7 @@ export class UserController {
       return new NotFoundItem(useCaseResult.message);
     }
 
-    this.usersQueueService.send(
-      'user-deleted',
-      {
-        userID,
-      },
-      true,
-    );
+    await this.queueService.sendUserDeleted(userID);
 
     return new HttpOKResponse('Usuário deletado com sucesso');
   }
