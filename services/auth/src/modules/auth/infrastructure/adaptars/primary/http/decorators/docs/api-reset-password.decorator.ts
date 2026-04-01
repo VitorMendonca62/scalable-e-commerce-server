@@ -4,8 +4,9 @@ import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCookieAuth,
+  ApiOkResponse,
   ApiOperation,
-  ApiSeeOtherResponse,
+  ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -15,9 +16,13 @@ export function ApiResetPassword() {
       summary: 'Resetar senha do usuário',
     }),
     ApiCookieAuth('cookie_reset_pass'),
-    ApiSeeOtherResponse({
-      description:
-        'Usuário conseguiu resetar a senha e será direcionado para tela de login',
+    ApiOkResponse({
+      description: 'Usuário conseguiu resetar a senha com sucesso',
+      example: {
+        statusCode: HttpStatus.OK,
+        message: 'Senha atualizada com sucesso',
+      },
+      type: HttpResponseOutbound,
     }),
     ApiBadRequestResponse({
       description: 'Algum campo está inválido',
@@ -33,6 +38,15 @@ export function ApiResetPassword() {
       example: {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Token inválido ou expirado',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Erro interno ao resetar a senha do usuário',
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       },
       type: HttpResponseOutbound,
     }),

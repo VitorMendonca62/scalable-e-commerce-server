@@ -5,6 +5,7 @@ import {
   ApiCookieAuth,
   ApiOkResponse,
   ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -18,8 +19,10 @@ export function ApiGetAccessToken() {
       description: 'Retorna o novo token de acesso',
       example: {
         statusCode: HttpStatus.OK,
-        message: 'Aqui está seu token de acesso',
-        data: '<access_token>',
+        message: 'Seu token de acesso foi renovado',
+        data: {
+          access_token: '<access_token>',
+        },
       },
       type: HttpResponseOutbound,
     }),
@@ -38,6 +41,15 @@ export function ApiGetAccessToken() {
       example: {
         statusCode: HttpStatus.UNAUTHORIZED,
         message: 'Token inválido ou expirado',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Erro interno ao renovar o token de acesso',
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       },
       type: HttpResponseOutbound,
     }),

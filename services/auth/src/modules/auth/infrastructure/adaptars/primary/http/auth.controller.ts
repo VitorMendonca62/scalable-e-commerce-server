@@ -22,6 +22,8 @@ import {
   HttpNoContentResponse,
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
+import { ApiGetGoogleUrl } from './decorators/docs/api-get-google-url.decorator';
+import { ApiGoogleCallback } from './decorators/docs/api-google-callback.decorator';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import RevocationGuard from './guards/revocation.guard';
 import { GoogleOAuthGuard } from './guards/google-oauth.guard';
@@ -52,6 +54,7 @@ export class AuthController {
 
   @Get('google')
   @HttpCode(HttpStatus.OK)
+  @ApiGetGoogleUrl()
   getGoogleURL() {
     const redirectUri = this.configService.get('GOOGLE_CALLBACK_URL');
     const clientID = this.configService.get('GOOGLE_CLIENT_ID');
@@ -62,6 +65,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOAuthGuard)
   @HttpCode(HttpStatus.CREATED)
+  @ApiGoogleCallback()
   async googleAuth(
     @Req() request: FastifyRequest & { user: UserGoogleInCallBack },
     @Res({ passthrough: true }) response: FastifyReply,

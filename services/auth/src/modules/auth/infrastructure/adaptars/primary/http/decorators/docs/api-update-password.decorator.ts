@@ -6,6 +6,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -46,6 +47,15 @@ export function ApiUpdatePassword() {
       example: {
         statusCode: HttpStatus.NOT_FOUND,
         message: 'Usuário não encontrado.',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Erro interno ao atualizar a senha do usuário',
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       },
       type: HttpResponseOutbound,
     }),

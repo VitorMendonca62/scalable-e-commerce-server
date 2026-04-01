@@ -5,6 +5,7 @@ import {
   ApiBadRequestResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiResponse,
 } from '@nestjs/swagger';
 
 export function ApiValidateCodeForForgotPassword() {
@@ -17,6 +18,9 @@ export function ApiValidateCodeForForgotPassword() {
       example: {
         statusCode: HttpStatus.OK,
         message: 'Seu código de recuperação de senha foi validado com sucesso.',
+        data: {
+          reset_pass_token: '<reset_pass_token>',
+        },
       },
       type: HttpResponseOutbound,
     }),
@@ -27,6 +31,15 @@ export function ApiValidateCodeForForgotPassword() {
         statusCode: HttpStatus.BAD_REQUEST,
         message: PasswordConstants.ERROR_REQUIRED,
         data: 'oldPassword',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiResponse({
+      status: HttpStatus.INTERNAL_SERVER_ERROR,
+      description: 'Erro interno ao validar o código de recuperação',
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       },
       type: HttpResponseOutbound,
     }),

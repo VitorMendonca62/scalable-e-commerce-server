@@ -4,17 +4,30 @@ import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-export function ApiLoginUser() {
+export function ApiGoogleCallback() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Criar sessão de usuário',
+      summary: 'Finalizar autenticacao via Google OAuth',
+    }),
+    ApiQuery({
+      name: 'code',
+      required: true,
+      description: 'Codigo de autorizacao retornado pelo Google',
+      example: '4/0AbUR2V...abc123',
+    }),
+    ApiQuery({
+      name: 'state',
+      required: false,
+      description: 'Parametro opcional de state usado no fluxo OAuth',
+      example: 'csrf_token',
     }),
     ApiCreatedResponse({
-      description: 'Foi possivel realizar o login usuário',
+      description: 'Usuario autenticado via Google com sucesso',
       example: {
         statusCode: HttpStatus.CREATED,
         message: 'Usuário realizou login com sucesso',
@@ -26,25 +39,24 @@ export function ApiLoginUser() {
       type: HttpResponseOutbound,
     }),
     ApiBadRequestResponse({
-      description: 'Algum campo está inválido',
+      description: 'Codigo de autorizacao invalido ou ausente',
       example: {
         statusCode: HttpStatus.BAD_REQUEST,
-        data: 'email',
-        message: 'O email deve ser válido',
+        message: 'Codigo de autorizacao invalido',
       },
       type: HttpResponseOutbound,
     }),
     ApiUnauthorizedResponse({
-      description: 'As credenciais estão incorretas',
+      description: 'Falha na autenticacao com o provedor',
       example: {
         statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'Suas credenciais estão incorretas. Tente novamente',
+        message: 'Token inválido ou expirado',
       },
       type: HttpResponseOutbound,
     }),
     ApiResponse({
       status: HttpStatus.INTERNAL_SERVER_ERROR,
-      description: 'Erro interno ao tentar autenticar o usuário',
+      description: 'Erro interno ao autenticar com o Google',
       example: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Erro inesperado. Tente novamente mais tarde.',
