@@ -10,7 +10,9 @@ export interface CreateSesssionPort {
   ) => Promise<ExecuteWithGoogleReturn>;
 }
 
-type ExecuteResultReasons = ApplicationResultReasons.WRONG_CREDENTIALS;
+type ExecuteResultReasons =
+  | ApplicationResultReasons.WRONG_CREDENTIALS
+  | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteReturn =
   | {
@@ -26,10 +28,16 @@ export type ExecuteReturn =
       reason: ExecuteResultReasons;
     };
 
-export type ExecuteWithGoogleReturn = {
-  ok: true;
-  result: {
-    tokens: { accessToken: string; refreshToken: string };
-    newUser: SessionUser | undefined;
-  };
-};
+export type ExecuteWithGoogleReturn =
+  | {
+      ok: true;
+      result: {
+        tokens: { accessToken: string; refreshToken: string };
+        newUser: SessionUser | undefined;
+      };
+    }
+  | {
+      ok: false;
+      reason: ApplicationResultReasons.NOT_POSSIBLE;
+      message: string;
+    };

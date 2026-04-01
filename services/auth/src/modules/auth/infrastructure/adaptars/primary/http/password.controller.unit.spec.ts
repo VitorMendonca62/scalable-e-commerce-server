@@ -15,6 +15,7 @@ import { ApplicationResultReasons } from '@auth/domain/enums/application-result-
 import {
   FieldInvalid,
   NotFoundUser,
+  NotPossible,
   WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
 import ForgotPasswordUseCase from '@auth/application/use-cases/forgot-password.usecase';
@@ -51,13 +52,20 @@ describe('PasswordController', () => {
   describe('sendCode', () => {
     const email = EmailConstants.EXEMPLE;
     const dto = { email };
+    let response: FastifyReply;
+
+    beforeEach(() => {
+      response = {
+        status: vi.fn().mockReturnThis(),
+      } as any;
+    });
 
     it('should call forgotPasswordUseCase.validateCode with email', async () => {
       vi.spyOn(forgotPasswordUseCase, 'sendCode').mockResolvedValue({
         ok: true,
       });
 
-      await controller.sendCode(dto);
+      await controller.sendCode(dto, response);
 
       expect(forgotPasswordUseCase.sendCode).toHaveBeenCalledWith(email);
     });
@@ -67,7 +75,7 @@ describe('PasswordController', () => {
         ok: true,
       });
 
-      const result = await controller.sendCode(dto);
+      const result = await controller.sendCode(dto, response);
 
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
@@ -77,19 +85,23 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if forgotPasswordUseCase throws error', async () => {
-      vi.spyOn(forgotPasswordUseCase, 'sendCode').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(forgotPasswordUseCase, 'sendCode').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      try {
-        await controller.sendCode(dto);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await controller.sendCode(dto, response);
+
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
   });
 
@@ -148,19 +160,23 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if forgotPasswordUseCase throws error', async () => {
-      vi.spyOn(forgotPasswordUseCase, 'validateCode').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(forgotPasswordUseCase, 'validateCode').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      try {
-        await controller.validateCode(dto, response);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await controller.validateCode(dto, response);
+
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
   });
 
@@ -223,24 +239,23 @@ describe('PasswordController', () => {
       });
     });
 
-    it('should throw error if changePasswordUseCase throws error', async () => {
-      const response = {
-        status: vi.fn().mockReturnThis(),
-        redirect: vi.fn(),
-      } as any;
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(changePasswordUseCase, 'executeReset').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      vi.spyOn(changePasswordUseCase, 'executeReset').mockRejectedValue(
-        new Error('Erro no use case'),
+      const result = await controller.resetPassword(dto, response, email);
+
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
-
-      try {
-        await controller.resetPassword(dto, response, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
   });
 
@@ -317,6 +332,25 @@ describe('PasswordController', () => {
         statusCode: HttpStatus.BAD_REQUEST,
         message: 'Senha inválida',
         data: 'oldPassword',
+      });
+    });
+
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(changePasswordUseCase, 'executeUpdate').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
+
+      const result = await controller.updatePassword(dto, userID, response);
+
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
       });
     });
   });

@@ -21,6 +21,11 @@ export type ExecuteUpdateReturn =
       reason: ApplicationResultReasons.FIELD_INVALID;
       message: string;
       result: string;
+    }
+  | {
+      ok: false;
+      reason: ApplicationResultReasons.NOT_POSSIBLE;
+      message: string;
     };
 
 export type ExecuteResetReturn =
@@ -30,5 +35,10 @@ export type ExecuteResetReturn =
   | {
       ok: false;
       reason: ApplicationResultReasons.NOT_FOUND;
+      message: string;
+    }
+  | {
+      ok: false;
+      reason: ApplicationResultReasons.NOT_POSSIBLE;
       message: string;
     };

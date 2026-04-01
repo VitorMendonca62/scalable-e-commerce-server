@@ -19,7 +19,10 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import {
+  NotPossible,
+  WrongCredentials,
+} from '@auth/domain/ports/primary/http/errors.port';
 import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
 import QueueService from '../../secondary/message-broker/queue.service';
 
@@ -190,19 +193,26 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw error if createSessionUseCase throws error', async () => {
-      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockRejectedValue(
-        new Error('Erro no use case'),
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
+
+      const result = await controller.googleAuth(
+        request,
+        response,
+        ip,
+        userAgent,
       );
 
-      try {
-        await controller.googleAuth(request, response, ip, userAgent);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
 
     it('should throw error if userMapper.googleLoginDTOForEntity throws error', async () => {
@@ -286,19 +296,21 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw error if createSessionUseCase throws error', async () => {
-      vi.spyOn(createSessionUseCase, 'execute').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      try {
-        await controller.login(dto, response, ip, userAgent);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await controller.login(dto, response, ip, userAgent);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
 
     it('should throw error if userMapper.loginDTOForEntity throws error', async () => {
@@ -365,24 +377,30 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw error if getAccessTokenUseCase throws error', async () => {
-      vi.spyOn(getAccessTokenUseCase, 'execute').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      try {
-        await controller.getAccessToken(response, userID, tokenID);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await controller.getAccessToken(response, userID, tokenID);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
   });
 
   describe('logout', () => {
     it('should call finishSessionUseCase.execute with userId and tokenid', async () => {
+      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue({
+        ok: true,
+      });
+
       await controller.logout(response, userID, tokenID);
 
       expect(finishSessionUseCase.execute).toHaveBeenCalledWith(
@@ -392,6 +410,10 @@ describe('AuthController', () => {
     });
 
     it('should return HttpNoContentResponse on success', async () => {
+      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue({
+        ok: true,
+      });
+
       const result = await controller.logout(response, userID, tokenID);
 
       expect(response.status).toBeCalledWith(HttpStatus.NO_CONTENT);
@@ -403,19 +425,21 @@ describe('AuthController', () => {
       });
     });
 
-    it('should throw error if finishSessionUseCase throws error', async () => {
-      vi.spyOn(finishSessionUseCase, 'execute').mockRejectedValue(
-        new Error('Erro no use case'),
-      );
+    it('should return NotPossible when use case fails', async () => {
+      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado',
+      });
 
-      try {
-        await controller.logout(response, userID, tokenID);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Erro no use case');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await controller.logout(response, userID, tokenID);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Erro inesperado',
+      });
     });
   });
 });

@@ -138,18 +138,22 @@ describe('ChangePasswordUseCase', () => {
       });
     });
 
-    it('should retrow error if this.updatePassword throw error', async () => {
+    it('should return NOT_POSSIBLE when updatePassword throws error', async () => {
       vi.spyOn(useCase as any, 'updatePassword').mockRejectedValue(
         new Error('Error in updatePassword'),
       );
 
-      try {
-        await useCase.executeUpdate(userID, newPassword, oldPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error in updatePassword');
-      }
+      const result = await useCase.executeUpdate(
+        userID,
+        newPassword,
+        oldPassword,
+      );
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 
@@ -193,18 +197,18 @@ describe('ChangePasswordUseCase', () => {
       });
     });
 
-    it('should rethrow error if userRepository.findOne throw error', async () => {
+    it('should return NOT_POSSIBLE when repository throws error', async () => {
       vi.spyOn(userRepository, 'findOne').mockRejectedValue(
         new Error('Error finding code row'),
       );
-      try {
-        await useCase.executeReset(email, newPassword);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error finding code row');
-        expect(error.data).toBeUndefined();
-      }
+
+      const result = await useCase.executeReset(email, newPassword);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 

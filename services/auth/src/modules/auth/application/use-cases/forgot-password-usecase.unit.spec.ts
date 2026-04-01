@@ -110,34 +110,32 @@ describe('ForgotPasswordUseCase', () => {
       });
     });
 
-    it('should rethrow error if emailSender throw error', async () => {
+    it('should return NOT_POSSIBLE when emailSender throws error', async () => {
       vi.spyOn(emailSender, 'send').mockRejectedValue(
         new Error('Error sending email'),
       );
 
-      try {
-        await useCase.sendCode(email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error sending email');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.sendCode(email);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
 
-    it('should rethrow error if emailCodeRepository throw error', async () => {
+    it('should return NOT_POSSIBLE when emailCodeRepository throws error', async () => {
       vi.spyOn(emailCodeRepository, 'save').mockRejectedValue(
         new Error('Error saving code'),
       );
 
-      try {
-        await useCase.sendCode(email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error saving code');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.sendCode(email);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 
@@ -211,51 +209,48 @@ describe('ForgotPasswordUseCase', () => {
       });
     });
 
-    it('should rethrow error if emailCodeRepository.find throw error', async () => {
+    it('should return NOT_POSSIBLE when emailCodeRepository.find throws error', async () => {
       vi.spyOn(emailCodeRepository, 'findOne').mockRejectedValue(
         new Error('Error finding email code row'),
       );
 
-      try {
-        await useCase.validateCode(code, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error finding email code row');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(code, email);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
 
-    it('should rethrow error if emailCodeRepository.deleteMany throw error', async () => {
+    it('should return NOT_POSSIBLE when emailCodeRepository.deleteMany throws error', async () => {
       vi.spyOn(emailCodeRepository, 'deleteMany').mockRejectedValue(
         new Error('Error deleting code'),
       );
 
-      try {
-        await useCase.validateCode(code, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error deleting code');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(code, email);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
 
-    it('should rethrow error if tokenService throw error', async () => {
+    it('should return NOT_POSSIBLE when tokenService throws error', async () => {
       vi.spyOn(tokenService, 'generateResetPassToken').mockImplementation(
         () => {
           throw new Error('Error generate reset pass token');
         },
       );
 
-      try {
-        await useCase.validateCode(code, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error generate reset pass token');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(code, email);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 });

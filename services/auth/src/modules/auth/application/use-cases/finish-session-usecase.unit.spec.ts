@@ -1,6 +1,7 @@
 import IDConstants from '@auth/domain/values-objects/id/id-constants';
 import { FinishSessionUseCase } from './finish-session.usecase';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('FinishSessionUseCase', () => {
   let useCase: FinishSessionUseCase;
@@ -31,6 +32,20 @@ describe('FinishSessionUseCase', () => {
         tokenID,
         userID,
       );
+    });
+
+    it('should return NOT_POSSIBLE when repository throws error', async () => {
+      vi.spyOn(tokenRepository, 'revokeOneSession').mockRejectedValue(
+        new Error('Error revoking session'),
+      );
+
+      const result = await useCase.execute(tokenID, userID);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 });

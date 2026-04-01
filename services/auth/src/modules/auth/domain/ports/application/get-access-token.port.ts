@@ -4,7 +4,9 @@ export interface GetAccessTokenPort {
   execute: (userID: string, tokenID: string) => Promise<ExecuteReturn>;
 }
 
-type ExecuteResultReasons = ApplicationResultReasons.NOT_FOUND;
+type ExecuteResultReasons =
+  | ApplicationResultReasons.NOT_FOUND
+  | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteReturn =
   | {

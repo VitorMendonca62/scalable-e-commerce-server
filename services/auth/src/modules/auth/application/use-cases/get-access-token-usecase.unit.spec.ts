@@ -84,5 +84,19 @@ describe('GetAccessTokenUseCase', () => {
         message: 'Sessão inválida. Faça login novamente.',
       });
     });
+
+    it('should return NOT_POSSIBLE when repository throws error', async () => {
+      vi.spyOn(userRepository, 'findOne').mockRejectedValue(
+        new Error('Error finding user'),
+      );
+
+      const result = await useCase.execute(user.userID, tokenID);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
+    });
   });
 });

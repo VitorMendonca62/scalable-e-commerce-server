@@ -17,21 +17,30 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
   ) {}
 
   async execute(userID: string, tokenID: string): Promise<ExecuteReturn> {
-    const user = await this.userRepository.findOne({ userID });
+    try {
+      const user = await this.userRepository.findOne({ userID });
 
-    if (user === undefined || user === null) {
+      if (user === undefined || user === null) {
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.NOT_FOUND,
+          message: 'Sessão inválida. Faça login novamente.',
+        };
+      }
+
+      await this.tokenRepository.updateLastAcess(tokenID);
+
+      return {
+        ok: true,
+        result: this.tokenService.generateAccessToken(user),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'Sessão inválida. Faça login novamente.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       };
     }
-
-    await this.tokenRepository.updateLastAcess(tokenID);
-
-    return {
-      ok: true,
-      result: this.tokenService.generateAccessToken(user),
-    };
   }
 }

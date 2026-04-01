@@ -24,6 +24,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { exportJWK, importSPKI } from 'jose';
 import GetCertsUseCase from './get-certs.usecase';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 describe('GetCertsUseCase', () => {
   let useCase: GetCertsUseCase;
@@ -104,7 +105,7 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should call functions with correct parameters', async () => {
-      await useCase.getAuthCert();
+      const result = await useCase.getAuthCert();
 
       expect(path.join).toHaveBeenCalledWith(
         expect.any(String),
@@ -114,16 +115,34 @@ describe('GetCertsUseCase', () => {
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
       expect(exportJWK).toHaveBeenCalledWith(mockPublicKey);
       expect(configService.get).toHaveBeenCalledWith('AUTH_JWT_KEYID');
+      expect(result.ok).toBe(true);
     });
 
     it('should return cert with correct structure', async () => {
       const result = await useCase.getAuthCert();
 
       expect(result).toEqual({
-        ...mockJwk,
-        kid: authKeyID,
-        alg: 'RS256',
-        use: 'sig',
+        ok: true,
+        result: {
+          ...mockJwk,
+          kid: authKeyID,
+          alg: 'RS256',
+          use: 'sig',
+        },
+      });
+    });
+
+    it('should return NOT_POSSIBLE when fs.readFile throws error', async () => {
+      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
+        new Error('Error reading file'),
+      );
+
+      const result = await useCase.getAuthCert();
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       });
     });
   });
@@ -138,7 +157,7 @@ describe('GetCertsUseCase', () => {
     });
 
     it('should call functions with correct parameters', async () => {
-      await useCase.getResetPassCert();
+      const result = await useCase.getResetPassCert();
 
       expect(path.join).toHaveBeenCalledWith(
         expect.any(String),
@@ -148,16 +167,34 @@ describe('GetCertsUseCase', () => {
       expect(importSPKI).toHaveBeenCalledWith(mockPemContent, 'RS256');
       expect(exportJWK).toHaveBeenCalledWith(mockPublicKey);
       expect(configService.get).toHaveBeenCalledWith('RESET_PASS_KEYID');
+      expect(result.ok).toBe(true);
     });
 
     it('should return cert with correct structure', async () => {
       const result = await useCase.getResetPassCert();
 
       expect(result).toEqual({
-        ...mockJwk,
-        kid: resetPassKeyID,
-        alg: 'RS256',
-        use: 'sig',
+        ok: true,
+        result: {
+          ...mockJwk,
+          kid: resetPassKeyID,
+          alg: 'RS256',
+          use: 'sig',
+        },
+      });
+    });
+
+    it('should return NOT_POSSIBLE when fs.readFile throws error', async () => {
+      vi.spyOn(fs.promises, 'readFile').mockRejectedValue(
+        new Error('Error reading file'),
+      );
+
+      const result = await useCase.getResetPassCert();
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       });
     });
   });

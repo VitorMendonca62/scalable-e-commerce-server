@@ -11,7 +11,7 @@ import {
   Req,
   HttpCode,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiExcludeEndpoint, ApiTags } from '@nestjs/swagger';
 import { ApiGetAccessToken } from './decorators/docs/api-get-access-token-user.decorator';
 import { ApiLoginUser } from './decorators/docs/api-login-user.decorator';
 import { UserMapper } from '@auth/infrastructure/mappers/user.mapper';
@@ -23,7 +23,6 @@ import {
 } from '@auth/domain/ports/primary/http/sucess.port';
 import { ApiLogout } from './decorators/docs/api-logout.decorator';
 import { ApiGetGoogleUrl } from './decorators/docs/api-get-google-url.decorator';
-import { ApiGoogleCallback } from './decorators/docs/api-google-callback.decorator';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import RevocationGuard from './guards/revocation.guard';
 import { GoogleOAuthGuard } from './guards/google-oauth.guard';
@@ -36,9 +35,13 @@ import {
   GetAccessTokenUseCase,
 } from '@auth/application/use-cases/use-cases';
 import { LoginUserDTO } from './dtos/dtos';
-import { WrongCredentials } from '@auth/domain/ports/primary/http/errors.port';
+import {
+  NotPossible,
+  WrongCredentials,
+} from '@auth/domain/ports/primary/http/errors.port';
 import QueueService from '../../secondary/message-broker/queue.service';
 import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
+import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
 
 @Controller('auth')
 @ApiTags('AuthController')
@@ -65,7 +68,7 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleOAuthGuard)
   @HttpCode(HttpStatus.CREATED)
-  @ApiGoogleCallback()
+  @ApiExcludeEndpoint()
   async googleAuth(
     @Req() request: FastifyRequest & { user: UserGoogleInCallBack },
     @Res({ passthrough: true }) response: FastifyReply,
@@ -81,6 +84,11 @@ export class AuthController {
 
     const useCaseResult =
       await this.createSessionUseCase.executeWithGoogle(googleLoginDTO);
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new NotPossible(useCaseResult.message);
+    }
 
     const { newUser, tokens } = useCaseResult.result;
 
@@ -118,6 +126,11 @@ export class AuthController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
+
       response.status(HttpStatus.UNAUTHORIZED);
       return new WrongCredentials(useCaseResult.message);
     }
@@ -145,6 +158,11 @@ export class AuthController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
+
       response.status(HttpStatus.UNAUTHORIZED);
       return new WrongCredentials(useCaseResult.message);
     }
@@ -163,7 +181,15 @@ export class AuthController {
     @Headers('x-user-id') userID: string,
     @Headers('x-token-id') tokenID: string,
   ): Promise<HttpResponseOutbound> {
-    await this.finishSessionUseCase.execute(tokenID, userID);
+    const useCaseResult = await this.finishSessionUseCase.execute(
+      tokenID,
+      userID,
+    );
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new NotPossible(useCaseResult.message);
+    }
 
     response.status(HttpStatus.NO_CONTENT);
     return new HttpNoContentResponse();

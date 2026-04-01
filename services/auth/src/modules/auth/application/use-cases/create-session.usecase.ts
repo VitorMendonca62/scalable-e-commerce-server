@@ -26,56 +26,76 @@ export class CreateSessionUseCase implements CreateSesssionPort {
   ) {}
 
   async execute(inputUser: UserLogin): Promise<ExecuteReturn> {
-    const sessionUser = await this.userRepository.findSessionUserByEmail(
-      inputUser.email.getValue(),
-    );
+    try {
+      const sessionUser = await this.userRepository.findSessionUserByEmail(
+        inputUser.email.getValue(),
+      );
 
-    const passwordToCompare = sessionUser?.password ?? this.getDummyHash();
+      const passwordToCompare = sessionUser?.password ?? this.getDummyHash();
 
-    const isPasswordValid = await this.passwordHasher.compare(
-      inputUser.password.getValue(),
-      passwordToCompare,
-    );
+      const isPasswordValid = await this.passwordHasher.compare(
+        inputUser.password.getValue(),
+        passwordToCompare,
+      );
 
-    if (
-      sessionUser === null ||
-      sessionUser.password == null ||
-      !isPasswordValid
-    ) {
+      if (
+        sessionUser === null ||
+        sessionUser.password == null ||
+        !isPasswordValid
+      ) {
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.WRONG_CREDENTIALS,
+          message: 'Suas credenciais estão incorretas. Tente novamente',
+        };
+      }
+
+      return {
+        ok: true,
+        result: await this.generateAccessAndRefreshToken(
+          sessionUser,
+          inputUser.ip,
+          inputUser.userAgent,
+        ),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
-        message: 'Suas credenciais estão incorretas. Tente novamente',
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
       };
     }
-
-    return {
-      ok: true,
-      result: await this.generateAccessAndRefreshToken(
-        sessionUser,
-        inputUser.ip,
-        inputUser.userAgent,
-      ),
-    };
   }
 
   async executeWithGoogle(
     inputUser: UserGoogleLogin,
   ): Promise<ExecuteWithGoogleReturn> {
-    const strategy = this.providerSessionRegistry.get(AccountsProvider.GOOGLE);
-    const { baseUser, newUser } = await strategy.execute(inputUser);
+    try {
+      const strategy = this.providerSessionRegistry.get(
+        AccountsProvider.GOOGLE,
+      );
+      const { baseUser, newUser } = await strategy.execute(inputUser);
 
-    return {
-      ok: true,
-      result: {
-        tokens: await this.generateAccessAndRefreshToken(
-          baseUser,
-          inputUser.ip,
-          inputUser.userAgent,
-        ),
-        newUser: newUser,
-      },
-    };
+      return {
+        ok: true,
+        result: {
+          tokens: await this.generateAccessAndRefreshToken(
+            baseUser,
+            inputUser.ip,
+            inputUser.userAgent,
+          ),
+          newUser: newUser,
+        },
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+      return {
+        ok: false,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      };
+    }
   }
 
   private async generateAccessAndRefreshToken(

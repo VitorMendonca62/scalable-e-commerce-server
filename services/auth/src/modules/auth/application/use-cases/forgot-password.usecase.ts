@@ -23,60 +23,79 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
   ) {}
 
   async sendCode(email: string): Promise<SendCodeReturn> {
-    const otpCode = otpGenerator.generate(6, {
-      upperCaseAlphabets: true,
-      specialChars: false,
-      digits: true,
-      lowerCaseAlphabets: false,
-    });
+    try {
+      const otpCode = otpGenerator.generate(6, {
+        upperCaseAlphabets: true,
+        specialChars: false,
+        digits: true,
+        lowerCaseAlphabets: false,
+      });
 
-    await this.emailSender.send(
-      email,
-      this.configService.get<string>('EMAIL_FROM_FOR_FORGOT_PASSWORD'),
-      'Seu Código de recuperação',
-      'forgot-password-email',
-      {
+      await this.emailSender.send(
+        email,
+        this.configService.get<string>('EMAIL_FROM_FOR_FORGOT_PASSWORD'),
+        'Seu Código de recuperação',
+        'forgot-password-email',
+        {
+          code: otpCode,
+        },
+      );
+
+      const expiresIn =
+        Date.now() + TokenExpirationConstants.RESET_PASS_TOKEN_MS;
+
+      await this.emailCodeRepository.save({
+        email,
         code: otpCode,
-      },
-    );
+        expiresIn: new Date(expiresIn),
+      });
 
-    const expiresIn = Date.now() + TokenExpirationConstants.RESET_PASS_TOKEN_MS;
-
-    await this.emailCodeRepository.save({
-      email,
-      code: otpCode,
-      expiresIn: new Date(expiresIn),
-    });
-
-    return {
-      ok: true,
-    };
+      return {
+        ok: true,
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
+      return {
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      };
+    }
   }
 
   async validateCode(code: string, email: string): Promise<ValidateCodeReturn> {
-    const emailCode = await this.emailCodeRepository.findOne({ code, email });
-    const invalidMessage =
-      'Código de recuperação inválido ou expirado. Tente novamente';
+    try {
+      const emailCode = await this.emailCodeRepository.findOne({ code, email });
+      const invalidMessage =
+        'Código de recuperação inválido ou expirado. Tente novamente';
 
-    if (emailCode === undefined || emailCode === null)
+      if (emailCode === undefined || emailCode === null)
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.FIELD_INVALID,
+          message: invalidMessage,
+        };
+
+      if (emailCode.expiresIn < new Date())
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.FIELD_INVALID,
+          message: invalidMessage,
+        };
+
+      await this.emailCodeRepository.deleteMany(email);
+
+      return {
+        ok: true,
+        result: await this.tokenService.generateResetPassToken({ email }),
+      };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        reason: ApplicationResultReasons.FIELD_INVALID,
-        message: invalidMessage,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       };
-
-    if (emailCode.expiresIn < new Date())
-      return {
-        ok: false,
-        reason: ApplicationResultReasons.FIELD_INVALID,
-        message: invalidMessage,
-      };
-
-    await this.emailCodeRepository.deleteMany(email);
-
-    return {
-      ok: true,
-      result: await this.tokenService.generateResetPassToken({ email }),
-    };
+    }
   }
 }

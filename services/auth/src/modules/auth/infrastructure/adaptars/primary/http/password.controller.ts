@@ -28,6 +28,7 @@ import { ApplicationResultReasons } from '@auth/domain/enums/application-result-
 import {
   FieldInvalid,
   NotFoundUser,
+  NotPossible,
   WrongCredentials,
 } from '@auth/domain/ports/primary/http/errors.port';
 import ForgotPasswordUseCase from '@auth/application/use-cases/forgot-password.usecase';
@@ -45,8 +46,14 @@ export class PasswordController {
   @ApiSendCodeforForgotPassword()
   async sendCode(
     @Body() dto: SendCodeForForgotPasswordDTO,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    await this.forgotPasswordUseCase.sendCode(dto.email);
+    const useCaseResult = await this.forgotPasswordUseCase.sendCode(dto.email);
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new NotPossible(useCaseResult.message);
+    }
 
     return new HttpOKResponse(
       'Código de recuperação enviado com sucesso. Verifique seu email.',
@@ -66,6 +73,11 @@ export class PasswordController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
+
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid(useCaseResult.message, 'code');
     }
@@ -89,6 +101,11 @@ export class PasswordController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
+
       response.status(HttpStatus.UNAUTHORIZED);
       return new WrongCredentials(useCaseResult.message);
     }
@@ -112,6 +129,11 @@ export class PasswordController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
+
       if (useCaseResult.reason === ApplicationResultReasons.NOT_FOUND) {
         response.status(HttpStatus.NOT_FOUND);
         return new NotFoundUser();

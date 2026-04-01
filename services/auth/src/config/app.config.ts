@@ -1,6 +1,5 @@
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables, NodeEnv } from './environment/env.validation';
-import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { FieldInvalidException } from '@auth/domain/ports/primary/http/errors.port';
@@ -19,38 +18,11 @@ export default class AppConfig {
       .setTitle('Auth System')
       .setDescription('The auth system for a e-commerce store')
       .setVersion('1.0')
-      .addCookieAuth(
-        Cookies.RefreshToken,
-        {
-          type: 'apiKey',
-          in: 'cookie',
-          name: Cookies.RefreshToken,
-        },
-        'cookie_refresh',
-      )
-      .addCookieAuth(
-        Cookies.AccessToken,
-        {
-          type: 'apiKey',
-          in: 'cookie',
-          name: Cookies.AccessToken,
-        },
-        'cookie_access',
-      )
-      .addCookieAuth(
-        Cookies.ResetPassToken,
-        {
-          type: 'apiKey',
-          in: 'cookie',
-          name: Cookies.ResetPassToken,
-        },
-        'cookie_reset_pass',
-      )
       .build();
 
     const document = SwaggerModule.createDocument(this.app, documentBuilder);
 
-    SwaggerModule.setup('docs', this.app, document, {
+    SwaggerModule.setup('/docs', this.app, document, {
       swaggerOptions: {
         requestInterceptor: (req) => {
           req.credentials = 'include';

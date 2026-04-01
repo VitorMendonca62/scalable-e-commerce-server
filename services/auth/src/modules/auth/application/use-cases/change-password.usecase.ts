@@ -24,52 +24,70 @@ export class ChangePasswordUseCase implements ChangePasswordPort {
     newPassword: string,
     oldPassword: string,
   ): Promise<ExecuteUpdateReturn> {
-    const user = await this.userRepository.findOne({
-      userID,
-    });
+    try {
+      const user = await this.userRepository.findOne({
+        userID,
+      });
 
-    if (user === undefined || user === null) {
+      if (user === undefined || user === null) {
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.NOT_FOUND,
+        };
+      }
+
+      const oldPasswordVO = new PasswordHashedVO(
+        user.password,
+        this.passwordHasher,
+      );
+      if (!(await oldPasswordVO.comparePassword(oldPassword))) {
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.FIELD_INVALID,
+          message: 'A senha atual informada está incorreta.',
+          result: 'oldPassword',
+        };
+      }
+
+      await this.updatePassword(user.userID, newPassword);
+      return { ok: true };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       };
     }
-
-    const oldPasswordVO = new PasswordHashedVO(
-      user.password,
-      this.passwordHasher,
-    );
-    if (!(await oldPasswordVO.comparePassword(oldPassword))) {
-      return {
-        ok: false,
-        reason: ApplicationResultReasons.FIELD_INVALID,
-        message: 'A senha atual informada está incorreta.',
-        result: 'oldPassword',
-      };
-    }
-
-    await this.updatePassword(user.userID, newPassword);
-    return { ok: true };
   }
 
   async executeReset(
     email: string,
     newPassword: string,
   ): Promise<ExecuteResetReturn> {
-    const user = await this.userRepository.findOne({
-      email,
-    });
+    try {
+      const user = await this.userRepository.findOne({
+        email,
+      });
 
-    if (user === undefined || user === null) {
+      if (user === undefined || user === null) {
+        return {
+          ok: false,
+          reason: ApplicationResultReasons.NOT_FOUND,
+          message: 'Token inválido ou expirado',
+        };
+      }
+
+      await this.updatePassword(user.userID, newPassword);
+      return { ok: true };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'Token inválido ou expirado',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
       };
     }
-
-    await this.updatePassword(user.userID, newPassword);
-    return { ok: true };
   }
 
   private async updatePassword(userID: string, newPassword: string) {

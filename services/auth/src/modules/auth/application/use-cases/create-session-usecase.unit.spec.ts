@@ -161,6 +161,20 @@ describe('CreateSessionUseCase', () => {
         message: 'Suas credenciais estão incorretas. Tente novamente',
       });
     });
+
+    it('should return NOT_POSSIBLE when repository throws error', async () => {
+      vi.spyOn(userRepository, 'findSessionUserByEmail').mockRejectedValue(
+        new Error('Error finding user'),
+      );
+
+      const result = await useCase.execute(loginUserEntity);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
+    });
   });
 
   describe('executeWithGoogle', () => {
@@ -188,8 +202,26 @@ describe('CreateSessionUseCase', () => {
       expect(providerSessionStrategy.execute).toHaveBeenCalledWith(
         userGoogleLogin,
       );
-      expect(result.result.tokens).toEqual(generateAccessAndRefreshTokenResult);
-      expect(result.result.newUser).toBeUndefined();
+      if (result.ok) {
+        expect(result.result.tokens).toEqual(
+          generateAccessAndRefreshTokenResult,
+        );
+        expect(result.result.newUser).toBeUndefined();
+      }
+    });
+
+    it('should return NOT_POSSIBLE when provider throws error', async () => {
+      vi.spyOn(providerSessionStrategy, 'execute').mockRejectedValue(
+        new Error('Error in provider'),
+      );
+
+      const result = await useCase.executeWithGoogle(userGoogleLogin);
+
+      expect(result).toEqual({
+        ok: false,
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+        message: 'Erro inesperado. Tente novamente mais tarde.',
+      });
     });
   });
 

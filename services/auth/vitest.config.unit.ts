@@ -34,8 +34,8 @@ export default defineConfig({
         'src/**/enums/*.ts',
       ],
     },
-    isolate: false,
-    maxConcurrency: 10,
+    // isolate: false,
+    // maxConcurrency: 10,
     alias: {
       '@auth': path.resolve(__dirname, './src/modules/auth'),
       '@config': path.resolve(__dirname, './src/config'),
