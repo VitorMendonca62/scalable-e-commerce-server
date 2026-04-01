@@ -9,22 +9,22 @@ NC='\033[0m'
 echo -e "${YELLOW}🚀 Iniciando ambiente de testes E2E...${NC}\n"
 
 set -a
-. ./.env.test.local
+. ./.env.test
 set +a
 
 cleanup() {
     echo -e "\n${YELLOW}🧹 Limpando ambiente de testes...${NC}"
-    docker compose --env-file .env.test.local -f docker-compose.test.yaml down -v
+    docker compose --env-file .env.test -f docker-compose.test.yaml down -v
     echo -e "${GREEN}✅ Ambiente limpo!${NC}"
 }
 
 trap cleanup EXIT INT TERM
 
 echo -e "${YELLOW}📦 Parando containers antigos...${NC}"
-docker compose --env-file .env.test.local -f docker-compose.test.yaml down -v 2>/dev/null || true
+docker compose --env-file .env.test -f docker-compose.test.yaml down -v 2>/dev/null || true
 
 echo -e "${YELLOW}🐳 Subindo containers de teste...${NC}"
-docker compose --env-file .env.test.local -f docker-compose.test.yaml up -d
+docker compose --env-file .env.test -f docker-compose.test.yaml up -d
 
 echo -e "${YELLOW}⏳ Aguardando containers ficarem prontos...${NC}"
 timeout=60
@@ -89,7 +89,7 @@ echo -e "${GREEN}✅ Banco de dados limpo${NC}\n"
 
 echo -e "${YELLOW}🧪 Executando testes E2E...${NC}\n"
 
-export $(cat .env.test.local | xargs)
+export $(cat .env.test | xargs)
 
 TEST_CMD="cross-env NODE_ENV=test vitest --config vitest.config.e2e.ts"
 
