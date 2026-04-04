@@ -1,4 +1,4 @@
-import { HttpError } from '@modules/user/domain/ports/primary/http/error.port';
+import { HttpError } from '@user/domain/ports/primary/http/error.port';
 import {
   ExceptionFilter,
   Catch,

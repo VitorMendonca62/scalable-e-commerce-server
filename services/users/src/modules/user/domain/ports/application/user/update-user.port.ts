@@ -1,5 +1,5 @@
-import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { UserUpdateEntity } from '@user/domain/entities/user-update.entity';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 export interface UpdateUserPort {
   execute: (
@@ -8,7 +8,9 @@ export interface UpdateUserPort {
   ) => Promise<ExecuteResult>;
 }
 
-type ExecuteResultReasons = ApplicationResultReasons.NOT_FOUND;
+type ExecuteResultReasons =
+  | ApplicationResultReasons.NOT_FOUND
+  | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteResult =
   | { ok: true }

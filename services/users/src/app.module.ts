@@ -1,18 +1,18 @@
 import { validateENV } from '@config/environment/env.validate';
 import { getCurrentNodeENV } from '@config/environment/utils';
-import { UserModule } from '@modules/user/user.module';
+import { UserModule } from '@user/user.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { configNodeMailer } from '@config/smtp/nodemailer.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import UserModel from '@modules/user/infrastructure/adaptars/secondary/database/models/user.model';
-import AddressModel from '@modules/user/infrastructure/adaptars/secondary/database/models/address.model';
+import UserModel from '@user/infrastructure/adaptars/secondary/database/models/user.model';
+import AddressModel from '@user/infrastructure/adaptars/secondary/database/models/address.model';
 import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { configRedisdDB } from '@config/database/redis.config';
-import DeadLetterMessageModel from '@modules/user/infrastructure/adaptars/secondary/database/models/dlq.model';
+import DeadLetterMessageModel from '@user/infrastructure/adaptars/secondary/database/models/dlq.model';
 
 @Module({
   imports: [
@@ -43,7 +43,7 @@ import DeadLetterMessageModel from '@modules/user/infrastructure/adaptars/second
           password: configService.get('POSTGRES_PASSWORD'),
           database: configService.get('POSTGRES_DB'),
           entities: [UserModel, AddressModel, DeadLetterMessageModel],
-          synchronize: true,
+          synchronize: false,
         };
       },
       inject: [ConfigService],

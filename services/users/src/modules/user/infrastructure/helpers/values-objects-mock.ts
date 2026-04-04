@@ -1,4 +1,4 @@
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 import { type Mock } from 'vitest';
 
 // Mock ID
@@ -14,7 +14,7 @@ class MockID {
   getValue = mockIDGetValue;
 }
 
-vi.mock('@modules/user/domain/values-objects/common/value-object', () => {
+vi.mock('@user/domain/values-objects/common/value-object', () => {
   return {
     IDVO: MockID,
   };

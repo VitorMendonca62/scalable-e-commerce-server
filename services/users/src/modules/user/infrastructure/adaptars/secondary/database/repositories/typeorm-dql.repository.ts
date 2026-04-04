@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import DeadLetterMessageModel from '../models/dlq.model';
-import DeadLetterMessageRepository from '@modules/user/domain/ports/secondary/dql.repository.port';
+import DeadLetterMessageRepository from '@user/domain/ports/secondary/dql.repository.port';
 
 @Injectable()
 export class TypeOrmDQLRepository implements DeadLetterMessageRepository {

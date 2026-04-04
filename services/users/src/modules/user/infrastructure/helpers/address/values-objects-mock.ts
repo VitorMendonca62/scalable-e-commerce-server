@@ -7,7 +7,7 @@ import {
   PostalCodeConstants,
   StateConstants,
   StreetConstants,
-} from '@modules/user/domain/values-objects/address/constants';
+} from '@user/domain/values-objects/address/constants';
 import { type Mock } from 'vitest';
 
 // Mock City
@@ -114,7 +114,7 @@ class MockStreet {
   getValue = mockStreetGetValue;
 }
 
-vi.mock('@modules/user/domain/values-objects/address/values-object', () => {
+vi.mock('@user/domain/values-objects/address/values-object', () => {
   return {
     CityVO: MockCity,
     ComplementVO: MockComplement,

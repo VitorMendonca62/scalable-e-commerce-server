@@ -2,20 +2,20 @@ import UserRepository from '@user/domain/ports/secondary/user-repository.port';
 
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import { CreateUserUseCase } from './create-user.usecase';
-import { UserFactory } from '@modules/user/infrastructure/helpers/users/factory';
+import { UserFactory } from '@user/infrastructure/helpers/users/factory';
 import {
   EmailConstants,
   UsernameConstants,
-} from '@modules/user/domain/values-objects/user/constants';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import { PasswordHasher } from '@modules/user/domain/ports/secondary/password-hasher.port';
-import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
+} from '@user/domain/values-objects/user/constants';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import { PasswordHasher } from '@user/domain/ports/secondary/password-hasher.port';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
 
 describe('CreateUserUseCase', () => {
   let useCase: CreateUserUseCase;
   let userRepository: UserRepository;
   let userMapper: UserMapper;
-  let passwordHashser: PasswordHasher;
+  let passwordHasher: PasswordHasher;
 
   beforeEach(async () => {
     userRepository = {
@@ -27,15 +27,11 @@ describe('CreateUserUseCase', () => {
       entityToModel: vi.fn(),
     } as any;
 
-    passwordHashser = {
+    passwordHasher = {
       hash: vi.fn().mockReturnValue('hashedPassword'),
     } as any;
 
-    useCase = new CreateUserUseCase(
-      userRepository,
-      userMapper,
-      passwordHashser,
-    );
+    useCase = new CreateUserUseCase(userRepository, userMapper, passwordHasher);
   });
 
   it('should be defined', () => {
@@ -118,47 +114,41 @@ describe('CreateUserUseCase', () => {
       });
     });
 
-    it('should rethrow error if userRepository.findOneWithOr throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.findOneWithOr throw error', async () => {
       vi.spyOn(userRepository, 'findOneWithOR').mockRejectedValue(
         new Error('Error'),
       );
 
-      try {
-        await useCase.execute(userEntity, password);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userEntity, password);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel criar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if userMapper.entityToModel throw error', async () => {
+    it('should return NOT_POSSIBLE if userMapper.entityToModel throw error', async () => {
       vi.spyOn(userMapper, 'entityToModel').mockImplementation(() => {
         throw new Error('Error');
       });
 
-      try {
-        await useCase.execute(userEntity, password);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userEntity, password);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel criar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if userRepository.create throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.create throw error', async () => {
       vi.spyOn(userRepository, 'create').mockRejectedValue(new Error('Error'));
 
-      try {
-        await useCase.execute(userEntity, password);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userEntity, password);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel criar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 });

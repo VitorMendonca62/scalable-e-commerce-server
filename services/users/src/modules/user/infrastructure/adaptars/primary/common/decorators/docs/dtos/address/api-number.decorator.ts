@@ -1,4 +1,4 @@
-import { NumberConstants } from '@modules/user/domain/values-objects/address/constants';
+import { NumberConstants } from '@user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { ApiProperty } from '@nestjs/swagger';
 

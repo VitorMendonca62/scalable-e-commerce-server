@@ -6,7 +6,9 @@ vi.mock('../models/user.model', () => ({
 
 import TypeOrmUserRepository from './typeorm-user.repository';
 import UserModel from '../models/user.model';
-import { UserFactory } from '@modules/user/infrastructure/helpers/users/factory';
+import { UserRecord } from '@user/domain/types/user-record';
+import { UserFactory } from '@user/infrastructure/helpers/users/factory';
+import { AddressFactory } from '@user/infrastructure/helpers/address/factory';
 
 describe('TypeOrmUserRepository', () => {
   let repository: TypeOrmUserRepository;
@@ -45,7 +47,11 @@ describe('TypeOrmUserRepository', () => {
       email: 'test@example.com',
     };
 
-    const user = { ...UserFactory.createModel(), id: 1 };
+    const user = {
+      ...UserFactory.createModel(),
+      addresses: [AddressFactory.createModel()],
+      id: 1,
+    } as UserModel;
 
     it('should call findOneBy with correct parameters', async () => {
       vi.spyOn(usersRepository, 'findOneBy').mockResolvedValue(user);
@@ -60,7 +66,9 @@ describe('TypeOrmUserRepository', () => {
 
       const result = await repository.findOne(options);
 
-      expect(result).toEqual(user);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, ...userRecord } = user;
+      expect(result).toEqual(userRecord);
     });
 
     it('should return null when user is not found', async () => {
@@ -76,7 +84,11 @@ describe('TypeOrmUserRepository', () => {
     const options = [{ userID: 'user-123' }, { email: 'test@example.com' }];
     const withDeleted = true;
 
-    const user = { ...UserFactory.createModel(), id: 1 };
+    const user = {
+      ...UserFactory.createModel(),
+      addresses: [AddressFactory.createModel()],
+      id: 1,
+    } as UserModel;
 
     it('should call findOne with correct parameters', async () => {
       vi.spyOn(usersRepository, 'findOne').mockResolvedValue(user);
@@ -94,7 +106,9 @@ describe('TypeOrmUserRepository', () => {
 
       const result = await repository.findOneWithOR(options, withDeleted);
 
-      expect(result).toEqual(user);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { id, ...userRecord } = user;
+      expect(result).toEqual(userRecord);
     });
 
     it('should return null when user is not found', async () => {
@@ -153,7 +167,7 @@ describe('TypeOrmUserRepository', () => {
 
   describe('update', () => {
     const userID = 'user-123';
-    const newFields: Partial<UserModel> = {
+    const newFields: Partial<UserRecord> = {
       name: 'Updated Name',
       email: 'updated@example.com',
     };

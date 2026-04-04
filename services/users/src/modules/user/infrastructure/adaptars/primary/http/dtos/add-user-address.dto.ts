@@ -1,4 +1,3 @@
-import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
 import {
   ApiCity,
   ApiComplement,
@@ -45,7 +44,7 @@ export class AddUserAddressDTO {
 
   @State()
   @ApiState()
-  state: BrazilStates;
+  state: string;
 
   @Country()
   @ApiCountry()

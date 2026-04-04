@@ -1,7 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import NodemailerEmailSender from './nodemailer.service';
-import EmailConstants from '@modules/user/domain/values-objects/user/email/email-constants';
-import { ExternalServiceException } from '@modules/user/domain/ports/primary/http/error.port';
+import EmailConstants from '@user/domain/values-objects/user/email/email-constants';
+import { ExternalServiceException } from '@user/domain/ports/primary/http/error.port';
 
 describe('NodemailerEmailSender', () => {
   let service: NodemailerEmailSender;

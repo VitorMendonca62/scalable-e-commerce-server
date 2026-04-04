@@ -1,9 +1,9 @@
-import { UserFactory } from '@modules/user/infrastructure/helpers/users/factory';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import UserRepository from '@modules/user/domain/ports/secondary/user-repository.port';
+import { UserFactory } from '@user/infrastructure/helpers/users/factory';
+import { UsernameConstants } from '@user/domain/values-objects/user/constants';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import UserRepository from '@user/domain/ports/secondary/user-repository.port';
 import { GetUserUseCase } from './get-user.usecase';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 
 describe('GetUserUseCase', () => {
   let useCase: GetUserUseCase;
@@ -84,17 +84,15 @@ describe('GetUserUseCase', () => {
       });
     });
 
-    it('should rethrow error if userRepository.findOne throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.findOne throw error', async () => {
       vi.spyOn(userRepository, 'findOne').mockRejectedValue(new Error('Error'));
 
-      try {
-        await useCase.execute(username, 'username');
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(username, 'username');
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel buscar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 });

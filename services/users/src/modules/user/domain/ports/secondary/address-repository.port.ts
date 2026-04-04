@@ -1,13 +1,13 @@
-import AddressModel from '@modules/user/infrastructure/adaptars/secondary/database/models/address.model';
+import { AddressRecord } from '@user/domain/types/address-record';
 
 export default abstract class AddressRepository {
   abstract addAddress(
     userID: string,
-    addressData: Omit<AddressModel, 'id' | 'user'>,
+    addressData: Omit<AddressRecord, 'id' | 'userID'>,
   ): Promise<void>;
 
-  abstract getAll(userID: string): Promise<AddressModel[]>;
+  abstract getAll(userID: string): Promise<AddressRecord[]>;
   abstract countAddresses(userID: string): Promise<number>;
 
-  abstract delete(addressIndex: number): Promise<void>;
+  abstract delete(addressId: number): Promise<void>;
 }

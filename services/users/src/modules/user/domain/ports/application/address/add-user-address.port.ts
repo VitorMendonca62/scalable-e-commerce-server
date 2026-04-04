@@ -1,5 +1,5 @@
-import { AddressEntity } from '@modules/user/domain/entities/address.entity';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { AddressEntity } from '@user/domain/entities/address.entity';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 export interface AddUserAddressPort {
   execute: (newAddress: AddressEntity) => Promise<ExecuteReturn>;

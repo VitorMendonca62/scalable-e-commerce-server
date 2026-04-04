@@ -1,4 +1,4 @@
-import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
 import BcryptPasswordHasher from './bcrypt-password-hasher';
 import * as bcrypt from 'bcryptjs';
 import { type Mock } from 'vitest';

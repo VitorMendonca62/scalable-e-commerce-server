@@ -1,10 +1,8 @@
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { TokenService } from '@modules/user/domain/ports/secondary/token-service.port';
+import { TokenService } from '@user/domain/ports/secondary/token-service.port';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as fs from 'fs';
 import { JwtService } from '@nestjs/jwt';
-import * as path from 'path';
 @Injectable()
 export class JwtTokenService implements TokenService {
   constructor(
@@ -21,9 +19,6 @@ export class JwtTokenService implements TokenService {
     //  TODO VERIFICAR ESSE ANY
     return this.jwtService.sign(payload as any, {
       expiresIn: '10m',
-      privateKey: fs.readFileSync(
-        path.join(process.cwd(), `certs/sign-up-private.pem`),
-      ),
       keyid: this.configService.get<string>('SIGN_UP_KEYID'),
     });
   }

@@ -1,5 +1,5 @@
-import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
-import { StateConstants } from '@modules/user/domain/values-objects/address/constants';
+import { BrazilStates } from '@user/domain/enums/brazil-ufs.enum';
+import { StateConstants } from '@user/domain/values-objects/address/constants';
 
 import { applyDecorators } from '@nestjs/common';
 import { IsEnum, IsNotEmpty, IsString, Length } from 'class-validator';

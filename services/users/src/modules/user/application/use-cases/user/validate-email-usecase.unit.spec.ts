@@ -1,13 +1,12 @@
-import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
-import * as otpGenerator from 'otp-generator';
-import { type Mock } from 'vitest';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
 import { ValidateEmailUseCase } from './validate-email-usecase';
-import EmailCodeRepository from '@modules/user/domain/ports/secondary/email-code-repository.port';
-import { EmailSender } from '@modules/user/domain/ports/secondary/mail-sender.port';
-import { TokenService } from '@modules/user/domain/ports/secondary/token-service.port';
+import EmailCodeRepository from '@user/domain/ports/secondary/email-code-repository.port';
+import { EmailSender } from '@user/domain/ports/secondary/mail-sender.port';
+import { TokenService } from '@user/domain/ports/secondary/token-service.port';
+import { OtpGenerator } from '@user/domain/ports/secondary/otp-generator.port';
 import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 describe('ValidateEmailUseCase', () => {
   let useCase: ValidateEmailUseCase;
@@ -16,6 +15,7 @@ describe('ValidateEmailUseCase', () => {
   let emailCodeRepository: EmailCodeRepository;
   let configService: ConfigService<EnvironmentVariables>;
   let tokenService: TokenService;
+  let otpGenerator: OtpGenerator;
 
   beforeEach(async () => {
     emailSender = {
@@ -36,11 +36,16 @@ describe('ValidateEmailUseCase', () => {
       generateSignUpToken: vi.fn(),
     } as any;
 
+    otpGenerator = {
+      generate: vi.fn(),
+    } as any;
+
     useCase = new ValidateEmailUseCase(
       emailSender,
       emailCodeRepository,
       configService,
       tokenService,
+      otpGenerator,
     );
   });
 
@@ -57,14 +62,8 @@ describe('ValidateEmailUseCase', () => {
     const emailFrom = `teste.${EmailConstants.EXEMPLE}`;
     const OTPCode = 'AAAAAA';
 
-    beforeAll(() => {
-      vi.mock('otp-generator', () => {
-        return { generate: vi.fn() };
-      });
-    });
-
     beforeEach(() => {
-      (otpGenerator.generate as Mock).mockReturnValue(OTPCode);
+      vi.spyOn(otpGenerator, 'generate').mockReturnValue(OTPCode);
       vi.spyOn(configService, 'get').mockReturnValue(emailFrom);
     });
 
@@ -75,12 +74,7 @@ describe('ValidateEmailUseCase', () => {
 
     it('should call otpGenerator.generate with correct parameters', async () => {
       await useCase.sendEmail(email);
-      expect(otpGenerator.generate).toHaveBeenCalledWith(6, {
-        upperCaseAlphabets: true,
-        specialChars: false,
-        digits: true,
-        lowerCaseAlphabets: false,
-      });
+      expect(otpGenerator.generate).toHaveBeenCalledWith();
     });
 
     it('should call configService.get with correct parameters', async () => {
@@ -108,34 +102,30 @@ describe('ValidateEmailUseCase', () => {
       expect(emailCodeRepository.save).toHaveBeenCalledWith(email, OTPCode);
     });
 
-    it('should rethrow error if emailSender throw error', async () => {
+    it('should return NOT_POSSIBLE if emailSender throw error', async () => {
       vi.spyOn(emailSender, 'send').mockRejectedValue(
         new Error('Error sending email'),
       );
 
-      try {
-        await useCase.sendEmail(email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error sending email');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.sendEmail(email);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel enviar o código de validação.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if codeRepository throw error', async () => {
+    it('should return NOT_POSSIBLE if codeRepository throw error', async () => {
       vi.spyOn(emailCodeRepository, 'save').mockRejectedValue(
         new Error('Error saving code'),
       );
 
-      try {
-        await useCase.sendEmail(email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error saving code');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.sendEmail(email);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel enviar o código de validação.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 
@@ -180,49 +170,44 @@ describe('ValidateEmailUseCase', () => {
       });
     });
 
-    it('should rethrow error if emailCodeRepository.exists throw error', async () => {
+    it('should return NOT_POSSIBLE if emailCodeRepository.exists throw error', async () => {
       vi.spyOn(emailCodeRepository, 'exists').mockRejectedValue(
         new Error('Error'),
       );
 
-      try {
-        await useCase.validateCode(OTPCode, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(OTPCode, email);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel validar o código de verificação.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if emailCodeRepository.deleteMany throw error', async () => {
-      vi.spyOn(emailCodeRepository, 'exists').mockRejectedValue(
+    it('should return NOT_POSSIBLE if emailCodeRepository.deleteMany throw error', async () => {
+      vi.spyOn(emailCodeRepository, 'exists').mockResolvedValue(true);
+      vi.spyOn(emailCodeRepository, 'deleteMany').mockRejectedValue(
         new Error('Error'),
       );
 
-      try {
-        await useCase.validateCode(OTPCode, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(OTPCode, email);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel validar o código de verificação.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if tokenService throw error', async () => {
+    it('should return NOT_POSSIBLE if tokenService throw error', async () => {
       vi.spyOn(tokenService, 'generateSignUpToken').mockImplementation(() => {
         throw new Error('Error');
       });
 
-      try {
-        await useCase.validateCode(OTPCode, email);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.validateCode(OTPCode, email);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel validar o código de verificação.',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 });

@@ -1,4 +1,4 @@
-import { AddressDTOFactory } from '@modules/user/infrastructure/helpers/address/factory';
+import { AddressDTOFactory } from '@user/infrastructure/helpers/address/factory';
 import { validate } from 'class-validator';
 import {
   CityConstants,
@@ -9,7 +9,7 @@ import {
   PostalCodeConstants,
   StateConstants,
   StreetConstants,
-} from '@modules/user/domain/values-objects/address/constants';
+} from '@user/domain/values-objects/address/constants';
 
 describe('AddUserAddressDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

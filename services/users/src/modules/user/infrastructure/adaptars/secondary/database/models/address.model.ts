@@ -1,4 +1,3 @@
-import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -14,32 +13,35 @@ export default class AddressModel {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column({ type: 'uuid', nullable: false, name: 'user_id' })
+  userID: string;
+
   @ManyToOne(() => UserModel, (user) => user.addresses, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'user_id', referencedColumnName: 'userID' })
   user: UserModel;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255 })
   street: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 10 })
   number: string;
 
-  @Column({ nullable: true })
-  complement: string | undefined | null;
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  complement?: string | null;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   neighborhood: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   city: string;
 
-  @Column({ name: 'postal_code', length: 8 })
+  @Column({ name: 'postal_code', type: 'varchar', length: 8 })
   postalCode: string;
 
-  @Column({ length: 2 })
-  state: BrazilStates;
+  @Column({ type: 'varchar', length: 2 })
+  state: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 100 })
   country: string;
 
   @CreateDateColumn({ name: 'created_at' })

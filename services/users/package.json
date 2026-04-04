@@ -13,12 +13,20 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix -c eslint.config.mjs",
-    "test": "cross-env NODE_ENV=test vitest --config vitest.config.ts",
+    "test": "bun run test:e2e && bun run test:unit",
+    "test:e2e": "sh ./tests-e2e.sh",
+    "test:e2e:cov": "sh ./tests-e2e.sh --cov",
     "test:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts",
-    "test:unit": "cross-env NODE_ENV=test vitest --config vitest.config.ts --testPathPattern=\".unit.spec.ts\"",
-    "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.ts --testPathPattern=\".unit.spec.ts\"",
+    "test:unit": "cross-env NODE_ENV=test vitest --config vitest.config.unit.ts",
+    "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.unit.ts",
     "jwt:keys:sign-up": "openssl genrsa -out ./certs/sign-up-private.pem 2048 && openssl rsa -in ./certs/sign-up-private.pem -pubout -out ./certs/sign-up-public.pem",
-    "jwt:keys:generate": "pnpm run jwt:keys:sign-up"
+    "jwt:keys:generate": "bun run jwt:keys:sign-up",
+    "typeorm:base": "typeorm-ts-node-commonjs",
+    "typeorm": "npm run typeorm:base -- -d src/config/database/data-source.ts",
+    "migration:generate": "bun run typeorm -- migration:generate",
+    "migration:run": "bun run typeorm -- migration:run",
+    "migration:revert": "bun run typeorm -- migration:revert",
+    "migration:create": "bun run typeorm:base -- migration:create"
   },
   "dependencies": {
     "@fastify/cookie": "^10.0.0",
@@ -56,17 +64,20 @@
     "pg": "^8.17.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
+    "supertest": "^7.2.2",
     "typeorm": "^0.3.28",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@swc/core": "^1.13.5",
     "@nestjs/cli": "^10.4.9",
     "@nestjs/schematics": "^10.2.3",
     "@nestjs/testing": "^11.1.12",
     "@types/node": "^20.19.27",
-    "@types/opossum": "^8.1.9",
     "@types/nodemailer": "^7.0.4",
+    "@types/opossum": "^8.1.9",
     "@types/otp-generator": "^4.0.2",
+    "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.52.0",
     "@vitest/coverage-istanbul": "4.0.17",
@@ -80,6 +91,7 @@
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.9.3",
+    "unplugin-swc": "^1.4.5",
     "vitest": "^4.0.17"
   },
   "vitest": {
@@ -98,17 +110,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "packageManager": "pnpm@10.28.1+sha512.7d7dbbca9e99447b7c3bf7a73286afaaf6be99251eb9498baefa7d406892f67b879adb3a1d7e687fc4ccc1a388c7175fbaae567a26ab44d1067b54fcb0d6a316",
-  "pnpm": {
-    "ignoredBuiltDependencies": [
-      "@nestjs/core",
-      "esbuild"
-    ],
-    "onlyBuiltDependencies": [
-      "@nestjs/core",
-      "@scarf/scarf",
-      "esbuild"
-    ]
   }
 }

@@ -1,11 +1,11 @@
-import UserRepository from '@modules/user/domain/ports/secondary/user-repository.port';
-import { ExternalUser } from '@modules/user/domain/types/external-user';
-import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
+import UserRepository from '@user/domain/ports/secondary/user-repository.port';
+import { ExternalUser } from '@user/domain/types/external-user';
+import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import UserExternalController from './user.external.controller';
 import {
   UserDTOFactory,
   UserFactory,
-} from '@modules/user/infrastructure/helpers/users/factory';
+} from '@user/infrastructure/helpers/users/factory';
 
 describe('UserExternalController', () => {
   let controller: UserExternalController;
@@ -42,7 +42,6 @@ describe('UserExternalController', () => {
       vi.spyOn(userMapper, 'externalControllerPayloadForModel').mockReturnValue(
         mappedUser,
       );
-      vi.spyOn(userRepository, 'create').mockResolvedValue(mappedUser);
     });
 
     it('should call userRepository.findOne with correct parameters', async () => {

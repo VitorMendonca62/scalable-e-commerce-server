@@ -1,8 +1,10 @@
-import EmailCodeRepository from '@modules/user/domain/ports/secondary/email-code-repository.port';
+import EmailCodeRepository from '@user/domain/ports/secondary/email-code-repository.port';
 import { InjectRedis } from '@nestjs-modules/ioredis';
+import { Injectable } from '@nestjs/common';
 import Redis from 'ioredis';
-import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
+import { TokenExpirationConstants } from '@user/domain/constants/token-expirations';
 
+@Injectable()
 export class RedisEmailCodeRepository implements EmailCodeRepository {
   constructor(@InjectRedis() private readonly redis: Redis) {}
 

@@ -1,4 +1,4 @@
-import { PostalCodeConstants } from '@modules/user/domain/values-objects/address/constants';
+import { PostalCodeConstants } from '@user/domain/values-objects/address/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsNumberString, IsString, Length } from 'class-validator';
 

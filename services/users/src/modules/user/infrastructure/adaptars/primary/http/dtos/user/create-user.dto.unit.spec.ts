@@ -1,11 +1,11 @@
-import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
 import {
   UsernameConstants,
   NameConstants,
   PhoneNumberConstants,
-} from '@modules/user/domain/values-objects/user/constants';
-import { ValidationObjectFactory } from '@modules/user/infrastructure/helpers/dto-helper';
-import { UserDTOFactory } from '@modules/user/infrastructure/helpers/users/factory';
+} from '@user/domain/values-objects/user/constants';
+import { ValidationObjectFactory } from '@user/infrastructure/helpers/dto-helper';
+import { UserDTOFactory } from '@user/infrastructure/helpers/users/factory';
 
 describe('CreateUserDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

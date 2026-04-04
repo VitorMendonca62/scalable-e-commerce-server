@@ -1,5 +1,5 @@
-import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
+import { TokenExpirationConstants } from '@user/domain/constants/token-expirations';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
 import Redis from 'ioredis';
 import { RedisEmailCodeRepository } from './redis-email-code.repository';
 

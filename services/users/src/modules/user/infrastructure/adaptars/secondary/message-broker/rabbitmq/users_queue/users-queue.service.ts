@@ -3,8 +3,8 @@ import { ClientProxy } from '@nestjs/microservices';
 import { lastValueFrom } from 'rxjs';
 import { retry, timeout, map } from 'rxjs/operators';
 import CircuitBreaker from 'opossum';
-import { MessageBroker } from '@modules/user/domain/ports/secondary/message-broker.port';
-import DeadLetterMessageRepository from '@modules/user/domain/ports/secondary/dql.repository.port';
+import { MessageBroker } from '@user/domain/ports/secondary/message-broker.port';
+import DeadLetterMessageRepository from '@user/domain/ports/secondary/dql.repository.port';
 
 @Injectable()
 export class UsersQueueService implements MessageBroker, OnModuleInit {

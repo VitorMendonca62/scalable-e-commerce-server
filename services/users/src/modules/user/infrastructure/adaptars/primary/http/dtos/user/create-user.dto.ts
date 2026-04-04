@@ -1,3 +1,5 @@
+import { PasswordConstants } from '@user/domain/constants/password-constants';
+import { IsStrongPassword } from 'class-validator';
 import {
   ApiName,
   ApiPassword,
@@ -18,6 +20,9 @@ export class CreateUserDTO {
   @ApiUsername()
   username: string;
 
+  @IsStrongPassword(PasswordConstants.STRONG_OPTIONS, {
+    message: PasswordConstants.ERROR_WEAK_PASSWORD,
+  })
   @Password()
   @ApiPassword()
   password: string;

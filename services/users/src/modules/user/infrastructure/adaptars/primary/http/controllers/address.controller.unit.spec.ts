@@ -2,25 +2,26 @@ import {
   AddUserAddressUseCase,
   DeleteUserAddressUseCase,
   GetUserAddressesUseCase,
-} from '@modules/user/application/use-cases/address/use-cases';
+} from '@user/application/use-cases/address/use-cases';
 import {
   BusinessRuleFailure,
   NotFoundItem,
-} from '@modules/user/domain/ports/primary/http/error.port';
+  NotPossible,
+} from '@user/domain/ports/primary/http/error.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
-} from '@modules/user/domain/ports/primary/http/sucess.port';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+} from '@user/domain/ports/primary/http/sucess.port';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 import {
   AddressDTOFactory,
   AddressFactory,
-} from '@modules/user/infrastructure/helpers/address/factory';
-import { AddressMapper } from '@modules/user/infrastructure/mappers/address.mapper';
+} from '@user/infrastructure/helpers/address/factory';
+import { AddressMapper } from '@user/infrastructure/mappers/address.mapper';
 import { HttpStatus } from '@nestjs/common';
 import { AddressController } from './address.controller';
 import { FastifyReply } from 'fastify';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 describe('AddressController', () => {
   let controller: AddressController;
@@ -123,7 +124,7 @@ describe('AddressController', () => {
       });
     });
 
-    it('should return BusinessRuleFailure if use case result is not ok and reason is NOT_POSSIBLE', async () => {
+    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
       vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue({
         ok: false,
         message: 'any',
@@ -132,10 +133,10 @@ describe('AddressController', () => {
 
       const result = await controller.addAddress(dto, userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
-      expect(result).toBeInstanceOf(BusinessRuleFailure);
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any',
         data: undefined,
       });
@@ -161,7 +162,7 @@ describe('AddressController', () => {
     const userID = IDConstants.EXEMPLE;
     const addresses = [AddressFactory.createModel({ id: 1 })];
     const addressReturn = {
-      id: 0,
+      addressId: addresses[0].id,
       city: addresses[0].city,
       complement: addresses[0].complement,
       country: addresses[0].country,
@@ -208,6 +209,23 @@ describe('AddressController', () => {
       expect(result).toBeInstanceOf(NotFoundItem);
       expect(result).toEqual({
         statusCode: HttpStatus.NOT_FOUND,
+        message: 'any',
+        data: undefined,
+      });
+    });
+    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
+      vi.spyOn(getUserAddressesUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.getAll(userID, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any',
         data: undefined,
       });
@@ -272,6 +290,24 @@ describe('AddressController', () => {
       expect(result).toBeInstanceOf(NotFoundItem);
       expect(result).toEqual({
         statusCode: HttpStatus.NOT_FOUND,
+        message: 'any',
+        data: undefined,
+      });
+    });
+
+    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
+      vi.spyOn(deleteUserAddressUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.delete(addressID, userID, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any',
         data: undefined,
       });

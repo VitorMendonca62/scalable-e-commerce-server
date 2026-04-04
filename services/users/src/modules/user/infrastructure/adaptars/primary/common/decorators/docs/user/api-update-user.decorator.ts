@@ -12,7 +12,7 @@ import {
   NameConstants,
   PhoneNumberConstants,
   UsernameConstants,
-} from '@modules/user/domain/values-objects/user/constants';
+} from '@user/domain/values-objects/user/constants';
 
 export function ApiUpdateUser() {
   return applyDecorators(

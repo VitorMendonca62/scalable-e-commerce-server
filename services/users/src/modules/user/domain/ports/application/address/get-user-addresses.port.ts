@@ -1,16 +1,18 @@
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 export interface GetUserAddressesPort {
   execute: (userID: string) => Promise<ExecuteReturn>;
 }
 
-type ExecuteResultReasons = ApplicationResultReasons.NOT_FOUND;
+type ExecuteResultReasons =
+  | ApplicationResultReasons.NOT_FOUND
+  | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteReturn =
   | {
       ok: true;
       result: {
-        id: number;
+        addressId: number;
         city: string;
         complement: string;
         country: string;

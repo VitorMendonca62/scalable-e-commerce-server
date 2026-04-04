@@ -1,4 +1,4 @@
-import DeadLetterMessageModel from '@modules/user/infrastructure/adaptars/secondary/database/models/dlq.model';
+import DeadLetterMessageModel from '@user/infrastructure/adaptars/secondary/database/models/dlq.model';
 
 export default abstract class DeadLetterMessageRepository {
   abstract save(event: string, payload: object, error?: Error): Promise<void>;

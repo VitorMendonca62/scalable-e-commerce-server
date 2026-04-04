@@ -1,11 +1,26 @@
 import { defineConfig } from 'vitest/config';
 import path from 'path';
+import swc from 'unplugin-swc';
 
 export default defineConfig({
+  plugins: [
+    swc.vite({
+      jsc: {
+        parser: {
+          syntax: 'typescript',
+          decorators: true,
+        },
+        transform: {
+          legacyDecorator: true,
+          decoratorMetadata: true,
+        },
+      },
+    }),
+  ],
   test: {
     include: ['**/*.spec.ts'],
     environment: 'node',
-    pool: 'threads',
+    pool: 'forks',
     clearMocks: true,
     globals: true,
     setupFiles: [
@@ -33,8 +48,8 @@ export default defineConfig({
         'src/**/enums/*.ts',
       ],
     },
-    isolate: false,
-    maxConcurrency: 10,
+    // isolate: false,
+    // maxConcurrency: 10,
     alias: {
       '@modules': path.resolve(__dirname, './src/modules'),
       '@user': path.resolve(__dirname, './src/modules/user'),

@@ -22,7 +22,7 @@ import {
   GetUserUseCase,
   UpdateUserUseCase,
   ValidateEmailUseCase,
-} from '@modules/user/application/use-cases/user/use-cases';
+} from '@user/application/use-cases/user/use-cases';
 import {
   CreateUserDTO,
   UpdateUserDTO,
@@ -41,11 +41,12 @@ import {
   FieldAlreadyExists,
   FieldInvalid,
   NotFoundItem,
+  NotPossible,
 } from '@user/domain/ports/primary/http/error.port';
-import { Cookies } from '@modules/user/domain/enums/cookies.enum';
+import { Cookies } from '@user/domain/enums/cookies.enum';
 import { FastifyReply } from 'fastify';
 import { isUUID } from 'class-validator';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 import QueueService from '../../../secondary/message-broker/queue.service';
 
 @Controller('users')
@@ -66,7 +67,13 @@ export class UserController {
     @Body() dto: ValidateEmailDTO,
     @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    await this.validateEmailUseCase.sendEmail(dto.email);
+    const useCaseResult = await this.validateEmailUseCase.sendEmail(dto.email);
+
+    if (useCaseResult.ok === false) {
+      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+      return new NotPossible(useCaseResult.message);
+    }
+
     response.status(HttpStatus.OK);
     return new HttpOKResponse('Código enviado com sucesso para seu email.');
   }
@@ -83,6 +90,10 @@ export class UserController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.BAD_REQUEST);
       return new BusinessRuleFailure(useCaseResult.message);
     }
@@ -109,6 +120,10 @@ export class UserController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.CONFLICT);
       return new FieldAlreadyExists(
         useCaseResult.message,
@@ -141,6 +156,10 @@ export class UserController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }
@@ -158,7 +177,7 @@ export class UserController {
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<HttpResponseOutbound> {
-    if (Object.keys(dto).length === 0) {
+    if (Object.keys(dto ?? {}).length === 0) {
       response.status(HttpStatus.BAD_REQUEST);
       return new FieldInvalid(
         'Adicione algum campo para o usuário ser atualizado',
@@ -172,6 +191,10 @@ export class UserController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       if (
         useCaseResult.reason === ApplicationResultReasons.FIELD_ALREADY_EXISTS
       ) {
@@ -185,7 +208,6 @@ export class UserController {
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }
-
     await this.queueService.sendUserUpdated(userID, dto);
 
     return new HttpOKResponse('Usuário atualizado com sucesso', dto);
@@ -200,6 +222,10 @@ export class UserController {
     const useCaseResult = await this.deleteUserUseCase.execute(userID);
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }

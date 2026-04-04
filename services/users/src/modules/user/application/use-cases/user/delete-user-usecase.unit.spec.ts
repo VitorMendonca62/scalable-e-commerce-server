@@ -1,7 +1,7 @@
-import UserRepository from '@modules/user/domain/ports/secondary/user-repository.port';
+import UserRepository from '@user/domain/ports/secondary/user-repository.port';
 import { DeleteUserUseCase } from './delete-user.usecase';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 describe('DeleteUserUseCase', () => {
   let useCase: DeleteUserUseCase;
@@ -52,17 +52,15 @@ describe('DeleteUserUseCase', () => {
       });
     });
 
-    it('should rethrow error if userRepository.delete throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.delete throw error', async () => {
       vi.spyOn(userRepository, 'delete').mockRejectedValue(new Error('Error'));
 
-      try {
-        await useCase.execute(userID);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userID);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel deletar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 });

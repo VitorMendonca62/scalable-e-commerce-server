@@ -1,8 +1,8 @@
 import { Controller } from '@nestjs/common';
 import { EventPattern } from '@nestjs/microservices';
-import UserRepository from '@modules/user/domain/ports/secondary/user-repository.port';
-import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
-import { ExternalUser } from '@modules/user/domain/types/external-user';
+import UserRepository from '@user/domain/ports/secondary/user-repository.port';
+import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
+import { ExternalUser } from '@user/domain/types/external-user';
 
 @Controller('user-external')
 export default class UserExternalController {

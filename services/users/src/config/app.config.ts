@@ -3,7 +3,7 @@ import { EnvironmentVariables, NodeEnv } from './environment/env.validation';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { FieldInvalidException } from '@modules/user/domain/ports/primary/http/error.port';
+import { FieldInvalidException } from '@user/domain/ports/primary/http/error.port';
 
 export default class AppConfig {
   constructor(

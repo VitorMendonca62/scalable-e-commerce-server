@@ -1,22 +1,22 @@
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 import {
   UserDTOFactory,
   UserFactory,
   UserUpdateFactory,
 } from '../helpers/users/factory';
 import { UserMapper } from './user.mapper';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
 import {
   NameVO,
   AvatarVO,
   EmailVO,
   PhoneNumberVO,
   UsernameVO,
-} from '@modules/user/domain/values-objects/user/values-object';
-import { UserEntity } from '@modules/user/domain/entities/user.entity';
-import { defaultRoles } from '@modules/user/domain/constants/roles';
-import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
+} from '@user/domain/values-objects/user/values-object';
+import { UserEntity } from '@user/domain/entities/user.entity';
+import { defaultRoles } from '@user/domain/constants/roles';
+import { UserUpdateEntity } from '@user/domain/entities/user-update.entity';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
 import { mockIDConstructor } from '../helpers/values-objects-mock';
 import {
   mockAvatarConstructor,

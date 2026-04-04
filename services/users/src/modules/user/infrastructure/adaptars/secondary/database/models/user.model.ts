@@ -8,7 +8,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { v7 } from 'uuid';
 import AddressModel from './address.model';
 
 @Entity('users')
@@ -16,22 +15,26 @@ export default class UserModel {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true, default: v7(), name: 'user_id' })
+  @Column({
+    name: 'user_id',
+    type: 'uuid',
+    unique: true,
+  })
   userID: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 150 })
   name: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 50, unique: true })
   username: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 150, unique: true })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   avatar: string | null;
 
-  @Column({ nullable: true, name: 'phone_number' })
+  @Column({ name: 'phone_number', type: 'varchar', length: 20, nullable: true })
   phoneNumber: string | null;
 
   @Column({

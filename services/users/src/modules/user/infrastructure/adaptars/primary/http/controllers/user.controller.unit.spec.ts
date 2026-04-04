@@ -1,4 +1,4 @@
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 
 import {
   CreateUserUseCase,
@@ -6,7 +6,7 @@ import {
   GetUserUseCase,
   UpdateUserUseCase,
   ValidateEmailUseCase,
-} from '@modules/user/application/use-cases/user/use-cases';
+} from '@user/application/use-cases/user/use-cases';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import { UserController } from './user.controller';
 import { HttpStatus } from '@nestjs/common';
@@ -14,35 +14,33 @@ import {
   UserDTOFactory,
   UserFactory,
   UserUpdateFactory,
-} from '@modules/user/infrastructure/helpers/users/factory';
-import CookieService from '../services/cookie/cookie.service';
+} from '@user/infrastructure/helpers/users/factory';
 import { FastifyReply } from 'fastify';
-import { TokenExpirationConstants } from '@modules/user/domain/constants/token-expirations';
-import { Cookies } from '@modules/user/domain/enums/cookies.enum';
+import { Cookies } from '@user/domain/enums/cookies.enum';
 import {
   EmailConstants,
   UsernameConstants,
-} from '@modules/user/domain/values-objects/user/constants';
+} from '@user/domain/values-objects/user/constants';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
-} from '@modules/user/domain/ports/primary/http/sucess.port';
+} from '@user/domain/ports/primary/http/sucess.port';
 import { v7 } from 'uuid';
 import {
   BusinessRuleFailure,
   FieldAlreadyExists,
   FieldInvalid,
   NotFoundItem,
-} from '@modules/user/domain/ports/primary/http/error.port';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import { UsersQueueService } from '../../../secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+  NotPossible,
+} from '@user/domain/ports/primary/http/error.port';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import QueueService from '../../../secondary/message-broker/queue.service';
 
 describe('UserController', () => {
   let controller: UserController;
 
   let userMapper: UserMapper;
-  let cookieService: CookieService;
-  let usersQueueService: UsersQueueService;
+  let queueService: QueueService;
 
   let validateEmailUseCase: ValidateEmailUseCase;
   let createUserUseCase: CreateUserUseCase;
@@ -58,12 +56,10 @@ describe('UserController', () => {
       updateDTOForModel: vi.fn(),
     } as any;
 
-    cookieService = {
-      setCookie: vi.fn(),
-    } as any;
-
-    usersQueueService = {
-      send: vi.fn(),
+    queueService = {
+      sendUserCreated: vi.fn(),
+      sendUserUpdated: vi.fn(),
+      sendUserDeleted: vi.fn(),
     } as any;
 
     validateEmailUseCase = {
@@ -77,8 +73,7 @@ describe('UserController', () => {
 
     controller = new UserController(
       userMapper,
-      cookieService,
-      usersQueueService,
+      queueService,
       validateEmailUseCase,
       createUserUseCase,
       getUserUseCase,
@@ -99,8 +94,7 @@ describe('UserController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(userMapper).toBeDefined();
-    expect(cookieService).toBeDefined();
-    expect(usersQueueService).toBeDefined();
+    expect(queueService).toBeDefined();
     expect(validateEmailUseCase).toBeDefined();
     expect(createUserUseCase).toBeDefined();
     expect(getUserUseCase).toBeDefined();
@@ -112,18 +106,48 @@ describe('UserController', () => {
     const dto = UserDTOFactory.createValidateEmailDTO();
 
     it('should call validateEmailUseCase.sendEmail with email', async () => {
+      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue({
+        ok: true,
+      });
       await controller.sendCode(dto, response);
 
       expect(validateEmailUseCase.sendEmail).toHaveBeenCalledWith(dto.email);
     });
 
-    it('should redirect for otp code screen with see other status', async () => {
-      await controller.sendCode(dto, response);
+    it('should return HttpOKResponse on success', async () => {
+      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue({
+        ok: true,
+      });
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.SEE_OTHER);
-      expect(response.redirect).toHaveBeenCalledWith(
-        'https://github.com/VitorMendonca62',
+      const result = await controller.sendCode(dto, response);
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Código enviado com sucesso para seu email.',
+        data: undefined,
+      });
+    });
+
+    it('should return NotPossible if use case result is not ok', async () => {
+      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.sendCode(dto, response);
+
+      expect(response.status).toHaveBeenCalledWith(
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'any',
+        data: undefined,
+      });
     });
 
     it('should rethrow error if usecase throw error', async () => {
@@ -162,23 +186,18 @@ describe('UserController', () => {
       );
     });
 
-    it('should redirect for signup screen with see other status on sucess', async () => {
-      await controller.validateCode(dto, response);
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.SEE_OTHER);
-      expect(response.redirect).toHaveBeenCalledWith(
-        'https://github.com/VitorMendonca62',
-      );
-    });
+    it('should return HttpOKResponse with signup token on success', async () => {
+      const result = await controller.validateCode(dto, response);
 
-    it('should set signup cookie on sucess', async () => {
-      await controller.validateCode(dto, response);
-
-      expect(cookieService.setCookie).toHaveBeenCalledWith(
-        Cookies.SignUpToken,
-        token,
-        TokenExpirationConstants.SIGN_UP_TOKEN_MS,
-        response,
-      );
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(result).toBeInstanceOf(HttpOKResponse);
+      expect(result).toEqual({
+        statusCode: HttpStatus.OK,
+        message: 'Código validado com sucesso.',
+        data: {
+          [Cookies.SignUpToken]: token,
+        },
+      });
     });
 
     it('should return BusinessRuleFailure if use case result is not ok', async () => {
@@ -194,6 +213,24 @@ describe('UserController', () => {
       expect(result).toBeInstanceOf(BusinessRuleFailure);
       expect(result).toEqual({
         statusCode: HttpStatus.BAD_REQUEST,
+        message: 'any',
+        data: undefined,
+      });
+    });
+
+    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
+      vi.spyOn(validateEmailUseCase, 'validateCode').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.validateCode(dto, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any',
         data: undefined,
       });
@@ -265,18 +302,14 @@ describe('UserController', () => {
     it('should send user-created event with correct payload', async () => {
       await controller.create(dto, email, response);
 
-      expect(usersQueueService.send).toHaveBeenCalledWith(
-        'user-created',
-        {
-          userID,
-          email: email,
-          password: 'hashedPassword',
-          roles: userModel.roles,
-          createdAt: userModel.createdAt,
-          updatedAt: userModel.updatedAt,
-        },
-        true,
-      );
+      expect(queueService.sendUserCreated).toHaveBeenCalledWith({
+        userID,
+        email: email,
+        password: 'hashedPassword',
+        roles: userModel.roles,
+        createdAt: userModel.createdAt,
+        updatedAt: userModel.updatedAt,
+      });
     });
 
     it('should return HttpCreatedResponse on success', async () => {
@@ -307,6 +340,24 @@ describe('UserController', () => {
         statusCode: HttpStatus.CONFLICT,
         message: 'any',
         data: 'email',
+      });
+    });
+
+    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
+      vi.spyOn(createUserUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.create(dto, email, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'any',
+        data: undefined,
       });
     });
 
@@ -386,6 +437,24 @@ describe('UserController', () => {
       expect(result).toBeInstanceOf(NotFoundItem);
       expect(result).toEqual({
         statusCode: HttpStatus.NOT_FOUND,
+        message: 'any',
+        data: undefined,
+      });
+    });
+
+    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
+      vi.spyOn(getUserUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.findOne(identifier, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any',
         data: undefined,
       });
@@ -480,6 +549,24 @@ describe('UserController', () => {
         data: undefined,
       });
     });
+
+    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
+      vi.spyOn(updateUserUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any message',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.update(dto, userID, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'any message',
+        data: undefined,
+      });
+    });
   });
 
   describe('delete', () => {
@@ -521,6 +608,24 @@ describe('UserController', () => {
       expect(result).toBeInstanceOf(NotFoundItem);
       expect(result).toEqual({
         statusCode: HttpStatus.NOT_FOUND,
+        message: 'any message',
+        data: undefined,
+      });
+    });
+
+    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
+      vi.spyOn(deleteUserUseCase, 'execute').mockResolvedValue({
+        ok: false,
+        message: 'any message',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
+
+      const result = await controller.delete(userID, response);
+
+      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'any message',
         data: undefined,
       });

@@ -1,10 +1,8 @@
-import { BrazilStates } from '@modules/user/domain/enums/brazil-ufs.enum';
-
 export default class StateConstants {
   static readonly DESCRIPTION =
     'O estado é a unidade federativa ou província onde o usuário reside';
 
-  static readonly EXEMPLE = BrazilStates.PE;
+  static readonly EXEMPLE = 'PE';
   static readonly WRONG_EXEMPLE = '';
   static readonly LENGTH = 2;
   // ERRORS

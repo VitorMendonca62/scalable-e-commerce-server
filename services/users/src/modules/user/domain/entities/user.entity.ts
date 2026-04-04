@@ -8,7 +8,7 @@ import {
   PhoneNumberVO,
 } from '../values-objects/user/values-object';
 import IDVO from '../values-objects/common/uuid/id-vo';
-import AddressModel from '@modules/user/infrastructure/adaptars/secondary/database/models/address.model';
+import { AddressRecord } from '@user/domain/types/address-record';
 
 export class UserEntity {
   userID: IDVO;
@@ -20,7 +20,7 @@ export class UserEntity {
   roles: PermissionsSystem[];
   createdAt: Date;
   updatedAt: Date;
-  addresses: AddressModel[];
+  addresses: AddressRecord[];
 
   constructor(props: {
     userID: IDVO;
@@ -30,7 +30,7 @@ export class UserEntity {
     avatar: AvatarVO | undefined;
     phoneNumber: PhoneNumberVO | undefined;
     roles: PermissionsSystem[];
-    addresses: AddressModel[] | undefined;
+    addresses: AddressRecord[] | undefined;
     createdAt: Date;
     updatedAt: Date;
   }) {
@@ -41,7 +41,7 @@ export class UserEntity {
     this.avatar = props.avatar;
     this.phoneNumber = props.phoneNumber;
     this.roles = props.roles;
-    this.addresses = this.addresses === undefined ? [] : props.addresses;
+    this.addresses = props.addresses ?? [];
     this.createdAt = props.createdAt;
     this.updatedAt = props.updatedAt;
   }

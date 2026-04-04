@@ -1,13 +1,13 @@
-import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
+import { UserUpdateEntity } from '@user/domain/entities/user-update.entity';
 import UserRepository from '@user/domain/ports/secondary/user-repository.port';
 import { Injectable } from '@nestjs/common';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
+import { UsernameConstants } from '@user/domain/values-objects/user/constants';
 import {
   ExecuteResult,
   UpdateUserPort,
-} from '@modules/user/domain/ports/application/user/update-user.port';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+} from '@user/domain/ports/application/user/update-user.port';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 @Injectable()
 export class UpdateUserUseCase implements UpdateUserPort {
@@ -20,38 +20,51 @@ export class UpdateUserUseCase implements UpdateUserPort {
     userID: string,
     userUpdate: UserUpdateEntity,
   ): Promise<ExecuteResult> {
-    if (userUpdate.username !== undefined) {
-      const userExists = await this.userRepository.findOneWithOR(
-        [
-          {
-            username: userUpdate.username.getValue(),
-          },
-        ],
-        true,
+    try {
+      if (userUpdate.username !== undefined) {
+        const userExists = await this.userRepository.findOneWithOR(
+          [
+            {
+              username: userUpdate.username.getValue(),
+            },
+          ],
+          true,
+        );
+        if (
+          userExists !== null &&
+          userExists !== undefined &&
+          userExists.userID !== userID
+        ) {
+          return {
+            ok: false,
+            message: UsernameConstants.ERROR_ALREADY_EXISTS,
+            result: 'username',
+            reason: ApplicationResultReasons.FIELD_ALREADY_EXISTS,
+          };
+        }
+      }
+
+      const rowAffected = await this.userRepository.update(
+        userID,
+        this.userMapper.updateEntityForObject(userUpdate),
       );
-      if (userExists !== null && userExists !== undefined) {
+
+      if (rowAffected === 0) {
         return {
           ok: false,
-          message: UsernameConstants.ERROR_ALREADY_EXISTS,
-          result: 'username',
-          reason: ApplicationResultReasons.FIELD_ALREADY_EXISTS,
+          message: 'Não foi possivel encontrar o usuário',
+          reason: ApplicationResultReasons.NOT_FOUND,
         };
       }
-    }
 
-    const rowAffected = await this.userRepository.update(
-      userID,
-      this.userMapper.updateEntityForObject(userUpdate),
-    );
-
-    if (rowAffected === 0) {
+      return { ok: true };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (_) {
       return {
         ok: false,
-        message: 'Não foi possivel encontrar o usuário',
-        reason: ApplicationResultReasons.NOT_FOUND,
+        message: 'Não foi possivel atualizar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
       };
     }
-
-    return { ok: true };
   }
 }

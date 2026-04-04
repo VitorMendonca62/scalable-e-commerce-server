@@ -1,5 +1,5 @@
-import DeadLetterMessageRepository from '@modules/user/domain/ports/secondary/dql.repository.port';
-import { DQLFactory } from '@modules/user/infrastructure/helpers/dlq-factory';
+import DeadLetterMessageRepository from '@user/domain/ports/secondary/dql.repository.port';
+import { DQLFactory } from '@user/infrastructure/helpers/dlq-factory';
 import { type Mocked } from 'vitest';
 
 import { UsersQueueService } from '../message-broker/rabbitmq/users_queue/users-queue.service';

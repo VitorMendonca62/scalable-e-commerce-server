@@ -1,32 +1,31 @@
-import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
-import { defaultRoles } from '@modules/user/domain/constants/roles';
-import { UserEntity } from '@modules/user/domain/entities/user.entity';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
+import { defaultRoles } from '@user/domain/constants/roles';
+import { UserEntity } from '@user/domain/entities/user.entity';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 import {
   NameConstants,
   UsernameConstants,
   EmailConstants,
   PhoneNumberConstants,
   AvatarConstants,
-} from '@modules/user/domain/values-objects/user/constants';
+} from '@user/domain/values-objects/user/constants';
 import {
   CreateUserDTO,
   UpdateUserDTO,
   ValidateCodeForValidateEmailDTO,
   ValidateEmailDTO,
 } from '../../adaptars/primary/http/dtos/user/dtos';
-import UserModel from '../../adaptars/secondary/database/models/user.model';
-import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+import { UserRecord } from '@user/domain/types/user-record';
+import { UserUpdateEntity } from '@user/domain/entities/user-update.entity';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
 import {
   NameVO,
   UsernameVO,
   PhoneNumberVO,
   AvatarVO,
   EmailVO,
-} from '@modules/user/domain/values-objects/user/values-object';
-import { AddressFactory } from '../address/factory';
-import { ExternalUser } from '@modules/user/domain/types/external-user';
+} from '@user/domain/values-objects/user/values-object';
+import { ExternalUser } from '@user/domain/types/external-user';
 
 export class UserDTOFactory {
   static createCreateUserDTO(
@@ -170,9 +169,7 @@ export class UserFactory {
     });
   }
 
-  static createModel(
-    overrides: Partial<UserModel> = {},
-  ): Omit<UserModel, 'id'> {
+  static createModel(overrides: Partial<UserRecord> = {}): UserRecord {
     return {
       userID: IDConstants.EXEMPLE,
       name: NameConstants.EXEMPLE,
@@ -184,7 +181,6 @@ export class UserFactory {
       createdAt: new Date(),
       updatedAt: new Date(),
       deletedAt: null,
-      addresses: [AddressFactory.createModel()],
       ...overrides,
     };
   }
@@ -208,9 +204,9 @@ export class UserUpdateFactory {
 
   static createModel(
     overrides: Partial<{
-      [K in keyof UserUpdateEntity]: UserModel[K];
+      [K in keyof UserUpdateEntity]: UserRecord[K];
     }> = {},
-  ): Partial<UserModel> {
+  ): Partial<UserRecord> {
     return {
       userID: IDConstants.EXEMPLE,
       name: NameConstants.EXEMPLE,

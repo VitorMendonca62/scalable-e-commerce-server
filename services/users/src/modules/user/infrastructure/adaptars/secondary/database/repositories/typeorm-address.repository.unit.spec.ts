@@ -5,9 +5,8 @@ vi.mock('../models/address.model', () => ({
 import { Repository } from 'typeorm';
 import AddressModel from '../models/address.model';
 import TypeOrmAddressRepository from './typeorm-address.repository';
-import { AddressFactory } from '@modules/user/infrastructure/helpers/address/factory';
-import { UserFactory } from '@modules/user/infrastructure/helpers/users/factory';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { AddressFactory } from '@user/infrastructure/helpers/address/factory';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 
 describe('TypeOrmAddressRepository', () => {
   let repository: TypeOrmAddressRepository;
@@ -54,11 +53,10 @@ describe('TypeOrmAddressRepository', () => {
   });
 
   describe('getAll', () => {
-    const userID = 'user-123';
+    const userID = IDConstants.EXEMPLE;
     const addresses: AddressModel[] = [
       AddressFactory.createModel({
         id: 1,
-        user: { id: 132, ...UserFactory.createModel() },
       }),
       AddressFactory.createModel({ id: 2 }),
     ];
@@ -74,6 +72,19 @@ describe('TypeOrmAddressRepository', () => {
             userID: userID,
           },
         },
+        select: [
+          'id',
+          'street',
+          'number',
+          'complement',
+          'neighborhood',
+          'city',
+          'postalCode',
+          'state',
+          'country',
+          'createdAt',
+          'userID',
+        ],
         order: { createdAt: 'ASC' },
       });
     });
@@ -83,7 +94,21 @@ describe('TypeOrmAddressRepository', () => {
 
       const result = await repository.getAll(userID);
 
-      expect(result).toEqual(addresses);
+      expect(result).toEqual(
+        addresses.map((address) => ({
+          id: address.id,
+          userID,
+          street: address.street,
+          number: address.number,
+          complement: address.complement,
+          neighborhood: address.neighborhood,
+          city: address.city,
+          postalCode: address.postalCode,
+          state: address.state,
+          country: address.country,
+          createdAt: address.createdAt,
+        })),
+      );
     });
   });
 
@@ -122,13 +147,13 @@ describe('TypeOrmAddressRepository', () => {
   });
 
   describe('delete', () => {
-    const addressIndex = 42;
+    const addressId = 42;
 
     it('should call delete with correct parameters', async () => {
-      await repository.delete(addressIndex);
+      await repository.delete(addressId);
 
       expect(addressRepository.delete).toHaveBeenCalledWith({
-        id: addressIndex,
+        id: addressId,
       });
     });
   });

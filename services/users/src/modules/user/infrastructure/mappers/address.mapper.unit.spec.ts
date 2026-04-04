@@ -1,4 +1,4 @@
-import IDConstants from '@modules/user/domain/values-objects/common/uuid/id-constants';
+import IDConstants from '@user/domain/values-objects/common/uuid/id-constants';
 import { AddressDTOFactory, AddressFactory } from '../helpers/address/factory';
 
 import { AddressMapper } from './address.mapper';
@@ -11,7 +11,7 @@ import {
   PostalCodeVO,
   StateVO,
   StreetVO,
-} from '@modules/user/domain/values-objects/address/values-object';
+} from '@user/domain/values-objects/address/values-object';
 
 import {
   mockCityConstructor,
@@ -24,7 +24,7 @@ import {
   mockStreetConstructor,
 } from '../helpers/address/values-objects-mock';
 import { mockIDConstructor } from '../helpers/values-objects-mock';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
 
 describe('AddressMapper', () => {
   let mapper: AddressMapper;

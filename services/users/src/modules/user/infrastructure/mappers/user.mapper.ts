@@ -1,7 +1,7 @@
-import { UserEntity } from '@modules/user/domain/entities/user.entity';
+import { UserEntity } from '@user/domain/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDTO } from '../adaptars/primary/http/dtos/user/create-user.dto';
-import { UserUpdateEntity } from '@modules/user/domain/entities/user-update.entity';
+import { UserUpdateEntity } from '@user/domain/entities/user-update.entity';
 import { UpdateUserDTO } from '../adaptars/primary/http/dtos/user/update-user.dto';
 import {
   AvatarVO,
@@ -9,12 +9,12 @@ import {
   NameVO,
   PhoneNumberVO,
   UsernameVO,
-} from '@modules/user/domain/values-objects/user/values-object';
+} from '@user/domain/values-objects/user/values-object';
 import { isNotEmpty } from 'class-validator';
-import { defaultRoles } from '@modules/user/domain/constants/roles';
-import UserModel from '../adaptars/secondary/database/models/user.model';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
-import { ExternalUser } from '@modules/user/domain/types/external-user';
+import { defaultRoles } from '@user/domain/constants/roles';
+import { UserRecord } from '@user/domain/types/user-record';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
+import { ExternalUser } from '@user/domain/types/external-user';
 
 @Injectable()
 export class UserMapper {
@@ -50,7 +50,7 @@ export class UserMapper {
     });
   }
 
-  updateEntityForObject(entity: UserUpdateEntity): Partial<UserModel> {
+  updateEntityForObject(entity: UserUpdateEntity): Partial<UserRecord> {
     return {
       userID: entity.userID.getValue(),
       name: isNotEmpty(entity.name) ? entity.name.getValue() : undefined,
@@ -65,7 +65,7 @@ export class UserMapper {
     };
   }
 
-  entityToModel(user: UserEntity): Omit<UserModel, 'id'> {
+  entityToModel(user: UserEntity): UserRecord {
     return {
       userID: user.userID.getValue(),
       name: user.name.getValue(),
@@ -80,9 +80,7 @@ export class UserMapper {
     };
   }
 
-  externalControllerPayloadForModel(
-    payload: ExternalUser,
-  ): Omit<UserModel, 'id'> {
+  externalControllerPayloadForModel(payload: ExternalUser): UserRecord {
     return {
       userID: payload.userID,
       name: payload.name,

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { AddUserAddressDTO } from '../adaptars/primary/http/dtos/add-user-address.dto';
-import { AddressEntity } from '@modules/user/domain/entities/address.entity';
-import AddressModel from '../adaptars/secondary/database/models/address.model';
+import { AddressEntity } from '@user/domain/entities/address.entity';
+import { AddressRecord } from '@user/domain/types/address-record';
 import {
   CityVO,
   ComplementVO,
@@ -11,8 +11,8 @@ import {
   CountryVO,
   StateVO,
   StreetVO,
-} from '@modules/user/domain/values-objects/address/values-object';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+} from '@user/domain/values-objects/address/values-object';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
 
 @Injectable()
 export class AddressMapper {
@@ -33,7 +33,7 @@ export class AddressMapper {
     });
   }
 
-  entityForModel(entity: AddressEntity): Omit<AddressModel, 'id' | 'user'> {
+  entityForModel(entity: AddressEntity): Omit<AddressRecord, 'id' | 'userID'> {
     return {
       city: entity.city.getValue(),
       complement: entity.complement.getValue(),

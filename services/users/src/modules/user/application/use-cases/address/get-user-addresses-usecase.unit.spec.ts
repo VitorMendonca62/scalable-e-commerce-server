@@ -1,8 +1,8 @@
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
-import { AddressFactory } from '@modules/user/infrastructure/helpers/address/factory';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
+import { AddressFactory } from '@user/infrastructure/helpers/address/factory';
 import { GetUserAddressesUseCase } from './get-user-addresses.usecase';
-import AddressRepository from '@modules/user/domain/ports/secondary/address-repository.port';
+import AddressRepository from '@user/domain/ports/secondary/address-repository.port';
 
 describe('GetUserAddressUseCase', () => {
   let useCase: GetUserAddressesUseCase;
@@ -23,7 +23,7 @@ describe('GetUserAddressUseCase', () => {
 
   describe('execute', () => {
     const userID = IDConstants.EXEMPLE;
-    const addresses = [AddressFactory.createModel({ id: 1 })];
+    const addresses = [AddressFactory.createRecord({ id: 1 })];
 
     beforeEach(() => {
       vi.spyOn(addressRepository, 'getAll').mockResolvedValue(addresses);
@@ -40,7 +40,7 @@ describe('GetUserAddressUseCase', () => {
         ok: true,
         result: [
           {
-            id: 0,
+            addressId: addresses[0].id,
             city: addresses[0].city,
             complement: addresses[0].complement,
             country: addresses[0].country,
@@ -65,19 +65,19 @@ describe('GetUserAddressUseCase', () => {
       });
     });
 
-    it('should rethrow error if addressRepository.getAll throw error', async () => {
-      vi.spyOn(addressRepository, 'getAll').mockRejectedValue(
-        new Error('Error'),
-      );
+    describe('not possible', () => {
+      it('should return NOT_POSSIBLE if addressRepository.getAll throw error', async () => {
+        vi.spyOn(addressRepository, 'getAll').mockRejectedValue(
+          new Error('Error'),
+        );
 
-      try {
-        await useCase.execute(userID);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+        const result = await useCase.execute(userID);
+        expect(result).toEqual({
+          ok: false,
+          message: 'Não foi possivel buscar os endereços do usuário.',
+          reason: ApplicationResultReasons.NOT_POSSIBLE,
+        });
+      });
     });
   });
 });

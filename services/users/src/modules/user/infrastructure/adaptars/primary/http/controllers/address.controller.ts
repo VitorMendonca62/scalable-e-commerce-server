@@ -17,18 +17,20 @@ import {
   ValidationPipe,
   Res,
 } from '@nestjs/common';
-import { AddressMapper } from '@modules/user/infrastructure/mappers/address.mapper';
+import { AddressMapper } from '@user/infrastructure/mappers/address.mapper';
 import {
   AddUserAddressUseCase,
   DeleteUserAddressUseCase,
   GetUserAddressesUseCase,
-} from '@modules/user/application/use-cases/address/use-cases';
+} from '@user/application/use-cases/address/use-cases';
 import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
 import {
   BusinessRuleFailure,
   NotFoundItem,
-} from '@modules/user/domain/ports/primary/http/error.port';
+  NotPossible,
+} from '@user/domain/ports/primary/http/error.port';
 import { FastifyReply } from 'fastify';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 @Controller('/address')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
@@ -51,6 +53,10 @@ export class AddressController {
     const useCaseResult = await this.addUserAddressUseCase.execute(address);
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.BAD_REQUEST);
       return new BusinessRuleFailure(useCaseResult.message);
     }
@@ -68,6 +74,10 @@ export class AddressController {
     const useCaseResult = await this.getUserAddressesUseCase.execute(userID);
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }
@@ -90,6 +100,10 @@ export class AddressController {
     );
 
     if (useCaseResult.ok === false) {
+      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
+        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
+        return new NotPossible(useCaseResult.message);
+      }
       response.status(HttpStatus.NOT_FOUND);
       return new NotFoundItem(useCaseResult.message);
     }

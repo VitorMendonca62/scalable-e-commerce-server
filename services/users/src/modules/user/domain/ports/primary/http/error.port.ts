@@ -28,9 +28,9 @@ export class ExternalServiceException<T = unknown> extends HttpError {
   }
 }
 
-export class FieldInvalidException extends HttpResponseOutbound {
+export class FieldInvalidException extends HttpError {
   constructor(message: string = 'Há um campo inválido.', field: string) {
-    super(HttpStatus.BAD_REQUEST, message, field);
+    super(message, HttpStatus.BAD_REQUEST, field);
     this.statusCode = HttpStatus.BAD_REQUEST;
     this.message = message;
     this.data = field;
@@ -53,6 +53,15 @@ export class BusinessRuleFailure<T = unknown> extends HttpResponseOutbound {
   ) {
     super(HttpStatus.BAD_REQUEST, message, data);
     this.statusCode = HttpStatus.BAD_REQUEST;
+    this.message = message;
+    this.data = data;
+  }
+}
+
+export class NotPossible<T = unknown> extends HttpResponseOutbound {
+  constructor(message: string = 'Não foi possivel.', data: T = undefined as T) {
+    super(HttpStatus.INTERNAL_SERVER_ERROR, message, undefined);
+    this.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
     this.message = message;
     this.data = data;
   }

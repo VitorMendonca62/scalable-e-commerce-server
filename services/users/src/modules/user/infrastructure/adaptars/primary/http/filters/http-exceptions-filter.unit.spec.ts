@@ -1,8 +1,8 @@
 import { ArgumentsHost, HttpStatus } from '@nestjs/common';
 import { HttpExceptionFilter } from './http-exceptions-filter';
-vi.mock('@modules/user/domain/ports/primary/http/error.port');
+vi.mock('@user/domain/ports/primary/http/error.port');
 import { type Mocked } from 'vitest';
-import { HttpError } from '@modules/user/domain/ports/primary/http/error.port';
+import { HttpError } from '@user/domain/ports/primary/http/error.port';
 
 describe('HttpExceptionFilter', () => {
   let filter: HttpExceptionFilter;

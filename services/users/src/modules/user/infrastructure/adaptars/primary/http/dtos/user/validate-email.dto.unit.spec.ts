@@ -1,6 +1,6 @@
-import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
-import { ValidationObjectFactory } from '@modules/user/infrastructure/helpers/dto-helper';
-import { UserDTOFactory } from '@modules/user/infrastructure/helpers/users/factory';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
+import { ValidationObjectFactory } from '@user/infrastructure/helpers/dto-helper';
+import { UserDTOFactory } from '@user/infrastructure/helpers/users/factory';
 
 describe('ValidateCodeForForgotPasswordDTO', () => {
   it('should sucess validation when all fields are valid', async () => {

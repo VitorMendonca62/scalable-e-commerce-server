@@ -1,21 +1,21 @@
-import UserModel from '@modules/user/infrastructure/adaptars/secondary/database/models/user.model';
+import { UserRecord } from '@user/domain/types/user-record';
 
 export default abstract class UserRepository {
-  abstract create(user: Omit<UserModel, 'id'>): Promise<void>;
+  abstract create(user: UserRecord): Promise<void>;
 
   abstract findOne(
-    options: Omit<Partial<UserModel>, 'roles'>,
-  ): Promise<Omit<UserModel, 'id'> | undefined | null>;
+    options: Omit<Partial<UserRecord>, 'roles'>,
+  ): Promise<UserRecord | undefined | null>;
 
   abstract findOneWithOR(
-    options: Omit<Partial<UserModel>, 'roles'>[],
+    options: Omit<Partial<UserRecord>, 'roles'>[],
     withDeleted: boolean,
-  ): Promise<Omit<UserModel, 'id'> | undefined | null>;
+  ): Promise<UserRecord | undefined | null>;
 
   abstract delete(userID: string): Promise<number>;
 
   abstract update(
     userID: string,
-    newFields: Partial<UserModel>,
+    newFields: Partial<UserRecord>,
   ): Promise<number>;
 }

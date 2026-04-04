@@ -1,4 +1,4 @@
-import { PhoneNumberConstants } from '@modules/user/domain/values-objects/user/constants';
+import { PhoneNumberConstants } from '@user/domain/values-objects/user/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsPhoneNumber, IsString, Length } from 'class-validator';
 

@@ -1,4 +1,4 @@
-import DeadLetterMessageRepository from '@modules/user/domain/ports/secondary/dql.repository.port';
+import DeadLetterMessageRepository from '@user/domain/ports/secondary/dql.repository.port';
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { UsersQueueService } from '../message-broker/rabbitmq/users_queue/users-queue.service';

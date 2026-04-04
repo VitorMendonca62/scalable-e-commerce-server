@@ -1,16 +1,16 @@
-import { AddressFactory } from '@modules/user/infrastructure/helpers/address/factory';
-import { AddressMapper } from '@modules/user/infrastructure/mappers/address.mapper';
+import { AddressFactory } from '@user/infrastructure/helpers/address/factory';
+import { AddressMapper } from '@user/infrastructure/mappers/address.mapper';
 import { AddUserAddressUseCase } from './add-user-address.usecase';
-import AddressRepository from '@modules/user/domain/ports/secondary/address-repository.port';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
+import AddressRepository from '@user/domain/ports/secondary/address-repository.port';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 
 describe('AddUserAddressUseCase', () => {
   let useCase: AddUserAddressUseCase;
-  let addressRepositoy: AddressRepository;
+  let addressRepository: AddressRepository;
   let addressMapper: AddressMapper;
 
   beforeEach(async () => {
-    addressRepositoy = {
+    addressRepository = {
       countAddresses: vi.fn(),
       addAddress: vi.fn(),
     } as any;
@@ -19,12 +19,12 @@ describe('AddUserAddressUseCase', () => {
       entityForModel: vi.fn(),
     } as any;
 
-    useCase = new AddUserAddressUseCase(addressRepositoy, addressMapper);
+    useCase = new AddUserAddressUseCase(addressRepository, addressMapper);
   });
 
   it('should be defined', () => {
     expect(useCase).toBeDefined();
-    expect(addressRepositoy).toBeDefined();
+    expect(addressRepository).toBeDefined();
     expect(addressMapper).toBeDefined();
   });
 
@@ -33,13 +33,13 @@ describe('AddUserAddressUseCase', () => {
     const addressModel = AddressFactory.createModel();
 
     beforeEach(() => {
-      vi.spyOn(addressRepositoy, 'countAddresses').mockResolvedValue(2);
+      vi.spyOn(addressRepository, 'countAddresses').mockResolvedValue(2);
       vi.spyOn(addressMapper, 'entityForModel').mockReturnValue(addressModel);
     });
 
     it('should call addressRepositoy.countAddresses with correct parameters', async () => {
       await useCase.execute(newAddress);
-      expect(addressRepositoy.countAddresses).toHaveBeenCalledWith(
+      expect(addressRepository.countAddresses).toHaveBeenCalledWith(
         newAddress.userID.getValue(),
       );
     });
@@ -53,7 +53,7 @@ describe('AddUserAddressUseCase', () => {
     it('should call addressRepositoy.addAddress with correct parameters', async () => {
       await useCase.execute(newAddress);
 
-      expect(addressRepositoy.addAddress).toHaveBeenCalledWith(
+      expect(addressRepository.addAddress).toHaveBeenCalledWith(
         newAddress.userID.getValue(),
         addressModel,
       );
@@ -65,7 +65,7 @@ describe('AddUserAddressUseCase', () => {
     });
 
     it('should return BUSINESS_RULE_FAILURE if user address length is greater than 3', async () => {
-      vi.spyOn(addressRepositoy, 'countAddresses').mockResolvedValue(4);
+      vi.spyOn(addressRepository, 'countAddresses').mockResolvedValue(4);
 
       const result = await useCase.execute(newAddress);
       expect(result).toEqual({
@@ -76,23 +76,8 @@ describe('AddUserAddressUseCase', () => {
       });
     });
 
-    it('should rethrow error if addressRepositoy.countAddresses throw error', async () => {
-      vi.spyOn(addressRepositoy, 'countAddresses').mockRejectedValue(
-        new Error('Error'),
-      );
-
-      try {
-        await useCase.execute(newAddress);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
-    });
-
-    it('should return NOT_POSSIBLE error if addressRepositoy.addAddress throw error', async () => {
-      vi.spyOn(addressRepositoy, 'addAddress').mockRejectedValue(
+    it('should return NOT_POSSIBLE error if addressRepository.addAddress throw error', async () => {
+      vi.spyOn(addressRepository, 'addAddress').mockRejectedValue(
         new Error('Error'),
       );
 
@@ -104,19 +89,32 @@ describe('AddUserAddressUseCase', () => {
       });
     });
 
-    it('should rethrow error if addressMapper.entityForModel throw error', async () => {
-      vi.spyOn(addressRepositoy, 'countAddresses').mockRejectedValue(
-        new Error('Error'),
-      );
+    describe('not possible', () => {
+      it('should return NOT_POSSIBLE if addressRepository.countAddresses throw error', async () => {
+        vi.spyOn(addressRepository, 'countAddresses').mockRejectedValue(
+          new Error('Error'),
+        );
 
-      try {
-        await useCase.execute(newAddress);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+        const result = await useCase.execute(newAddress);
+        expect(result).toEqual({
+          ok: false,
+          message: 'Não foi possivel adicionar o endereço',
+          reason: ApplicationResultReasons.NOT_POSSIBLE,
+        });
+      });
+
+      it('should return NOT_POSSIBLE if addressMapper.entityForModel throw error', async () => {
+        vi.spyOn(addressMapper, 'entityForModel').mockImplementation(() => {
+          throw new Error('Error');
+        });
+
+        const result = await useCase.execute(newAddress);
+        expect(result).toEqual({
+          ok: false,
+          message: 'Não foi possivel adicionar o endereço',
+          reason: ApplicationResultReasons.NOT_POSSIBLE,
+        });
+      });
     });
   });
 });

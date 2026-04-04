@@ -6,7 +6,7 @@ import {
   ApiCreatedResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { EmailConstants } from '@modules/user/domain/values-objects/user/constants';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
 
 export function ApiCreateUser() {
   return applyDecorators(

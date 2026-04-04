@@ -1,13 +1,13 @@
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
-import { UsernameConstants } from '@modules/user/domain/values-objects/user/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
+import { UsernameConstants } from '@user/domain/values-objects/user/constants';
 import {
   UserFactory,
   UserUpdateFactory,
-} from '@modules/user/infrastructure/helpers/users/factory';
+} from '@user/infrastructure/helpers/users/factory';
 import { UpdateUserUseCase } from './update-user.usecase';
-import { ApplicationResultReasons } from '@modules/user/domain/enums/application-result-reasons';
-import UserRepository from '@modules/user/domain/ports/secondary/user-repository.port';
-import { UserMapper } from '@modules/user/infrastructure/mappers/user.mapper';
+import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import UserRepository from '@user/domain/ports/secondary/user-repository.port';
+import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;
@@ -101,9 +101,9 @@ describe('UpdateUserUseCase', () => {
       });
     });
 
-    it('should return ERROR_ALREADY_EXISTS with username if usersame is in use', async () => {
+    it('should return ERROR_ALREADY_EXISTS with username if username is in use by another user', async () => {
       vi.spyOn(userRepository, 'findOneWithOR').mockResolvedValue(
-        UserFactory.createModel(),
+        UserFactory.createModel({ userID: 'another-user-id' }),
       );
 
       const userUpdate = UserUpdateFactory.createEntity();
@@ -114,6 +114,19 @@ describe('UpdateUserUseCase', () => {
         message: UsernameConstants.ERROR_ALREADY_EXISTS,
         result: 'username',
         reason: ApplicationResultReasons.FIELD_ALREADY_EXISTS,
+      });
+    });
+
+    it('should allow username update when it belongs to the same user', async () => {
+      vi.spyOn(userRepository, 'findOneWithOR').mockResolvedValue(
+        UserFactory.createModel({ userID }),
+      );
+
+      const userUpdate = UserUpdateFactory.createEntity();
+      const result = await useCase.execute(userID, userUpdate);
+
+      expect(result).toEqual({
+        ok: true,
       });
     });
 
@@ -129,48 +142,42 @@ describe('UpdateUserUseCase', () => {
       });
     });
 
-    it('should rethrow error if userRepository.findOneWithOR throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.findOneWithOR throw error', async () => {
       vi.spyOn(userRepository, 'findOneWithOR').mockRejectedValue(
         new Error('Error'),
       );
       const userUpdate = UserUpdateFactory.createEntity();
 
-      try {
-        await useCase.execute(userID, userUpdate);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userID, userUpdate);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel atualizar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if userRepository.update throw error', async () => {
+    it('should return NOT_POSSIBLE if userRepository.update throw error', async () => {
       vi.spyOn(userRepository, 'update').mockRejectedValue(new Error('Error'));
 
-      try {
-        await useCase.execute(userID, userUpdate);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userID, userUpdate);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel atualizar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
 
-    it('should rethrow error if userMapper.updateEntityForObject throw error', async () => {
+    it('should return NOT_POSSIBLE if userMapper.updateEntityForObject throw error', async () => {
       vi.spyOn(userMapper, 'updateEntityForObject').mockImplementation(() => {
         throw new Error('Error');
       });
 
-      try {
-        await useCase.execute(userID, userUpdate);
-        expect.fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error).toBeInstanceOf(Error);
-        expect(error.message).toBe('Error');
-        expect(error.data).toBeUndefined();
-      }
+      const result = await useCase.execute(userID, userUpdate);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel atualizar o usuário',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
+      });
     });
   });
 });

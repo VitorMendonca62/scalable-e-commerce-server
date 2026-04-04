@@ -2,9 +2,12 @@ import { type Mocked } from 'vitest';
 
 import QueueService from './queue.service';
 import { UsersQueueService } from './rabbitmq/users_queue/users-queue.service';
-import { UserOutboundMessageBroker } from '@modules/user/domain/ports/secondary/message-broker.port';
-import { PasswordConstants } from '@modules/user/domain/constants/password-constants';
-import { PermissionsSystem } from '@modules/user/domain/types/permissions';
+import { UserOutboundMessageBroker } from '@user/domain/ports/secondary/message-broker.port';
+import { PasswordConstants } from '@user/domain/constants/password-constants';
+import { PermissionsSystem } from '@user/domain/types/permissions';
+import { UserDTOFactory } from '@user/infrastructure/helpers/users/factory';
+import { UpdateUserDTO } from '../../primary/http/dtos/user/update-user.dto';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 describe('QueueService', () => {
   let service: QueueService;
   let usersQueueService: Mocked<UsersQueueService>;
@@ -44,6 +47,38 @@ describe('QueueService', () => {
           roles: newUser.roles,
           createdAt: newUser.createdAt,
           updatedAt: newUser.updatedAt,
+        },
+        true,
+      );
+    });
+  });
+
+  describe('sendUserUpdated', () => {
+    it('should send user created event with expected payload', async () => {
+      const newUser: UpdateUserDTO = UserDTOFactory.createUpdateUserDTO();
+      const userID = IDConstants.EXEMPLE;
+      await service.sendUserUpdated(userID, newUser);
+
+      expect(usersQueueService.send).toHaveBeenCalledWith(
+        'user-updated',
+        {
+          userID,
+          ...newUser,
+        },
+        true,
+      );
+    });
+  });
+
+  describe('sendUserDeleted', () => {
+    it('should send user created event with expected payload', async () => {
+      const userID = IDConstants.EXEMPLE;
+      await service.sendUserDeleted(userID);
+
+      expect(usersQueueService.send).toHaveBeenCalledWith(
+        'user-deleted',
+        {
+          userID,
         },
         true,
       );

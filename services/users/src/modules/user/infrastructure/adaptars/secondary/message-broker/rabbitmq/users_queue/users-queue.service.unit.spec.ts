@@ -4,7 +4,7 @@ import { ClientProxy } from '@nestjs/microservices';
 import { UsersQueueService } from './users-queue.service';
 import CircuitBreaker from 'opossum';
 import { of } from 'rxjs';
-import DeadLetterMessageRepository from '@modules/user/domain/ports/secondary/dql.repository.port';
+import DeadLetterMessageRepository from '@user/domain/ports/secondary/dql.repository.port';
 
 const mockCircuitBreakerConstructor = vi.fn();
 const mockFireFunction = vi.fn();

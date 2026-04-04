@@ -6,7 +6,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 
 export function ApiDeleteUser() {
   return applyDecorators(

@@ -23,6 +23,7 @@ import TypeOrmAddressRepository from './infrastructure/adaptars/secondary/databa
 import UserModel from './infrastructure/adaptars/secondary/database/models/user.model';
 import AddressModel from './infrastructure/adaptars/secondary/database/models/address.model';
 import { UsersQueueService } from './infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
+import QueueService from './infrastructure/adaptars/secondary/message-broker/queue.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {
@@ -33,8 +34,6 @@ import { ValidateEmailUseCase } from './application/use-cases/user/validate-emai
 import { TokenService } from './domain/ports/secondary/token-service.port';
 import { JwtTokenService } from './infrastructure/adaptars/secondary/token-service/jwt-token.service';
 import { JwtModule } from '@nestjs/jwt';
-import * as fs from 'fs';
-import * as path from 'path';
 import { RedisEmailCodeRepository } from './infrastructure/adaptars/secondary/database/repositories/redis-email-code.repository';
 import UserExternalController from './infrastructure/adaptars/primary/microservices/user.external.controller';
 import BcryptPasswordHasher from './infrastructure/adaptars/secondary/password-hasher/bcrypt-password-hasher';
@@ -43,10 +42,14 @@ import DeadLetterMessageModel from './infrastructure/adaptars/secondary/database
 import { DQLService } from './infrastructure/adaptars/secondary/dql-service/dql.service';
 import { TypeOrmDQLRepository } from './infrastructure/adaptars/secondary/database/repositories/typeorm-dql.repository';
 import DeadLetterMessageRepository from './domain/ports/secondary/dql.repository.port';
-import QueueService from './infrastructure/adaptars/secondary/message-broker/queue.service';
+import { OtpGenerator } from './domain/ports/secondary/otp-generator.port';
+import OtpGeneratorService from './infrastructure/adaptars/secondary/otp-generator/otp-generator.service';
+import * as fs from 'fs';
+import * as path from 'path';
 @Module({
   imports: [
     HttpModule,
+    ConfigModule,
     TypeOrmModule.forFeature([UserModel, AddressModel, DeadLetterMessageModel]),
     JwtModule.register({
       privateKey: fs.readFileSync(
@@ -129,6 +132,10 @@ import QueueService from './infrastructure/adaptars/secondary/message-broker/que
     {
       provide: PasswordHasher,
       useClass: BcryptPasswordHasher,
+    },
+    {
+      provide: OtpGenerator,
+      useClass: OtpGeneratorService,
     },
     {
       provide: DeadLetterMessageRepository,

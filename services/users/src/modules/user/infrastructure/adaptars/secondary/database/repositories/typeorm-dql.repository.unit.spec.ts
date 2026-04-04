@@ -2,7 +2,7 @@ import { Repository, In } from 'typeorm';
 import { Mock } from 'vitest';
 import DeadLetterMessageModel from '../models/dlq.model';
 import { TypeOrmDQLRepository } from './typeorm-dql.repository';
-import { DQLFactory } from '@modules/user/infrastructure/helpers/dlq-factory';
+import { DQLFactory } from '@user/infrastructure/helpers/dlq-factory';
 
 describe('TypeOrmDQLRepository', () => {
   let repository: TypeOrmDQLRepository;

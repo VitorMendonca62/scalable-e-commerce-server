@@ -13,8 +13,8 @@ import {
   EmailConstants,
   AvatarConstants,
   PhoneNumberConstants,
-} from '@modules/user/domain/values-objects/user/constants';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+} from '@user/domain/values-objects/user/constants';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 
 export function ApiFindOneUser() {
   return applyDecorators(

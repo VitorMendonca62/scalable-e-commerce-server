@@ -11,6 +11,7 @@ import {
 } from '@nestjs/platform-fastify';
 import AppConfig from '@config/app.config';
 import fastifyCookie from '@fastify/cookie';
+import 'reflect-metadata';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(

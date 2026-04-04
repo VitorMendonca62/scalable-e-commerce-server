@@ -4,7 +4,7 @@ import {
   NameConstants,
   PhoneNumberConstants,
   UsernameConstants,
-} from '@modules/user/domain/values-objects/user/constants';
+} from '@user/domain/values-objects/user/constants';
 
 import { type Mock } from 'vitest';
 
@@ -73,7 +73,7 @@ class MockAvatar {
   getValue = mockAvatarGetValue;
 }
 
-vi.mock('@modules/user/domain/values-objects/user/values-object', () => {
+vi.mock('@user/domain/values-objects/user/values-object', () => {
   return {
     AvatarVO: MockAvatar,
     EmailVO: MockEmail,

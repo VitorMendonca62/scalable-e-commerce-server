@@ -8,9 +8,9 @@ import {
   PostalCodeConstants,
   StateConstants,
   StreetConstants,
-} from '@modules/user/domain/values-objects/address/constants';
-import { AddressEntity } from '@modules/user/domain/entities/address.entity';
-import { IDConstants } from '@modules/user/domain/values-objects/common/constants';
+} from '@user/domain/values-objects/address/constants';
+import { AddressEntity } from '@user/domain/entities/address.entity';
+import { IDConstants } from '@user/domain/values-objects/common/constants';
 import {
   CityVO,
   ComplementVO,
@@ -20,9 +20,10 @@ import {
   PostalCodeVO,
   StateVO,
   StreetVO,
-} from '@modules/user/domain/values-objects/address/values-object';
-import { IDVO } from '@modules/user/domain/values-objects/common/value-object';
+} from '@user/domain/values-objects/address/values-object';
+import { IDVO } from '@user/domain/values-objects/common/value-object';
 import AddressModel from '../../adaptars/secondary/database/models/address.model';
+import { AddressRecord } from '@user/domain/types/address-record';
 
 export class AddressDTOFactory {
   static createAddUserAddressDTO(
@@ -95,6 +96,24 @@ export class AddressFactory {
       createdAt: new Date(),
       id: 1,
       user: undefined,
+      userID: IDConstants.EXEMPLE,
+      ...overrides,
+    };
+  }
+
+  static createRecord(overrides: Partial<AddressRecord>): AddressRecord {
+    return {
+      id: 1,
+      userID: IDConstants.EXEMPLE,
+      number: NumberConstants.EXEMPLE,
+      street: StreetConstants.EXEMPLE,
+      complement: ComplementConstants.EXEMPLE,
+      neighborhood: NeighborhoodConstants.EXEMPLE,
+      city: CityConstants.EXEMPLE,
+      postalCode: PostalCodeConstants.EXEMPLE,
+      state: StateConstants.EXEMPLE,
+      country: CountryConstants.EXEMPLE,
+      createdAt: new Date(),
       ...overrides,
     };
   }

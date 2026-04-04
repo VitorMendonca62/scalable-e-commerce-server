@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersQueueService } from './rabbitmq/users_queue/users-queue.service';
-import { UserOutboundMessageBroker } from '@modules/user/domain/ports/secondary/message-broker.port';
+import { UserOutboundMessageBroker } from '@user/domain/ports/secondary/message-broker.port';
 import { UpdateUserDTO } from '../../primary/http/dtos/user/update-user.dto';
 
 @Injectable()
