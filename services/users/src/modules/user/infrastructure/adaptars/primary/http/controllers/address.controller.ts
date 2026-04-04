@@ -25,6 +25,11 @@ import {
 } from '@user/application/use-cases/address/use-cases';
 import { AddUserAddressDTO } from '../dtos/add-user-address.dto';
 import {
+  ApiAddUserAddress,
+  ApiDeleteUserAddress,
+  ApiGetUserAddresses,
+} from '../../common/decorators/docs/address/decorators';
+import {
   BusinessRuleFailure,
   NotFoundItem,
   NotPossible,
@@ -43,6 +48,7 @@ export class AddressController {
   ) {}
 
   @Post('/')
+  @ApiAddUserAddress()
   async addAddress(
     @Body() dto: AddUserAddressDTO,
     @Headers('x-user-id') userID: string,
@@ -67,6 +73,7 @@ export class AddressController {
 
   @Get('/')
   @HttpCode(HttpStatus.OK)
+  @ApiGetUserAddresses()
   async getAll(
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
@@ -89,6 +96,7 @@ export class AddressController {
 
   @Delete(':addressId')
   @HttpCode(HttpStatus.OK)
+  @ApiDeleteUserAddress()
   async delete(
     @Param('addressId') addressId: number,
     @Headers('x-user-id') userID: string,

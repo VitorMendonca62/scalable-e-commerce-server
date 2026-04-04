@@ -35,11 +35,6 @@ export class CreateUserUseCase implements CreateUserPort {
         true,
       );
 
-      if (
-        user.email.getValue() == `users-email.already${EmailConstants.EXEMPLE}`
-      )
-        console.log('OI');
-
       if (userExists !== null && userExists !== undefined) {
         if (user.email.getValue() === userExists.email) {
           return {

@@ -1,7 +1,7 @@
 import { HttpResponseOutbound } from '@user/domain/ports/primary/http/sucess.port';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
-  ApiBadRequestResponse,
+  ApiInternalServerErrorResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -35,7 +35,7 @@ export function ApiFindOneUser() {
           value: IDConstants.EXEMPLE,
         },
       },
-      required: false,
+      required: true,
     }),
     ApiOkResponse({
       description: 'Conseguiu encontrar um usuário',
@@ -46,18 +46,9 @@ export function ApiFindOneUser() {
           username: UsernameConstants.EXEMPLE,
           email: EmailConstants.EXEMPLE,
           avatar: AvatarConstants.EXEMPLE,
-          phonenumber: PhoneNumberConstants.EXEMPLE,
+          phoneNumber: PhoneNumberConstants.EXEMPLE,
         },
-        message: 'Aqui está usuário pelo ID',
-      },
-      type: HttpResponseOutbound,
-    }),
-    ApiBadRequestResponse({
-      description: 'Username ou id está inválido.',
-      example: {
-        statusCode: HttpStatus.BAD_REQUEST,
-        data: 'id',
-        message: IDConstants.ERROR_INVALID,
+        message: 'Usuário encontrado com sucesso',
       },
       type: HttpResponseOutbound,
     }),
@@ -66,6 +57,15 @@ export function ApiFindOneUser() {
       example: {
         statusCode: HttpStatus.NOT_FOUND,
         message: 'Não foi possivel encontrar o usuário',
+      },
+      type: HttpResponseOutbound,
+    }),
+    ApiInternalServerErrorResponse({
+      description: 'Não foi possivel buscar o usuário',
+      example: {
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Não foi possivel buscar o usuário',
+        data: undefined,
       },
       type: HttpResponseOutbound,
     }),

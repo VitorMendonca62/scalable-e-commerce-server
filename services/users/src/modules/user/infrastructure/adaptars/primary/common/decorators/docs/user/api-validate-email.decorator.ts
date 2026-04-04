@@ -1,45 +1,41 @@
 import { HttpResponseOutbound } from '@user/domain/ports/primary/http/sucess.port';
 import { applyDecorators, HttpStatus } from '@nestjs/common';
 import {
-  ApiHeader,
+  ApiBadRequestResponse,
   ApiInternalServerErrorResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { EmailConstants } from '@user/domain/values-objects/user/constants';
 
-export function ApiDeleteUser() {
+export function ApiValidateEmail() {
   return applyDecorators(
     ApiOperation({
-      summary: 'Deletar um usuário por token',
-    }),
-    ApiHeader({
-      name: 'x-user-id',
-      description: 'ID do usuário que será deletado.',
-      required: true,
+      summary: 'Enviar código de validação por email',
     }),
     ApiOkResponse({
-      description: 'Foi possivel deletar usuário',
+      description: 'Código enviado com sucesso para o email informado',
       example: {
         statusCode: HttpStatus.OK,
-        message: 'Usuário deletado com sucesso',
+        message: 'Código enviado com sucesso para seu email.',
         data: undefined,
       },
       type: HttpResponseOutbound,
     }),
-    ApiNotFoundResponse({
-      description: 'Não foi possivel encontrar o usuário',
+    ApiBadRequestResponse({
+      description: 'Erro de validação no email',
       example: {
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Não foi possivel encontrar o usuário',
+        statusCode: HttpStatus.BAD_REQUEST,
+        data: 'email',
+        message: EmailConstants.ERROR_REQUIRED,
       },
       type: HttpResponseOutbound,
     }),
     ApiInternalServerErrorResponse({
-      description: 'Não foi possivel deletar o usuário',
+      description: 'Não foi possivel enviar o código de validação',
       example: {
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Não foi possivel deletar o usuário',
+        message: 'Não foi possivel enviar o código de validação.',
         data: undefined,
       },
       type: HttpResponseOutbound,

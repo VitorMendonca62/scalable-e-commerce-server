@@ -34,6 +34,8 @@ import {
   ApiDeleteUser,
   ApiFindOneUser,
   ApiUpdateUser,
+  ApiValidateCode,
+  ApiValidateEmail,
 } from '../../common/decorators/docs/user/decorators';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
 import {
@@ -62,7 +64,7 @@ export class UserController {
   ) {}
 
   @Post('/validate-email')
-  // TODO FAZER documentacao
+  @ApiValidateEmail()
   async sendCode(
     @Body() dto: ValidateEmailDTO,
     @Res({ passthrough: true }) response: FastifyReply,
@@ -79,7 +81,7 @@ export class UserController {
   }
 
   @Post('/validate-code')
-  // TODO FAZER documentacao
+  @ApiValidateCode()
   async validateCode(
     @Body() dto: ValidateCodeForValidateEmailDTO,
     @Res({ passthrough: true }) response: FastifyReply,
