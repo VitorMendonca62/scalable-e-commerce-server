@@ -1,8 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
-import { Logger } from '@nestjs/common';
-import { EnvironmentVariables } from './config/environment/env.validation';
+import { Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  EnvironmentVariables,
+  NodeEnv,
+} from './config/environment/env.validation';
 import AppConfig from '@config/app.config';
 import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
 import { addRabbitMQClient } from '@config/message-broker/rabbitmq.config';
@@ -27,6 +30,13 @@ const getMtlsHttpsOptions = () => {
     throw new Error(
       'mTLS enabled but MTLS_KEY_PATH, MTLS_CERT_PATH, or MTLS_CA_PATH is missing.',
     );
+  }
+
+  if (
+    process.env.NODE_ENV === NodeEnv.Production &&
+    !isMtlsEnabled(process.env.MTLS_ENABLED)
+  ) {
+    throw new UnauthorizedException('mTLS required in production.');
   }
 
   return {

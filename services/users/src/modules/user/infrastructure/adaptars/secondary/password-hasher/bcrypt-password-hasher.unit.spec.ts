@@ -5,7 +5,7 @@ import { type Mock } from 'vitest';
 
 vi.mock('bcryptjs', () => {
   return {
-    hashSync: vi.fn(),
+    hash: vi.fn(),
   };
 });
 
@@ -22,21 +22,18 @@ describe('BcryptPasswordHasher', () => {
 
   describe('hash', () => {
     beforeEach(() => {
-      (bcrypt.hashSync as Mock).mockReturnValue('PasswordHashed');
+      (bcrypt.hash as Mock).mockResolvedValue('PasswordHashed');
     });
 
-    it('should call bcrypt.hashSync with the correct parameters', () => {
+    it('should call bcrypt.hash with the correct parameters', () => {
       service.hash(PasswordConstants.EXEMPLE);
 
-      expect(bcrypt.hashSync).toHaveBeenCalledWith(
-        PasswordConstants.EXEMPLE,
-        10,
-      );
-      expect(bcrypt.hashSync).toHaveBeenCalledTimes(1);
+      expect(bcrypt.hash).toHaveBeenCalledWith(PasswordConstants.EXEMPLE, 10);
+      expect(bcrypt.hash).toHaveBeenCalledTimes(1);
     });
 
-    it('should return the result from bcrypt.hashSync', () => {
-      const result = service.hash(PasswordConstants.EXEMPLE);
+    it('should return the result from bcrypt.hash', async () => {
+      const result = await service.hash(PasswordConstants.EXEMPLE);
 
       expect(typeof result).toBe('string');
       expect(result).toBe('PasswordHashed');

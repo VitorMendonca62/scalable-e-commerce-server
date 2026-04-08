@@ -1,3 +1,3 @@
 export abstract class PasswordHasher {
-  abstract hash(password: string): string;
+  abstract hash(password: string): Promise<string>;
 }

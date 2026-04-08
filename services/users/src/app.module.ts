@@ -13,6 +13,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { RedisModule } from '@nestjs-modules/ioredis';
 import { configRedisdDB } from '@config/database/redis.config';
 import DeadLetterMessageModel from '@user/infrastructure/adaptars/secondary/database/models/dlq.model';
+import { APP_GUARD } from '@nestjs/core';
+import GatewayMtlsGuard from '@user/infrastructure/adaptars/primary/http/guards/gateway-mtls.guard';
 
 @Module({
   imports: [
@@ -52,5 +54,11 @@ import DeadLetterMessageModel from '@user/infrastructure/adaptars/secondary/data
     UserModule,
   ],
   controllers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: GatewayMtlsGuard,
+    },
+  ],
 })
 export class AppModule {}

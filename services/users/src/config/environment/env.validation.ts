@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
   IsString,
   Max,
   Min,
@@ -41,10 +42,10 @@ export class EnvironmentVariables {
   RABBITMQ_DEFAULT_PASS: string;
 
   @Type(() => Number)
-  @IsNumber({}, { message: 'RABBITMQ_HOST must be a number.' })
-  @Min(1, { message: 'RABBITMQ_HOST must be greater than or equal to 1.' })
-  @Max(65535, { message: 'RABBITMQ_HOST must be less than or equal to 65535.' })
-  @IsNotEmpty({ message: 'RABBITMQ_HOST cannot be empty.' })
+  @IsNumber({}, { message: 'RABBITMQ_PORT must be a number.' })
+  @Min(1, { message: 'RABBITMQ_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'RABBITMQ_PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'RABBITMQ_PORT cannot be empty.' })
   RABBITMQ_PORT: number;
 
   @IsString({ message: 'RABBITMQ_HOST must be a string.' })
@@ -119,4 +120,24 @@ export class EnvironmentVariables {
   @Min(1, { message: 'REDIS_PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'REDIS_PORT must be less than or equal to 65535.' })
   REDIS_PORT: number;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_ENABLED must be a string.' })
+  MTLS_ENABLED?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_KEY_PATH must be a string.' })
+  MTLS_KEY_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_CERT_PATH must be a string.' })
+  MTLS_CERT_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_CA_PATH must be a string.' })
+  MTLS_CA_PATH?: string;
+
+  @IsOptional()
+  @IsString({ message: 'MTLS_ALLOWED_SUBJECTS must be a string.' })
+  MTLS_ALLOWED_SUBJECTS?: string;
 }

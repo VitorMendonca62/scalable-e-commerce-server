@@ -62,7 +62,7 @@ export class CreateUserUseCase implements CreateUserPort {
           roles: userModel.roles,
           createdAt: userModel.createdAt,
           updatedAt: userModel.updatedAt,
-          password: this.passwordHasher.hash(password),
+          password: await this.passwordHasher.hash(password),
         },
       };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
