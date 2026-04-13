@@ -15,7 +15,7 @@ export default class NodemailerEmailSender implements EmailSender {
     context: { [key: string]: string },
   ) {
     try {
-      this.mailerService.sendMail({
+      await this.mailerService.sendMail({
         to,
         from,
         subject,

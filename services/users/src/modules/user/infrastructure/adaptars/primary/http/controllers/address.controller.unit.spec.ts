@@ -3,11 +3,7 @@ import {
   DeleteUserAddressUseCase,
   GetUserAddressesUseCase,
 } from '@user/application/use-cases/address/use-cases';
-import {
-  BusinessRuleFailure,
-  NotFoundItem,
-  NotPossible,
-} from '@user/domain/ports/primary/http/error.port';
+import { NotPossible } from '@user/domain/ports/primary/http/error.port';
 import {
   HttpCreatedResponse,
   HttpOKResponse,
@@ -22,11 +18,13 @@ import { HttpStatus } from '@nestjs/common';
 import { AddressController } from './address.controller';
 import { FastifyReply } from 'fastify';
 import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import UseCaseResultToHttpMapper from '@user/infrastructure/mappers/use-case-result-to-http.mapper';
 
 describe('AddressController', () => {
   let controller: AddressController;
 
   let addressMapper: AddressMapper;
+  let useCaseResultToHttpMapper: UseCaseResultToHttpMapper;
 
   let addUserAddressUseCase: AddUserAddressUseCase;
   let getUserAddressesUseCase: GetUserAddressesUseCase;
@@ -43,9 +41,13 @@ describe('AddressController', () => {
     addUserAddressUseCase = { execute: vi.fn() } as any;
     getUserAddressesUseCase = { execute: vi.fn() } as any;
     deleteUserAddressUseCase = { execute: vi.fn() } as any;
+    useCaseResultToHttpMapper = {
+      map: vi.fn(),
+    } as any;
 
     controller = new AddressController(
       addressMapper,
+      useCaseResultToHttpMapper,
       addUserAddressUseCase,
       getUserAddressesUseCase,
       deleteUserAddressUseCase,
@@ -60,6 +62,7 @@ describe('AddressController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(addressMapper).toBeDefined();
+    expect(useCaseResultToHttpMapper).toBeDefined();
     expect(addUserAddressUseCase).toBeDefined();
     expect(getUserAddressesUseCase).toBeDefined();
     expect(deleteUserAddressUseCase).toBeDefined();
@@ -94,10 +97,24 @@ describe('AddressController', () => {
       expect(addUserAddressUseCase.execute).toHaveBeenCalledWith(addressEntity);
     });
 
-    it('should return HttpCreatedResponse on success', async () => {
+    it('should return OK response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpCreatedResponse('Endereço criado com sucesso'),
+        );
+
       const result = await controller.addAddress(dto, userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.CREATED);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Endereço criado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
@@ -106,34 +123,28 @@ describe('AddressController', () => {
       });
     });
 
-    it('should return BusinessRuleFailure if use case result is not ok and reason is BUSINESS_RULE_FAILURE', async () => {
-      vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.BUSINESS_RULE_FAILURE,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.addAddress(dto, userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
-      expect(result).toBeInstanceOf(BusinessRuleFailure);
-      expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'any',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
-      vi.spyOn(addUserAddressUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.addAddress(dto, userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Endereço criado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -142,7 +153,7 @@ describe('AddressController', () => {
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(addUserAddressUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );
@@ -185,9 +196,29 @@ describe('AddressController', () => {
       expect(getUserAddressesUseCase.execute).toHaveBeenCalledWith(userID);
     });
 
-    it('should return HttpOKResponse with addresses on success', async () => {
+    it('should return OK response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: [addressReturn],
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse('Aqui está todos os endereços do usuário', [
+            addressReturn,
+          ]),
+        );
+
       const result = await controller.getAll(userID, response);
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Aqui está todos os endereços do usuário', [
+          addressReturn,
+        ]),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -196,33 +227,28 @@ describe('AddressController', () => {
       });
     });
 
-    it('should return NotFoundItem if use case result is not ok', async () => {
-      vi.spyOn(getUserAddressesUseCase, 'execute').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.NOT_FOUND,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(getUserAddressesUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.getAll(userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'any',
-        data: undefined,
-      });
-    });
-    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
-      vi.spyOn(getUserAddressesUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.getAll(userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Aqui está todos os endereços do usuário', []),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -231,7 +257,7 @@ describe('AddressController', () => {
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(getUserAddressesUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );
@@ -266,9 +292,22 @@ describe('AddressController', () => {
       );
     });
 
-    it('should return HttpOKResponse with addresses on success', async () => {
+    it('should return OK response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new HttpOKResponse('Endereço deletado com sucesso'));
+
       const result = await controller.delete(addressID, userID, response);
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Endereço deletado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -277,34 +316,28 @@ describe('AddressController', () => {
       });
     });
 
-    it('should return NotFoundItem if use case result is not ok', async () => {
-      vi.spyOn(deleteUserAddressUseCase, 'execute').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.NOT_FOUND,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(deleteUserAddressUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.delete(addressID, userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'any',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is not ok and reason is NOT_POSSIBLE', async () => {
-      vi.spyOn(deleteUserAddressUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.delete(addressID, userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Endereço deletado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -312,8 +345,7 @@ describe('AddressController', () => {
         data: undefined,
       });
     });
-
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(deleteUserAddressUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );

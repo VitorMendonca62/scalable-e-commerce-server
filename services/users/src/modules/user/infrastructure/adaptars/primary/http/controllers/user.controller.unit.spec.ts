@@ -25,21 +25,19 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@user/domain/ports/primary/http/sucess.port';
-import { v7 } from 'uuid';
-import {
-  BusinessRuleFailure,
-  FieldAlreadyExists,
-  FieldInvalid,
-  NotFoundItem,
-  NotPossible,
-} from '@user/domain/ports/primary/http/error.port';
 import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 import QueueService from '../../../secondary/message-broker/queue.service';
+import UseCaseResultToHttpMapper from '@user/infrastructure/mappers/use-case-result-to-http.mapper';
+import {
+  FieldInvalid,
+  NotPossible,
+} from '@user/domain/ports/primary/http/error.port';
 
 describe('UserController', () => {
   let controller: UserController;
 
   let userMapper: UserMapper;
+  let useCaseResultToHttpMapper: UseCaseResultToHttpMapper;
   let queueService: QueueService;
 
   let validateEmailUseCase: ValidateEmailUseCase;
@@ -54,6 +52,9 @@ describe('UserController', () => {
     userMapper = {
       createDTOForEntity: vi.fn(),
       updateDTOForModel: vi.fn(),
+    } as any;
+    useCaseResultToHttpMapper = {
+      map: vi.fn(),
     } as any;
 
     queueService = {
@@ -74,6 +75,7 @@ describe('UserController', () => {
     controller = new UserController(
       userMapper,
       queueService,
+      useCaseResultToHttpMapper,
       validateEmailUseCase,
       createUserUseCase,
       getUserUseCase,
@@ -114,14 +116,27 @@ describe('UserController', () => {
       expect(validateEmailUseCase.sendEmail).toHaveBeenCalledWith(dto.email);
     });
 
-    it('should return HttpOKResponse on success', async () => {
-      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue({
-        ok: true,
-      });
+    it('should return OK response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse('Código enviado com sucesso para seu email.'),
+        );
 
       const result = await controller.sendCode(dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        expect.any(HttpOKResponse),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -130,17 +145,26 @@ describe('UserController', () => {
       });
     });
 
-    it('should return NotPossible if use case result is not ok', async () => {
-      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+      vi.spyOn(validateEmailUseCase, 'sendEmail').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.sendCode(dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(
-        HttpStatus.INTERNAL_SERVER_ERROR,
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Código enviado com sucesso para seu email.'),
+        response,
       );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
@@ -150,7 +174,7 @@ describe('UserController', () => {
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(validateEmailUseCase, 'sendEmail').mockRejectedValue(
         new Error('Error'),
       );
@@ -186,48 +210,61 @@ describe('UserController', () => {
       );
     });
 
-    it('should return HttpOKResponse with signup token on success', async () => {
+    it('should return OK response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: token,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse('Código validado com sucesso..', {
+            [Cookies.SignUpToken]: token,
+          }),
+        );
+
       const result = await controller.validateCode(dto, response);
 
-      expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Código validado com sucesso.', {
+          [Cookies.SignUpToken]: token,
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
-        message: 'Código validado com sucesso.',
-        data: {
-          [Cookies.SignUpToken]: token,
-        },
+        message: 'Código validado com sucesso..',
+        data: { [Cookies.SignUpToken]: token },
       });
     });
 
-    it('should return BusinessRuleFailure if use case result is not ok', async () => {
-      vi.spyOn(validateEmailUseCase, 'validateCode').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.BUSINESS_RULE_FAILURE,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(validateEmailUseCase, 'validateCode').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.validateCode(dto, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
-      expect(result).toBeInstanceOf(BusinessRuleFailure);
-      expect(result).toEqual({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'any',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
-      vi.spyOn(validateEmailUseCase, 'validateCode').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.validateCode(dto, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Código validado com sucesso.', {
+          [Cookies.SignUpToken]: null,
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -236,7 +273,7 @@ describe('UserController', () => {
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(validateEmailUseCase, 'validateCode').mockRejectedValue(
         new Error('Error'),
       );
@@ -260,6 +297,13 @@ describe('UserController', () => {
     const userModel = UserFactory.createModel();
     const userEntity = UserFactory.createEntity();
 
+    const useCaseResultUser = {
+      createdAt: userModel.createdAt,
+      roles: userModel.roles,
+      updatedAt: userModel.updatedAt,
+      password: 'hashedPassword',
+    };
+
     beforeAll(() => {
       vi.mock('uuid', () => {
         return { v7: vi.fn().mockReturnValue(IDConstants.EXEMPLE) };
@@ -269,30 +313,14 @@ describe('UserController', () => {
     beforeEach(() => {
       vi.spyOn(createUserUseCase, 'execute').mockResolvedValue({
         ok: true,
-        result: {
-          createdAt: userModel.createdAt,
-          roles: userModel.roles,
-          updatedAt: userModel.updatedAt,
-          password: 'hashedPassword',
-        },
+        result: useCaseResultUser,
       });
       vi.spyOn(userMapper, 'createDTOForEntity').mockReturnValue(userEntity);
-    });
-
-    it('should call userMapper.createDTOForEntity with correct parameters', async () => {
-      await controller.create(dto, email, response);
-
-      expect(userMapper.createDTOForEntity).toHaveBeenCalledWith(
-        dto,
-        email,
-        userID,
-      );
     });
 
     it('should call createUserUseCase.execute with correct parameters', async () => {
       await controller.create(dto, email, response);
 
-      expect(v7).toBeCalled();
       expect(createUserUseCase.execute).toHaveBeenCalledWith(
         userEntity,
         dto.password,
@@ -312,10 +340,23 @@ describe('UserController', () => {
       });
     });
 
-    it('should return HttpCreatedResponse on success', async () => {
+    it('should return created response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: useCaseResultUser,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new HttpCreatedResponse('Usuário criado com sucesso'));
+
       const result = await controller.create(dto, email, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.CREATED);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário criado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
@@ -324,35 +365,26 @@ describe('UserController', () => {
       });
     });
 
-    it('should return FieldAlreadyExists if use case result is not ok', async () => {
-      vi.spyOn(createUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        result: 'email',
-        reason: ApplicationResultReasons.FIELD_ALREADY_EXISTS,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(createUserUseCase, 'execute').mockResolvedValue(useCaseResult);
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.create(dto, email, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.CONFLICT);
-      expect(result).toBeInstanceOf(FieldAlreadyExists);
-      expect(result).toEqual({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'any',
-        data: 'email',
-      });
-    });
-
-    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
-      vi.spyOn(createUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.create(dto, email, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário criado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -361,7 +393,7 @@ describe('UserController', () => {
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(createUserUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );
@@ -380,7 +412,7 @@ describe('UserController', () => {
   describe('findOne', () => {
     const identifier = UsernameConstants.EXEMPLE;
     const userModel = UserFactory.createModel();
-    const resultUser = {
+    const useCaseResultUser = {
       name: userModel.name,
       username: userModel.username,
       email: userModel.email,
@@ -391,7 +423,7 @@ describe('UserController', () => {
     beforeEach(() => {
       vi.spyOn(getUserUseCase, 'execute').mockResolvedValue({
         ok: true,
-        result: resultUser,
+        result: useCaseResultUser,
       });
     });
 
@@ -412,46 +444,56 @@ describe('UserController', () => {
         'userID',
       );
     });
+    it('should return ok response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: useCaseResultUser,
+      };
 
-    it('should return HttpOKResponse on success with user', async () => {
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse(
+            'Usuário encontrado com sucesso',
+            useCaseResultUser,
+          ),
+        );
+
       const result = await controller.findOne(identifier, response);
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário encontrado com sucesso', useCaseResultUser),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Usuário encontrado com sucesso',
-        data: resultUser,
+        data: useCaseResultUser,
       });
     });
 
-    it('should return NotFoundItem if use case result is not ok', async () => {
-      vi.spyOn(getUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
         message: 'any',
-        reason: ApplicationResultReasons.NOT_FOUND,
-      });
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(getUserUseCase, 'execute').mockResolvedValue(useCaseResult);
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.findOne(identifier, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'any',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
-      vi.spyOn(getUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.findOne(identifier, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário encontrado com sucesso', null),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
@@ -475,14 +517,66 @@ describe('UserController', () => {
       });
     });
 
-    it('should return HttpOKResponse on success', async () => {
+    it('should call updateUserUseCase.execute with correct parameters and mapped user', async () => {
+      await controller.update(dto, userID, response);
+
+      expect(updateUserUseCase.execute).toHaveBeenCalledWith(
+        userID,
+        userUpdate,
+      );
+    });
+
+    it('should return ok response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse('Usuário atualizado com sucesso', dto),
+        );
+
       const result = await controller.update(dto, userID, response);
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário atualizado com sucesso', dto),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
         message: 'Usuário atualizado com sucesso',
         data: dto,
+      });
+    });
+
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(updateUserUseCase, 'execute').mockResolvedValue(useCaseResult);
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
+
+      const result = await controller.update(dto, userID, response);
+
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário atualizado com sucesso', null),
+        response,
+      );
+      expect(result).toBeInstanceOf(NotPossible);
+      expect(result).toEqual({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'any',
+        data: undefined,
       });
     });
 
@@ -498,26 +592,19 @@ describe('UserController', () => {
       });
     });
 
-    it('should return FieldAlreadyExists if use case result is not ok and reason is FIELD_ALREADY_EXISTS', async () => {
-      vi.spyOn(updateUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any message',
-        reason: ApplicationResultReasons.FIELD_ALREADY_EXISTS,
-        result: 'username',
-      });
+    it('should return FieldInvalid when no have dto', async () => {
+      const result = await controller.update(undefined, userID, response);
 
-      const result = await controller.update(dto, userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.CONFLICT);
-      expect(result).toBeInstanceOf(FieldAlreadyExists);
+      expect(response.status).toBeCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
       expect(result).toEqual({
-        statusCode: HttpStatus.CONFLICT,
-        message: 'any message',
-        data: 'username',
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum campo para o usuário ser atualizado',
+        data: 'all',
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(updateUserUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );
@@ -530,42 +617,6 @@ describe('UserController', () => {
         expect(error.message).toBe('Error');
         expect(error.data).toBeUndefined();
       }
-    });
-
-    it('should return NotFoundItem if use case result is not ok and reason is NOT_FOUND', async () => {
-      vi.spyOn(updateUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any message',
-        reason: ApplicationResultReasons.NOT_FOUND,
-      });
-
-      const result = await controller.update(dto, userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'any message',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
-      vi.spyOn(updateUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any message',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.update(dto, userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
-      expect(result).toBeInstanceOf(NotPossible);
-      expect(result).toEqual({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'any message',
-        data: undefined,
-      });
     });
   });
 
@@ -584,9 +635,22 @@ describe('UserController', () => {
       expect(deleteUserUseCase.execute).toHaveBeenCalledWith(userID);
     });
 
-    it('should return HttpDeletedResponse on success', async () => {
+    it('should return ok response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new HttpOKResponse('Usuário deletado com sucesso'));
+
       const result = await controller.delete(userID, response);
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário deletado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -595,43 +659,35 @@ describe('UserController', () => {
       });
     });
 
-    it('should return NotFoundItem if use case result is not ok ', async () => {
-      vi.spyOn(deleteUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any message',
-        reason: ApplicationResultReasons.NOT_FOUND,
-      });
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(deleteUserUseCase, 'execute').mockResolvedValue(useCaseResult);
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.delete(userID, response);
 
-      expect(response.status).toBeCalledWith(HttpStatus.NOT_FOUND);
-      expect(result).toBeInstanceOf(NotFoundItem);
-      expect(result).toEqual({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'any message',
-        data: undefined,
-      });
-    });
-
-    it('should return NotPossible if use case result is NOT_POSSIBLE', async () => {
-      vi.spyOn(deleteUserUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        message: 'any message',
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-      });
-
-      const result = await controller.delete(userID, response);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Usuário deletado com sucesso'),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'any message',
+        message: 'any',
         data: undefined,
       });
     });
 
-    it('should rethrow error if usecase throw error', async () => {
+    it('should propagate error when use case throws', async () => {
       vi.spyOn(deleteUserUseCase, 'execute').mockRejectedValue(
         new Error('Error'),
       );

@@ -38,24 +38,19 @@ import {
   ApiValidateEmail,
 } from '../../common/decorators/docs/user/decorators';
 import { UserMapper } from '@user/infrastructure/mappers/user.mapper';
-import {
-  BusinessRuleFailure,
-  FieldAlreadyExists,
-  FieldInvalid,
-  NotFoundItem,
-  NotPossible,
-} from '@user/domain/ports/primary/http/error.port';
+import { FieldInvalid } from '@user/domain/ports/primary/http/error.port';
 import { Cookies } from '@user/domain/enums/cookies.enum';
 import { FastifyReply } from 'fastify';
 import { isUUID } from 'class-validator';
-import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
 import QueueService from '../../../secondary/message-broker/queue.service';
+import UseCaseResultToHttpMapper from '@user/infrastructure/mappers/use-case-result-to-http.mapper';
 
 @Controller('users')
 export class UserController {
   constructor(
     private readonly userMapper: UserMapper,
     private readonly queueService: QueueService,
+    private readonly useCaseResultToHttpMapper: UseCaseResultToHttpMapper,
     private readonly validateEmailUseCase: ValidateEmailUseCase,
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly getUserUseCase: GetUserUseCase,
@@ -71,13 +66,11 @@ export class UserController {
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.validateEmailUseCase.sendEmail(dto.email);
 
-    if (useCaseResult.ok === false) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(useCaseResult.message);
-    }
-
-    response.status(HttpStatus.OK);
-    return new HttpOKResponse('Código enviado com sucesso para seu email.');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Código enviado com sucesso para seu email.'),
+      response,
+    );
   }
 
   @Post('/validate-code')
@@ -91,21 +84,13 @@ export class UserController {
       dto.email,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.BAD_REQUEST);
-      return new BusinessRuleFailure(useCaseResult.message);
-    }
-
-    const token = useCaseResult.result;
-
-    response.status(HttpStatus.OK);
-    return new HttpOKResponse('Código validado com sucesso.', {
-      [Cookies.SignUpToken]: token,
-    });
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Código validado com sucesso.', {
+        [Cookies.SignUpToken]: useCaseResult.ok ? useCaseResult.result : null,
+      }),
+      response,
+    );
   }
 
   @Post('/')
@@ -121,29 +106,22 @@ export class UserController {
       dto.password,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.CONFLICT);
-      return new FieldAlreadyExists(
-        useCaseResult.message,
-        useCaseResult.result,
-      );
+    if (useCaseResult.ok) {
+      await this.queueService.sendUserCreated({
+        userID,
+        email: email,
+        password: useCaseResult.result.password,
+        roles: useCaseResult.result.roles,
+        createdAt: useCaseResult.result.createdAt,
+        updatedAt: useCaseResult.result.updatedAt,
+      });
     }
 
-    await this.queueService.sendUserCreated({
-      userID,
-      email: email,
-      password: useCaseResult.result.password,
-      roles: useCaseResult.result.roles,
-      createdAt: useCaseResult.result.createdAt,
-      updatedAt: useCaseResult.result.updatedAt,
-    });
-
-    response.status(HttpStatus.CREATED);
-    return new HttpCreatedResponse('Usuário criado com sucesso');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpCreatedResponse('Usuário criado com sucesso'),
+      response,
+    );
   }
 
   @Get('/:identifier')
@@ -157,18 +135,13 @@ export class UserController {
       isUUID(identifier) ? 'userID' : 'username',
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.NOT_FOUND);
-      return new NotFoundItem(useCaseResult.message);
-    }
-
-    return new HttpOKResponse(
-      'Usuário encontrado com sucesso',
-      useCaseResult.result,
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse(
+        'Usuário encontrado com sucesso',
+        useCaseResult.ok ? useCaseResult.result : null,
+      ),
+      response,
     );
   }
 
@@ -192,27 +165,18 @@ export class UserController {
       this.userMapper.updateDTOForModel(dto, userID),
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      if (
-        useCaseResult.reason === ApplicationResultReasons.FIELD_ALREADY_EXISTS
-      ) {
-        response.status(HttpStatus.CONFLICT);
-        return new FieldAlreadyExists(
-          useCaseResult.message,
-          useCaseResult.result,
-        );
-      }
-
-      response.status(HttpStatus.NOT_FOUND);
-      return new NotFoundItem(useCaseResult.message);
+    if (useCaseResult.ok) {
+      await this.queueService.sendUserUpdated(userID, dto);
     }
-    await this.queueService.sendUserUpdated(userID, dto);
 
-    return new HttpOKResponse('Usuário atualizado com sucesso', dto);
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse(
+        'Usuário atualizado com sucesso',
+        useCaseResult.ok ? dto : null,
+      ),
+      response,
+    );
   }
 
   @Delete('/')
@@ -223,17 +187,14 @@ export class UserController {
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.deleteUserUseCase.execute(userID);
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.NOT_FOUND);
-      return new NotFoundItem(useCaseResult.message);
+    if (useCaseResult.ok) {
+      await this.queueService.sendUserDeleted(userID);
     }
 
-    await this.queueService.sendUserDeleted(userID);
-
-    return new HttpOKResponse('Usuário deletado com sucesso');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Usuário deletado com sucesso'),
+      response,
+    );
   }
 }

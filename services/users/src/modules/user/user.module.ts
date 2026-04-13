@@ -46,6 +46,7 @@ import { OtpGenerator } from './domain/ports/secondary/otp-generator.port';
 import OtpGeneratorService from './infrastructure/adaptars/secondary/otp-generator/otp-generator.service';
 import * as fs from 'fs';
 import * as path from 'path';
+import UseCaseResultToHttpMapper from './infrastructure/mappers/use-case-result-to-http.mapper';
 @Module({
   imports: [
     HttpModule,
@@ -97,6 +98,7 @@ import * as path from 'path';
   controllers: [UserController, AddressController, UserExternalController],
   providers: [
     UserMapper,
+    UseCaseResultToHttpMapper,
     DQLService,
     AddressMapper,
     CreateUserUseCase,

@@ -12,5 +12,5 @@ export class UpdateUserDTO extends PartialType(
   @Avatar()
   @ApiAvatar()
   @IsOptional()
-  avatar: string;
+  avatar?: string;
 }

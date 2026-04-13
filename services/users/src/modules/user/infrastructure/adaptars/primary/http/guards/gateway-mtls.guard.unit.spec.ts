@@ -1,17 +1,18 @@
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import GatewayMtlsGuard from './gateway-mtls.guard';
+import { EnvironmentVariables } from '@config/environment/env.validation';
 
 describe('GatewayMtlsGuard', () => {
   let guard: GatewayMtlsGuard;
-  let configService: ConfigService;
+  let configService: ConfigService<EnvironmentVariables>;
 
   beforeEach(() => {
     configService = {
       get: vi.fn(),
     } as any;
 
-    guard = new GatewayMtlsGuard(configService as any);
+    guard = new GatewayMtlsGuard(configService);
   });
 
   it('should be defined', () => {
@@ -49,7 +50,7 @@ describe('GatewayMtlsGuard', () => {
     it('should return true when mTLS is disabled', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'false';
+        if (key === 'MTLS_ENABLED') return false;
         return undefined;
       });
 
@@ -61,7 +62,7 @@ describe('GatewayMtlsGuard', () => {
     it('should throw UnauthorizedException when socket is missing', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'true';
+        if (key === 'MTLS_ENABLED') return true;
         return undefined;
       });
       getRequestMock.mockReturnValue({ raw: {} });
@@ -74,7 +75,7 @@ describe('GatewayMtlsGuard', () => {
     it('should throw UnauthorizedException when socket is unauthorized', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'true';
+        if (key === 'MTLS_ENABLED') return true;
         return undefined;
       });
       getRequestMock.mockReturnValue({
@@ -93,7 +94,7 @@ describe('GatewayMtlsGuard', () => {
     it('should throw UnauthorizedException when peer certificate is empty', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'true';
+        if (key === 'MTLS_ENABLED') return true;
         return undefined;
       });
       getRequestMock.mockReturnValue({
@@ -113,7 +114,7 @@ describe('GatewayMtlsGuard', () => {
     it('should return true when mTLS is enabled and allowed subjects is empty', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'TRUE';
+        if (key === 'MTLS_ENABLED') return true;
         if (key === 'MTLS_ALLOWED_SUBJECTS') return '';
         return undefined;
       });
@@ -136,7 +137,7 @@ describe('GatewayMtlsGuard', () => {
     it('should return true when certificate CN is allowed', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'true';
+        if (key === 'MTLS_ENABLED') return true;
         if (key === 'MTLS_ALLOWED_SUBJECTS')
           return 'gateway-service,other-service';
         return undefined;
@@ -160,7 +161,7 @@ describe('GatewayMtlsGuard', () => {
     it('should throw UnauthorizedException when certificate CN is not allowed', () => {
       getTypeMock.mockReturnValue('http');
       (configService.get as any).mockImplementation((key: string) => {
-        if (key === 'MTLS_ENABLED') return 'true';
+        if (key === 'MTLS_ENABLED') return true;
         if (key === 'MTLS_ALLOWED_SUBJECTS') return 'gateway-service';
         return undefined;
       });
@@ -178,6 +179,63 @@ describe('GatewayMtlsGuard', () => {
       expect(() => guard.canActivate(executionContext)).toThrow(
         new UnauthorizedException('Gateway certificate not allowed.'),
       );
+    });
+
+    it('should throw UnauthorizedException when certificate CN is not empty', () => {
+      getTypeMock.mockReturnValue('http');
+      (configService.get as any).mockImplementation((key: string) => {
+        if (key === 'MTLS_ENABLED') return true;
+        if (key === 'MTLS_ALLOWED_SUBJECTS') return 'gateway-service';
+        return undefined;
+      });
+      getRequestMock.mockReturnValue({
+        raw: {
+          socket: {
+            authorized: true,
+            getPeerCertificate: vi.fn().mockReturnValue({
+              subject: {},
+            }),
+          },
+        },
+      });
+
+      expect(() => guard.canActivate(executionContext)).toThrow(
+        new UnauthorizedException('Gateway certificate not allowed.'),
+      );
+    });
+  });
+
+  describe('parseAllowrdSubjects', () => {
+    it('should return empty array when value is undefined', () => {
+      const result = (guard as any).parseAllowedSubjects(undefined);
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when value is empty string', () => {
+      const result = (guard as any).parseAllowedSubjects('');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should return empty array when value has only spaces and commas', () => {
+      const result = (guard as any).parseAllowedSubjects('  ,  ,   ');
+
+      expect(result).toEqual([]);
+    });
+
+    it('should trim and return single subject', () => {
+      const result = (guard as any).parseAllowedSubjects('  gateway-service  ');
+
+      expect(result).toEqual(['gateway-service']);
+    });
+
+    it('should trim, split and filter empty items', () => {
+      const result = (guard as any).parseAllowedSubjects(
+        ' gateway-service,  , other-service ,',
+      );
+
+      expect(result).toEqual(['gateway-service', 'other-service']);
     });
   });
 });

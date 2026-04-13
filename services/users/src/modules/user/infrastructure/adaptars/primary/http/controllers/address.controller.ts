@@ -29,19 +29,15 @@ import {
   ApiDeleteUserAddress,
   ApiGetUserAddresses,
 } from '../../common/decorators/docs/address/decorators';
-import {
-  BusinessRuleFailure,
-  NotFoundItem,
-  NotPossible,
-} from '@user/domain/ports/primary/http/error.port';
 import { FastifyReply } from 'fastify';
-import { ApplicationResultReasons } from '@user/domain/enums/application-result-reasons';
+import UseCaseResultToHttpMapper from '@user/infrastructure/mappers/use-case-result-to-http.mapper';
 
 @Controller('/address')
 @UsePipes(new ValidationPipe({ stopAtFirstError: true }))
 export class AddressController {
   constructor(
     private readonly addressMapper: AddressMapper,
+    private readonly useCaseResultToHttpMapper: UseCaseResultToHttpMapper,
     private readonly addUserAddressUseCase: AddUserAddressUseCase,
     private readonly getUserAddressesUseCase: GetUserAddressesUseCase,
     private readonly deleteUserAddressUseCase: DeleteUserAddressUseCase,
@@ -58,17 +54,11 @@ export class AddressController {
 
     const useCaseResult = await this.addUserAddressUseCase.execute(address);
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.BAD_REQUEST);
-      return new BusinessRuleFailure(useCaseResult.message);
-    }
-
-    response.status(HttpStatus.CREATED);
-    return new HttpCreatedResponse('Endereço criado com sucesso');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpCreatedResponse('Endereço criado com sucesso'),
+      response,
+    );
   }
 
   @Get('/')
@@ -80,17 +70,13 @@ export class AddressController {
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.getUserAddressesUseCase.execute(userID);
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.NOT_FOUND);
-      return new NotFoundItem(useCaseResult.message);
-    }
-    return new HttpOKResponse(
-      'Aqui está todos os endereços do usuário',
-      useCaseResult.result,
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse(
+        'Aqui está todos os endereços do usuário',
+        useCaseResult.ok ? useCaseResult.result : [],
+      ),
+      response,
     );
   }
 
@@ -107,15 +93,10 @@ export class AddressController {
       userID,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-      response.status(HttpStatus.NOT_FOUND);
-      return new NotFoundItem(useCaseResult.message);
-    }
-
-    return new HttpOKResponse('Endereço deletado com sucesso');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Endereço deletado com sucesso'),
+      response,
+    );
   }
 }

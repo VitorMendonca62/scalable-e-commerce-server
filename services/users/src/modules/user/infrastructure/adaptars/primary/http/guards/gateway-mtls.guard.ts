@@ -3,15 +3,6 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UnauthorizedException } from '@nestjs/common/exceptions/unauthorized.exception';
 
-const isMtlsEnabled = (value: string | undefined) =>
-  (value ?? '').toLowerCase() === 'true';
-
-const parseAllowedSubjects = (value: string | undefined) =>
-  (value ?? '')
-    .split(',')
-    .map((item) => item.trim())
-    .filter((item) => item.length > 0);
-
 @Injectable()
 export default class GatewayMtlsGuard implements CanActivate {
   constructor(
@@ -21,9 +12,7 @@ export default class GatewayMtlsGuard implements CanActivate {
   canActivate(context: ExecutionContext) {
     if (context.getType() !== 'http') return true;
 
-    const enabled = isMtlsEnabled(
-      this.configService.get<string>('MTLS_ENABLED'),
-    );
+    const enabled = this.configService.get<boolean>('MTLS_ENABLED');
 
     if (!enabled) return true;
 
@@ -40,7 +29,7 @@ export default class GatewayMtlsGuard implements CanActivate {
       throw new UnauthorizedException('Gateway certificate required.');
     }
 
-    const allowedSubjects = parseAllowedSubjects(
+    const allowedSubjects = this.parseAllowedSubjects(
       this.configService.get<string>('MTLS_ALLOWED_SUBJECTS'),
     );
 
@@ -53,5 +42,12 @@ export default class GatewayMtlsGuard implements CanActivate {
     }
 
     return true;
+  }
+
+  private parseAllowedSubjects(value: string | undefined) {
+    return (value ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0);
   }
 }

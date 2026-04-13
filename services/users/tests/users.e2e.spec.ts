@@ -28,10 +28,7 @@ import { PasswordConstants } from '@user/domain/constants/password-constants';
 import { Cookies } from '@user/domain/enums/cookies.enum';
 import { HttpStatus } from '@nestjs/common';
 import { UsersQueueService } from '@user/infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
-import { ValidateEmailUseCase } from '@user/application/use-cases/user/validate-email-usecase';
-import { UserController } from '@user/infrastructure/adaptars/primary/http/controllers/user.controller';
 import { v7 } from 'uuid';
-import { PasswordHasher } from '@user/domain/ports/secondary/password-hasher.port';
 
 describe('UserController (E2E)', () => {
   let app: NestFastifyApplication;
