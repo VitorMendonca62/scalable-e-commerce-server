@@ -19,12 +19,11 @@ import { ConfigService } from '@nestjs/config';
 import { EnvironmentVariables } from '@config/environment/env.validation';
 import { FastifyReply, FastifyRequest } from 'fastify';
 import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
-import {
-  NotPossible,
-  WrongCredentials,
-} from '@auth/domain/ports/primary/http/errors.port';
+import { NotPossible } from '@auth/domain/ports/primary/http/errors.port';
 import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
 import QueueService from '../../secondary/message-broker/queue.service';
+import UseCaseResultToHttpMapper from '@auth/infrastructure/mappers/use-case-result-to-http.mapper';
+import { Cookies } from '@auth/domain/enums/cookies.enum';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -36,6 +35,7 @@ describe('AuthController', () => {
   let queueService: QueueService;
 
   let userMapper: UserMapper;
+  let useCaseResultToHttpMapper: UseCaseResultToHttpMapper;
 
   let response: FastifyReply;
 
@@ -43,6 +43,9 @@ describe('AuthController', () => {
     userMapper = {
       loginDTOForEntity: vi.fn(),
       googleLoginDTOForEntity: vi.fn(),
+    } as any;
+    useCaseResultToHttpMapper = {
+      map: vi.fn(),
     } as any;
     createSessionUseCase = {
       execute: vi.fn(),
@@ -54,6 +57,7 @@ describe('AuthController', () => {
     queueService = { sendUserCreatedWithGoogle: vi.fn() } as any;
 
     controller = new AuthController(
+      useCaseResultToHttpMapper,
       userMapper,
       createSessionUseCase,
       getAccessTokenUseCase,
@@ -73,6 +77,7 @@ describe('AuthController', () => {
   it('should be defined', () => {
     expect(controller).toBeDefined();
     expect(createSessionUseCase).toBeDefined();
+    expect(useCaseResultToHttpMapper).toBeDefined();
     expect(userMapper).toBeDefined();
     expect(getAccessTokenUseCase).toBeDefined();
     expect(finishSessionUseCase).toBeDefined();
@@ -114,6 +119,14 @@ describe('AuthController', () => {
     const userAgent = 'agent';
 
     let request: FastifyRequest & { user: UserGoogleInCallBack };
+
+    const useCaseResultUser = {
+      tokens: {
+        accessToken: `<accessToken>`,
+        refreshToken: `<refreshToken>`,
+      },
+      newUser: undefined,
+    };
 
     beforeEach(() => {
       request = {
@@ -174,7 +187,25 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return HttpCreatedResponse on success', async () => {
+    it('should return created response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: useCaseResultUser,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpCreatedResponse('Usuário realizou login com sucesso', {
+            [Cookies.RefreshToken]: '<refreshToken>',
+            [Cookies.AccessToken]: '<accessToken>',
+          }),
+        );
+
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue(
+        useCaseResult,
+      );
+
       const result = await controller.googleAuth(
         request,
         response,
@@ -182,6 +213,14 @@ describe('AuthController', () => {
         userAgent,
       );
 
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário realizou login com sucesso', {
+          [Cookies.RefreshToken]: '<refreshToken>',
+          [Cookies.AccessToken]: '<accessToken>',
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
@@ -193,12 +232,20 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return NotPossible when use case fails', async () => {
-      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-        message: 'Erro inesperado',
-      });
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(createSessionUseCase, 'executeWithGoogle').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.googleAuth(
         request,
@@ -207,11 +254,19 @@ describe('AuthController', () => {
         userAgent,
       );
 
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário realizou login com sucesso', {
+          [Cookies.RefreshToken]: null,
+          [Cookies.AccessToken]: null,
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Erro inesperado',
+        message: 'any',
+        data: undefined,
       });
     });
 
@@ -236,6 +291,10 @@ describe('AuthController', () => {
     const dto = LoginUserFactory.createDTO();
     const ip = '120.0.0.0';
     const userAgent = 'agent';
+    const useCaseResultUser = {
+      accessToken: `<accessToken>`,
+      refreshToken: `<refreshToken>`,
+    };
 
     beforeEach(() => {
       vi.spyOn(userMapper, 'loginDTOForEntity').mockReturnValue(
@@ -264,10 +323,35 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return HttpCreatedResponse on success', async () => {
+    it('should return created response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: useCaseResultUser,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpCreatedResponse('Usuário realizou login com sucesso', {
+            [Cookies.RefreshToken]: '<refreshToken>',
+            [Cookies.AccessToken]: '<accessToken>',
+          }),
+        );
+
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
       const result = await controller.login(dto, response, ip, userAgent);
 
-      expect(response.status).toBeCalledWith(HttpStatus.CREATED);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário realizou login com sucesso', {
+          [Cookies.RefreshToken]: '<refreshToken>',
+          [Cookies.AccessToken]: '<accessToken>',
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpCreatedResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.CREATED,
@@ -279,37 +363,36 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return WrongCredentials on wrong credentials', async () => {
-      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
-        message: 'message',
-      });
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.login(dto, response, ip, userAgent);
 
-      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
-      expect(result).toBeInstanceOf(WrongCredentials);
-      expect(result).toEqual({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'message',
-      });
-    });
-
-    it('should return NotPossible when use case fails', async () => {
-      vi.spyOn(createSessionUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-        message: 'Erro inesperado',
-      });
-
-      const result = await controller.login(dto, response, ip, userAgent);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpCreatedResponse('Usuário realizou login com sucesso', {
+          [Cookies.RefreshToken]: null,
+          [Cookies.AccessToken]: null,
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Erro inesperado',
+        message: 'any',
+        data: undefined,
       });
     });
 
@@ -346,10 +429,33 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return HttpOKResponse on success', async () => {
+    it('should return created response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+        result: '<accessToken>',
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(
+          new HttpOKResponse('Seu token de acesso foi renovado', {
+            [Cookies.AccessToken]: '<accessToken>',
+          }),
+        );
+
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
       const result = await controller.getAccessToken(response, userID, tokenID);
 
-      expect(response.status).toBeCalledWith(HttpStatus.OK);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Seu token de acesso foi renovado', {
+          [Cookies.AccessToken]: '<accessToken>',
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpOKResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.OK,
@@ -360,37 +466,35 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return WrongCredentials on NOT_FOUND reason', async () => {
-      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
-        message: 'message',
-      });
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.getAccessToken(response, userID, tokenID);
 
-      expect(response.status).toBeCalledWith(HttpStatus.UNAUTHORIZED);
-      expect(result).toBeInstanceOf(WrongCredentials);
-      expect(result).toEqual({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: 'message',
-      });
-    });
-
-    it('should return NotPossible when use case fails', async () => {
-      vi.spyOn(getAccessTokenUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-        message: 'Erro inesperado',
-      });
-
-      const result = await controller.getAccessToken(response, userID, tokenID);
-
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpOKResponse('Seu token de acesso foi renovado', {
+          [Cookies.AccessToken]: null,
+        }),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Erro inesperado',
+        message: 'any',
+        data: undefined,
       });
     });
   });
@@ -409,14 +513,26 @@ describe('AuthController', () => {
       );
     });
 
-    it('should return HttpNoContentResponse on success', async () => {
-      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue({
-        ok: true,
-      });
+    it('should return created response when use case succeeds', async () => {
+      const useCaseResult = {
+        ok: true as const,
+      };
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new HttpNoContentResponse());
+
+      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
 
       const result = await controller.logout(response, userID, tokenID);
 
-      expect(response.status).toBeCalledWith(HttpStatus.NO_CONTENT);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpNoContentResponse(),
+        response,
+      );
       expect(result).toBeInstanceOf(HttpNoContentResponse);
       expect(result).toEqual({
         statusCode: HttpStatus.NO_CONTENT,
@@ -425,20 +541,33 @@ describe('AuthController', () => {
       });
     });
 
-    it('should return NotPossible when use case fails', async () => {
-      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue({
-        ok: false,
-        reason: ApplicationResultReasons.NOT_POSSIBLE,
-        message: 'Erro inesperado',
-      });
+    it('should return NotPossible or other when use case fails', async () => {
+      const useCaseResult = {
+        ok: false as const,
+        message: 'any',
+        reason: ApplicationResultReasons.NOT_POSSIBLE as const,
+      };
+
+      vi.spyOn(finishSessionUseCase, 'execute').mockResolvedValue(
+        useCaseResult,
+      );
+
+      const mapperSpy = vi
+        .spyOn(useCaseResultToHttpMapper, 'map')
+        .mockReturnValue(new NotPossible('any'));
 
       const result = await controller.logout(response, userID, tokenID);
 
-      expect(response.status).toBeCalledWith(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(mapperSpy).toHaveBeenCalledWith(
+        useCaseResult,
+        new HttpNoContentResponse(),
+        response,
+      );
       expect(result).toBeInstanceOf(NotPossible);
       expect(result).toEqual({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Erro inesperado',
+        message: 'any',
+        data: undefined,
       });
     });
   });

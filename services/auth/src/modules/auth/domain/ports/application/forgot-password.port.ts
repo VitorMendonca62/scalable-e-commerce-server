@@ -6,10 +6,6 @@ export interface ForgotPasswordPort {
   validateCode: (code: string, email: string) => Promise<ValidateCodeReturn>;
 }
 
-type ValidateCodeResultReasons =
-  | ApplicationResultReasons.FIELD_INVALID
-  | ApplicationResultReasons.NOT_POSSIBLE;
-
 export type ValidateCodeReturn =
   | {
       ok: true;
@@ -17,7 +13,14 @@ export type ValidateCodeReturn =
     }
   | {
       ok: false;
-      reason: ValidateCodeResultReasons;
+      reason: ApplicationResultReasons.FIELD_INVALID;
+
+      message: string;
+      result: string;
+    }
+  | {
+      ok: false;
+      reason: ApplicationResultReasons.NOT_POSSIBLE;
       message: string;
     };
 

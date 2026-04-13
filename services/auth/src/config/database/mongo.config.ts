@@ -31,6 +31,10 @@ export const configMongoDB = (
     }),
     autoIndex: process.env.NODE_ENV !== 'production',
     autoCreate: true,
+    maxPoolSize: 50,
+    minPoolSize: 5,
+    serverSelectionTimeoutMS: 5000,
+    socketTimeoutMS: 20000,
     onConnectionCreate(connection: Connection) {
       connection.asPromise().catch((error) => logger.error(error));
 

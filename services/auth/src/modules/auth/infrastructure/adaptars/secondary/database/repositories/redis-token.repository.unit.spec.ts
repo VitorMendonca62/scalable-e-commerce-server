@@ -68,6 +68,7 @@ describe('RedisTokenRepository', () => {
       });
       expect(redis.sadd).toHaveBeenCalledWith(`session:${userID}`, tokenKey);
       expect(redis.expire).toHaveBeenCalledWith(tokenKey, 604800);
+      expect(redis.expire).toHaveBeenCalledWith(`session:${userID}`, 604800);
     });
   });
 

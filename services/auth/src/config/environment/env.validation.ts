@@ -1,6 +1,7 @@
 import 'reflect-metadata';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  IsBoolean,
   IsEmail,
   IsEnum,
   IsNotEmpty,
@@ -134,8 +135,12 @@ export class EnvironmentVariables {
   GOOGLE_CALLBACK_URL: string;
 
   @IsOptional()
-  @IsString({ message: 'MTLS_ENABLED must be a string.' })
-  MTLS_ENABLED?: string;
+  @Transform(({ obj }) => {
+    return obj.MTLS_ENABLED === 'true';
+  })
+  @IsEnum([true, false], { message: 'MTLS_ENABLED must be true or false.' })
+  @IsBoolean({ message: 'MTLS_ENABLED must be a Boolean.' })
+  MTLS_ENABLED?: boolean;
 
   @IsOptional()
   @IsString({ message: 'MTLS_KEY_PATH must be a string.' })

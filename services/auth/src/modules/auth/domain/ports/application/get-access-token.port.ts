@@ -5,7 +5,7 @@ export interface GetAccessTokenPort {
 }
 
 type ExecuteResultReasons =
-  | ApplicationResultReasons.NOT_FOUND
+  | ApplicationResultReasons.WRONG_CREDENTIALS
   | ApplicationResultReasons.NOT_POSSIBLE;
 
 export type ExecuteReturn =

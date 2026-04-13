@@ -47,6 +47,7 @@ import {
   PROVIDER_SESSION_STRATEGIES,
 } from './application/strategies/provider-session.registry';
 import QueueService from './infrastructure/adaptars/secondary/message-broker/queue.service';
+import UseCaseResultToHttpMapper from './infrastructure/mappers/use-case-result-to-http.mapper';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -110,6 +111,7 @@ import QueueService from './infrastructure/adaptars/secondary/message-broker/que
     UserExternalController,
   ],
   providers: [
+    UseCaseResultToHttpMapper,
     CreateSessionUseCase,
     GetAccessTokenUseCase,
     FinishSessionUseCase,

@@ -74,6 +74,7 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
           ok: false,
           reason: ApplicationResultReasons.FIELD_INVALID,
           message: invalidMessage,
+          result: 'code',
         };
 
       if (emailCode.expiresIn < new Date())
@@ -81,6 +82,7 @@ export default class ForgotPasswordUseCase implements ForgotPasswordPort {
           ok: false,
           reason: ApplicationResultReasons.FIELD_INVALID,
           message: invalidMessage,
+          result: 'code',
         };
 
       await this.emailCodeRepository.deleteMany(email);

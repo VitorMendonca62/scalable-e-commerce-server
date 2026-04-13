@@ -23,7 +23,7 @@ export class GetAccessTokenUseCase implements GetAccessTokenPort {
       if (user === undefined || user === null) {
         return {
           ok: false,
-          reason: ApplicationResultReasons.NOT_FOUND,
+          reason: ApplicationResultReasons.WRONG_CREDENTIALS,
           message: 'Sessão inválida. Faça login novamente.',
         };
       }

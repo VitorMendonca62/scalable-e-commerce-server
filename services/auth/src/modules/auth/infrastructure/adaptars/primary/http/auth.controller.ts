@@ -35,18 +35,15 @@ import {
   GetAccessTokenUseCase,
 } from '@auth/application/use-cases/use-cases';
 import { LoginUserDTO } from './dtos/dtos';
-import {
-  NotPossible,
-  WrongCredentials,
-} from '@auth/domain/ports/primary/http/errors.port';
 import QueueService from '../../secondary/message-broker/queue.service';
 import { UserGoogleInCallBack } from '@auth/domain/types/user-google';
-import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
+import UseCaseResultToHttpMapper from '@auth/infrastructure/mappers/use-case-result-to-http.mapper';
 
 @Controller('auth')
 @ApiTags('AuthController')
 export class AuthController {
   constructor(
+    private readonly useCaseResultToHttpMapper: UseCaseResultToHttpMapper,
     private readonly userMapper: UserMapper,
     private readonly createSessionUseCase: CreateSessionUseCase,
     private readonly getAccessTokenUseCase: GetAccessTokenUseCase,
@@ -85,32 +82,34 @@ export class AuthController {
     const useCaseResult =
       await this.createSessionUseCase.executeWithGoogle(googleLoginDTO);
 
-    if (useCaseResult.ok === false) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(useCaseResult.message);
+    if (useCaseResult.ok === true) {
+      const { newUser } = useCaseResult.result;
+
+      if (newUser !== undefined) {
+        void this.queueService.sendUserCreatedWithGoogle({
+          userID: newUser.userID,
+          name: user.name,
+          username: user.username,
+          email: user.email,
+          roles: newUser.roles,
+          createdAt: newUser.createdAt,
+          updatedAt: newUser.updatedAt,
+        });
+      }
     }
 
-    const { newUser, tokens } = useCaseResult.result;
-
-    if (newUser != undefined) {
-      this.queueService.sendUserCreatedWithGoogle({
-        userID: newUser.userID,
-        name: user.name,
-        username: user.username,
-        email: user.email,
-        roles: newUser.roles,
-        createdAt: newUser.createdAt,
-        updatedAt: newUser.updatedAt,
-      });
-    }
-
-    const { accessToken, refreshToken } = tokens;
-
-    response.status(HttpStatus.CREATED);
-    return new HttpCreatedResponse('Usuário realizou login com sucesso', {
-      [Cookies.RefreshToken]: refreshToken,
-      [Cookies.AccessToken]: accessToken,
-    });
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpCreatedResponse('Usuário realizou login com sucesso', {
+        [Cookies.RefreshToken]: useCaseResult.ok
+          ? useCaseResult.result.tokens.refreshToken
+          : null,
+        [Cookies.AccessToken]: useCaseResult.ok
+          ? useCaseResult.result.tokens.accessToken
+          : null,
+      }),
+      response,
+    );
   }
 
   @Post('/login')
@@ -125,23 +124,18 @@ export class AuthController {
       this.userMapper.loginDTOForEntity(dto, ip, userAgent),
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-
-      response.status(HttpStatus.UNAUTHORIZED);
-      return new WrongCredentials(useCaseResult.message);
-    }
-
-    const { accessToken, refreshToken } = useCaseResult.result;
-
-    response.status(HttpStatus.CREATED);
-    return new HttpCreatedResponse('Usuário realizou login com sucesso', {
-      [Cookies.RefreshToken]: refreshToken,
-      [Cookies.AccessToken]: accessToken,
-    });
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpCreatedResponse('Usuário realizou login com sucesso', {
+        [Cookies.RefreshToken]: useCaseResult.ok
+          ? useCaseResult.result.refreshToken
+          : null,
+        [Cookies.AccessToken]: useCaseResult.ok
+          ? useCaseResult.result.accessToken
+          : null,
+      }),
+      response,
+    );
   }
 
   @Get('/token')
@@ -157,20 +151,13 @@ export class AuthController {
       tokenID,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-
-      response.status(HttpStatus.UNAUTHORIZED);
-      return new WrongCredentials(useCaseResult.message);
-    }
-
-    response.status(HttpStatus.OK);
-    return new HttpOKResponse('Seu token de acesso foi renovado', {
-      [Cookies.AccessToken]: useCaseResult.result,
-    });
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Seu token de acesso foi renovado', {
+        [Cookies.AccessToken]: useCaseResult.ok ? useCaseResult.result : null,
+      }),
+      response,
+    );
   }
 
   @Post('/logout')
@@ -186,12 +173,10 @@ export class AuthController {
       userID,
     );
 
-    if (useCaseResult.ok === false) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(useCaseResult.message);
-    }
-
-    response.status(HttpStatus.NO_CONTENT);
-    return new HttpNoContentResponse();
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpNoContentResponse(),
+      response,
+    );
   }
 }

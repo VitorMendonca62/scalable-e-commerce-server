@@ -177,6 +177,7 @@ describe('ForgotPasswordUseCase', () => {
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
         message: 'Código de recuperação inválido ou expirado. Tente novamente',
+        result: 'code',
       });
     });
 
@@ -192,6 +193,7 @@ describe('ForgotPasswordUseCase', () => {
         ok: false,
         reason: ApplicationResultReasons.FIELD_INVALID,
         message: 'Código de recuperação inválido ou expirado. Tente novamente',
+        result: 'code',
       });
     });
 

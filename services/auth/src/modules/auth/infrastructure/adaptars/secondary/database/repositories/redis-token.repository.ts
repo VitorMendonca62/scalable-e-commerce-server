@@ -28,6 +28,10 @@ export class RedisTokenRepository implements TokenRepository {
       tokenKey,
       TokenExpirationConstants.REFRESH_TOKEN_SECONDS,
     ); // 7D
+    await this.redis.expire(
+      sessionKey,
+      TokenExpirationConstants.REFRESH_TOKEN_SECONDS,
+    ); // 7D
   }
 
   async revokeOneSession(tokenID: string, userID: string): Promise<void> {

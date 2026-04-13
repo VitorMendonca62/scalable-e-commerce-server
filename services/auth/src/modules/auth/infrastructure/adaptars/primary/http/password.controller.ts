@@ -24,19 +24,14 @@ import { ApiResetPassword } from './decorators/docs/api-reset-password.decorator
 import { ApiValidateCodeForForgotPassword } from './decorators/docs/api-validate-code-for-forgot-password.decorator';
 import { Cookies } from '@auth/domain/enums/cookies.enum';
 import { FastifyReply } from 'fastify';
-import { ApplicationResultReasons } from '@auth/domain/enums/application-result-reasons';
-import {
-  FieldInvalid,
-  NotFoundUser,
-  NotPossible,
-  WrongCredentials,
-} from '@auth/domain/ports/primary/http/errors.port';
 import ForgotPasswordUseCase from '@auth/application/use-cases/forgot-password.usecase';
+import UseCaseResultToHttpMapper from '@auth/infrastructure/mappers/use-case-result-to-http.mapper';
 
 @Controller('/pass')
 @ApiTags('PasswordController')
 export class PasswordController {
   constructor(
+    private readonly useCaseResultToHttpMapper: UseCaseResultToHttpMapper,
     private readonly forgotPasswordUseCase: ForgotPasswordUseCase,
     private readonly changePasswordUseCase: ChangePasswordUseCase,
   ) {}
@@ -50,13 +45,12 @@ export class PasswordController {
   ): Promise<HttpResponseOutbound> {
     const useCaseResult = await this.forgotPasswordUseCase.sendCode(dto.email);
 
-    if (useCaseResult.ok === false) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(useCaseResult.message);
-    }
-
-    return new HttpOKResponse(
-      'Código de recuperação enviado com sucesso. Verifique seu email.',
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse(
+        'Código de recuperação enviado com sucesso. Verifique seu email.',
+      ),
+      response,
     );
   }
 
@@ -72,19 +66,17 @@ export class PasswordController {
       dto.email,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-
-      response.status(HttpStatus.BAD_REQUEST);
-      return new FieldInvalid(useCaseResult.message, 'code');
-    }
-
-    return new HttpOKResponse(
-      'Seu código de recuperação de senha foi validado com sucesso.',
-      { [Cookies.ResetPassToken]: useCaseResult.result },
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse(
+        'Seu código de recuperação de senha foi validado com sucesso.',
+        {
+          [Cookies.ResetPassToken]: useCaseResult.ok
+            ? useCaseResult.result
+            : null,
+        },
+      ),
+      response,
     );
   }
 
@@ -100,18 +92,11 @@ export class PasswordController {
       dto.newPassword,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-
-      response.status(HttpStatus.UNAUTHORIZED);
-      return new WrongCredentials(useCaseResult.message);
-    }
-
-    response.status(HttpStatus.OK);
-    return new HttpOKResponse('Senha atualizada com sucesso'); // Login
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('Senha atualizada com sucesso'),
+      response,
+    );
   }
 
   @Patch('/')
@@ -128,21 +113,10 @@ export class PasswordController {
       dto.oldPassword,
     );
 
-    if (useCaseResult.ok === false) {
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_POSSIBLE) {
-        response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-        return new NotPossible(useCaseResult.message);
-      }
-
-      if (useCaseResult.reason === ApplicationResultReasons.NOT_FOUND) {
-        response.status(HttpStatus.NOT_FOUND);
-        return new NotFoundUser();
-      }
-
-      response.status(HttpStatus.BAD_REQUEST);
-      return new FieldInvalid(useCaseResult.message, useCaseResult.result);
-    }
-
-    return new HttpOKResponse('A senha do usuário foi atualizada!');
+    return this.useCaseResultToHttpMapper.map(
+      useCaseResult,
+      new HttpOKResponse('A senha do usuário foi atualizada!'),
+      response,
+    );
   }
 }

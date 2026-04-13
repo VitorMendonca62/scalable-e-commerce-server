@@ -34,7 +34,7 @@ export type ExecuteResetReturn =
     }
   | {
       ok: false;
-      reason: ApplicationResultReasons.NOT_FOUND;
+      reason: ApplicationResultReasons.WRONG_CREDENTIALS;
       message: string;
     }
   | {

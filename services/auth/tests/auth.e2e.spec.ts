@@ -21,7 +21,6 @@ import {
 import { PermissionsSystem } from '@auth/domain/types/permissions';
 import UserExternalController from '@auth/infrastructure/adaptars/primary/microservices/user.external.controller';
 import * as bcrypt from 'bcryptjs';
-import { v7 } from 'uuid';
 import { TokenRepository } from '@auth/domain/ports/secondary/token-repository.port';
 import { GoogleOAuthGuard } from '@auth/infrastructure/adaptars/primary/http/guards/google-oauth.guard';
 import { GoogleUserFactory } from '@auth/infrastructure/helpers/tests/user-factory';
@@ -30,6 +29,8 @@ describe('AuthController (E2E)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
+    console.error(process.env.MTLS_ENABLED);
+
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })

@@ -192,7 +192,7 @@ describe('ChangePasswordUseCase', () => {
 
       expect(result).toEqual({
         ok: false,
-        reason: ApplicationResultReasons.NOT_FOUND,
+        reason: ApplicationResultReasons.WRONG_CREDENTIALS,
         message: 'Token inválido ou expirado',
       });
     });
