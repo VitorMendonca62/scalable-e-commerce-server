@@ -29,3 +29,31 @@ jobs:
       - name: Run tests
         working-directory: services/auth
         run: bun run test:e2e
+
+  run-users-e2e-tests:
+    name: Run Users E2E Tests
+    runs-on: ubuntu-22.04
+    steps:       
+      - name: Checkout Project
+        uses: actions/checkout@v4
+        
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with: 
+          bun-version: latest
+          
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: services/users/node_modules
+          key: ${{ runner.os }}-bun-users-${{ hashFiles('services/users/bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-users-
+          
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+        working-directory: services/users
+        
+      - name: Run tests
+        working-directory: services/users
+        run: bun run test:e2e
