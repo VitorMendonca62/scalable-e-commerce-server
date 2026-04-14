@@ -6,7 +6,6 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 
-clear
 
 echo "${YELLOW}🚀 Iniciando ambiente de testes E2E...${NC}\n"
 

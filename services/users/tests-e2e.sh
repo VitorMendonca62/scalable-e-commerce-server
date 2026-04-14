@@ -1,5 +1,3 @@
-clear
-
 set -e
 
 
