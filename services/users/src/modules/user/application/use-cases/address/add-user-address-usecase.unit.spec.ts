@@ -100,4 +100,25 @@ describe('AddUserAddressUseCase', () => {
       });
     });
   });
+
+  describe('isAddressLimitError', () => {
+    it('returns true for max_addresses_per_user', () => {
+      const result = (useCase as any).isAddressLimitError(
+        new Error('max_addresses_per_user'),
+      );
+      expect(result).toBe(true);
+    });
+
+    it('returns false for other errors', () => {
+      const result = (useCase as any).isAddressLimitError(
+        new Error('another error'),
+      );
+      expect(result).toBe(false);
+    });
+
+    it('returns false for non-error input', () => {
+      const result = (useCase as any).isAddressLimitError(null);
+      expect(result).toBe(false);
+    });
+  });
 });
