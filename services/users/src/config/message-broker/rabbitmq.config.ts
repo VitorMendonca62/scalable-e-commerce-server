@@ -16,7 +16,7 @@ export const addRabbitMQClient = async (
         {
           protocol: 'amqp',
           hostname: configService.get('RABBITMQ_HOST'),
-          port: 5672,
+          port: configService.get('RABBITMQ_PORT'),
           username: configService.get('RABBITMQ_DEFAULT_USER'),
           password: configService.get('RABBITMQ_DEFAULT_PASS'),
         },
