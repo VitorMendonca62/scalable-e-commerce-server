@@ -35,7 +35,7 @@ while [ $elapsed -lt $timeout ]; do
     postgres_healthy=$(docker inspect --format='{{.State.Health.Status}}' database-users-test 2>/dev/null || echo "starting")
     redis_healthy=$(docker inspect --format='{{.State.Health.Status}}' redis-users-test 2>/dev/null || echo "starting")
     rabbit_healthy=$(docker inspect --format='{{.State.Health.Status}}' scalable-commerce-net-test 2>/dev/null || echo "starting")
-
+    
   if [ "$postgres_healthy" = "healthy" ] && \
     [ "$redis_healthy" = "healthy" ] && \
     [ "$rabbit_healthy" = "healthy" ]; then
@@ -67,6 +67,13 @@ if docker exec scalable-commerce-net-test rabbitmq-diagnostics check_running > /
     echo "${GREEN}✅ Rabbit conectado${NC}"
 else
     echo "${RED}❌ Falha ao conectar no Rabbit${NC}"
+    exit 1
+fi
+
+if docker exec database-users-test pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" > /dev/null 2>&1; then
+    echo "${GREEN}✅ Postgres conectado${NC}"
+else
+    echo "${RED}❌ Falha ao conectar no Postgres${NC}"
     exit 1
 fi
 
