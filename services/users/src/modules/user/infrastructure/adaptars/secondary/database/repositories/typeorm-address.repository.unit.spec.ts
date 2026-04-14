@@ -30,7 +30,7 @@ describe('TypeOrmAddressRepository', () => {
   });
 
   describe('addAddress', () => {
-    const address = AddressFactory.createModel({ user: undefined });
+    const address = AddressFactory.createRecord();
     const userID = IDConstants.EXEMPLE;
 
     it('should call create with correct parameters', async () => {
@@ -112,49 +112,40 @@ describe('TypeOrmAddressRepository', () => {
     });
   });
 
-  describe('countAddresses', () => {
-    const userID = 'user-123';
-
-    it('should call count with correct parameters', async () => {
-      vi.spyOn(addressRepository, 'count').mockResolvedValue(2);
-
-      await repository.countAddresses(userID);
-
-      expect(addressRepository.count).toHaveBeenCalledWith({
-        where: {
-          user: {
-            userID,
-          },
-        },
-      });
-    });
-
-    it('should return the correct count of addresses', async () => {
-      vi.spyOn(addressRepository, 'count').mockResolvedValue(4);
-
-      const result = await repository.countAddresses(userID);
-
-      expect(result).toBe(4);
-    });
-
-    it('should return zero when user has no addresses', async () => {
-      vi.spyOn(addressRepository, 'count').mockResolvedValue(0);
-
-      const result = await repository.countAddresses(userID);
-
-      expect(result).toBe(0);
-    });
-  });
-
   describe('delete', () => {
     const addressId = 42;
+    const userID = IDConstants.EXEMPLE;
 
     it('should call delete with correct parameters', async () => {
-      await repository.delete(addressId);
+      vi.spyOn(addressRepository, 'delete').mockResolvedValue({
+        affected: 1,
+      } as any);
+      await repository.delete(addressId, userID);
 
       expect(addressRepository.delete).toHaveBeenCalledWith({
         id: addressId,
+        userID,
       });
+    });
+
+    it('should return affected rows if more than 1', async () => {
+      vi.spyOn(addressRepository, 'delete').mockResolvedValue({
+        affected: 1,
+      } as any);
+
+      const result = await repository.delete(addressId, userID);
+
+      expect(result).toBe(1);
+    });
+
+    it('should return affected rows if is 0', async () => {
+      vi.spyOn(addressRepository, 'delete').mockResolvedValue({
+        affected: 0,
+      } as any);
+
+      const result = await repository.delete(addressId, userID);
+
+      expect(result).toBe(0);
     });
   });
 });

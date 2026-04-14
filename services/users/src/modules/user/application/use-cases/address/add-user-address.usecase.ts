@@ -17,11 +17,14 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
 
   async execute(newAddress: AddressEntity): Promise<ExecuteReturn> {
     try {
-      const addressesCount = await this.addressRepository.countAddresses(
+      await this.addressRepository.addAddress(
         newAddress.userID.getValue(),
+        this.addressMapper.entityForModel(newAddress),
       );
 
-      if (addressesCount >= 3) {
+      return { ok: true };
+    } catch (error) {
+      if (this.isAddressLimitError(error)) {
         return {
           ok: false,
           message:
@@ -30,19 +33,22 @@ export class AddUserAddressUseCase implements AddUserAddressPort {
         };
       }
 
-      await this.addressRepository.addAddress(
-        newAddress.userID.getValue(),
-        this.addressMapper.entityForModel(newAddress),
-      );
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (_) {
       return {
         ok: false,
         message: 'Não foi possivel adicionar o endereço',
         reason: ApplicationResultReasons.NOT_POSSIBLE,
       };
     }
+  }
 
-    return { ok: true };
+  private isAddressLimitError(error: unknown): boolean {
+    if (!error || typeof error !== 'object') {
+      return false;
+    }
+
+    const message = (error as { message?: unknown }).message;
+    return (
+      typeof message === 'string' && message.includes('max_addresses_per_user')
+    );
   }
 }

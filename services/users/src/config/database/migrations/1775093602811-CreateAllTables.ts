@@ -16,9 +16,29 @@ export class CreateAllTables1775093602811 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "addresses" ADD CONSTRAINT "FK_16aac8a9f6f9c1dd6bcb75ec023" FOREIGN KEY ("user_id") REFERENCES "users"("user_id") ON DELETE CASCADE ON UPDATE NO ACTION`,
     );
+    await queryRunner.query(
+      `CREATE OR REPLACE FUNCTION enforce_max_addresses_per_user() RETURNS TRIGGER AS $$
+      BEGIN
+        IF (SELECT COUNT(*) FROM "addresses" WHERE "user_id" = NEW."user_id") >= 3 THEN
+          RAISE EXCEPTION 'max_addresses_per_user';
+        END IF;
+        RETURN NEW;
+      END;
+      $$ LANGUAGE plpgsql;`,
+    );
+    await queryRunner.query(
+      `CREATE TRIGGER "trg_addresses_limit_per_user" BEFORE INSERT ON "addresses"
+      FOR EACH ROW EXECUTE FUNCTION enforce_max_addresses_per_user();`,
+    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `DROP TRIGGER IF EXISTS "trg_addresses_limit_per_user" ON "addresses"`,
+    );
+    await queryRunner.query(
+      `DROP FUNCTION IF EXISTS enforce_max_addresses_per_user()`,
+    );
     await queryRunner.query(
       `ALTER TABLE "addresses" DROP CONSTRAINT "FK_16aac8a9f6f9c1dd6bcb75ec023"`,
     );

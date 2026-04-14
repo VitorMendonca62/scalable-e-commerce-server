@@ -101,7 +101,7 @@ export class AddressFactory {
     };
   }
 
-  static createRecord(overrides: Partial<AddressRecord>): AddressRecord {
+  static createRecord(overrides: Partial<AddressRecord> = {}): AddressRecord {
     return {
       id: 1,
       userID: IDConstants.EXEMPLE,

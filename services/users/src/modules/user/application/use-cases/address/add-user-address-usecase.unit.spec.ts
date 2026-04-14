@@ -30,18 +30,14 @@ describe('AddUserAddressUseCase', () => {
 
   describe('execute', () => {
     const newAddress = AddressFactory.createEntity();
-    const addressModel = AddressFactory.createModel();
+    const addressModel = AddressFactory.createRecord();
 
     beforeEach(() => {
-      vi.spyOn(addressRepository, 'countAddresses').mockResolvedValue(2);
       vi.spyOn(addressMapper, 'entityForModel').mockReturnValue(addressModel);
     });
 
     it('should call addressRepositoy.countAddresses with correct parameters', async () => {
       await useCase.execute(newAddress);
-      expect(addressRepository.countAddresses).toHaveBeenCalledWith(
-        newAddress.userID.getValue(),
-      );
     });
 
     it('should call addressMapper.entityForModel with correct parameters', async () => {
@@ -65,7 +61,9 @@ describe('AddUserAddressUseCase', () => {
     });
 
     it('should return BUSINESS_RULE_FAILURE if user address length is greater than 3', async () => {
-      vi.spyOn(addressRepository, 'countAddresses').mockResolvedValue(4);
+      vi.spyOn(addressRepository, 'addAddress').mockRejectedValue(
+        new Error('max_addresses_per_user'),
+      );
 
       const result = await useCase.execute(newAddress);
       expect(result).toEqual({
@@ -76,7 +74,7 @@ describe('AddUserAddressUseCase', () => {
       });
     });
 
-    it('should return NOT_POSSIBLE error if addressRepository.addAddress throw error', async () => {
+    it('should return NOT_POSSIBLE error if addressRepository.addAddress throw not max_addresses_per_user error', async () => {
       vi.spyOn(addressRepository, 'addAddress').mockRejectedValue(
         new Error('Error'),
       );
@@ -89,31 +87,16 @@ describe('AddUserAddressUseCase', () => {
       });
     });
 
-    describe('not possible', () => {
-      it('should return NOT_POSSIBLE if addressRepository.countAddresses throw error', async () => {
-        vi.spyOn(addressRepository, 'countAddresses').mockRejectedValue(
-          new Error('Error'),
-        );
-
-        const result = await useCase.execute(newAddress);
-        expect(result).toEqual({
-          ok: false,
-          message: 'Não foi possivel adicionar o endereço',
-          reason: ApplicationResultReasons.NOT_POSSIBLE,
-        });
+    it('should return NOT_POSSIBLE if addressMapper.entityForModel throw error', async () => {
+      vi.spyOn(addressMapper, 'entityForModel').mockImplementation(() => {
+        throw new Error('Error');
       });
 
-      it('should return NOT_POSSIBLE if addressMapper.entityForModel throw error', async () => {
-        vi.spyOn(addressMapper, 'entityForModel').mockImplementation(() => {
-          throw new Error('Error');
-        });
-
-        const result = await useCase.execute(newAddress);
-        expect(result).toEqual({
-          ok: false,
-          message: 'Não foi possivel adicionar o endereço',
-          reason: ApplicationResultReasons.NOT_POSSIBLE,
-        });
+      const result = await useCase.execute(newAddress);
+      expect(result).toEqual({
+        ok: false,
+        message: 'Não foi possivel adicionar o endereço',
+        reason: ApplicationResultReasons.NOT_POSSIBLE,
       });
     });
   });

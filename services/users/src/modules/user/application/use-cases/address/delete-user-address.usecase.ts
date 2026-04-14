@@ -12,21 +12,18 @@ export class DeleteUserAddressUseCase implements DeleteUserAddressPort {
 
   async execute(addressId: number, userID: string): Promise<ExecuteReturn> {
     try {
-      const addresses = await this.addressRepository.getAll(userID);
-
-      const addressExists = addresses.some(
-        (address) => address.id === addressId,
+      const addressExists = await this.addressRepository.delete(
+        addressId,
+        userID,
       );
 
-      if (!addressExists) {
+      if (addressExists === 0) {
         return {
           ok: false,
           message: 'Não foi possivel encontrar o endereço',
           reason: ApplicationResultReasons.NOT_FOUND,
         };
       }
-
-      await this.addressRepository.delete(addressId);
 
       return {
         ok: true,

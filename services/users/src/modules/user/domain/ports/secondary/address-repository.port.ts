@@ -7,7 +7,6 @@ export default abstract class AddressRepository {
   ): Promise<void>;
 
   abstract getAll(userID: string): Promise<AddressRecord[]>;
-  abstract countAddresses(userID: string): Promise<number>;
 
-  abstract delete(addressId: number): Promise<void>;
+  abstract delete(addressId: number, userID: string): Promise<number>;
 }

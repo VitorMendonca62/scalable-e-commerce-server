@@ -49,17 +49,8 @@ export default class TypeOrmAddressRepository implements AddressRepository {
     return addresses as AddressRecord[];
   }
 
-  async countAddresses(userID: string): Promise<number> {
-    return await this.addressRepository.count({
-      where: {
-        user: {
-          userID,
-        },
-      },
-    });
-  }
-
-  async delete(addressId: number): Promise<void> {
-    await this.addressRepository.delete({ id: addressId });
+  async delete(addressId: number, userID: string): Promise<number> {
+    return (await this.addressRepository.delete({ id: addressId, userID }))
+      .affected;
   }
 }
