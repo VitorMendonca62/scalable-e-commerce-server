@@ -23,7 +23,8 @@ export function ApiAddUserAddress() {
       description: 'Endereço criado com sucesso',
       example: {
         statusCode: HttpStatus.CREATED,
-        message: 'Endereço criado com sucesso',        data: undefined,
+        message: 'Endereço criado com sucesso',
+        data: undefined,
       },
       type: HttpResponseOutbound,
     }),
