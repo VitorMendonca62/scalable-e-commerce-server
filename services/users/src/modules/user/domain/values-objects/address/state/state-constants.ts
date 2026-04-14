@@ -17,6 +17,5 @@ export default class StateConstants {
   static readonly ERROR_REQUIRED_EXEMPLE = '';
   static readonly ERROR_STRING_EXEMPLE = 123;
   static readonly ERROR_INVALID_EXEMPLE = 'X1';
-  static readonly ERROR_TOO_LONG_EXEMPLE = 'a'.repeat(51);
-  static readonly ERROR_TOO_SHORT_EXEMPLE = 'A';
+  static readonly ERROR_LENGTH_EXEMPLE = 'a'.repeat(51);
 }

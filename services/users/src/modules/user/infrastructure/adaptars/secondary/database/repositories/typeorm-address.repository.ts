@@ -16,12 +16,28 @@ export default class TypeOrmAddressRepository implements AddressRepository {
     userID: string,
     addressData: Omit<AddressRecord, 'id' | 'userID'>,
   ): Promise<void> {
-    const address = this.addressRepository.create({
-      ...addressData,
-      user: { userID },
-    });
+    await this.addressRepository.manager.transaction(async (manager) => {
+      await manager.query(
+        'SELECT 1 FROM "users" WHERE "user_id" = $1 FOR UPDATE',
+        [userID],
+      );
 
-    await this.addressRepository.save(address);
+      const [row] = await manager.query(
+        'SELECT COUNT(*)::int AS count FROM "addresses" WHERE "user_id" = $1',
+        [userID],
+      );
+
+      if (row && Number(row.count) >= 3) {
+        throw new Error('max_addresses_per_user');
+      }
+
+      const address = manager.create(AddressModel, {
+        ...addressData,
+        user: { userID },
+      });
+
+      await manager.save(address);
+    });
   }
 
   async getAll(userID: string): Promise<AddressRecord[]> {

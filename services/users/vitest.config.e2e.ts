@@ -23,7 +23,7 @@ export default defineConfig({
     pool: 'forks',
     clearMocks: true,
     globals: true,
-    setupFiles: [],
+    setupFiles: ['./tests/setup-e2e.ts'],
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],

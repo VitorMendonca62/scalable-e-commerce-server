@@ -27,12 +27,7 @@ import { AddressRecord } from '@user/domain/types/address-record';
 
 export class AddressDTOFactory {
   static createAddUserAddressDTO(
-    overrides: Partial<
-      Record<
-        keyof AddUserAddressDTO,
-        AddUserAddressDTO[keyof AddUserAddressDTO]
-      >
-    > = {},
+    overrides: Partial<AddUserAddressDTO> = {},
   ): AddUserAddressDTO {
     return {
       city: CityConstants.EXEMPLE,

@@ -19,6 +19,9 @@ describe('TypeOrmAddressRepository', () => {
       find: vi.fn(),
       count: vi.fn(),
       delete: vi.fn(),
+      manager: {
+        transaction: vi.fn(),
+      },
     } as any;
 
     repository = new TypeOrmAddressRepository(addressRepository);
@@ -33,22 +36,77 @@ describe('TypeOrmAddressRepository', () => {
     const address = AddressFactory.createRecord();
     const userID = IDConstants.EXEMPLE;
 
-    it('should call create with correct parameters', async () => {
+    const buildManager = (countValue: number, created: AddressModel) => {
+      const query = vi
+        .fn()
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([{ count: countValue }]);
+
+      const create = vi.fn().mockReturnValue(created);
+      const save = vi.fn().mockResolvedValue(created);
+
+      return { query, create, save };
+    };
+
+    it('should call manager.create with correct parameters', async () => {
+      const addressCreated = AddressFactory.createModel();
+      const manager = buildManager(0, addressCreated);
+
+      vi.spyOn(addressRepository.manager, 'transaction').mockImplementation(
+        async (...args: any[]) => {
+          const work = typeof args[0] === 'function' ? args[0] : args[1];
+          await work(manager);
+        },
+      );
+
       await repository.addAddress(userID, address);
 
-      expect(addressRepository.create).toHaveBeenCalledWith({
+      expect(manager.query).toHaveBeenCalledWith(
+        'SELECT 1 FROM "users" WHERE "user_id" = $1 FOR UPDATE',
+        [userID],
+      );
+      expect(manager.query).toHaveBeenCalledWith(
+        'SELECT COUNT(*)::int AS count FROM "addresses" WHERE "user_id" = $1',
+        [userID],
+      );
+      expect(manager.create).toHaveBeenCalledWith(AddressModel, {
         ...address,
         user: { userID },
       });
     });
 
-    it('should call save with correct parameters', async () => {
+    it('should call manager.save with correct parameters', async () => {
       const addressCreated = AddressFactory.createModel();
+      const manager = buildManager(0, addressCreated);
 
-      vi.spyOn(addressRepository, 'create').mockReturnValue(addressCreated);
+      vi.spyOn(addressRepository.manager, 'transaction').mockImplementation(
+        async (...args: any[]) => {
+          const work = typeof args[0] === 'function' ? args[0] : args[1];
+          await work(manager);
+        },
+      );
+
       await repository.addAddress(userID, address);
 
-      expect(addressRepository.save).toHaveBeenCalledWith(addressCreated);
+      expect(manager.save).toHaveBeenCalledWith(addressCreated);
+    });
+
+    it('should throw when address limit is reached', async () => {
+      const addressCreated = AddressFactory.createModel();
+      const manager = buildManager(3, addressCreated);
+
+      vi.spyOn(addressRepository.manager, 'transaction').mockImplementation(
+        async (...args: any[]) => {
+          const work = typeof args[0] === 'function' ? args[0] : args[1];
+          await work(manager);
+        },
+      );
+
+      await expect(repository.addAddress(userID, address)).rejects.toThrow(
+        'max_addresses_per_user',
+      );
+      expect(manager.create).not.toHaveBeenCalled();
+      expect(manager.save).not.toHaveBeenCalled();
     });
   });
 
