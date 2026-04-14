@@ -14,9 +14,10 @@ export const configMongoDB = (
   const username = configService.get('MONGO_INITDB_ROOT_USERNAME');
   const password = configService.get('MONGO_INITDB_ROOT_PASSWORD');
   const host = configService.get('MONGO_DB_HOST');
+  const database = configService.get('MONGO_INITDB_DATABASE');
 
   return {
-    uri: `mongodb://${host}/auth`,
+    uri: `mongodb://${host}/${database}`,
     auth: {
       username,
       password,

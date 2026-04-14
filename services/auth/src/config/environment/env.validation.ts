@@ -48,6 +48,13 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'RABBITMQ_DEFAULT_PASS cannot be empty.' })
   RABBITMQ_DEFAULT_PASS: string;
 
+  @Type(() => Number)
+  @IsNumber({}, { message: 'RABBITMQ_PORT must be a number.' })
+  @Min(1, { message: 'RABBITMQ_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'RABBITMQ_PORT must be less than or equal to 65535.' })
+  @IsNotEmpty({ message: 'RABBITMQ_PORT cannot be empty.' })
+  RABBITMQ_PORT: number;
+
   @IsString({ message: 'AUTH_JWT_KEYID must be a string.' })
   @IsNotEmpty({ message: 'AUTH_JWT_KEYID cannot be empty.' })
   AUTH_JWT_KEYID: string;

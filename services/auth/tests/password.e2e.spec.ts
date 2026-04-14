@@ -20,7 +20,6 @@ import UserExternalController from '@auth/infrastructure/adaptars/primary/micros
 import * as bcrypt from 'bcryptjs';
 import { PermissionsSystem } from '@auth/domain/types/permissions';
 import EmailCodeRepository from '@auth/domain/ports/secondary/email-code-repository.port';
-import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 
 describe('PasswordController (E2E)', () => {
   let app: NestFastifyApplication;
@@ -28,14 +27,7 @@ describe('PasswordController (E2E)', () => {
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
-    })
-      .overrideProvider(PasswordHasher)
-      .useValue({
-        hash: async () => 'hashed-password',
-        compare: async (password: string) =>
-          password === PasswordConstants.EXEMPLE,
-      })
-      .compile();
+    }).compile();
 
     app = moduleRef.createNestApplication<NestFastifyApplication>(
       new FastifyAdapter({

@@ -63,26 +63,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-  
-  # api:
-  #   container_name: scalable-e-commerce-auth-api-test
-  #   build: .
-  #   ports:
-  #     - "$PORT:$PORT"
-  #   depends_on:
-  #     - database
-  #   restart: always
-  #   networks:
-  #     - rabbit_connection_net
-  #     - api-net
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
-  #     - MONGO_DB_HOST=${MONGO_DB_HOST}
-  #     - MONGO_INITDB_DATABASE=${MONGO_INITDB_DATABASE}
-  #     - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
-  #     - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
-  #   develop:
-  #     watch:
-  #       - action: rebuild
-  #         path: .

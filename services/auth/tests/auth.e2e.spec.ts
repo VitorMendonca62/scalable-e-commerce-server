@@ -11,8 +11,6 @@ import AppConfig from '@config/app.config';
 import { HttpExceptionFilter } from '@auth/infrastructure/adaptars/primary/http/filters/http-exceptions-filter';
 import { AppModule } from '../src/app.module';
 import { EnvironmentVariables } from '@config/environment/env.validation';
-import { UsersQueueService } from '@auth/infrastructure/adaptars/secondary/message-broker/rabbitmq/users_queue/users-queue.service';
-import { PasswordHasher } from '@auth/domain/ports/secondary/password-hasher.port';
 import {
   EmailConstants,
   IDConstants,
@@ -29,21 +27,9 @@ describe('AuthController (E2E)', () => {
   let app: NestFastifyApplication;
 
   beforeAll(async () => {
-    console.error(process.env.MTLS_ENABLED);
-
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideProvider(UsersQueueService)
-      .useValue({
-        send: async () => true,
-      })
-      .overrideProvider(PasswordHasher)
-      .useValue({
-        hash: async () => 'hashed-password',
-        compare: async (password: string) =>
-          password === PasswordConstants.EXEMPLE,
-      })
       .overrideGuard(GoogleOAuthGuard)
       .useValue({
         canActivate: (context: ExecutionContext) => {
@@ -83,11 +69,7 @@ describe('AuthController (E2E)', () => {
 
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
-  });
 
-  const userEmail = `auth-${EmailConstants.EXEMPLE}`;
-
-  beforeAll(async () => {
     await app.get(UserExternalController).createUser({
       userID: IDConstants.EXEMPLE,
       email: userEmail,
@@ -97,6 +79,8 @@ describe('AuthController (E2E)', () => {
       updatedAt: new Date().toISOString(),
     });
   });
+
+  const userEmail = `auth-${EmailConstants.EXEMPLE}`;
 
   const httpServer = () => app.getHttpServer();
 
@@ -481,7 +465,7 @@ describe('AuthController (E2E)', () => {
     });
 
     it('should return sucess message and data contain access token', async () => {
-      const tokenID = 'token-id-valid-';
+      const tokenID = 'token-id-valid-awdawdwd';
       const userID = IDConstants.EXEMPLE;
       await app.get(TokenRepository).saveSession(tokenID, userID, 'any', 'any');
 

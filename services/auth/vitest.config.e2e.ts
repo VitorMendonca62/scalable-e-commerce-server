@@ -11,9 +11,7 @@ export default defineConfig({
     env: {
       NODE_ENV: 'test',
     },
-    setupFiles: [
-      './tests/setup.ts',
-    ],
+    setupFiles: ['./tests/setup-e2e.ts'],
     coverage: {
       provider: 'istanbul',
       reporter: ['text', 'json', 'html'],
