@@ -5,6 +5,7 @@ import {
   UpdateRatingPort,
 } from '@product/domain/ports/application/rating/update-rating.port';
 import RatingRepository from '@product/domain/ports/secondary/rating-repository.port';
+import ProductRatingModel from '@product/infrastructure/adaptars/secondary/database/models/rating.model';
 
 @Injectable()
 export default class UpdateRatingUseCase implements UpdateRatingPort {
@@ -13,11 +14,11 @@ export default class UpdateRatingUseCase implements UpdateRatingPort {
   async execute(
     productID: string,
     userID: string,
-    value: number,
+    updates: Partial<ProductRatingModel>,
   ): Promise<ExecuteReturn> {
     try {
       const updated = await this.ratingRepository.update(productID, userID, {
-        value,
+        ...updates,
       });
 
       if (!updated) {

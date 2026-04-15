@@ -12,15 +12,12 @@ export default class TypeOrmRatingRepository implements RatingRepository {
   ) {}
 
   async create(
-    productID: string,
-    userID: string,
-    value: number,
+    newRating: Omit<
+      ProductRatingModel,
+      'id' | 'createdAt' | 'updatedAt' | 'product'
+    >,
   ): Promise<void> {
-    const rating = this.ratingRepository.create({
-      productID,
-      userID,
-      value,
-    });
+    const rating = this.ratingRepository.create(newRating);
 
     await this.ratingRepository.save(rating);
   }

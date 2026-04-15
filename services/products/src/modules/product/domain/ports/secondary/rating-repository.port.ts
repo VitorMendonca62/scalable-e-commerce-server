@@ -2,9 +2,10 @@ import ProductRatingModel from '@product/infrastructure/adaptars/secondary/datab
 
 export default abstract class RatingRepository {
   abstract create(
-    productID: string,
-    userID: string,
-    value: number,
+    newRating: Omit<
+      ProductRatingModel,
+      'id' | 'createdAt' | 'updatedAt' | 'product'
+    >,
   ): Promise<void>;
 
   abstract update(

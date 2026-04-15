@@ -21,12 +21,15 @@ import {
   HttpCreatedResponse,
   HttpOKResponse,
 } from '@product/domain/ports/primary/http/sucess.port';
+import RatingMapper from '@product/infrastructure/mappers/rating.mapper';
 import { FastifyReply } from 'fastify';
 import CreateRatingDTO from '../dtos/create-rating.dto';
+import UpdateRatingDTO from '../dtos/update-rating.dto';
 
 @Controller('rating')
 export default class RatingController {
   constructor(
+    private readonly ratingMapper: RatingMapper,
     private readonly createRatingUseCase: CreateRatingUseCase,
     private readonly updateRatingUseCase: UpdateRatingUseCase,
   ) {}
@@ -43,11 +46,13 @@ export default class RatingController {
       return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
     }
 
-    const useCaseResult = await this.createRatingUseCase.execute(
+    const ratingEntity = this.ratingMapper.createDTOForEntity(
+      dto,
       productID,
       userID,
-      dto.value,
     );
+
+    const useCaseResult = await this.createRatingUseCase.execute(ratingEntity);
 
     if (useCaseResult.ok === false) {
       if (useCaseResult.reason === ApplicationResultReasons.ALREADY_EXISTS) {
@@ -66,7 +71,7 @@ export default class RatingController {
   @Patch('/:productId')
   async update(
     @Param('productId') productID: string,
-    @Body() dto: CreateRatingDTO,
+    @Body() dto: UpdateRatingDTO,
     @Headers('x-user-id') userID: string,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
@@ -75,10 +80,20 @@ export default class RatingController {
       return new FieldInvalid('Header x-user-id é obrigatório', 'x-user-id');
     }
 
+    if (Object.keys(dto ?? {}).length === 0) {
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid(
+        'Adicione algum campo para a avaliação ser atualizada',
+        'all',
+      );
+    }
+
+    const updates = this.ratingMapper.updateDTOToModelPartial(dto);
+
     const useCaseResult = await this.updateRatingUseCase.execute(
       productID,
       userID,
-      dto.value,
+      updates,
     );
 
     if (useCaseResult.ok === false) {

@@ -19,7 +19,7 @@
     "test:unit:cov": "cross-env NODE_ENV=test vitest --coverage --config vitest.config.unit.ts",
     "typeorm:base": "typeorm-ts-node-commonjs",
     "typeorm": "npm run typeorm:base -- -d src/config/database/data-source.ts",
-    "migration:generate": "npm run typeorm -- migration:generate src/database/migrations/migration",
+    "migration:generate": "npm run typeorm -- migration:generate",
     "migration:run": "npm run typeorm -- migration:run",
     "migration:revert": "npm run typeorm -- migration:revert",
     "migration:create": "npm run typeorm:base -- migration:create"

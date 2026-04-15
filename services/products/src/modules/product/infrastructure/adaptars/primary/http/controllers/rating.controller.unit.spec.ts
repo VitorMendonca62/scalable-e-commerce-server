@@ -13,14 +13,17 @@ import {
   HttpOKResponse,
 } from '@product/domain/ports/primary/http/sucess.port';
 import { IDConstants } from '@product/domain/values-objects/constants';
+import RatingMapper from '@product/infrastructure/mappers/rating.mapper';
 import { FastifyReply } from 'fastify';
 import CreateRatingDTO from '../dtos/create-rating.dto';
+import UpdateRatingDTO from '../dtos/update-rating.dto';
 import RatingController from './rating.controller';
 
 describe('RatingController', () => {
   let controller: RatingController;
   let createRatingUseCase: CreateRatingUseCase;
   let updateRatingUseCase: UpdateRatingUseCase;
+  let ratingMapper: RatingMapper;
   let response: FastifyReply;
 
   beforeEach(() => {
@@ -32,7 +35,16 @@ describe('RatingController', () => {
       execute: vi.fn(),
     } as any;
 
-    controller = new RatingController(createRatingUseCase, updateRatingUseCase);
+    ratingMapper = {
+      createDTOForEntity: vi.fn(),
+      updateDTOToModelPartial: vi.fn(),
+    } as any;
+
+    controller = new RatingController(
+      ratingMapper,
+      createRatingUseCase,
+      updateRatingUseCase,
+    );
 
     response = {
       status: vi.fn(),
@@ -41,7 +53,15 @@ describe('RatingController', () => {
 
   const userID = IDConstants.EXEMPLE;
   const productID = 'product-123';
-  const dto: CreateRatingDTO = { value: 4 } as any;
+  const dto: CreateRatingDTO = {
+    value: 4,
+    comment: 'Produto excelente',
+    images: ['aW1hZ2Ux', 'aW1hZ2Uy'],
+  } as any;
+  const updateDto: UpdateRatingDTO = {
+    comment: 'Comentário atualizado',
+    images: ['aW1hZ2Ux'],
+  } as any;
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
@@ -52,6 +72,11 @@ describe('RatingController', () => {
   describe('create', () => {
     beforeEach(() => {
       vi.spyOn(createRatingUseCase, 'execute').mockResolvedValue({ ok: true });
+      vi.spyOn(ratingMapper, 'createDTOForEntity').mockReturnValue({
+        productID,
+        userID,
+        value: dto.value,
+      } as any);
     });
 
     it('should return FieldInvalid when x-user-id header is missing', async () => {
@@ -71,14 +96,20 @@ describe('RatingController', () => {
       });
     });
 
-    it('should call createRatingUseCase.execute with correct parameters', async () => {
+    it('should call createRatingUseCase.execute with rating entity', async () => {
+      const ratingEntity = { productID, userID, value: dto.value } as any;
+      vi.spyOn(ratingMapper, 'createDTOForEntity').mockReturnValue(
+        ratingEntity,
+      );
+
       await controller.create(productID, dto, userID, response);
 
-      expect(createRatingUseCase.execute).toHaveBeenCalledWith(
+      expect(ratingMapper.createDTOForEntity).toHaveBeenCalledWith(
+        dto,
         productID,
         userID,
-        dto.value,
       );
+      expect(createRatingUseCase.execute).toHaveBeenCalledWith(ratingEntity);
     });
 
     it('should return HttpCreatedResponse on success', async () => {
@@ -146,12 +177,16 @@ describe('RatingController', () => {
   describe('update', () => {
     beforeEach(() => {
       vi.spyOn(updateRatingUseCase, 'execute').mockResolvedValue({ ok: true });
+      vi.spyOn(ratingMapper, 'updateDTOToModelPartial').mockReturnValue({
+        comment: updateDto.comment,
+        images: updateDto.images,
+      });
     });
 
     it('should return FieldInvalid when x-user-id header is missing', async () => {
       const result = await controller.update(
         productID,
-        dto,
+        updateDto,
         undefined as any,
         response,
       );
@@ -165,18 +200,58 @@ describe('RatingController', () => {
       });
     });
 
-    it('should call updateRatingUseCase.execute with correct parameters', async () => {
-      await controller.update(productID, dto, userID, response);
+    it('should return FieldInvalid no have fields', async () => {
+      const result = await controller.update(productID, {}, userID, response);
 
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum campo para a avaliação ser atualizada',
+        data: 'all',
+      });
+    });
+
+    it('should return FieldInvalid no have fields', async () => {
+      const result = await controller.update(
+        productID,
+        undefined as any,
+        userID,
+        response,
+      );
+
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
+      expect(result).toEqual({
+        statusCode: HttpStatus.BAD_REQUEST,
+        message: 'Adicione algum campo para a avaliação ser atualizada',
+        data: 'all',
+      });
+    });
+
+    it('should call updateRatingUseCase.execute with correct parameters', async () => {
+      await controller.update(productID, updateDto, userID, response);
+
+      expect(ratingMapper.updateDTOToModelPartial).toHaveBeenCalledWith(
+        updateDto,
+      );
       expect(updateRatingUseCase.execute).toHaveBeenCalledWith(
         productID,
         userID,
-        dto.value,
+        {
+          comment: updateDto.comment,
+          images: updateDto.images,
+        },
       );
     });
 
     it('should return HttpOKResponse on success', async () => {
-      const result = await controller.update(productID, dto, userID, response);
+      const result = await controller.update(
+        productID,
+        updateDto,
+        userID,
+        response,
+      );
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.OK);
       expect(result).toBeInstanceOf(HttpOKResponse);
@@ -193,7 +268,12 @@ describe('RatingController', () => {
         message: 'Avaliação não encontrada',
       });
 
-      const result = await controller.update(productID, dto, userID, response);
+      const result = await controller.update(
+        productID,
+        updateDto,
+        userID,
+        response,
+      );
 
       expect(response.status).toHaveBeenCalledWith(HttpStatus.NOT_FOUND);
       expect(result).toBeInstanceOf(NotFoundItem);
@@ -210,7 +290,12 @@ describe('RatingController', () => {
         message: 'Erro ao atualizar avaliação',
       });
 
-      const result = await controller.update(productID, dto, userID, response);
+      const result = await controller.update(
+        productID,
+        updateDto,
+        userID,
+        response,
+      );
 
       expect(response.status).toHaveBeenCalledWith(
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -228,7 +313,7 @@ describe('RatingController', () => {
       );
 
       try {
-        await controller.update(productID, dto, userID, response);
+        await controller.update(productID, updateDto, userID, response);
         expect.fail('Should have thrown an error');
       } catch (error: any) {
         expect(error).toBeInstanceOf(Error);

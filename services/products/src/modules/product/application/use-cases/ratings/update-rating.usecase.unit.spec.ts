@@ -22,22 +22,26 @@ describe('UpdateRatingUseCase', () => {
   describe('execute', () => {
     const productID = 'product-123';
     const userID = 'user-456';
-    const value = 5;
+    const updates = {
+      value: 5,
+      comment: 'Atualizado',
+      images: ['aW1hZ2Ux'],
+    };
 
     beforeEach(() => {
       vi.spyOn(ratingRepository, 'update').mockResolvedValue(true);
     });
 
     it('should call update with correct parameters', async () => {
-      await useCase.execute(productID, userID, value);
+      await useCase.execute(productID, userID, updates);
 
       expect(ratingRepository.update).toHaveBeenCalledWith(productID, userID, {
-        value,
+        ...updates,
       });
     });
 
     it('should return ok on success', async () => {
-      const result = await useCase.execute(productID, userID, value);
+      const result = await useCase.execute(productID, userID, updates);
 
       expect(result).toEqual({ ok: true });
     });
@@ -45,7 +49,7 @@ describe('UpdateRatingUseCase', () => {
     it('should return NOT_FOUND when update returns false', async () => {
       vi.spyOn(ratingRepository, 'update').mockResolvedValue(false);
 
-      const result = await useCase.execute(productID, userID, value);
+      const result = await useCase.execute(productID, userID, updates);
 
       expect(result).toEqual({
         ok: false,
@@ -59,7 +63,7 @@ describe('UpdateRatingUseCase', () => {
         new Error('Database error'),
       );
 
-      const result = await useCase.execute(productID, userID, value);
+      const result = await useCase.execute(productID, userID, updates);
 
       expect(result).toEqual({
         ok: false,

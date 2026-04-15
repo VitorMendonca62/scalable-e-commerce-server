@@ -1,10 +1,11 @@
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
+import ProductRatingModel from '@product/infrastructure/adaptars/secondary/database/models/rating.model';
 
 export interface UpdateRatingPort {
   execute: (
     productID: string,
     userID: string,
-    value: number,
+    updates: Partial<ProductRatingModel>,
   ) => Promise<ExecuteReturn>;
 }
 

@@ -25,6 +25,12 @@ export default class ProductRatingModel {
   @Column({ type: 'int2', nullable: false })
   value: number;
 
+  @Column({ type: 'text', nullable: true })
+  comment?: string;
+
+  @Column({ type: 'simple-array', nullable: true })
+  images?: string[];
+
   @ManyToOne(() => ProductModel, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'product_id', referencedColumnName: 'publicID' })
   product: ProductModel;

@@ -8,6 +8,7 @@ import CartController from './infrastructure/adaptars/primary/http/controllers/c
 import RatingController from './infrastructure/adaptars/primary/http/controllers/rating.controller';
 import ProductMapper from './infrastructure/mappers/product.mapper';
 import CartMapper from './infrastructure/mappers/cart.mapper';
+import RatingMapper from './infrastructure/mappers/rating.mapper';
 import CreateProductUseCase from './application/use-cases/products/create-product-use-case';
 import CreateCartUseCase from './application/use-cases/carts/create-cart.usecase';
 import ProductModel from './infrastructure/adaptars/secondary/database/models/product.model';
@@ -68,6 +69,7 @@ import RedisCacheFavoriteRepository from './infrastructure/adaptars/secondary/da
   providers: [
     ProductMapper,
     CartMapper,
+    RatingMapper,
     CategoryMapper,
     CreateProductUseCase,
     CreateCartUseCase,

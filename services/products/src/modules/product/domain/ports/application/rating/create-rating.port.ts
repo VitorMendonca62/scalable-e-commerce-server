@@ -1,11 +1,9 @@
 import { ApplicationResultReasons } from '@product/domain/enums/application-result-reasons';
 
+import RatingEntity from '@product/domain/entities/rating.entity';
+
 export interface CreateRatingPort {
-  execute: (
-    productID: string,
-    userID: string,
-    value: number,
-  ) => Promise<ExecuteReturn>;
+  execute: (rating: RatingEntity) => Promise<ExecuteReturn>;
 }
 
 type ExecuteResultReasons =

@@ -27,10 +27,14 @@ describe('TypeOrmRatingRepository', () => {
     const productID = IDConstants.EXEMPLE;
     const userID = 'user-123';
     const value = 4;
+    const comment = 'Produto excelente';
+    const images = ['aW1hZ2Ux', 'aW1hZ2Uy'];
     const mockRating = {
       productID,
       userID,
       value,
+      comment,
+      images,
     } as ProductRatingModel;
 
     beforeEach(() => {
@@ -39,30 +43,26 @@ describe('TypeOrmRatingRepository', () => {
     });
 
     it('should call create with correct parameters', async () => {
-      await repository.create(productID, userID, value);
+      await repository.create(mockRating);
 
-      expect(ratingRepository.create).toHaveBeenCalledWith({
-        productID,
-        userID,
-        value,
-      });
+      expect(ratingRepository.create).toHaveBeenCalledWith(mockRating);
     });
 
     it('should call save with created rating', async () => {
-      await repository.create(productID, userID, value);
+      await repository.create(mockRating);
 
       expect(ratingRepository.save).toHaveBeenCalledWith(mockRating);
     });
 
     it('should save rating successfully', async () => {
-      await repository.create(productID, userID, value);
+      await repository.create(mockRating);
 
       expect(ratingRepository.create).toHaveBeenCalledTimes(1);
       expect(ratingRepository.save).toHaveBeenCalledTimes(1);
     });
 
     it('should return void', async () => {
-      const result = await repository.create(productID, userID, value);
+      const result = await repository.create(mockRating);
 
       expect(result).toBeUndefined();
     });
