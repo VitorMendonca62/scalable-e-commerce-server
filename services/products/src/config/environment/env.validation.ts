@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsEnum,
@@ -25,6 +26,7 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'HOST cannot be empty.' })
   HOST: string;
 
+  @Type(() => Number)
   @IsNumber({}, { message: 'PORT must be a number.' })
   @Min(1, { message: 'PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
@@ -34,6 +36,7 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'SMTP_HOST cannot be empty.' })
   SMTP_HOST: string;
 
+  @Type(() => Number)
   @IsNumber({}, { message: 'SMTP_PORT must be a number.' })
   @Min(1, { message: 'SMTP_PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'SMTP_PORT must be less than or equal to 65535.' })
@@ -57,6 +60,7 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'POSTGRES_HOST cannot be empty.' })
   POSTGRES_HOST: string;
 
+  @Type(() => Number)
   @IsNumber({}, { message: 'POSTGRES_PORT must be a number.' })
   @Min(1, { message: 'POSTGRES_PORT must be greater than or equal to 1.' })
   @Max(65535, { message: 'POSTGRES_PORT must be less than or equal to 65535.' })
@@ -79,9 +83,10 @@ export class EnvironmentVariables {
   @IsNotEmpty({ message: 'REDIS_HOST cannot be empty.' })
   REDIS_HOST: string;
 
-  @IsNumber({}, { message: 'PORT must be a number.' })
-  @Min(1, { message: 'PORT must be greater than or equal to 1.' })
-  @Max(65535, { message: 'PORT must be less than or equal to 65535.' })
+  @Type(() => Number)
+  @IsNumber({}, { message: 'REDIS_PORT must be a number.' })
+  @Min(1, { message: 'REDIS_PORT must be greater than or equal to 1.' })
+  @Max(65535, { message: 'REDIS_PORT must be less than or equal to 65535.' })
   REDIS_PORT: number;
 
   @IsString({ message: 'REDIS_PASSWORD must be a string.' })
