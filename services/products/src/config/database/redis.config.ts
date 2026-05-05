@@ -18,7 +18,7 @@ export const configRedisdDB = (
       port,
       host,
       password,
-      connectionName: 'auth-service',
+      connectionName: 'product-service',
       connectTimeout: 10000,
       maxRetriesPerRequest: 3,
       retryStrategy: (times: number) => {

@@ -33,7 +33,7 @@ export default class ProductModel {
   @Column({ type: 'simple-array', nullable: false })
   photos: string[];
 
-  @Column({ type: 'simple-array', nullable: false })
+  @Column({ type: 'text', array: true, nullable: false })
   payments: PaymentTypes[];
 
   @Column({ type: 'boolean', default: true })

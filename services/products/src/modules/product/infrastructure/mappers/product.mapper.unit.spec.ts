@@ -114,7 +114,7 @@ describe('ProductMapper', () => {
         ],
         payments: [
           PaymentTypes.PIX,
-          PaymentTypes.BILLET,
+          PaymentTypes.BOLETO,
           PaymentTypes.CREDIT_CARD,
         ],
       });
@@ -130,7 +130,7 @@ describe('ProductMapper', () => {
       ]);
       expect(entity.payments).toEqual([
         PaymentTypes.PIX,
-        PaymentTypes.BILLET,
+        PaymentTypes.BOLETO,
         PaymentTypes.CREDIT_CARD,
       ]);
     });
@@ -372,13 +372,13 @@ describe('ProductMapper', () => {
 
     it('should only include payments when only payments are provided', () => {
       const dto = ProductDTOFactory.createUpdateProductDTO({
-        payments: [PaymentTypes.BILLET],
+        payments: [PaymentTypes.BOLETO],
       });
 
       const result = mapper.updateDTOToEntityPartial(dto);
 
       expect(result).toEqual({
-        payments: [PaymentTypes.BILLET],
+        payments: [PaymentTypes.BOLETO],
       });
       expect(Object.keys(result)).toHaveLength(1);
     });

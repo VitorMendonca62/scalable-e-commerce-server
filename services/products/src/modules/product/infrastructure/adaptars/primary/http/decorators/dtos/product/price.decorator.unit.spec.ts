@@ -26,6 +26,20 @@ describe('Price Decorator', () => {
     expect(fieldError?.constraints?.isNumber).toBe(PriceConstants.ERROR_NUMBER);
   });
 
+  it('should return error when price is null', async () => {
+    const dto = ProductDTOFactory.createUpdateProductDTO({
+      price: null,
+    });
+
+    const errors = await ValidationObjectFactory.validateObject(dto);
+    const fieldError = errors.find((err) => err.property === 'price');
+
+    console.log(errors);
+
+    expect(fieldError).toBeDefined();
+    expect(fieldError?.constraints?.isNumber).toBe(PriceConstants.ERROR_NUMBER);
+  });
+
   it('should return error when price is not integer', async () => {
     const dto = ProductDTOFactory.createProductDTOLikeInstance({
       price: PriceConstants.ERROR_INTEGER_EXEMPLE,
@@ -36,6 +50,30 @@ describe('Price Decorator', () => {
 
     expect(fieldError).toBeDefined();
     expect(fieldError?.constraints?.isInt).toBe(PriceConstants.ERROR_INTEGER);
+  });
+
+  it('should return error when price is infinity', async () => {
+    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      price: Infinity,
+    });
+
+    const errors = await ValidationObjectFactory.validateObject(dto);
+    const fieldError = errors.find((err) => err.property === 'price');
+
+    expect(fieldError).toBeDefined();
+    expect(fieldError?.constraints?.isNumber).toBe(PriceConstants.ERROR_NUMBER);
+  });
+
+  it('should return error when price is NaN', async () => {
+    const dto = ProductDTOFactory.createProductDTOLikeInstance({
+      price: NaN,
+    });
+
+    const errors = await ValidationObjectFactory.validateObject(dto);
+    const fieldError = errors.find((err) => err.property === 'price');
+
+    expect(fieldError).toBeDefined();
+    expect(fieldError?.constraints?.isNumber).toBe(PriceConstants.ERROR_NUMBER);
   });
 
   it('should return error when price is less than minimum', async () => {

@@ -21,6 +21,7 @@ import ProductRatingModel from '../models/rating.model';
 import { CacheProductRepository } from '@product/domain/ports/secondary/cache-product-repository.port';
 import { CacheFavoritesRepository } from '@product/domain/ports/secondary/cache-favorite-repository.port';
 import FavoriteRepository from '@product/domain/ports/secondary/favorite-repository.port';
+
 @Injectable()
 export default class TypeOrmProductRepository implements ProductRepository {
   constructor(
@@ -69,24 +70,25 @@ export default class TypeOrmProductRepository implements ProductRepository {
     whereFilters.id = MoreThan(cursor);
 
     const query = this.addRatingSelect(
-      this.productRepository.createQueryBuilder('product').setFindOptions({
-        where: whereFilters,
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        order: { id: 'ASC' },
-        take: limit,
-      }),
+      this.productRepository
+        .createQueryBuilder('product')
+        .select([
+          'product.id',
+          'product.publicID',
+          'product.title',
+          'product.price',
+          'product.overview',
+          'product.photos',
+          'product.payments',
+          'product.stock',
+          'product.owner',
+          'product.category',
+          'product.createdAt',
+          'product.updatedAt',
+        ])
+        .where(whereFilters)
+        .orderBy('product.id', 'ASC')
+        .take(limit),
     );
 
     query
@@ -95,7 +97,8 @@ export default class TypeOrmProductRepository implements ProductRepository {
 
     const result = await query.getRawAndEntities();
 
-    const products = result.entities.map((product, index) => ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const products = result.entities.map(({ id, ...product }, index) => ({
       ...product,
       rating: Number(result.raw[index]?.rating ?? 0),
     }));
@@ -251,8 +254,7 @@ export default class TypeOrmProductRepository implements ProductRepository {
       )
       .addSelect('COALESCE(AVG(rating.value), 0)', 'rating')
       .groupBy('product.id')
-      .addGroupBy('category.id')
-      .addGroupBy('favorite.id');
+      .addGroupBy('category.id');
   }
 
   private addFavoritedSelect(
@@ -269,7 +271,8 @@ export default class TypeOrmProductRepository implements ProductRepository {
       .addSelect(
         'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
         'isFavorited',
-      );
+      )
+      .addGroupBy('favorite.id');
     return query;
   }
 }

@@ -401,7 +401,7 @@ describe('ProductController', () => {
       ProductFactory.createModel(),
       ProductFactory.createModel({ title: 'Product 2' }),
     ];
-    const defaultPagination = { limit: 25 };
+    const defaultPagination = { limit: 25, cursor: 0 };
 
     beforeEach(() => {
       vi.spyOn(getProductsUseCase, 'getByFilter').mockResolvedValue({
@@ -472,7 +472,7 @@ describe('ProductController', () => {
         price: { min: 1000, max: 5000 },
         stock: { min: 10, max: 100 },
         payments: ['pix'],
-        limit: 25,
+        ...defaultPagination,
       });
     });
 
@@ -923,12 +923,11 @@ describe('ProductController', () => {
         response,
       );
 
-      expect(response.status).toHaveBeenCalledWith(
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-      expect(result).toBeInstanceOf(NotPossible);
+      expect(response.status).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST);
+      expect(result).toBeInstanceOf(FieldInvalid);
       expect(result).toEqual({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        data: 'all',
+        statusCode: HttpStatus.BAD_REQUEST,
         message: 'Adicione algum filtro para que possa filtrar produtos',
       });
       expect(getProductsUseCase.getByFilter).not.toHaveBeenCalled();

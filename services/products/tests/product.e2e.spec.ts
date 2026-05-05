@@ -1225,273 +1225,293 @@ describe('ProductController (e2e)', () => {
     });
   });
 
-  // describe('GET /product/filter', () => {
-  //   const filterCategoryA = v7();
-  //   const filterCategoryB = v7();
-  //   const filterTitles: Record<string, string> = {};
-  //   const filterProductIDs: Record<string, string> = {};
-  //   const filterProductDbIDs: Record<string, number> = {};
+  describe('GET /product/filter', () => {
+    const filterCategoryA = v7();
+    const filterCategoryB = v7();
+    const filterTitles: Record<string, string> = {};
+    const filterProductIDs: Record<string, string> = {};
+    const filterProductDbIDs: Record<string, number> = {};
 
-  //   beforeAll(async () => {
-  //     const dateNow = Date.now();
+    beforeAll(async () => {
+      const dateNow = Date.now();
 
-  //     await app.get(CategoryRepository).create({
-  //       name: `Categoria Filter A ${dateNow}`,
-  //       publicID: filterCategoryA,
-  //     });
+      await app.get(CategoryRepository).create({
+        name: `Categoria Filter A ${dateNow}`,
+        publicID: filterCategoryA,
+      });
 
-  //     await app.get(CategoryRepository).create({
-  //       name: `Categoria Filter B ${dateNow}`,
-  //       publicID: filterCategoryB,
-  //     });
+      await app.get(CategoryRepository).create({
+        name: `Categoria Filter B ${dateNow}`,
+        publicID: filterCategoryB,
+      });
 
-  //     filterTitles.a = `Produto Filter A ${dateNow}`;
-  //     filterTitles.b = `Produto Filter B ${dateNow}`;
-  //     filterTitles.c = `Produto Filter C ${dateNow}`;
-  //     filterTitles.inactive = `Produto Filter Inactive ${dateNow}`;
+      filterTitles.a = `Produto Filter A ${dateNow}`;
+      filterTitles.b = `Produto Filter B ${dateNow}`;
+      filterTitles.c = `Produto Filter C ${dateNow}`;
+      filterTitles.inactive = `Produto Filter Inactive ${dateNow}`;
 
-  //     await request(httpServer())
-  //       .post('/product')
-  //       .set('x-user-id', userID)
-  //       .send(
-  //         createProductPayload({
-  //           title: filterTitles.a,
-  //           categoryID: filterCategoryA,
-  //           price: 1000,
-  //           stock: 10,
-  //           payments: [PaymentTypes.PIX],
-  //         }),
-  //       )
-  //       .expect(HttpStatus.CREATED);
+      await request(httpServer())
+        .post('/product')
+        .set('x-user-id', userID)
+        .send(
+          createProductPayload({
+            title: filterTitles.a,
+            categoryID: filterCategoryA,
+            price: 1000,
+            stock: 10,
+            payments: [PaymentTypes.PIX],
+          }),
+        )
+        .expect(HttpStatus.CREATED);
 
-  //     await request(httpServer())
-  //       .post('/product')
-  //       .set('x-user-id', userID)
-  //       .send(
-  //         createProductPayload({
-  //           title: filterTitles.b,
-  //           categoryID: filterCategoryA,
-  //           price: 3000,
-  //           stock: 50,
-  //           payments: [PaymentTypes.CREDIT_CARD],
-  //         }),
-  //       )
-  //       .expect(HttpStatus.CREATED);
+      await request(httpServer())
+        .post('/product')
+        .set('x-user-id', userID)
+        .send(
+          createProductPayload({
+            title: filterTitles.b,
+            categoryID: filterCategoryA,
+            price: 3000,
+            stock: 50,
+            payments: [PaymentTypes.CREDIT_CARD],
+          }),
+        )
+        .expect(HttpStatus.CREATED);
 
-  //     await request(httpServer())
-  //       .post('/product')
-  //       .set('x-user-id', userID)
-  //       .send(
-  //         createProductPayload({
-  //           title: filterTitles.c,
-  //           categoryID: filterCategoryB,
-  //           price: 5000,
-  //           stock: 5,
-  //           payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
-  //         }),
-  //       )
-  //       .expect(HttpStatus.CREATED);
+      await request(httpServer())
+        .post('/product')
+        .set('x-user-id', userID)
+        .send(
+          createProductPayload({
+            title: filterTitles.c,
+            categoryID: filterCategoryB,
+            price: 5000,
+            stock: 5,
+            payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+          }),
+        )
+        .expect(HttpStatus.CREATED);
 
-  //     await request(httpServer())
-  //       .post('/product')
-  //       .set('x-user-id', userID)
-  //       .send(
-  //         createProductPayload({
-  //           title: filterTitles.inactive,
-  //           categoryID: filterCategoryB,
-  //           price: 9000,
-  //           stock: 0,
-  //           payments: [PaymentTypes.BILLET],
-  //           active: false,
-  //         }),
-  //       )
-  //       .expect(HttpStatus.CREATED);
+      await request(httpServer())
+        .post('/product')
+        .set('x-user-id', userID)
+        .send(
+          createProductPayload({
+            title: filterTitles.inactive,
+            categoryID: filterCategoryB,
+            price: 9000,
+            stock: 0,
+            payments: [PaymentTypes.BOLETO],
+            active: false,
+          }),
+        )
+        .expect(HttpStatus.CREATED);
 
-  //     const result = await client.query(
-  //       'SELECT id, public_id, title FROM products WHERE title = ANY($1) ORDER BY id ASC',
-  //       [
-  //         [
-  //           filterTitles.a,
-  //           filterTitles.b,
-  //           filterTitles.c,
-  //           filterTitles.inactive,
-  //         ],
-  //       ],
-  //     );
+      const result = await client.query(
+        'SELECT id, public_id, title FROM products WHERE title = ANY($1) ORDER BY id ASC',
+        [
+          [
+            filterTitles.a,
+            filterTitles.b,
+            filterTitles.c,
+            filterTitles.inactive,
+          ],
+        ],
+      );
 
-  //     result.rows.forEach((row) => {
-  //       filterProductIDs[row.title] = row.public_id;
-  //       filterProductDbIDs[row.title] = row.id;
-  //     });
-  //   });
+      result.rows.forEach((row) => {
+        filterProductIDs[row.title] = row.public_id;
+        filterProductDbIDs[row.title] = row.id;
+      });
+    });
 
-  //   it('should reject when no filters are provided', async () => {
-  //     const response = await request(httpServer()).get('/product/filter');
+    it('should reject when no filters are provided', async () => {
+      const response = await request(httpServer()).get('/product/filter');
 
-  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
-  //     expect(response.body.message).toBe(
-  //       'Adicione algum filtro para que possa filtrar produtos',
-  //     );
-  //   });
+      expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+      expect(response.body.message).toBe(
+        'Adicione algum filtro para que possa filtrar produtos',
+      );
+    });
 
-  //   it('should filter by category', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryA}`,
-  //     );
+    it('should filter by category', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryA}`,
+      );
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     const publicIDs = response.body.data.map((item) => item.publicID);
+      expect(response.status).toBe(HttpStatus.OK);
 
-  //     expect(publicIDs).toEqual(
-  //       expect.arrayContaining([
-  //         filterProductIDs[filterTitles.a],
-  //         filterProductIDs[filterTitles.b],
-  //       ]),
-  //     );
-  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.c]);
-  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.inactive]);
-  //   });
+      const publicIDs = response.body.data.map((item) => item.publicID);
 
-  //   it('should filter by price range', async () => {
-  //     const response = await request(httpServer()).get(
-  //       '/product/filter?price=2000-6000',
-  //     );
+      expect(publicIDs).toEqual(
+        expect.arrayContaining([
+          filterProductIDs[filterTitles.a],
+          filterProductIDs[filterTitles.b],
+        ]),
+      );
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.c]);
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.inactive]);
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     const publicIDs = response.body.data.map((item) => item.publicID);
+    it('should filter by price range', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?price=2000-6000',
+      );
 
-  //     expect(publicIDs).toEqual(
-  //       expect.arrayContaining([
-  //         filterProductIDs[filterTitles.b],
-  //         filterProductIDs[filterTitles.c],
-  //       ]),
-  //     );
-  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.a]);
-  //   });
+      expect(response.status).toBe(HttpStatus.OK);
+      const publicIDs = response.body.data.map((item) => item.publicID);
 
-  //   it('should filter by stock range', async () => {
-  //     const response = await request(httpServer()).get(
-  //       '/product/filter?stock=0-10',
-  //     );
+      expect(publicIDs).toEqual(
+        expect.arrayContaining([
+          filterProductIDs[filterTitles.b],
+          filterProductIDs[filterTitles.c],
+        ]),
+      );
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.a]);
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     const publicIDs = response.body.data.map((item) => item.publicID);
+    it('should filter by stock range', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?stock=0-10',
+      );
 
-  //     expect(publicIDs).toEqual(
-  //       expect.arrayContaining([
-  //         filterProductIDs[filterTitles.a],
-  //         filterProductIDs[filterTitles.c],
-  //       ]),
-  //     );
-  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.b]);
-  //   });
+      expect(response.status).toBe(HttpStatus.OK);
+      const publicIDs = response.body.data.map((item) => item.publicID);
 
-  //   it('should filter by category and price', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryA}&price=2000-4000`,
-  //     );
+      expect(publicIDs).toEqual(
+        expect.arrayContaining([
+          filterProductIDs[filterTitles.a],
+          filterProductIDs[filterTitles.c],
+        ]),
+      );
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.b]);
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(1);
-  //     expect(response.body.data[0].publicID).toBe(
-  //       filterProductIDs[filterTitles.b],
-  //     );
-  //   });
+    it('should filter by category and price', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryA}&price=2000-4000`,
+      );
 
-  //   it('should filter by category, price, and stock', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10`,
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].publicID).toBe(
+        filterProductIDs[filterTitles.b],
+      );
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(1);
-  //     expect(response.body.data[0].publicID).toBe(
-  //       filterProductIDs[filterTitles.c],
-  //     );
-  //   });
+    it('should filter by category, price, and stock', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10`,
+      );
 
-  //   it('should filter by all filters combined', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10&payments=${PaymentTypes.PIX},${PaymentTypes.CREDIT_CARD}`,
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].publicID).toBe(
+        filterProductIDs[filterTitles.c],
+      );
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(1);
-  //     expect(response.body.data[0].publicID).toBe(
-  //       filterProductIDs[filterTitles.c],
-  //     );
-  //   });
+    it('should filter by all filters combined', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10&payments=${PaymentTypes.PIX},${PaymentTypes.CREDIT_CARD}`,
+      );
 
-  //   it('should return empty array when category does not exist', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${v7()}`,
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(1);
+      expect(response.body.data[0].publicID).toBe(
+        filterProductIDs[filterTitles.c],
+      );
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(0);
-  //   });
+    it('should return empty array when category does not exist', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${v7()}`,
+      );
 
-  //   it('should return empty array when payments do not match', async () => {
-  //     const response = await request(httpServer()).get(
-  //       '/product/filter?payments=UNKNOWN',
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(0);
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(0);
-  //   });
+    it('should return empty array when payments do not match', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?payments=UNKNOWN',
+      );
 
-  //   it('should return empty array when range is inverted', async () => {
-  //     const response = await request(httpServer()).get(
-  //       '/product/filter?price=20-10',
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(0);
+    });
 
-  //     expect(response.status).toBe(HttpStatus.OK);
-  //     expect(response.body.data).toHaveLength(0);
-  //   });
+    it('should return empty array when payments do match', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?payments=PIX',
+      );
 
-  //   it('should paginate with cursor and avoid duplicates', async () => {
-  //     const firstPage = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryA}&limit=1&cursor=0`,
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      const publicIDs = response.body.data.map((item) => item.publicID);
 
-  //     expect(firstPage.status).toBe(HttpStatus.OK);
-  //     expect(firstPage.body.data).toHaveLength(1);
+      expect(publicIDs).toEqual(
+        expect.arrayContaining([
+          filterProductIDs[filterTitles.a],
+          filterProductIDs[filterTitles.c],
+        ]),
+      );
+      
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.b]);
+      expect(publicIDs).not.toContain(filterProductIDs[filterTitles.inactive]);
+    });
 
-  //     const firstPublicID = firstPage.body.data[0].publicID;
-  //     const firstDbID =
-  //       filterProductDbIDs[
-  //         Object.keys(filterProductIDs).find(
-  //           (key) => filterProductIDs[key] === firstPublicID,
-  //         ) as string
-  //       ];
+    it('should return empty array when range is inverted', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?price=20-10',
+      );
 
-  //     const secondPage = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryA}&limit=1&cursor=${firstDbID}`,
-  //     );
+      expect(response.status).toBe(HttpStatus.OK);
+      expect(response.body.data).toHaveLength(0);
+    });
 
-  //     expect(secondPage.status).toBe(HttpStatus.OK);
-  //     expect(secondPage.body.data).toHaveLength(1);
-  //     expect(secondPage.body.data[0].publicID).not.toBe(firstPublicID);
-  //   });
+    it('should paginate with cursor and avoid duplicates', async () => {
+      const firstPage = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryA}&limit=1&cursor=0`,
+      );
 
-  //   it('should reject when price is invalid', async () => {
-  //     const response = await request(httpServer()).get(
-  //       '/product/filter?price=abc',
-  //     );
+      expect(firstPage.status).toBe(HttpStatus.OK);
+      expect(firstPage.body.data).toHaveLength(1);
 
-  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
-  //     expect(response.body.message).toBe('Não foi possivel pegar os produtos');
-  //   });
+      const firstPublicID = firstPage.body.data[0].publicID;
+      const firstDbID =
+        filterProductDbIDs[
+          Object.keys(filterProductIDs).find(
+            (key) => filterProductIDs[key] === firstPublicID,
+          ) as string
+        ];
 
-  //   it('should reject when limit is not numeric', async () => {
-  //     const response = await request(httpServer()).get(
-  //       `/product/filter?category=${filterCategoryA}&limit=abc`,
-  //     );
+      const secondPage = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryA}&limit=1&cursor=${firstDbID}`,
+      );
 
-  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
-  //     expect(response.body.message).toBe('Não foi possivel pegar os produtos');
-  //   });
-  // });
+      expect(secondPage.status).toBe(HttpStatus.OK);
+      expect(secondPage.body.data).toHaveLength(1);
+      expect(secondPage.body.data[0].publicID).not.toBe(firstPublicID);
+    });
+
+    it('should reject when price is invalid', async () => {
+      const response = await request(httpServer()).get(
+        '/product/filter?price=abc',
+      );
+
+      expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(response.body.message).toBe('Não foi possivel pegar os produtos');
+    });
+
+    it('should reject when limit is not numeric', async () => {
+      const response = await request(httpServer()).get(
+        `/product/filter?category=${filterCategoryA}&limit=abc`,
+      );
+
+      expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+      expect(response.body.message).toBe('Não foi possivel pegar os produtos');
+    });
+  });
 
   describe('PATCH /product/:id', () => {
     let productID: string;

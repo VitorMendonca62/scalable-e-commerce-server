@@ -178,19 +178,17 @@ export default class ProductController {
         ),
       };
     }
-
     if (Object.keys(filters).length === 0) {
-      response.status(HttpStatus.INTERNAL_SERVER_ERROR);
-      return new NotPossible(
+      response.status(HttpStatus.BAD_REQUEST);
+      return new FieldInvalid(
         'Adicione algum filtro para que possa filtrar produtos',
+        'all',
       );
     }
 
     const limitNumber = Math.min(Number(limit ?? 25), 100);
     filters.limit = limitNumber;
-    if (cursor !== undefined) {
-      filters.cursor = Math.max(0, Number(cursor));
-    }
+    filters.cursor = Math.max(0, Number(cursor ?? 0));
 
     const useCaseResult = await this.getProductsUseCase.getByFilter(filters);
 

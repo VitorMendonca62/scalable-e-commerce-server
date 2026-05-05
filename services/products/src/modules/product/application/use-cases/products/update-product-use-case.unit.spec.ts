@@ -185,7 +185,7 @@ describe('UpdateProductUseCase', () => {
 
     it('should handle updates with payments array', async () => {
       const paymentsUpdate: Partial<ProductModel> = {
-        payments: [PaymentTypes.BILLET],
+        payments: [PaymentTypes.BOLETO],
       };
 
       await useCase.execute(productID, userID, paymentsUpdate);

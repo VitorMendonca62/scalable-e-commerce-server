@@ -529,7 +529,7 @@ describe('TypeOrmProductRepository', () => {
 
     it('should handle updates with payments array', async () => {
       const paymentsUpdate: Partial<ProductModel> = {
-        payments: [PaymentTypes.BILLET],
+        payments: [PaymentTypes.BOLETO],
       };
 
       await repository.update(productID, userID, paymentsUpdate);
@@ -581,11 +581,13 @@ describe('TypeOrmProductRepository', () => {
       ProductFactory.createModel(),
       ProductFactory.createModel({ title: 'Product 2' }),
     ];
-    const defaultPagination = { take: 25, order: { id: 'ASC' } };
 
     const mockQueryBuilder = {
-      setFindOptions: vi.fn(),
+      select: vi.fn(),
       addSelect: vi.fn(),
+      where: vi.fn(),
+      orderBy: vi.fn(),
+      take: vi.fn(),
       getRawAndEntities: vi.fn(),
       leftJoin: vi.fn(),
     } as any;
@@ -597,8 +599,11 @@ describe('TypeOrmProductRepository', () => {
       vi.spyOn(repository as any, 'addRatingSelect').mockReturnValue(
         mockQueryBuilder,
       );
-      mockQueryBuilder.setFindOptions.mockReturnThis();
+      mockQueryBuilder.select.mockReturnThis();
       mockQueryBuilder.addSelect.mockReturnThis();
+      mockQueryBuilder.where.mockReturnThis();
+      mockQueryBuilder.orderBy.mockReturnThis();
+      mockQueryBuilder.take.mockReturnThis();
       mockQueryBuilder.leftJoin.mockReturnThis();
       mockQueryBuilder.getRawAndEntities.mockResolvedValue({
         entities: mockProducts,
@@ -621,30 +626,33 @@ describe('TypeOrmProductRepository', () => {
       expect((repository as any).addRatingSelect).toHaveBeenCalledWith(
         mockQueryBuilder,
       );
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          categoryID: In(['electronics']),
-          active: true,
-          id: MoreThan(0),
-          price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
-          stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
-          payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        ...defaultPagination,
+      expect(mockQueryBuilder.select).toHaveBeenCalledWith([
+        'product.id',
+        'product.publicID',
+        'product.title',
+        'product.price',
+        'product.overview',
+        'product.photos',
+        'product.payments',
+        'product.stock',
+        'product.owner',
+        'product.category',
+        'product.createdAt',
+        'product.updatedAt',
+      ]);
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        categoryID: In(['electronics']),
+        active: true,
+        id: MoreThan(0),
+        price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
+        stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
+        payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
       });
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        'product.id',
+        'ASC',
+      );
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(25);
 
       expect(mockQueryBuilder.leftJoin).toHaveBeenCalledWith(
         'product.category',
@@ -666,26 +674,10 @@ describe('TypeOrmProductRepository', () => {
 
       await repository.findWithFilters(filters);
 
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          active: true,
-          id: MoreThan(0),
-          price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        ...defaultPagination,
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        active: true,
+        id: MoreThan(0),
+        price: And(MoreThanOrEqual(1000), LessThanOrEqual(5000)),
       });
     });
 
@@ -697,27 +689,10 @@ describe('TypeOrmProductRepository', () => {
       };
 
       await repository.findWithFilters(filters);
-
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          active: true,
-          id: MoreThan(0),
-          stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        ...defaultPagination,
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        active: true,
+        id: MoreThan(0),
+        stock: And(MoreThanOrEqual(10), LessThanOrEqual(100)),
       });
     });
 
@@ -730,26 +705,10 @@ describe('TypeOrmProductRepository', () => {
 
       await repository.findWithFilters(filters);
 
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          active: true,
-          id: MoreThan(0),
-          payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        ...defaultPagination,
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        active: true,
+        id: MoreThan(0),
+        payments: ArrayContains([PaymentTypes.PIX, PaymentTypes.CREDIT_CARD]),
       });
     });
 
@@ -762,26 +721,10 @@ describe('TypeOrmProductRepository', () => {
 
       await repository.findWithFilters(filters);
 
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          active: true,
-          categoryID: In(['electronics']),
-          id: MoreThan(0),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        ...defaultPagination,
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        active: true,
+        categoryID: In(['electronics']),
+        id: MoreThan(0),
       });
     });
 
@@ -793,26 +736,9 @@ describe('TypeOrmProductRepository', () => {
 
       await repository.findWithFilters(filters);
 
-      expect(mockQueryBuilder.setFindOptions).toHaveBeenCalledWith({
-        where: {
-          active: true,
-          id: MoreThan(25),
-        },
-        select: [
-          'publicID',
-          'title',
-          'price',
-          'overview',
-          'photos',
-          'payments',
-          'stock',
-          'owner',
-          'category',
-          'createdAt',
-          'updatedAt',
-        ],
-        order: { id: 'ASC' },
-        take: 100,
+      expect(mockQueryBuilder.where).toHaveBeenCalledWith({
+        active: true,
+        id: MoreThan(25),
       });
     });
 
@@ -826,6 +752,9 @@ describe('TypeOrmProductRepository', () => {
       expect(cacheProductRepository.addProductsByFilters).toHaveBeenCalledTimes(
         1,
       );
+      delete mockProducts[0].id;
+      delete mockProducts[1].id;
+
       expect(result).toEqual([
         { ...mockProducts[0], rating: 4.2 },
         { ...mockProducts[1], rating: 3.7 },
@@ -948,6 +877,7 @@ describe('TypeOrmProductRepository', () => {
     const mockQueryBuilder = {
       addSelect: vi.fn(),
       leftJoin: vi.fn(),
+      addGroupBy: vi.fn(),
     } as any;
 
     const userID = IDConstants.EXEMPLE;
@@ -955,6 +885,7 @@ describe('TypeOrmProductRepository', () => {
     beforeEach(() => {
       mockQueryBuilder.addSelect.mockReturnThis();
       mockQueryBuilder.leftJoin.mockReturnThis();
+      mockQueryBuilder.addGroupBy.mockReturnThis();
     });
 
     it('should call all functions with correct parameters', () => {
@@ -970,6 +901,7 @@ describe('TypeOrmProductRepository', () => {
         'CASE WHEN favorite.id IS NOT NULL THEN true ELSE false END',
         'isFavorited',
       );
+      expect(mockQueryBuilder.addGroupBy).toHaveBeenCalledWith('favorite.id');
     });
 
     it('should return new query with adicional informations', () => {
@@ -1010,14 +942,7 @@ describe('TypeOrmProductRepository', () => {
         'rating',
       );
       expect(mockQueryBuilder.groupBy).toHaveBeenCalledWith('product.id');
-      expect(mockQueryBuilder.addGroupBy).toHaveBeenNthCalledWith(
-        1,
-        'category.id',
-      );
-      expect(mockQueryBuilder.addGroupBy).toHaveBeenNthCalledWith(
-        2,
-        'favorite.id',
-      );
+      expect(mockQueryBuilder.addGroupBy).toHaveBeenCalledWith('category.id');
     });
 
     it('should return new query with adicional informations', () => {

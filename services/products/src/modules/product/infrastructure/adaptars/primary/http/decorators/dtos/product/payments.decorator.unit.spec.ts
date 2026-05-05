@@ -74,7 +74,7 @@ describe('Payments Decorator', () => {
         PaymentTypes.PIX,
         PaymentTypes.CREDIT_CARD,
         PaymentTypes.DEBIT_CARD,
-        PaymentTypes.BILLET,
+        PaymentTypes.BOLETO,
       ],
     });
 
