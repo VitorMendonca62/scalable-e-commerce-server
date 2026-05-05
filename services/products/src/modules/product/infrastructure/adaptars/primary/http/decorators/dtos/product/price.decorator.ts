@@ -1,20 +1,24 @@
 import { PriceConstants } from '@product/domain/values-objects/constants';
 import { applyDecorators } from '@nestjs/common';
 import { IsNotEmpty, IsNumber, IsInt, Min, Max } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 
 export function Price() {
   return applyDecorators(
     IsNotEmpty({
       message: PriceConstants.ERROR_REQUIRED,
     }),
-    Type(() => Number),
+    Transform(({ value }) => (value === null ? NaN : value)),
     IsNumber(
-      {},
+      {
+        allowInfinity: false,
+        allowNaN: false,
+      },
       {
         message: PriceConstants.ERROR_NUMBER,
       },
     ),
+    Type(() => Number),
     IsInt({
       message: PriceConstants.ERROR_INTEGER,
     }),

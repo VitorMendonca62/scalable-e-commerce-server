@@ -5,7 +5,7 @@ export class CreateProductsAndFavoritesProductsTables1773375917013 implements Mi
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `CREATE TABLE "products" ("id" SERIAL NOT NULL, "public_id" uuid NOT NULL, "title" character varying(255) NOT NULL, "price" integer NOT NULL, "overview" character varying(255), "description" text NOT NULL, "photos" text NOT NULL, "payments" text NOT NULL, "active" boolean NOT NULL DEFAULT true, "stock" integer NOT NULL DEFAULT '0', "owner" uuid NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_a9fdc2cfb127916506c619a9a48" UNIQUE ("public_id"), CONSTRAINT "PK_0806c755e0aca124e67c0cf6d7d" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "products" ("id" SERIAL NOT NULL, "public_id" uuid NOT NULL, "title" character varying(255) NOT NULL, "price" integer NOT NULL, "overview" character varying(255), "description" text NOT NULL, "photos" text NOT NULL, "payments" text NOT NULL, "active" boolean NOT NULL DEFAULT true, "stock" integer NOT NULL DEFAULT '0', "owner" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "UQ_a9fdc2cfb127916506c619a9a48" UNIQUE ("public_id"), CONSTRAINT "PK_0806c755e0aca124e67c0cf6d7d" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "product_favorites" ("id" SERIAL NOT NULL, "user_id" uuid NOT NULL, "product_id" uuid NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), CONSTRAINT "PK_731c5d4877a8511f3bd5d7e6c10" PRIMARY KEY ("id"))`,
