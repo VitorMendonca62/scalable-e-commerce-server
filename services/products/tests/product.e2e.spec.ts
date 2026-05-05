@@ -24,6 +24,7 @@ import {
   TitleConstants,
 } from '@product/domain/values-objects/constants';
 import { Client } from 'pg';
+import { SanitizeInterceptor } from '@product/infrastructure/adaptars/primary/http/interceptors/sanitize.interceptor';
 
 describe('ProductController (e2e)', () => {
   let app: NestFastifyApplication;
@@ -64,6 +65,8 @@ describe('ProductController (e2e)', () => {
 
     appConfig.configValidationPipe();
     appConfig.configCors();
+    appConfig.configHelmet();
+    app.useGlobalInterceptors(new SanitizeInterceptor());
 
     await app.init();
     await app.getHttpAdapter().getInstance().ready();
@@ -90,6 +93,46 @@ describe('ProductController (e2e)', () => {
     describe('reject title', () => {
       const constants = TitleConstants;
       const key = 'title';
+
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT title FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].title).not.toContain('<script>');
+      });
 
       it('should reject when key is missing', async () => {
         const payload = createProductPayload();
@@ -312,6 +355,46 @@ describe('ProductController (e2e)', () => {
       const constants = DescriptionConstants;
       const key = 'description';
 
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT description FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].description).not.toContain('<script>');
+      });
+
       it('should reject when key is missing', async () => {
         const payload = createProductPayload();
         delete payload[key];
@@ -398,6 +481,46 @@ describe('ProductController (e2e)', () => {
     describe('reject overview', () => {
       const constants = OverviewConstants;
       const key = 'overview';
+
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .post('/product')
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT overview FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].overview).not.toContain('<script>');
+      });
 
       it('should reject when key is missing', async () => {
         const payload = createProductPayload();
@@ -1026,7 +1149,7 @@ describe('ProductController (e2e)', () => {
     });
   });
 
-  describe('GET /product/:id (3)', () => {
+  describe('GET /product/:id', () => {
     let productID: string;
     let productCreatedAt: string;
     let productUpdatedAt: string;
@@ -1102,6 +1225,274 @@ describe('ProductController (e2e)', () => {
     });
   });
 
+  // describe('GET /product/filter', () => {
+  //   const filterCategoryA = v7();
+  //   const filterCategoryB = v7();
+  //   const filterTitles: Record<string, string> = {};
+  //   const filterProductIDs: Record<string, string> = {};
+  //   const filterProductDbIDs: Record<string, number> = {};
+
+  //   beforeAll(async () => {
+  //     const dateNow = Date.now();
+
+  //     await app.get(CategoryRepository).create({
+  //       name: `Categoria Filter A ${dateNow}`,
+  //       publicID: filterCategoryA,
+  //     });
+
+  //     await app.get(CategoryRepository).create({
+  //       name: `Categoria Filter B ${dateNow}`,
+  //       publicID: filterCategoryB,
+  //     });
+
+  //     filterTitles.a = `Produto Filter A ${dateNow}`;
+  //     filterTitles.b = `Produto Filter B ${dateNow}`;
+  //     filterTitles.c = `Produto Filter C ${dateNow}`;
+  //     filterTitles.inactive = `Produto Filter Inactive ${dateNow}`;
+
+  //     await request(httpServer())
+  //       .post('/product')
+  //       .set('x-user-id', userID)
+  //       .send(
+  //         createProductPayload({
+  //           title: filterTitles.a,
+  //           categoryID: filterCategoryA,
+  //           price: 1000,
+  //           stock: 10,
+  //           payments: [PaymentTypes.PIX],
+  //         }),
+  //       )
+  //       .expect(HttpStatus.CREATED);
+
+  //     await request(httpServer())
+  //       .post('/product')
+  //       .set('x-user-id', userID)
+  //       .send(
+  //         createProductPayload({
+  //           title: filterTitles.b,
+  //           categoryID: filterCategoryA,
+  //           price: 3000,
+  //           stock: 50,
+  //           payments: [PaymentTypes.CREDIT_CARD],
+  //         }),
+  //       )
+  //       .expect(HttpStatus.CREATED);
+
+  //     await request(httpServer())
+  //       .post('/product')
+  //       .set('x-user-id', userID)
+  //       .send(
+  //         createProductPayload({
+  //           title: filterTitles.c,
+  //           categoryID: filterCategoryB,
+  //           price: 5000,
+  //           stock: 5,
+  //           payments: [PaymentTypes.PIX, PaymentTypes.CREDIT_CARD],
+  //         }),
+  //       )
+  //       .expect(HttpStatus.CREATED);
+
+  //     await request(httpServer())
+  //       .post('/product')
+  //       .set('x-user-id', userID)
+  //       .send(
+  //         createProductPayload({
+  //           title: filterTitles.inactive,
+  //           categoryID: filterCategoryB,
+  //           price: 9000,
+  //           stock: 0,
+  //           payments: [PaymentTypes.BILLET],
+  //           active: false,
+  //         }),
+  //       )
+  //       .expect(HttpStatus.CREATED);
+
+  //     const result = await client.query(
+  //       'SELECT id, public_id, title FROM products WHERE title = ANY($1) ORDER BY id ASC',
+  //       [
+  //         [
+  //           filterTitles.a,
+  //           filterTitles.b,
+  //           filterTitles.c,
+  //           filterTitles.inactive,
+  //         ],
+  //       ],
+  //     );
+
+  //     result.rows.forEach((row) => {
+  //       filterProductIDs[row.title] = row.public_id;
+  //       filterProductDbIDs[row.title] = row.id;
+  //     });
+  //   });
+
+  //   it('should reject when no filters are provided', async () => {
+  //     const response = await request(httpServer()).get('/product/filter');
+
+  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+  //     expect(response.body.message).toBe(
+  //       'Adicione algum filtro para que possa filtrar produtos',
+  //     );
+  //   });
+
+  //   it('should filter by category', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryA}`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     const publicIDs = response.body.data.map((item) => item.publicID);
+
+  //     expect(publicIDs).toEqual(
+  //       expect.arrayContaining([
+  //         filterProductIDs[filterTitles.a],
+  //         filterProductIDs[filterTitles.b],
+  //       ]),
+  //     );
+  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.c]);
+  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.inactive]);
+  //   });
+
+  //   it('should filter by price range', async () => {
+  //     const response = await request(httpServer()).get(
+  //       '/product/filter?price=2000-6000',
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     const publicIDs = response.body.data.map((item) => item.publicID);
+
+  //     expect(publicIDs).toEqual(
+  //       expect.arrayContaining([
+  //         filterProductIDs[filterTitles.b],
+  //         filterProductIDs[filterTitles.c],
+  //       ]),
+  //     );
+  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.a]);
+  //   });
+
+  //   it('should filter by stock range', async () => {
+  //     const response = await request(httpServer()).get(
+  //       '/product/filter?stock=0-10',
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     const publicIDs = response.body.data.map((item) => item.publicID);
+
+  //     expect(publicIDs).toEqual(
+  //       expect.arrayContaining([
+  //         filterProductIDs[filterTitles.a],
+  //         filterProductIDs[filterTitles.c],
+  //       ]),
+  //     );
+  //     expect(publicIDs).not.toContain(filterProductIDs[filterTitles.b]);
+  //   });
+
+  //   it('should filter by category and price', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryA}&price=2000-4000`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(1);
+  //     expect(response.body.data[0].publicID).toBe(
+  //       filterProductIDs[filterTitles.b],
+  //     );
+  //   });
+
+  //   it('should filter by category, price, and stock', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(1);
+  //     expect(response.body.data[0].publicID).toBe(
+  //       filterProductIDs[filterTitles.c],
+  //     );
+  //   });
+
+  //   it('should filter by all filters combined', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryB}&price=4000-6000&stock=0-10&payments=${PaymentTypes.PIX},${PaymentTypes.CREDIT_CARD}`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(1);
+  //     expect(response.body.data[0].publicID).toBe(
+  //       filterProductIDs[filterTitles.c],
+  //     );
+  //   });
+
+  //   it('should return empty array when category does not exist', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${v7()}`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(0);
+  //   });
+
+  //   it('should return empty array when payments do not match', async () => {
+  //     const response = await request(httpServer()).get(
+  //       '/product/filter?payments=UNKNOWN',
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(0);
+  //   });
+
+  //   it('should return empty array when range is inverted', async () => {
+  //     const response = await request(httpServer()).get(
+  //       '/product/filter?price=20-10',
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.OK);
+  //     expect(response.body.data).toHaveLength(0);
+  //   });
+
+  //   it('should paginate with cursor and avoid duplicates', async () => {
+  //     const firstPage = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryA}&limit=1&cursor=0`,
+  //     );
+
+  //     expect(firstPage.status).toBe(HttpStatus.OK);
+  //     expect(firstPage.body.data).toHaveLength(1);
+
+  //     const firstPublicID = firstPage.body.data[0].publicID;
+  //     const firstDbID =
+  //       filterProductDbIDs[
+  //         Object.keys(filterProductIDs).find(
+  //           (key) => filterProductIDs[key] === firstPublicID,
+  //         ) as string
+  //       ];
+
+  //     const secondPage = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryA}&limit=1&cursor=${firstDbID}`,
+  //     );
+
+  //     expect(secondPage.status).toBe(HttpStatus.OK);
+  //     expect(secondPage.body.data).toHaveLength(1);
+  //     expect(secondPage.body.data[0].publicID).not.toBe(firstPublicID);
+  //   });
+
+  //   it('should reject when price is invalid', async () => {
+  //     const response = await request(httpServer()).get(
+  //       '/product/filter?price=abc',
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+  //     expect(response.body.message).toBe('Não foi possivel pegar os produtos');
+  //   });
+
+  //   it('should reject when limit is not numeric', async () => {
+  //     const response = await request(httpServer()).get(
+  //       `/product/filter?category=${filterCategoryA}&limit=abc`,
+  //     );
+
+  //     expect(response.status).toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+  //     expect(response.body.message).toBe('Não foi possivel pegar os produtos');
+  //   });
+  // });
+
   describe('PATCH /product/:id', () => {
     let productID: string;
 
@@ -1126,6 +1517,46 @@ describe('ProductController (e2e)', () => {
     describe('reject title', () => {
       const constants = TitleConstants;
       const key = 'title';
+
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT title FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].title).not.toContain('<script>');
+      });
 
       it('should reject when key is not string', async () => {
         const payload = createProductPayload({
@@ -1286,6 +1717,46 @@ describe('ProductController (e2e)', () => {
       const constants = DescriptionConstants;
       const key = 'description';
 
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT description FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].description).not.toContain('<script>');
+      });
+
       it('should reject when key is not string', async () => {
         const payload = createProductPayload({
           [key]: constants.ERROR_STRING_EXEMPLE,
@@ -1341,6 +1812,46 @@ describe('ProductController (e2e)', () => {
     describe('reject overview', () => {
       const constants = OverviewConstants;
       const key = 'overview';
+
+      it('should prevent SQL injection in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: "test'; DROP TABLE products; --",
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).not.toBe(HttpStatus.INTERNAL_SERVER_ERROR);
+
+        const tableCheck = await client.query(
+          `SELECT to_regclass('public.products')`,
+        );
+        expect(tableCheck.rows[0].to_regclass).toBe('products');
+      });
+
+      it('should sanitize or reject XSS in key', async () => {
+        const payload = {
+          ...createProductPayload(),
+          [key]: '<script>alert("xss")</script>',
+        };
+
+        const response = await request(httpServer())
+          .patch(`/product/${productID}`)
+          .set('x-user-id', userID)
+          .send(payload);
+
+        expect(response.status).toBe(HttpStatus.BAD_REQUEST);
+
+        const result = await client.query(
+          'SELECT overview FROM products WHERE owner = $1 ORDER BY created_at DESC LIMIT 1',
+          [userID],
+        );
+
+        expect(result.rows[0].overview).not.toContain('<script>');
+      });
 
       it('should reject when key is not string', async () => {
         const payload = createProductPayload({
@@ -1769,7 +2280,7 @@ describe('ProductController (e2e)', () => {
       expect(updatedProduct.description).toBe(originalProduct.description);
     });
 
-     it('should change updatedAt on product with change any product field  ', async () => {
+    it('should change updatedAt on product with change any product field  ', async () => {
       const createPayload = createProductPayload({
         title: `Produto PATCH - Success New Category ${Date.now()}`,
       });

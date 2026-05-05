@@ -49,6 +49,7 @@ import { CacheProductRepository } from './domain/ports/secondary/cache-product-r
 import RedisCacheProductRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-product.repository';
 import { CacheFavoritesRepository } from './domain/ports/secondary/cache-favorite-repository.port';
 import RedisCacheFavoriteRepository from './infrastructure/adaptars/secondary/database/repositories/redis-cache-favorite.repository';
+import { SanitizeInterceptor } from './infrastructure/adaptars/primary/http/interceptors/sanitize.interceptor';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -66,7 +67,9 @@ import RedisCacheFavoriteRepository from './infrastructure/adaptars/secondary/da
     CategoryController,
     RatingController,
   ],
+
   providers: [
+    SanitizeInterceptor,
     ProductMapper,
     CartMapper,
     RatingMapper,

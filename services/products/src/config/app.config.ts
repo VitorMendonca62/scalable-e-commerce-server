@@ -4,6 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { FieldInvalidException } from '@product/domain/ports/primary/http/error.port';
+import helmet from '@fastify/helmet';
 
 export default class AppConfig {
   constructor(
@@ -11,6 +12,18 @@ export default class AppConfig {
     private readonly app: NestFastifyApplication,
   ) {}
 
+  configHelmet() {
+    this.app.register(helmet as any, {
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'"],
+          objectSrc: ["'none'"],
+          upgradeInsecureRequests: [],
+        },
+      },
+    });
+  }
   configSwagger() {
     if (this.configService.get('NODE_ENV') === NodeEnv.Production) return;
 

@@ -10,6 +10,7 @@ import {
 } from '@nestjs/platform-fastify';
 import AppConfig from '@config/app.config';
 import multipart from '@fastify/multipart';
+import { SanitizeInterceptor } from '@product/infrastructure/adaptars/primary/http/interceptors/sanitize.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -33,6 +34,7 @@ async function bootstrap() {
   });
 
   app.useGlobalFilters(new HttpExceptionFilter());
+  app.useGlobalInterceptors(new SanitizeInterceptor());
 
   const configService =
     app.get<ConfigService<EnvironmentVariables>>(ConfigService);
@@ -47,6 +49,7 @@ async function bootstrap() {
   appConfig.configSwagger();
   appConfig.configValidationPipe();
   appConfig.configCors();
+  appConfig.configHelmet();
 
   await app
     .listen(PORT, () => appLogger.debug(`Server running in ${HOST}:${PORT}`))
